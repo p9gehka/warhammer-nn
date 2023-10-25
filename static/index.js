@@ -17,21 +17,27 @@ async function start () {
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({})
 	});
-	const state = await response.json();
-	const scene = new Scene(ctx, state);
+	const initState = await response.json();
+	const scene = new Scene(ctx, initState);
 
-	vpPlayer1Element.innerHtml = state.players[0].vp;
-	vpPlayer2Element.innerHtml = state.players[1].vp;
+	vpPlayer1Element.innerHtml = initState.players[0].vp;
+	vpPlayer2Element.innerHtml = initState.players[1].vp;
 
-	const response2 = await fetch('/step', {
-		method: 'POST',
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ id: 0, position: [10, 12]})
-	});
-
-	const state2 = await response2.json();
-	scene.updateState(state2)
+	let promise = Promise.resolve();
+	const orders = [{action: "MOVE", id: 0, position: [12, 15]}, {action: "MOVE", id: 0, position: [12, 15]}, {action: "NEXT_PHASE"}, {action: "NEXT_PHASE"},{action: "NEXT_PHASE"},{action: "NEXT_PHASE"},{action: "NEXT_PHASE"},{action: "NEXT_PHASE"},{action: "NEXT_PHASE"}].forEach(
+		(order) => {
+			promise = promise.then(async () => {
+				const res = await fetch('/step', {
+					method: 'POST',
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(order)
+				});
+				const st = await res.json();
+				vpPlayer1Element.innerHTML = st.players[0].vp;
+				vpPlayer2Element.innerHTML = st.players[1].vp;
+				scene.updateState(st);
+			})
+		})
 }
-
 
 startBtn.addEventListener('click', start);

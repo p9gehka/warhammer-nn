@@ -1,10 +1,11 @@
 import gameSettings from '../static/settings/game-settings.json' assert { type: 'json' };
 import tauUnits from '../static/settings/tau-units.json' assert { type: 'json' };
+import tauWeapons from '../static/settings/tau-weapons.json' assert { type: 'json' };
 
 import { scaleToLen, len, sub, add, round2 } from '../static/utils/vec2.js';
 
 const { battlefield, models } = gameSettings;
-const { size } = battlefield;
+const { size, objective_marker, objective_marker_control_distance } = battlefield;
 
 
 const Phase = {
@@ -20,28 +21,54 @@ const Action = {
 	Shoot: 'SHOOT',
 }
 
+function d6() {
+	const edge = [1,2,3,4,5,6].map(() => Math.random())
+	return edge.findIndex((v) => v ===Math.max(...edge)) + 1;
+}
+
 class Model {
 	position = [0, 0];
+	wound = 0;
+	dead = false;
 	constructor(unit, position) {
 		this.name = unit.name;
-		this.palayerId = unit.playerId;
+		this.playerId = unit.playerId;
 		this.position = position;
 		this.unitProfile = tauUnits[unit.name];
+		this.availableToMove = true;
+		this.availableToShoot = false;
+		this.wound = this.unitProfile.w;
+		this.dead = false;
 	}
 
 	update(position) {
 		this.position = position;
 	}
+	updateAvailableToMove(value) {
+		this.availableToMove = value
+	}
+	updateAvailableToShoot(value) {
+		this.availableToShoot = value
+	}
+	inflictDamapge(value) {
+		this.wound -= value;
+		if (this.wound <= 0) {
+			this.dead = true;
+		}
+	}
 }
 
 export default class Warhammer {
-	payer = [];
+	players = [];
 	units = [];
 	models = [];
 	phase = Phase.Movement;
-
+	turn = 0
 	reset() {
 		this.phase = Phase.Movement;
+		this.turn = 0
+		this.round = 0 
+
 		const units = gameSettings.units.map(
 			(units, playerId) => units.map(unit => ({...unit, playerId }))
 		);
@@ -56,13 +83,42 @@ export default class Warhammer {
 	}
 
 	step(order) {
+		const currentPlayerId = this.getPlayer();
 		if (order.action === Action.NextPhase) {
-			this.phase = phaseOrd[this.phase % phaseOrd.lenth];
+			this.phase = phaseOrd[(this.phase + 1) % phaseOrd.length];
+			if (this.phase === phaseOrd.at(-1)) {
+				this.turn++;
+			}
+			if (this.phase === Phase.Movement) {
+				this.players[currentPlayerId].vp += this.scoreVP();
+				this.models.forEach((model) => {
+					if (model.playerId === currentPlayerId) {
+						model.updateAvailableToMove(true);
+					}
+				})
+
+			}
+
+			if (this.phase === Phase.Shooting) {
+				this.models.forEach((model) => {
+					if (model.playerId === currentPlayerId) {
+						model.updateAvailableToShoot(true);
+					}
+				})
+
+			}
+
 			return this.getState();
 		}
 
-		if (this.phase === Phase.Movement && order.action === Action.Move) {
-			const model = this.models[order.id];
+		const model = this.models[order.id];
+
+
+		if (order.action === Action.Move) {
+			if (!model.availableToMove) {
+				return this.getState();
+			}
+
 			const modelMovement = model.unitProfile.m;
 			let movementVector = sub(order.position, model.position)
 
@@ -70,22 +126,80 @@ export default class Warhammer {
 				movementVector = scaleToLen(movementVector, modelMovement);
 			}
 			model.update(add(model.position, movementVector));
+
+			model.updateAvailableToMove(false);
 		}
 
-		if (this.phase === Phase.Shooting && order.action === Action.Shoot) {
+		if (order.action === Action.Shoot) {
+			if (!model.availableToShoot) {
+				return this.getState();
+			}
+
+			const weapon = tauWeapons[model.unitProfile.ranged_weapons[0]];
+			const targetModel = this.models[order.target];
+
+			if (weapon.range >= len(sub(targetModel.position, model.position))) {
+				const targetToughness = targetModel.unitProfile.t;
+				const targetSave = targetModel.unitProfile.s;
+				const saveFails = Array(weapon.a).fill(0)
+					.filter(() => d6() >= weapon.ws)
+					.filter(() => d6() >= this.strenghtVsToughness(weapon.s, targetToughness))
+					.filter(() => d6() < targetSave + weapon.ap)
+
+				targetModel.inflictDamapge(saveFails * weapon.d)
+			}
 			console.log(shoot);
-			console.log(order.model, order.target);
+			console.log(order.id, order.target);
 		}
 
 		return this.getState();
 	}
 
-	getState() {
+	strenghtVsToughness(strength, toughness) {
+		if (strength >= toughness * 2) {
+			return 2;
+		}
+		if (strength > toughness) {
+			return 3;
+		}
+		if (strength === toughness) {
+			return 4;
+		}
+		if (strength < toughness) {
+			return 5;
+		}
+		if (strength * 2 <= toughness) {
+			return 6;
+		}
+	}
+	getPlayer() {
+		return this.turn % 2;
+	}
+
+	scoreVP() {
+		const objectiveControl = Array(objective_marker.length).fill(0);
+
+		this.models.forEach((model) => {
+			objective_marker.forEach((markerPosition, i) => {
+				if (len(sub(model.position, markerPosition)) < objective_marker_control_distance) {
+					const ocSign = model.playerId === this.getPlayer() ? 1 : -1;
+					const oc = model.unitProfile.oc * ocSign;
+					objectiveControl[i] =+ oc;
+				}
+			});
+		});
+
+		return Math.min(objectiveControl.filter(oc => oc > 0).length * 5, 15)
+	}
+
+	getState(message) {
 		return {
 			players: this.players,
 			units: this.units,
 			models: this.models.map(model => model.position),
-			phase: this.phase
+			phase: this.phase,
+			player: this.getPlayer(),
+			message,
 		};
 	}
 }

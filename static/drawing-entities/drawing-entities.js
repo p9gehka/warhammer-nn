@@ -58,23 +58,14 @@ export class Battlefield extends Drawing {
 			this.ctx.rect(0, 0, ...battlefield.size);
 		})
 
-
-		const objectiveMarkerSize = battlefield.objective_marker_size;
-		this.ctx.fillStyle = "brown";
-		battlefield.objective_marker.forEach((pos) => {
-			this.fillPath(() => {
-				this.ctx.ellipse(...pos, mmToInch(objectiveMarkerSize[0]) / 2, mmToInch(objectiveMarkerSize[0]) / 2, 0, 0, 2 * Math.PI)
-			})
-		})
-
 		this.ctx.lineWidth = 0.1;
 		this.ctx.strokeStyle = "burlywood";
 		battlefield.objective_marker.forEach((pos) => {
 			this.strokePath(() => {
 				this.ctx.ellipse(
 					...pos,
-					mmToInch(objectiveMarkerSize[0]) / 2 + battlefield.objective_marker_control_distance,
-					mmToInch(objectiveMarkerSize[0]) / 2 + battlefield.objective_marker_control_distance,
+					battlefield.objective_marker_control_distance,
+					battlefield.objective_marker_control_distance,
 					0, 0, 2 * Math.PI
 				);
 			})
