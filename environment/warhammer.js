@@ -42,18 +42,28 @@ class Model {
 	}
 
 	update(position) {
-		this.position = position;
+		if (!this.dead) {
+			this.position = position;
+		}
 	}
 	updateAvailableToMove(value) {
-		this.availableToMove = value
+		if (!this.dead) {
+			this.availableToMove = value
+		}
 	}
 	updateAvailableToShoot(value) {
-		this.availableToShoot = value
+		if (!this.dead) {
+			this.availableToShoot = value
+		}
 	}
 	inflictDamapge(value) {
+		if (this.dead) {
+			return;
+		}
 		this.wound -= value;
 		if (this.wound <= 0) {
 			this.dead = true;
+			this.wound = 0
 		}
 	}
 }
@@ -113,7 +123,6 @@ export default class Warhammer {
 
 		const model = this.models[order.id];
 
-
 		if (order.action === Action.Move) {
 			if (!model.availableToMove) {
 				return this.getState();
@@ -125,8 +134,8 @@ export default class Warhammer {
 			if (len(movementVector) > modelMovement) {
 				movementVector = scaleToLen(movementVector, modelMovement);
 			}
-			model.update(add(model.position, movementVector));
 
+			model.update(add(model.position, movementVector));
 			model.updateAvailableToMove(false);
 		}
 
@@ -135,21 +144,21 @@ export default class Warhammer {
 				return this.getState();
 			}
 
+
 			const weapon = tauWeapons[model.unitProfile.ranged_weapons[0]];
 			const targetModel = this.models[order.target];
 
 			if (weapon.range >= len(sub(targetModel.position, model.position))) {
 				const targetToughness = targetModel.unitProfile.t;
-				const targetSave = targetModel.unitProfile.s;
-				const saveFails = Array(weapon.a).fill(0)
-					.filter(() => d6() >= weapon.ws)
-					.filter(() => d6() >= this.strenghtVsToughness(weapon.s, targetToughness))
-					.filter(() => d6() < targetSave + weapon.ap)
+				const targetSave = targetModel.unitProfile.sv;
 
-				targetModel.inflictDamapge(saveFails * weapon.d)
+				const hits = Array(weapon.a).fill(0).map(() => d6())
+				const wounds = hits.filter(v => v >= weapon.bs).map(() => d6());
+				const saves = wounds.filter(v => v >= this.strenghtVsToughness(weapon.s, targetToughness)).map(() => d6());
+				const saveFails = saves.filter(v => v < (targetSave + weapon.ap)).length
+				targetModel.inflictDamapge(saveFails * weapon.d);
+				return this.getState({ hits, wounds, saves });
 			}
-			console.log(shoot);
-			console.log(order.id, order.target);
 		}
 
 		return this.getState();
@@ -162,15 +171,14 @@ export default class Warhammer {
 		if (strength > toughness) {
 			return 3;
 		}
-		if (strength === toughness) {
-			return 4;
-		}
 		if (strength < toughness) {
 			return 5;
 		}
 		if (strength * 2 <= toughness) {
 			return 6;
 		}
+
+		return 4;
 	}
 	getPlayer() {
 		return this.turn % 2;
@@ -192,14 +200,14 @@ export default class Warhammer {
 		return Math.min(objectiveControl.filter(oc => oc > 0).length * 5, 15)
 	}
 
-	getState(message) {
+	getState(misc) {
 		return {
 			players: this.players,
 			units: this.units,
-			models: this.models.map(model => model.position),
+			models: this.models.map(model => !model.dead ? model.position : null),
 			phase: this.phase,
 			player: this.getPlayer(),
-			message,
+			misc,
 		};
 	}
 }
