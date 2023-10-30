@@ -6,23 +6,13 @@
 			grid-template-columns: min-content auto;
 			grid-gap: 20px;
 		}
-		.player-1-vp, .player-2-vp {
-			font-size: 20px;
-			font-family: monospace;
-		}
-		.player-1-vp { color: red; }
-		.player-2-vp { color: blue; }
 	</style>
 </head>
 <body>
 	<canvas width="660" height="450" id="canvas"></canvas>
 	<div>
 		<button id="start">Start</button>
-		<p class="player-1-vp">
-			Player1 VP - <span id="player-1-vp">0</span>
-		</p>
-		<p class="player-2-vp">
-			Player2 VP - <span id="player-2-vp">0</span>
-		</p>
+		<ul id="actions-list" class="action-list">
+		</ul>
 	</div>
 </body>

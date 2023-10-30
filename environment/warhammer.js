@@ -1,8 +1,8 @@
-import gameSettings from '../static/settings/game-settings.json' assert { type: 'json' };
+import gameSettings from '../static/settings/game-settings0.1.json' assert { type: 'json' };
 import tauUnits from '../static/settings/tau-units.json' assert { type: 'json' };
 import tauWeapons from '../static/settings/tau-weapons.json' assert { type: 'json' };
 
-import { scaleToLen, len, sub, add, round2 } from '../static/utils/vec2.js';
+import { scaleToLen, len, sub, add } from '../static/utils/vec2.js';
 
 const { battlefield, models } = gameSettings;
 const { size, objective_marker, objective_marker_control_distance } = battlefield;
@@ -30,12 +30,13 @@ class Model {
 	position = [0, 0];
 	wound = 0;
 	dead = false;
-	constructor(unit, position) {
+	constructor(id, unit, position) {
+		this.id = id;
 		this.name = unit.name;
 		this.playerId = unit.playerId;
 		this.position = position;
 		this.unitProfile = tauUnits[unit.name];
-		this.availableToMove = true;
+		this.availableToMove = false;
 		this.availableToShoot = false;
 		this.wound = this.unitProfile.w;
 		this.dead = false;
@@ -68,7 +69,7 @@ class Model {
 	}
 }
 
-export default class Warhammer {
+export class Warhammer {
 	players = [];
 	units = [];
 	models = [];
@@ -77,7 +78,6 @@ export default class Warhammer {
 	reset() {
 		this.phase = Phase.Movement;
 		this.turn = 0
-		this.round = 0 
 
 		const units = gameSettings.units.map(
 			(units, playerId) => units.map(unit => ({...unit, playerId }))
@@ -86,13 +86,23 @@ export default class Warhammer {
 		this.units = units.flat();
 
 		this.models = this.units.map(unit => {
-			return unit.models.map(id => new Model(unit, models[id]));
+			return unit.models.map(id => new Model(id, unit, models[id]));
 		}).flat();
+
+		this.models.forEach((model) => {
+			if (model.playerId === this.getPlayer()) {
+				model.updateAvailableToMove(true);
+			}
+		})
 
 		return this.getState();
 	}
 
 	step(order) {
+		if (this.done()) {
+			return this.getState();
+		}
+
 		const currentPlayerId = this.getPlayer();
 		if (order.action === Action.NextPhase) {
 			this.phase = phaseOrd[(this.phase + 1) % phaseOrd.length];
@@ -101,6 +111,7 @@ export default class Warhammer {
 			}
 			if (this.phase === Phase.Movement) {
 				this.players[currentPlayerId].vp += this.scoreVP();
+
 				this.models.forEach((model) => {
 					if (model.playerId === currentPlayerId) {
 						model.updateAvailableToMove(true);
@@ -127,20 +138,16 @@ export default class Warhammer {
 			if (!model.availableToMove) {
 				return this.getState();
 			}
-
-			const modelMovement = model.unitProfile.m;
-			let movementVector = sub(order.position, model.position)
-
-			if (len(movementVector) > modelMovement) {
-				movementVector = scaleToLen(movementVector, modelMovement);
+			if (len(order.vector) > 0) {
+				const movementVector = scaleToLen(order.vector, model.unitProfile.m)
+				model.update(add(model.position, movementVector));
 			}
 
-			model.update(add(model.position, movementVector));
 			model.updateAvailableToMove(false);
 		}
 
 		if (order.action === Action.Shoot) {
-			if (!model.availableToShoot) {
+			if (!model.availableToShoot || !this.models[order.target]) {
 				return this.getState();
 			}
 
@@ -180,8 +187,13 @@ export default class Warhammer {
 
 		return 4;
 	}
+
 	getPlayer() {
 		return this.turn % 2;
+	}
+
+	done() {
+		return this.turn > 9;
 	}
 
 	scoreVP() {
@@ -202,12 +214,16 @@ export default class Warhammer {
 
 	getState(misc) {
 		return {
-			players: this.players,
+			players: this.players.map(player => ({ ...player })),
 			units: this.units,
 			models: this.models.map(model => !model.dead ? model.position : null),
 			phase: this.phase,
 			player: this.getPlayer(),
+			done: this.done(),
+			availableToMove: this.models.filter(model => model.availableToMove).map(model=> model.id),
 			misc,
+			battlefield,
+			turn: this.turn,
 		};
 	}
 }

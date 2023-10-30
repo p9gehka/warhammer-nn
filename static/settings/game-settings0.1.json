@@ -1,0 +1,25 @@
+{
+	"units": [
+		[
+			{ "name": "stealth_battlesuits", "models": [0] },
+			{ "name": "strike_team", "models": [1] }
+		],
+		[
+			{ "name": "stealth_battlesuits", "models": [2] },
+			{ "name": "strike_team", "models": [3] }
+		]
+	],
+	"models": [
+		[10, 6], [12,6],
+		[34,26],[32,26]
+	],
+	"battlefield": {
+		"size": [44, 30],
+		"ruins": [],
+		"ruins_size": [10, 1],
+		"deploment": [[0, 0], [0, 44], [5, 44], [5, 0]],
+		"objective_marker": [[12, 15], [22, 9], [22, 21], [32, 15]],
+		"objective_marker_control_distance": 3
+	},
+	"primary_objective": "take_and_hold"
+}

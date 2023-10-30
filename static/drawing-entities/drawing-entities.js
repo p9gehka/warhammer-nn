@@ -1,11 +1,7 @@
-import gameSettings from '../settings/game-settings.json' assert { type: 'json' };
 import tauUnits from '../settings/tau-units.json' assert { type: 'json' };
-
-import { toRadians } from '../utils/vec2.js';
 
 const mmToInch = mm => mm / 25.4;
 
-const { battlefield } = gameSettings;
 class Drawing {
 	fillPath(cb) {
 		this.ctx.beginPath()
@@ -39,7 +35,7 @@ class Model extends Drawing {
 		this.ctx.fillStyle = this.palayerId == 1 ? 'blue' : 'red';
 
 		this.fillPath(() => {
-			this.ctx.ellipse(this.position[0], this.position[1], mmToInch(base[0] / 2), mmToInch((base[1] ?? base[0]) / 2), toRadians(this.position[2] ?? 0), 0, 2 * Math.PI);
+			this.ctx.ellipse(this.position[0], this.position[1], mmToInch(base[0] / 2), mmToInch(base[0] / 2), 0, 0, 2 * Math.PI);
 		})
 	}
 	update(position) {
@@ -48,24 +44,29 @@ class Model extends Drawing {
 }
 
 export class Battlefield extends Drawing {
-	constructor(ctx) {
+	constructor(ctx, battlefield) {
 		super();
 		this.ctx = ctx;
+		this.battlefield = battlefield;
 	}
+	update(battlefield) {
+		this.battlefield = battlefield;
+	}
+
 	draw() {
 		this.ctx.fillStyle = "green";
 		this.fillPath(() => {
-			this.ctx.rect(0, 0, ...battlefield.size);
+			this.ctx.rect(0, 0, ...this.battlefield.size);
 		})
 
 		this.ctx.lineWidth = 0.1;
 		this.ctx.strokeStyle = "burlywood";
-		battlefield.objective_marker.forEach((pos) => {
+		this.battlefield.objective_marker.forEach((pos) => {
 			this.strokePath(() => {
 				this.ctx.ellipse(
 					...pos,
-					battlefield.objective_marker_control_distance,
-					battlefield.objective_marker_control_distance,
+					this.battlefield.objective_marker_control_distance,
+					this.battlefield.objective_marker_control_distance,
 					0, 0, 2 * Math.PI
 				);
 			})
@@ -73,9 +74,9 @@ export class Battlefield extends Drawing {
 
 
 		this.ctx.fillStyle = "gray";
-		battlefield.ruins.forEach((pos) => {
+		this.battlefield.ruins.forEach((pos) => {
 			this.fillPath(() => {
-				this.ctx.rect(...pos, ...battlefield.ruins_size);
+				this.ctx.rect(...pos, ...this.battlefield.ruins_size);
 			})
 		})
 	}
@@ -89,7 +90,7 @@ export class Scene {
 		this.ctx = ctx;
 		this.players = state.players
 		this.units = state.units
-		this.battlefield = new Battlefield(ctx);
+		this.battlefield = new Battlefield(ctx, state.battlefield);
 		this.models = state.units.map(unit => {
 			return unit.models.map(id => new Model(ctx, unit, state.models[id]));
 		}).flat();
