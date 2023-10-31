@@ -30,6 +30,9 @@ class Model extends Drawing {
 	}
 
 	draw() {
+		if (this.position === null) {
+			return;
+		}
 		const { base } = this.unitProfile;
 		const radius = 1
 		this.ctx.fillStyle = this.palayerId == 1 ? 'blue' : 'red';

@@ -28,6 +28,10 @@ export function round2([x, y]) {
 	return [Math.round(x * 100) / 100, Math.round(y * 100) / 100];
 }
 
+export function round([x, y]) {
+	return [Math.round(x), Math.round(y)];
+}
+
 export function rotatedDegrees(vec, degrees) {
 	return rotated(vec, toRadians(degrees));
 }

@@ -1,7 +1,7 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { Warhammer } from './environment/warhammer.js';
+import { Warhammer, Phase } from './environment/warhammer.js';
 import { RandomAgent } from './agents/random-agent0.1.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -24,23 +24,47 @@ app.post('/play',function(req,res) {
   let state = env.reset();
   let done = false;
   let attempts = 0;
-  console.log(state)
   const actionsAndStates = [[null, state]];
-  const states = []
+  const states = [];
   while (!state.done && attempts < 500) {
-    done = state.done;
-    const [id, vector] = agent.playStep();
-    const action = {action: "MOVE", id:(id + 2 * state.player), vector}
-    state = env.step(action);
+   done = state.done;
+   if (state.phase === Phase.Movement) {
+     const [action, id, vector] = agent.playStep();
 
-    actionsAndStates.push([action, state])
-    if (state.availableToMove.length === 0) {
-      env.step({action: "NEXT_PHASE"})
-      state = env.step({action: "NEXT_PHASE"})
-    }
-    attempts++;
-  }
+     if (action === "MOVE") {
+       const order = {action, id:(id + 2 * state.player), vector}
+       state = env.step(order);
+       actionsAndStates.push([order, state])
+     }
+
+     if (state.availableToMove.length === 0) {
+       state = env.step({action: "NEXT_PHASE"})
+     }
+   }
+
+
+   if (state.phase === Phase.Shooting) {
+     const [action, id, target] = agent.playStep();
+    
+     if (action === "SHOOT") {
+       let order = { action, id, target };
+       if (state.player === 1) {
+         order = { action, id: target, target: id }
+       }
+       state = env.step(order);
+
+       actionsAndStates.push([order, state]);
+     }
+
+     if (state.availableToShoot.length === 0) {
+       state = env.step({action: "NEXT_PHASE"});
+     }
+   }
+
+   attempts++;
+ }
   res.json(actionsAndStates)
+
 });
 
 

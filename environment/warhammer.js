@@ -8,7 +8,7 @@ const { battlefield, models } = gameSettings;
 const { size, objective_marker, objective_marker_control_distance } = battlefield;
 
 
-const Phase = {
+export const Phase = {
 	Movement: 0,
 	Shooting: 1,
 }
@@ -21,7 +21,10 @@ const Action = {
 	Shoot: 'SHOOT',
 }
 
-function d6() {
+function d6(n) {
+	if (n) {
+		return n
+	}
 	const edge = [1,2,3,4,5,6].map(() => Math.random())
 	return edge.findIndex((v) => v ===Math.max(...edge)) + 1;
 }
@@ -103,12 +106,14 @@ export class Warhammer {
 			return this.getState();
 		}
 
-		const currentPlayerId = this.getPlayer();
 		if (order.action === Action.NextPhase) {
-			this.phase = phaseOrd[(this.phase + 1) % phaseOrd.length];
 			if (this.phase === phaseOrd.at(-1)) {
 				this.turn++;
 			}
+			this.phase = phaseOrd[(this.phase + 1) % phaseOrd.length];
+		}
+		const currentPlayerId = this.getPlayer();
+		if (order.action === Action.NextPhase) {
 			if (this.phase === Phase.Movement) {
 				this.players[currentPlayerId].vp += this.scoreVP();
 
@@ -138,12 +143,11 @@ export class Warhammer {
 			if (!model.availableToMove) {
 				return this.getState();
 			}
+			model.updateAvailableToMove(false);
 			if (len(order.vector) > 0) {
 				const movementVector = scaleToLen(order.vector, model.unitProfile.m)
 				model.update(add(model.position, movementVector));
 			}
-
-			model.updateAvailableToMove(false);
 		}
 
 		if (order.action === Action.Shoot) {
@@ -151,6 +155,7 @@ export class Warhammer {
 				return this.getState();
 			}
 
+			model.updateAvailableToShoot(false);
 
 			const weapon = tauWeapons[model.unitProfile.ranged_weapons[0]];
 			const targetModel = this.models[order.target];
@@ -159,9 +164,9 @@ export class Warhammer {
 				const targetToughness = targetModel.unitProfile.t;
 				const targetSave = targetModel.unitProfile.sv;
 
-				const hits = Array(weapon.a).fill(0).map(() => d6())
-				const wounds = hits.filter(v => v >= weapon.bs).map(() => d6());
-				const saves = wounds.filter(v => v >= this.strenghtVsToughness(weapon.s, targetToughness)).map(() => d6());
+				const hits = Array(weapon.a).fill(0).map(() => d6(6))
+				const wounds = hits.filter(v => v >= weapon.bs).map(() => d6(6));
+				const saves = wounds.filter(v => v >= this.strenghtVsToughness(weapon.s, targetToughness)).map(() => d6(1));
 				const saveFails = saves.filter(v => v < (targetSave + weapon.ap)).length
 				targetModel.inflictDamapge(saveFails * weapon.d);
 				return this.getState({ hits, wounds, saves });
@@ -221,6 +226,7 @@ export class Warhammer {
 			player: this.getPlayer(),
 			done: this.done(),
 			availableToMove: this.models.filter(model => model.availableToMove).map(model=> model.id),
+			availableToShoot: this.models.filter(model => model.availableToShoot).map(model=> model.id),
 			misc,
 			battlefield,
 			turn: this.turn,
