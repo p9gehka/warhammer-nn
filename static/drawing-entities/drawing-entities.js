@@ -24,7 +24,7 @@ class Model extends Drawing {
 		super();
 		this.ctx = ctx
 		this.name = unit.name;
-		this.palayerId = unit.playerId;
+		this.playerId = unit.playerId;
 		this.position = position;
 		this.unitProfile = tauUnits[unit.name];
 	}
@@ -35,11 +35,11 @@ class Model extends Drawing {
 		}
 		const { base } = this.unitProfile;
 		const radius = 1
-		this.ctx.fillStyle = this.palayerId == 1 ? 'blue' : 'red';
+		this.ctx.fillStyle = this.playerId == 1 ? 'blue' : 'red';
 
 		this.fillPath(() => {
 			this.ctx.ellipse(this.position[0], this.position[1], mmToInch(base[0] / 2), mmToInch(base[0] / 2), 0, 0, 2 * Math.PI);
-		})
+		});
 	}
 	update(position) {
 		this.position = position;
@@ -85,11 +85,12 @@ export class Battlefield extends Drawing {
 	}
 }
 
-export class Scene {
+export class Scene extends Drawing {
 	players = []
 	units = []
 	models = []
 	constructor(ctx, state) {
+		super();
 		this.ctx = ctx;
 		this.players = state.players
 		this.units = state.units
@@ -102,6 +103,21 @@ export class Scene {
 	draw() {
 		this.battlefield.draw();
 		this.models.forEach(model => model.draw())
+	}
+	drawOrder(order) {
+		if (order === null) {
+			return;
+		}
+		if (order.action === "SHOOT") {
+			this.ctx.fillStyle = "orange";
+			if (!this.models[order.target].position) {
+				return;
+			}
+			this.strokePath(() => {
+				this.ctx.moveTo(...this.models[order.id].position); // Move the pen to (30, 50)
+				this.ctx.lineTo(...this.models[order.target].position)
+			});
+		}
 	}
 	updateState(state) {
 

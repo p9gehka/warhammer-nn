@@ -1,12 +1,17 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { Warhammer, Phase } from './environment/warhammer.js';
-import { RandomAgent } from './agents/random-agent0.1.js';
+import { Warhammer, Phase, Action } from './environment/warhammer.js';
+import { PlayerEnvironment } from './environment/player-environment.js';
+import { RandomAgent } from './agents/random-agent0.2.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const env = new Warhammer();
+
+
+
+
+
 const app = express();
 
 app.use(express.json())
@@ -18,7 +23,9 @@ app.get('/',function(req,res) {
 
 
 app.post('/play',function(req,res) {
-  const env = new Warhammer();
+  const env = new Warhammer();  
+  const players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
+
   let agent = new RandomAgent();
 
   let state = env.reset();
@@ -26,45 +33,36 @@ app.post('/play',function(req,res) {
   let attempts = 0;
   const actionsAndStates = [[null, state]];
   const states = [];
+
   while (!state.done && attempts < 500) {
-   done = state.done;
-   if (state.phase === Phase.Movement) {
-     const [action, id, vector] = agent.playStep();
+     const playerEnvironment = players[state.player];
+     const order = agent.playStep(playerEnvironment.getInput44x30());
+     state = env.getState();
+     done = state.done;
+     if (state.done) {
+       break;
+     } 
 
-     if (action === "MOVE") {
-       const order = {action, id:(id + 2 * state.player), vector}
-       state = env.step(order);
-       actionsAndStates.push([order, state])
-     }
-
-     if (state.availableToMove.length === 0) {
-       state = env.step({action: "NEXT_PHASE"})
-     }
-   }
-
-
-   if (state.phase === Phase.Shooting) {
-     const [action, id, target] = agent.playStep();
-    
-     if (action === "SHOOT") {
-       let order = { action, id, target };
-       if (state.player === 1) {
-         order = { action, id: target, target: id }
+     if (state.phase === Phase.Movement) {
+       if (state.availableToMove.length === 0) {
+          env.step({action: Action.NextPhase })
        }
-       state = env.step(order);
-
-       actionsAndStates.push([order, state]);
+       if (order.action === Action.Move) {
+         actionsAndStates.push(playerEnvironment.step(order))
+       }
      }
 
-     if (state.availableToShoot.length === 0) {
-       state = env.step({action: "NEXT_PHASE"});
+
+     if (state.phase === Phase.Shooting) {
+       if (state.availableToShoot.length === 0) {
+         env.step({action: Action.NextPhase});
+       }
+       if (order.action === Action.Shoot) {
+         actionsAndStates.push(playerEnvironment.step(order));
+       }
      }
    }
-
-   attempts++;
- }
   res.json(actionsAndStates)
-
 });
 
 

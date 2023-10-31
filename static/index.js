@@ -30,7 +30,7 @@ async function start () {
 	actionsList.innerHTML = '';
 
 	let lastRound = 1;
-	actionAndStates.forEach(([action, state], i) => {
+	actionAndStates.forEach(([order, state], i) => {
 		let round = Math.floor(state.turn / 2);
 		if (lastRound !== round) {
 			const separator = document.createElement("LI");
@@ -41,7 +41,7 @@ async function start () {
 		
 		const li = document.createElement("LI");
 		li.dataset.indexNumber = i;
-		li.innerHTML = JSON.stringify(action);
+		li.innerHTML = JSON.stringify(order);
 		li.tabIndex = 0;
 		actionsList.appendChild(li);
 	});
@@ -49,8 +49,9 @@ async function start () {
 
 function setState(e) {
 	if (e.target.dataset.indexNumber) {
-		const state = actionAndStates[e.target.dataset.indexNumber][1];
+		const [order, state] = actionAndStates[e.target.dataset.indexNumber];
 		scene.updateState(state);
+		scene.drawOrder(order)
 	}
 }
 startBtn.addEventListener('click', start);

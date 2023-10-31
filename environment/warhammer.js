@@ -15,7 +15,7 @@ export const Phase = {
 
 const phaseOrd = [Phase.Movement, Phase.Shooting];
 
-const Action = {
+export const Action = {
 	NextPhase: 'NEXT_PHASE',
 	Move: 'MOVE',
 	Shoot: 'SHOOT',
@@ -60,7 +60,7 @@ class Model {
 			this.availableToShoot = value
 		}
 	}
-	inflictDamapge(value) {
+	inflictDamage(value) {
 		if (this.dead) {
 			return;
 		}
@@ -70,6 +70,13 @@ class Model {
 			this.wound = 0
 		}
 	}
+	kill() {
+		if (this.dead) {
+			return;
+		}
+		this.wound === 0;
+		this.dead = true;
+	}
 }
 
 export class Warhammer {
@@ -78,6 +85,7 @@ export class Warhammer {
 	models = [];
 	phase = Phase.Movement;
 	turn = 0
+	battlefield = battlefield;
 	reset() {
 		this.phase = Phase.Movement;
 		this.turn = 0
@@ -85,7 +93,7 @@ export class Warhammer {
 		const units = gameSettings.units.map(
 			(units, playerId) => units.map(unit => ({...unit, playerId }))
 		);
-		this.players = [{ units: units[0], vp: 0 }, { units: units[1], vp: 0 }]
+		this.players = [{ units: units[0], models: units[0].map(unit => unit.models).flat(), vp: 0 }, { units: units[1], models: units[1].map(unit => unit.models).flat(), vp: 0 }]
 		this.units = units.flat();
 
 		this.models = this.units.map(unit => {
@@ -111,7 +119,14 @@ export class Warhammer {
 				this.turn++;
 			}
 			this.phase = phaseOrd[(this.phase + 1) % phaseOrd.length];
+			this.models.forEach(model => {
+				const [x, y] = model.position;
+				if (x < 0 || size[0] < x || y < 0 || size[1] < y) {
+					model.kill();
+				}
+			})
 		}
+
 		const currentPlayerId = this.getPlayer();
 		if (order.action === Action.NextPhase) {
 			if (this.phase === Phase.Movement) {
@@ -164,11 +179,11 @@ export class Warhammer {
 				const targetToughness = targetModel.unitProfile.t;
 				const targetSave = targetModel.unitProfile.sv;
 
-				const hits = Array(weapon.a).fill(0).map(() => d6(6))
-				const wounds = hits.filter(v => v >= weapon.bs).map(() => d6(6));
-				const saves = wounds.filter(v => v >= this.strenghtVsToughness(weapon.s, targetToughness)).map(() => d6(1));
+				const hits = Array(weapon.a).fill(0).map(() => d6())
+				const wounds = hits.filter(v => v >= weapon.bs).map(() => d6());
+				const saves = wounds.filter(v => v >= this.strenghtVsToughness(weapon.s, targetToughness)).map(() => d6());
 				const saveFails = saves.filter(v => v < (targetSave + weapon.ap)).length
-				targetModel.inflictDamapge(saveFails * weapon.d);
+				targetModel.inflictDamage(saveFails * weapon.d);
 				return this.getState({ hits, wounds, saves });
 			}
 		}
