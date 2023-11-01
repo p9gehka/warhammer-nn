@@ -3,13 +3,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { Warhammer, Phase, Action } from './environment/warhammer.js';
 import { PlayerEnvironment } from './environment/player-environment.js';
-import { RandomAgent } from './agents/random-agent0.2.js';
+import { RandomAgent } from './agents/random-agent0.1.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-
-
 
 
 const app = express();
