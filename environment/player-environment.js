@@ -34,7 +34,8 @@ export class PlayerEnvironment {
 				id: this.env.players[this.playerId].models[id],
 				target: this.env.players[(this.playerId+1) % 2].models[target]
 			}
-			return [newOrder, this.env.step(newOrder)];
+			const state = this.env.step(newOrder);
+			return [{ ...newOrder, misc: state.misc ?? null}, state];
 		}
 
 		return [order, this.env.step(order)];

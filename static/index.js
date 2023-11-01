@@ -51,7 +51,7 @@ function setState(e) {
 	if (e.target.dataset.indexNumber) {
 		const [order, state] = actionAndStates[e.target.dataset.indexNumber];
 		scene.updateState(state);
-		scene.drawOrder(order)
+		scene.drawOrder(order);
 	}
 }
 startBtn.addEventListener('click', start);

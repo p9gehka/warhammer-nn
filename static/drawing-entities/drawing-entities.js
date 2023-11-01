@@ -109,13 +109,14 @@ export class Scene extends Drawing {
 			return;
 		}
 		if (order.action === "SHOOT") {
-			this.ctx.fillStyle = "orange";
-			if (!this.models[order.target].position) {
+			
+			if (!this.models[order.id].position || !order?.misc?.targetPosition) {
 				return;
 			}
+			this.ctx.strokeStyle = "orange";
 			this.strokePath(() => {
-				this.ctx.moveTo(...this.models[order.id].position); // Move the pen to (30, 50)
-				this.ctx.lineTo(...this.models[order.target].position)
+				this.ctx.moveTo(...this.models[order.id].position);
+				this.ctx.lineTo(...order.misc.targetPosition)
 			});
 		}
 	}

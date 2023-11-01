@@ -175,16 +175,15 @@ export class Warhammer {
 			const weapon = tauWeapons[model.unitProfile.ranged_weapons[0]];
 			const targetModel = this.models[order.target];
 
-			if (weapon.range >= len(sub(targetModel.position, model.position))) {
+			if (weapon.range >= len(sub(targetModel.position, model.position)) && !targetModel.dead) {
 				const targetToughness = targetModel.unitProfile.t;
 				const targetSave = targetModel.unitProfile.sv;
-
 				const hits = Array(weapon.a).fill(0).map(() => d6())
 				const wounds = hits.filter(v => v >= weapon.bs).map(() => d6());
 				const saves = wounds.filter(v => v >= this.strenghtVsToughness(weapon.s, targetToughness)).map(() => d6());
 				const saveFails = saves.filter(v => v < (targetSave + weapon.ap)).length
 				targetModel.inflictDamage(saveFails * weapon.d);
-				return this.getState({ hits, wounds, saves });
+				return this.getState({ hits, wounds, saves, targetPosition: targetModel.position });
 			}
 		}
 

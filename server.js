@@ -61,6 +61,8 @@ app.post('/play',function(req,res) {
          actionsAndStates.push(playerEnvironment.step(order));
        }
      }
+
+     attempts++;
    }
   res.json(actionsAndStates)
 });
