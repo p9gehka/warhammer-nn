@@ -115,6 +115,9 @@ export class Warhammer {
 		}
 
 		if (order.action === Action.NextPhase) {
+			this.models.forEach(model => model.updateAvailableToMove(false));
+			this.models.forEach(model => model.updateAvailableToShoot(false));
+
 			if (this.phase === phaseOrd.at(-1)) {
 				this.turn++;
 			}
@@ -131,7 +134,6 @@ export class Warhammer {
 		if (order.action === Action.NextPhase) {
 			if (this.phase === Phase.Movement) {
 				this.players[currentPlayerId].vp += this.scoreVP();
-
 				this.models.forEach((model) => {
 					if (model.playerId === currentPlayerId) {
 						model.updateAvailableToMove(true);
@@ -178,9 +180,9 @@ export class Warhammer {
 			if (weapon.range >= len(sub(targetModel.position, model.position)) && !targetModel.dead) {
 				const targetToughness = targetModel.unitProfile.t;
 				const targetSave = targetModel.unitProfile.sv;
-				const hits = Array(weapon.a).fill(0).map(() => d6())
-				const wounds = hits.filter(v => v >= weapon.bs).map(() => d6());
-				const saves = wounds.filter(v => v >= this.strenghtVsToughness(weapon.s, targetToughness)).map(() => d6());
+				const hits = Array(weapon.a).fill(0).map(d6);
+				const wounds = hits.filter(v => v >= weapon.bs).map(d6);
+				const saves = wounds.filter(v => v >= this.strenghtVsToughness(weapon.s, targetToughness)).map(d6);
 				const saveFails = saves.filter(v => v < (targetSave + weapon.ap)).length
 				targetModel.inflictDamage(saveFails * weapon.d);
 				return this.getState({ hits, wounds, saves, targetPosition: targetModel.position });
@@ -212,7 +214,8 @@ export class Warhammer {
 	}
 
 	done() {
-		return this.turn > 9;
+		const ids = this.models.filter(model => !model.dead).map(model => model.playerId);
+		return this.turn > 9 || Math.min(...ids) === Math.max(...ids);
 	}
 
 	scoreVP() {

@@ -17,6 +17,7 @@ battlefield.draw()
 let actionAndStates = [];
 let scene = null
 async function start () {
+	actionsList.innerHTML = '';
 	const response = await fetch('/play', {
 		method: 'POST',
 		headers: { "Content-Type": "application/json" },
@@ -27,7 +28,6 @@ async function start () {
 	const [,initState] = actionAndStates[0];
 
 	scene = new Scene(ctx, initState);
-	actionsList.innerHTML = '';
 
 	let lastRound = 1;
 	actionAndStates.forEach(([order, state], i) => {

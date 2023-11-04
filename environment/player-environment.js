@@ -1,20 +1,22 @@
-import { Action } from './warhammer.js';
+import { Action, Phase } from './warhammer.js';
 import { round } from '../static/utils/vec2.js';
 
 export const Entities = {
 	Empty: 0,
 	Marker: 1,
 	SelfStrikeTeam: 2,
-	SelfStrikeTeamMoved: 3,
-	SelfStrikeTeamShooted: 4,
+	SelfStrikeTeamAvailableToMove: 3,
+	SelfStrikeTeamAvailableToShoot: 4,
 	SelfStealth: 5,
-	SelfStealthMoved: 6,
-	SelfStealthShooted: 7,
+	SelfStealthAvailableToMove: 6,
+	SelfStealthAvailableToShoot: 7,
 	EnemyStrikeTeam: 8,
 	EnemyStealth: 9
 }
 
 export class PlayerEnvironment {
+	height = 44;
+	width = 30;
 	constructor(playerId, env) {
 		this.env = env;
 		this.playerId = playerId;
@@ -68,22 +70,23 @@ export class PlayerEnvironment {
 
 						if (unit.playerId === playerId) {
 							if (unit.name === 'strike_team') {
-								if(state.availableToMove.includes(modelId)) {
-									entity = Entities.SelfStrikeTeam;
-								} else if(state.availableToShoot.includes(modelId)) {
-									entity = Entities.SelfStrikeTeamMoved;
-								} else {
-									entity = Entities.SelfStrikeTeamShooted;
+								entity = Entities.SelfStrikeTeam;
+								if(state.availableToMove.includes(modelId) && state.phase === Phase.Movement) {
+									entity = Entities.SelfStrikeTeamAvailableToMove;
+								}
+								if(state.availableToShoot.includes(modelId) && state.phase === Phase.Shooting) {
+									entity = Entities.SelfStrikeTeamAvailableToShoot;
 								}
 							}
 
 							if (unit.name === 'stealth_battlesuits') {
-								if(state.availableToMove.includes(modelId)) {
-									entity = Entities.SelfStealth;
-								} else if(state.availableToShoot.includes(modelId)) {
-									entity = Entities.SelfStealthMoved;
-								} else {
-									entity = Entities.SelfStealthShooted;
+								entity = Entities.SelfStealth;
+
+								if(state.availableToMove.includes(modelId) && state.phase === Phase.Movement) {
+									entity = Entities.SelfStealthAvailableToMove;
+								}
+								if(state.availableToShoot.includes(modelId) && state.phase === Phase.Shooting) {
+									entity = Entities.SelfStealthmAvailableToShoot;
 								}
 							}
 						}

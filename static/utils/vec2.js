@@ -40,3 +40,7 @@ export function scaleToLen([x, y], newLength) {
 	const oldLength = len([x, y]);
 	return [x * newLength / oldLength, y * newLength / oldLength];
 }
+
+export function angleToVec2 (distance, angle) {
+	return distance === 0 ? [0, 0] : rotatedDegrees([0, distance], angle);
+}

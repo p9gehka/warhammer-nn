@@ -17,7 +17,7 @@
 
 import * as tf from '@tensorflow/tfjs';
 
-export function createDeepQNetwork(h, w, numActions) {
+export function createDeepQNetwork(h, w, c, numActions) {
   if (!(Number.isInteger(h) && h > 0)) {
     throw new Error(`Expected height to be a positive integer, but got ${h}`);
   }
@@ -36,7 +36,7 @@ export function createDeepQNetwork(h, w, numActions) {
     kernelSize: 3,
     strides: 1,
     activation: 'relu',
-    inputShape: [h, w, 2]
+    inputShape: [h, w, c]
   }));
   model.add(tf.layers.batchNormalization());
   model.add(tf.layers.conv2d({

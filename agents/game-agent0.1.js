@@ -1,51 +1,56 @@
 import * as tf from '@tensorflow/tfjs';
 
-import {createDeepQNetwork} from './dqn';
-import {getRandomAction, SnakeGame, NUM_ACTIONS, ALL_ACTIONS, getStateTensor} from './snake_game';
-import {ReplayMemory} from './replay_memory';
-import { assertPositiveInteger } from './utils';
+import { createDeepQNetwork } from '../dqn/dqn.js';
+import { getRandomInteger } from '../static/utils//index.js';
+import { getActions } from './utils.js';
+
+export function getStateTensor(state, h, w, c) {
+  const numExamples = state.length;
+
+  let buffer = tf.buffer([numExamples, h, w, c]);
+
+  for (let n = 0; n < numExamples; ++n) {
+    if (state[n] == null) {
+      continue;
+    } 
+
+    state[n].forEach((row, x) => {
+      row.forEach((cell, y) => {
+        if (cell !== 0) {
+             buffer.set(cell, n, y, x, 0);
+        }
+      })
+    })
+  
+  }
+
+  return buffer.toTensor();
+}
+
 
 export class GameAgent {
-  constructor(game) {
+  actions = [];
+  channels = 1;
+  constructor(game, numActions) {
     this.game = game;
-    this.onlineNetwork =
-        createDeepQNetwork(game.height,  game.width, NUM_ACTIONS);
+    this.actions = getActions();
+    this.onlineNetwork = createDeepQNetwork(game.height, game.width, this.channels, this.actions.length);
   }
 
-  reset() {
-    this.game.reset();
-  }
-
-  /**
-   * Play one step of the game.
-   *
-   * @returns {number | null} If this step leads to the end of the game,
-   *   the total reward from the game as a plain number. Else, `null`.
-   */
   playStep() {
-    this.epsilon = 0.5;
-    let action;
-    const state = this.game.getState();
+    this.epsilon = 0.9;
+    
+    const state = this.game.getInput44x30();
+    let order;
+
     if (Math.random() < this.epsilon) {
-      // Pick an action at random.
-      action = getRandomAction();
+      order = this.actions[getRandomInteger(0, this.actions.length)];
     } else {
-      // Greedily pick an action based on online DQN output.
       tf.tidy(() => {
-        const stateTensor =getStateTensor(state, this.game.height, this.game.width)
-        action = ALL_ACTIONS[this.onlineNetwork.predict(stateTensor).argMax(-1).dataSync()[0]];
+        const stateTensor = getStateTensor([state], this.game.height, this.game.width, this.channels);
+        order = this.actions[this.onlineNetwork.predict(stateTensor).argMax(-1).dataSync()[0]];
       });
     }
-
-    const {state: nextState, reward, done, fruitEaten} = this.game.step(action);
-
-    const output = {
-      action,
-      cumulativeReward: this.cumulativeReward_,
-      done,
-      fruitsEaten: this.fruitsEaten_
-    };
-
-    return output;
+   return this.game.step(order);
   }
 }
