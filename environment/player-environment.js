@@ -9,7 +9,7 @@ export const Entities = {
 	SelfStrikeTeamAvailableToShoot: 4,
 	SelfStealth: 5,
 	SelfStealthAvailableToMove: 6,
-	SelfStealthAvailableToShoot: 7,
+	SelftStealthAvailableToShoot: 7,
 	EnemyStrikeTeam: 8,
 	EnemyStealth: 9
 }
@@ -17,96 +17,99 @@ export const Entities = {
 export class PlayerEnvironment {
 	height = 44;
 	width = 30;
+	vp = 0
 	constructor(playerId, env) {
 		this.env = env;
 		this.playerId = playerId;
+		this.enemyId = (playerId+1) % 2;
 	}
-
 	step(order) {
+		let newOrder;
+
 		if (order.action === Action.Move) {
 			const { action, id, vector } = order;
-			const newOrder = {action, id: this.env.players[this.playerId].models[id], vector};
-			return [newOrder, this.env.step(newOrder)];
-		}
-
-		if (order.action === Action.Shoot) {
+			newOrder = {action, id: this.env.players[this.playerId].models[id], vector};
+		} else if (order.action === Action.Shoot) {
 			const { action, id, target } = order;
-			const newOrder = {
+			newOrder = {
 				action,
 				id: this.env.players[this.playerId].models[id],
-				target: this.env.players[(this.playerId+1) % 2].models[target]
+				target: this.env.players[this.enemyId].models[target]
 			}
-			const state = this.env.step(newOrder);
-			return [{ ...newOrder, misc: state.misc ?? null}, state];
+		} else {
+			newOrder = order;
 		}
+		const state = this.env.step(newOrder);
 
-		return [order, this.env.step(order)];
+		let doneReward = 0;
+		const { players } = state;
+		if (state.done) {
+			if (players[this.playerId].models.every(modelId => state.models[modelId] === null)) {
+				doneReward -= 20;
+			}
+			if (players[this.enemyId].models.every(modelId => state.models[modelId] === null)) {
+				doneReward += 20;
+			}
+		}
+		const newVP = players[this.playerId].vp;
+		const vpDelta = newVP - players[this.enemyId].vp;
+		const reward = newVP + vpDelta + doneReward - this.vp ;
+		this.vp = newVP;
+
+		return [newOrder, state, reward];
 	}
 
-	getInput44x30() {
-		const state = this.env.getState();
-		const playerId = this.playerId;
+	getInput() {
 		const battlefield = this.env.battlefield;
-
-		let input = []
-		for (let i = 0; i < battlefield.size[1]; i++) {
-			input[i] = Array(battlefield.size[0]).fill(Entities.Empty);
-		}
-		for (let [x, y] of battlefield.objective_marker) {
-			input[y][x] = Entities.Marker;
-		}
-
+		const input = { [Entities.Marker]: battlefield.objective_marker };
+		const state = this.env.getState();
 		for (let player of state.players) {
 			for (let unit of player.units) {
 				unit.models.forEach(modelId => {
-					const model = state.models[modelId]
-					if (model === null) {
-						return;
-					}
-					const [x, y] = round(model);
+					const xy = state.models[modelId]
+					if (xy === null) { return; }
+					let entity = null;
 
-					if (0 <= y && y < input.length && 0 <=x && x < input[y].length) {
-						let entity = null;
-
-						if (unit.playerId === playerId) {
-							if (unit.name === 'strike_team') {
-								entity = Entities.SelfStrikeTeam;
-								if(state.availableToMove.includes(modelId) && state.phase === Phase.Movement) {
-									entity = Entities.SelfStrikeTeamAvailableToMove;
-								}
-								if(state.availableToShoot.includes(modelId) && state.phase === Phase.Shooting) {
-									entity = Entities.SelfStrikeTeamAvailableToShoot;
-								}
+					if (unit.playerId === this.playerId) {
+						if (unit.name === 'strike_team') {
+							entity = Entities.SelfStrikeTeam;
+							if(state.availableToMove.includes(modelId) && state.phase === Phase.Movement) {
+								entity = Entities.SelfStrikeTeamAvailableToMove;
 							}
-
-							if (unit.name === 'stealth_battlesuits') {
-								entity = Entities.SelfStealth;
-
-								if(state.availableToMove.includes(modelId) && state.phase === Phase.Movement) {
-									entity = Entities.SelfStealthAvailableToMove;
-								}
-								if(state.availableToShoot.includes(modelId) && state.phase === Phase.Shooting) {
-									entity = Entities.SelfStealthmAvailableToShoot;
-								}
+							if(state.availableToShoot.includes(modelId) && state.phase === Phase.Shooting) {
+								entity = Entities.SelfStrikeTeamAvailableToShoot;
 							}
 						}
-						if (unit.playerId !== playerId) {
-							if (unit.name === 'strike_team') {
-								entity = Entities.EnemyStrikeTeam;
-							}
 
-							if (unit.name === 'stealth_battlesuits') {
-								entity = Entities.EnemyStealth;
+						if (unit.name === 'stealth_battlesuits') {
+							entity = Entities.SelfStealth;
+
+							if(state.availableToMove.includes(modelId) && state.phase === Phase.Movement) {
+								entity = Entities.SelfStealthAvailableToMove;
 							}
-						}
-						if (entity !== null) {
-							input[y][x] = entity;
+							if(state.availableToShoot.includes(modelId) && state.phase === Phase.Shooting) {
+								entity = Entities.SelfStealthmAvailableToShoot;
+							}
 						}
 					}
-				})
+					if (unit.playerId !== this.playerId) {
+						if (unit.name === 'strike_team') {
+							entity = Entities.EnemyStrikeTeam;
+						}
+
+						if (unit.name === 'stealth_battlesuits') {
+							entity = Entities.EnemyStealth;
+						}
+					}
+					if (entity !== null) {
+						if (input[entity] === undefined) {
+							input[entity] = [];
+						}
+						input[entity].push(round(xy))
+					}
+				});
 			}
 		}
-
-		return input;
+		return input
 	}
 }

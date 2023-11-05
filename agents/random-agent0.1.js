@@ -5,24 +5,26 @@ import { Entities  } from '../environment/player-environment.js';
 
 const { battlefield } = gameSettings;
 import { getRandomInteger } from '../static/utils/index.js';
-import { getActions } from './utils.js';
+import { getOrders } from './utils.js';
+
+const F = 50;
 
 export class RandomAgent {
-	actions = []
-
+	orders = []
+	attempts = 0;
 	constructor(game) {
 		this.game = game;
-		this.actions = getActions();
+		this.orders = getOrders();
 	}
 	getOrder() {
-		const input = this.game.getInput44x30();
-		return this.actions[getRandomInteger(0, this.actions.length)]
+		return this.orders[getRandomInteger(0, this.orders.length)]
 	}
 
 	playStep() {
 		const state = this.game.env.getState();
 
-		for (let i = 0; i < 50; i++) {
+		for (let i = 0; i < F; i++) {
+			this.attempts++;
 			const order = this.getOrder();
 
 			if (state.phase === Phase.Movement && order.action === Action.Move) {
@@ -36,6 +38,7 @@ export class RandomAgent {
 				break;
 			}
 		}
+
 		return this.game.step({ action: Action.NextPhase})
 	}
 }

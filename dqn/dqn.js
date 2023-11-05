@@ -15,7 +15,7 @@
  * =============================================================================
  */
 
-import * as tf from '@tensorflow/tfjs';
+import * as tf from '@tensorflow/tfjs-node';
 
 export function createDeepQNetwork(h, w, c, numActions) {
   if (!(Number.isInteger(h) && h > 0)) {

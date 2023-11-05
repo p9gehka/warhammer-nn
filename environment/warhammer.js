@@ -209,10 +209,8 @@ export class Warhammer {
 		return 4;
 	}
 
-	getPlayer() {
-		return this.turn % 2;
-	}
-
+	getPlayer() { return this.turn % 2 }
+	setDone() { this.turn = 10 }
 	done() {
 		const ids = this.models.filter(model => !model.dead).map(model => model.playerId);
 		return this.turn > 9 || Math.min(...ids) === Math.max(...ids);

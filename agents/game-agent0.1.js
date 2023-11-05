@@ -1,56 +1,88 @@
-import * as tf from '@tensorflow/tfjs';
+import * as tf from '@tensorflow/tfjs-node';
 
 import { createDeepQNetwork } from '../dqn/dqn.js';
 import { getRandomInteger } from '../static/utils//index.js';
-import { getActions } from './utils.js';
+import { getOrders } from './utils.js';
+import { Action, Phase } from '../environment/warhammer.js';
 
 export function getStateTensor(state, h, w, c) {
   const numExamples = state.length;
-
   let buffer = tf.buffer([numExamples, h, w, c]);
 
   for (let n = 0; n < numExamples; ++n) {
     if (state[n] == null) {
       continue;
-    } 
+    }
 
-    state[n].forEach((row, x) => {
-      row.forEach((cell, y) => {
-        if (cell !== 0) {
-             buffer.set(cell, n, y, x, 0);
-        }
+    for (let entity in state[n]) {
+      const enitities = state[n][entity].forEach(yx => {
+        buffer.set(entity, n, yx[0], yx[1], 0);
       })
-    })
-  
+    }
   }
-
   return buffer.toTensor();
 }
 
+const F = 50;
 
 export class GameAgent {
-  actions = [];
+  orders = [];
   channels = 1;
-  constructor(game, numActions) {
+  attempts = 0;
+  constructor(game, replayMemory) {
     this.game = game;
-    this.actions = getActions();
-    this.onlineNetwork = createDeepQNetwork(game.height, game.width, this.channels, this.actions.length);
+    this.orders = getOrders();
+    this.onlineNetwork = createDeepQNetwork(game.height, game.width, this.channels, this.orders.length);
+    this.replayMemory = replayMemory;
   }
 
   playStep() {
-    this.epsilon = 0.9;
-    
-    const state = this.game.getInput44x30();
-    let order;
+    this.epsilon = 0.5;
 
-    if (Math.random() < this.epsilon) {
-      order = this.actions[getRandomInteger(0, this.actions.length)];
-    } else {
-      tf.tidy(() => {
-        const stateTensor = getStateTensor([state], this.game.height, this.game.width, this.channels);
-        order = this.actions[this.onlineNetwork.predict(stateTensor).argMax(-1).dataSync()[0]];
-      });
+    const input = this.game.getInput();
+    const currentPhase = this.game.env.phase;
+
+
+    let epsilon = this.epsilon;
+    let order = { action: Action.NextPhase };
+    let orderIndex;
+
+    for (let i = 0; i <= F; i++) {
+      this.attempts++;
+      if (Math.random() < this.epsilon) {
+        orderIndex = getRandomInteger(0, this.orders.length);
+      } else {
+        tf.tidy(() => {
+          const inputTensor = getStateTensor([input], this.game.height, this.game.width, this.channels);
+          orderIndex = this.onlineNetwork.predict(inputTensor).argMax(-1).dataSync()[0]
+        });
+      }
+
+      order = this.orders[orderIndex];
+
+      if (currentPhase === Phase.Movement && order.action === Action.Move) {
+        break
+      }
+
+      if (currentPhase === Phase.Shooting && order.action === Action.Shoot) {
+        break
+      }
+      if (order.action === Action.NextPhase) {
+        break;
+      }
+      epsilon = 0.9;
+
+      if (i === F) {
+        order = { action: Action.NextPhase };
+      }
     }
-   return this.game.step(order);
+
+
+
+   const [state, order_, reward] = this.game.step(order);
+   const nextInput = this.game.getInput();
+
+   this.replayMemory.append([input, orderIndex, reward, state.done, nextInput]);
+   return [state, order_, reward]
   }
 }
