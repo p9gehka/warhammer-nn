@@ -16,6 +16,9 @@ export class RandomAgent {
 		this.game = game;
 		this.orders = getOrders();
 	}
+	reset() {
+	  this.attempts = 0;
+	}
 	getOrder() {
 		return this.orders[getRandomInteger(0, this.orders.length)]
 	}

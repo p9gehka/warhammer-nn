@@ -23,6 +23,9 @@ export class PlayerEnvironment {
 		this.playerId = playerId;
 		this.enemyId = (playerId+1) % 2;
 	}
+	reset() {
+		this.vp = 0;
+	}
 	step(order) {
 		let newOrder;
 

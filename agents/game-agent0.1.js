@@ -35,7 +35,9 @@ export class GameAgent {
     this.onlineNetwork = createDeepQNetwork(game.height, game.width, this.channels, this.orders.length);
     this.replayMemory = replayMemory;
   }
-
+  reset() {
+    this.attempts = 0;
+  }
   playStep() {
     this.epsilon = 0.5;
 
