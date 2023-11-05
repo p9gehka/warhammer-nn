@@ -15,7 +15,7 @@ export const Phase = {
 
 const phaseOrd = [Phase.Movement, Phase.Shooting];
 
-export const Action = {
+export const BaseAction = {
 	NextPhase: 'NEXT_PHASE',
 	Move: 'MOVE',
 	Shoot: 'SHOOT',
@@ -114,7 +114,7 @@ export class Warhammer {
 			return this.getState();
 		}
 
-		if (order.action === Action.NextPhase) {
+		if (order.action === BaseAction.NextPhase) {
 			this.models.forEach(model => model.updateAvailableToMove(false));
 			this.models.forEach(model => model.updateAvailableToShoot(false));
 
@@ -131,7 +131,7 @@ export class Warhammer {
 		}
 
 		const currentPlayerId = this.getPlayer();
-		if (order.action === Action.NextPhase) {
+		if (order.action === BaseAction.NextPhase) {
 			if (this.phase === Phase.Movement) {
 				this.players[currentPlayerId].vp += this.scoreVP();
 				this.models.forEach((model) => {
@@ -156,7 +156,7 @@ export class Warhammer {
 
 		const model = this.models[order.id];
 
-		if (order.action === Action.Move) {
+		if (order.action === BaseAction.Move) {
 			if (!model.availableToMove) {
 				return this.getState();
 			}
@@ -167,7 +167,7 @@ export class Warhammer {
 			}
 		}
 
-		if (order.action === Action.Shoot) {
+		if (order.action === BaseAction.Shoot) {
 			if (!model.availableToShoot || !this.models[order.target]) {
 				return this.getState();
 			}

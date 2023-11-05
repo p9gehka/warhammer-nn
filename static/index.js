@@ -31,6 +31,12 @@ async function start () {
 
 	let lastRound = 1;
 	actionAndStates.forEach(([order, state], i) => {
+		const li = document.createElement("LI");
+		li.dataset.indexNumber = i;
+		li.innerHTML = JSON.stringify(order);
+		li.tabIndex = 0;
+		actionsList.appendChild(li);
+
 		let round = Math.floor(state.turn / 2);
 		if (lastRound !== round) {
 			const separator = document.createElement("LI");
@@ -38,12 +44,6 @@ async function start () {
 			lastRound = round;
 			actionsList.appendChild(separator);
 		}
-		
-		const li = document.createElement("LI");
-		li.dataset.indexNumber = i;
-		li.innerHTML = JSON.stringify(order);
-		li.tabIndex = 0;
-		actionsList.appendChild(li);
 	});
 }
 

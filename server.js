@@ -1,8 +1,8 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { Warhammer, Phase, Action } from './environment/warhammer.js';
-import { PlayerEnvironment } from './environment/player-environment.js';
+import { Warhammer, Phase } from './environment/warhammer.js';
+import { PlayerEnvironment, Action } from './environment/player-environment.js';
 import { RandomAgent } from './agents/random-agent0.1.js';
 import { GameAgent } from './agents/game-agent0.1.js';
 import { ReplayMemory } from './dqn/replay_memory.js';
