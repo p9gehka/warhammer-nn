@@ -44,6 +44,10 @@ export function scaleToLen([x, y], newLength) {
 	return [x * newLength / oldLength, y * newLength / oldLength];
 }
 
-export function angleToVec2 (distance, angle) {
+export function angleToVec2(distance, angle) {
 	return distance === 0 ? [0, 0] : rotatedDegrees([0, distance], angle);
+}
+
+export function eq([x1, y1], [x2, y2]) {
+	return x1 === x2 && y1 === y2;
 }

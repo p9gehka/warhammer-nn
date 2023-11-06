@@ -10,7 +10,6 @@ export class Orders {
 	constructor(models, targets) {
 		this.models = Array(models).fill(0).map((v, i) => i);
 		this.targets = Array(targets).fill(0).map((v, i) => i);
-
 	}
 	getOrders() {
 		if (this.orders !== null) {
@@ -24,17 +23,11 @@ export class Orders {
 			[Action.Move]: [],
 			[Action.Shoot]: [],
 			nextPhaseIndex: 0,
-			selectAndMove: [],
-			selectAndShoot: [],
-			nextPhaseIndexesArgMax: [],
 			selectIndexes: [],
-			selectIndexesArgMax: [],
 			moveIndexes: [],
 			selectAndMoveIndexes: [],
-			selectAndMoveIndexesArgMax: [],
 			shootIndexes: [],
 			selectAndShootIndexes: [],
-			selectAndShootIndexesArgMax: [],
 			all: []
 		}
 
@@ -80,19 +73,6 @@ export class Orders {
 				this.orders.all.push(order);
 			});
 		}
-
-		this.orders.selectAndMove = [...this.orders[Action.NextPhase], ...this.orders[Action.Select], ...this.orders[Action.Move]];
-		this.orders.selectAndShoot = [...this.orders[Action.NextPhase], ...this.orders[Action.Select], ...this.orders[Action.Shoot]];
-
-		this.orders.nextPhaseIndexesArgMax = Array(this.orders.all.length).fill(-Infinity);
-		this.orders.selectIndexesArgMax = Array(this.orders.all.length).fill(-Infinity);
-		this.orders.selectAndMoveIndexesArgMax = Array(this.orders.all.length).fill(-Infinity);
-		this.orders.selectAndShootIndexesArgMax = Array(this.orders.all.length).fill(-Infinity);
-
-		this.orders.nextPhaseIndexesArgMax[this.orders.nextPhaseIndex] = 0;
-		this.orders.selectIndexes.forEach(i => this.orders.selectIndexesArgMax[i] = 0);
-		this.orders.selectAndMoveIndexes.forEach(i => this.orders.selectAndMoveIndexesArgMax[i] = 0);
-		this.orders.selectAndShootIndexes.forEach(i => this.orders.selectAndShootIndexesArgMax[i] = 0)
 
 		return this.orders;
 	}
