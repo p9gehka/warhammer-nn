@@ -37,7 +37,7 @@ const syncEveryFrames = 1e3;
 async function train() {
 	const env = new Warhammer();
 	const replayMemory = new ReplayMemory(replayBufferSize);
-	const players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
+	let players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
 	let agents = [new RandomAgent(players[0], replayMemory), new RandomAgent(players[1], replayMemory)];
 	let state = env.reset();
 
@@ -50,7 +50,7 @@ async function train() {
 		}
 		agents[state.player].playStep();
 	}
-	players.forEach(player=> player.reset())
+	players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
 	agents = [new GameAgent(players[0], replayMemory), new RandomAgent(players[1], replayMemory)];
 	env.reset();
 	let tPrev = new Date().getTime();
@@ -104,7 +104,7 @@ async function train() {
 		 	players.forEach(p => p.reset());
 		 	agents.forEach(a => a.reset());
 		}
-		if (frameCount % syncEveryFrames === 0) {
+		if (frameCount % syncEveryFrames === 0) { /* sync не произойдет */
 		  copyWeights(agents[0].targetNetwork, agents[0].onlineNetwork);
 		  console.log('Sync\'ed weights from online network to target network');
 		}

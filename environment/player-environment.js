@@ -52,7 +52,6 @@ export class PlayerEnvironment {
 		this.vp = 0;
 		this.cumulativeReward = 0;
 		this._selectedModel = null;
-		this.frameCount = 0;
 	}
 
 	step(order) {
