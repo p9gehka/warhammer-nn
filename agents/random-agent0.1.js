@@ -40,7 +40,8 @@ export class RandomAgent {
 
 	playStep() {
 		this.attempts++;
-		const order = this.orders.all[this.getOrderIndex()];
+		const orderIndex = this.getOrderIndex();
+		const order = this.orders.all[orderIndex];
 		const input = this.game.getInput();
 		const [order_, state, reward] = this.game.step(order);
 		const nextInput = this.game.getInput();

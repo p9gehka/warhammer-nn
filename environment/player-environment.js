@@ -40,6 +40,7 @@ export class PlayerEnvironment {
 	vp = 0;
 	_selectedModel = null;
 	cumulativeReward = 0;
+	frameCount = 0;
 	constructor(playerId, env) {
 		this.env = env;
 		this.playerId = playerId;
@@ -51,11 +52,12 @@ export class PlayerEnvironment {
 		this.vp = 0;
 		this.cumulativeReward = 0;
 		this._selectedModel = null;
+		this.frameCount = 0;
 	}
 
 	step(order) {
 		let newOrder;
-
+		this.frameCount++;
 		if (order.action === Action.Select) {
 			const { action, id } = order;
 			this._selectedModel = this.env.players[this.playerId].models[id];
@@ -91,8 +93,11 @@ export class PlayerEnvironment {
 					doneReward += 20;
 				}
 			}
+			let vpDelta = 0;
 			const newVP = players[this.playerId].vp;
-			const vpDelta = newVP - players[this.enemyId].vp;
+			if (order.action === Action.NextPhase) {
+				vpDelta = newVP - players[this.enemyId].vp
+			}
 			reward = newVP + vpDelta + doneReward - this.vp ;
 			this.vp = newVP;
 

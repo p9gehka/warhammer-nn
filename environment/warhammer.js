@@ -108,7 +108,6 @@ export class Warhammer {
 				model.updateAvailableToMove(true);
 			}
 		})
-
 		return this.getState();
 	}
 
@@ -195,21 +194,8 @@ export class Warhammer {
 		return this.getState();
 	}
 
-	strenghtVsToughness(strength, toughness) {
-		if (strength >= toughness * 2) {
-			return 2;
-		}
-		if (strength > toughness) {
-			return 3;
-		}
-		if (strength < toughness) {
-			return 5;
-		}
-		if (strength * 2 <= toughness) {
-			return 6;
-		}
-
-		return 4;
+	strenghtVsToughness(s, t) {
+		return [s >= t * 2, s > t, s === t, s < t && t < s * 2, s * 2 <= t].findIndex(v=> v) + 2;
 	}
 
 	getPlayer() { return this.turn % 2 }

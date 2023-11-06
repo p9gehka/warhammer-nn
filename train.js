@@ -26,48 +26,56 @@ class MovingAverager {
   }
 }
 
-const replayBufferSize =64//1e4;
+const replayBufferSize = 1e4;
 const batchSize = 64;
 const gamma = 0.99;
 const learningRate = 1e-3;
 const savePath = './models/dqn';
-const cumulativeRewardThreshold = 5;
+const cumulativeRewardThreshold = 20;
 const syncEveryFrames = 1e3;
 
 async function train() {
 	const env = new Warhammer();
 	const replayMemory = new ReplayMemory(replayBufferSize);
 	const players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
-	let agents = [new GameAgent(players[0], replayMemory), new RandomAgent(players[1])]
+	let agents = [new RandomAgent(players[0], replayMemory), new RandomAgent(players[1], replayMemory)];
 	let state = env.reset();
 
-	for (let i = 0; i < replayBufferSize * 2; ++i) {
+	for (let i = 0; i < replayBufferSize; ++i) {
 		state = env.getState();
-		if (state.done) { state = env.reset() }
+		if (state.done) {
+			state = env.reset();
+			players.forEach(player=> player.reset());
+			agents.forEach(a=> a.reset());
+		}
 		agents[state.player].playStep();
 	}
-
+	players.forEach(player=> player.reset())
+	agents = [new GameAgent(players[0], replayMemory), new RandomAgent(players[1], replayMemory)];
 	env.reset();
 	let tPrev = new Date().getTime();
-	let frameCountPrev = agents[0].frameCount;
+	let frameCountPrev = players[0].frameCount + players[1].frameCount;
 	let averageReward100Best = -Infinity;
 	const optimizer = tf.train.adam(learningRate);
 	const rewardAverager100 = new MovingAverager(100);
+	let frameCount = 0;
 	while (true) {
 		const t = new Date().getTime();
+		frameCount = players[0].frameCount + players[1].frameCount;
 		const framesPerSecond =
-		    (agents[0].frameCount - frameCountPrev) / (t - tPrev) * 1e3;
+		    (frameCount - frameCountPrev) / ((t - tPrev) * 1e3 + 1);
 		tPrev = t;
-		frameCountPrev = agents[0].frameCount;
+		frameCountPrev = frameCount;
 
 		state = env.getState();
+		
 		if (state.done) {
 			const cumulativeReward = players[0].cumulativeReward;
 			rewardAverager100.append(cumulativeReward)
 			const averageReward100 = rewardAverager100.average();
 
 			console.log(
-			    `Frame #${agents[0].frameCount}: ` +
+			    `Frame #${frameCount}: ` +
 			    `cumulativeReward100=${averageReward100.toFixed(1)}; ` +
 			    `(epsilon=${agents[0].epsilon.toFixed(3)}) ` +
 			    `(${framesPerSecond.toFixed(1)} frames/s)`);
@@ -96,8 +104,8 @@ async function train() {
 		 	players.forEach(p => p.reset());
 		 	agents.forEach(a => a.reset());
 		}
-		if (agents[0].frameCount % syncEveryFrames === 0) {
-		  copyWeights(agent.targetNetwork, agent.onlineNetwork);
+		if (frameCount % syncEveryFrames === 0) {
+		  copyWeights(agents[0].targetNetwork, agents[0].onlineNetwork);
 		  console.log('Sync\'ed weights from online network to target network');
 		}
 		agents[state.player].trainOnReplayBatch(batchSize, gamma, optimizer);
