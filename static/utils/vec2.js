@@ -44,3 +44,6 @@ export function scaleToLen([x, y], newLength) {
 export function angleToVec2 (distance, angle) {
 	return distance === 0 ? [0, 0] : rotatedDegrees([0, distance], angle);
 }
+export function mul([x, y], other) {
+	return [x * other, y * other];
+}

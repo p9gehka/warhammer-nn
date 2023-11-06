@@ -1,88 +1,101 @@
 import * as tf from '@tensorflow/tfjs-node';
 import { angleToVec2, round2 } from '../static/utils/vec2.js';
 import { Action, channels } from '../environment/player-environment.js';
-const models = [0, 1];
+
 const distances = [0.25, 0.5, 0.75, 1];
 const angles = [0, 45, 90, 180, 225 , 270, 315];
 
-const targets = [0, 1];
+export class Orders {
+	orders = null;
+	constructor(models, targets) {
+		this.models = Array(models).fill(0).map((v, i) => i);
+		this.targets = Array(targets).fill(0).map((v, i) => i);
 
-let orders = null;
-export function getOrders() {
-	if (orders !== null) {
-		return orders;
 	}
-	orders = {
-		[Action.NextPhase]: [{ action: Action.NextPhase }],
-		[Action.Select]: [],
-		[Action.Move]: [],
-		[Action.Shoot]: [],
-		nextPhaseIndex: 0,
-		selectAndMove: [],
-		selectAndShoot: [],
-		nextPhaseIndexesArgMax: [],
-		selectIndexes: [],
-		selectIndexesArgMax: [],
-		selectAndMoveIndexes: [],
-		selectAndMoveIndexesArgMax: [],
-		selectAndShootIndexes: [],
-		selectAndShootIndexesArgMax: [],
-		all: []
-	}
-
-	for (let id of models) {
-		orders[Action.Select].push({ action: Action.Select, id });
-	}
-
-
-	for (let distance of distances) {
-		for (let angle of angles) {
-			orders[Action.Move].push({ action:Action.Move, vector: round2(angleToVec2(distance, angle)) });
+	getOrders() {
+		if (this.orders !== null) {
+			return this.orders;
 		}
-	}
+		const models = this.models;
+		const targets = this.targets;
+		this.orders = {
+			[Action.NextPhase]: [{ action: Action.NextPhase }],
+			[Action.Select]: [],
+			[Action.Move]: [],
+			[Action.Shoot]: [],
+			nextPhaseIndex: 0,
+			selectAndMove: [],
+			selectAndShoot: [],
+			nextPhaseIndexesArgMax: [],
+			selectIndexes: [],
+			selectIndexesArgMax: [],
+			moveIndexes: [],
+			selectAndMoveIndexes: [],
+			selectAndMoveIndexesArgMax: [],
+			shootIndexes: [],
+			selectAndShootIndexes: [],
+			selectAndShootIndexesArgMax: [],
+			all: []
+		}
 
-	for (let target of targets) {
-		orders[Action.Shoot].push({ action: Action.Shoot, target });
-	}
+		for (let id of models) {
+			this.orders[Action.Select].push({ action: Action.Select, id });
+		}
 
-	orders.all.push(...orders[Action.NextPhase]);
-	orders.selectIndexes.push(0)
-	orders.selectAndMoveIndexes.push(0);
-	orders.selectAndShootIndexes.push(0);
 
-	for (let action of [Action.Select, Action.Move, Action.Shoot]){
-		orders[action].forEach((order) => {
-			if (action === Action.Select) {
-				orders.selectIndexes.push(orders.all.length);
-				orders.selectAndMoveIndexes.push(orders.all.length);
-				orders.selectAndShootIndexes.push(orders.all.length);
+		for (let distance of distances) {
+			for (let angle of angles) {
+				this.orders[Action.Move].push({ action:Action.Move, vector: round2(angleToVec2(distance, angle)) });
 			}
+		}
 
-			if (action === Action.Move) {
-				orders.selectAndMoveIndexes.push(orders.all.length);
-			}
+		for (let target of targets) {
+			this.orders[Action.Shoot].push({ action: Action.Shoot, target });
+		}
 
-			if (action === Action.Shoot) {
-				orders.selectAndShootIndexes.push(orders.all.length)
-			}
-			orders.all.push(order);
-		});
+		this.orders.all.push(...this.orders[Action.NextPhase]);
+		this.orders.selectIndexes.push(0)
+		this.orders.moveIndexes.push(0)
+		this.orders.shootIndexes.push(0)
+		this.orders.selectAndMoveIndexes.push(0);
+		this.orders.selectAndShootIndexes.push(0);
+
+		for (let action of [Action.Select, Action.Move, Action.Shoot]){
+			this.orders[action].forEach((order) => {
+				if (action === Action.Select) {
+					this.orders.selectIndexes.push(this.orders.all.length);
+					this.orders.selectAndMoveIndexes.push(this.orders.all.length);
+					this.orders.selectAndShootIndexes.push(this.orders.all.length);
+				}
+
+				if (action === Action.Move) {
+					this.orders.moveIndexes.push(this.orders.all.length)
+					this.orders.selectAndMoveIndexes.push(this.orders.all.length);
+				}
+
+				if (action === Action.Shoot) {
+					this.orders.shootIndexes.push(this.orders.all.length)
+					this.orders.selectAndShootIndexes.push(this.orders.all.length)
+				}
+				this.orders.all.push(order);
+			});
+		}
+
+		this.orders.selectAndMove = [...this.orders[Action.NextPhase], ...this.orders[Action.Select], ...this.orders[Action.Move]];
+		this.orders.selectAndShoot = [...this.orders[Action.NextPhase], ...this.orders[Action.Select], ...this.orders[Action.Shoot]];
+
+		this.orders.nextPhaseIndexesArgMax = Array(this.orders.all.length).fill(-Infinity);
+		this.orders.selectIndexesArgMax = Array(this.orders.all.length).fill(-Infinity);
+		this.orders.selectAndMoveIndexesArgMax = Array(this.orders.all.length).fill(-Infinity);
+		this.orders.selectAndShootIndexesArgMax = Array(this.orders.all.length).fill(-Infinity);
+
+		this.orders.nextPhaseIndexesArgMax[this.orders.nextPhaseIndex] = 0;
+		this.orders.selectIndexes.forEach(i => this.orders.selectIndexesArgMax[i] = 0);
+		this.orders.selectAndMoveIndexes.forEach(i => this.orders.selectAndMoveIndexesArgMax[i] = 0);
+		this.orders.selectAndShootIndexes.forEach(i => this.orders.selectAndShootIndexesArgMax[i] = 0)
+
+		return this.orders;
 	}
-
-	orders.selectAndMove = [...orders[Action.NextPhase], ...orders[Action.Select], ...orders[Action.Move]];
-	orders.selectAndShoot = [...orders[Action.NextPhase], ...orders[Action.Select], ...orders[Action.Shoot]];
-
-	orders.nextPhaseIndexesArgMax = Array(orders.all.length).fill(-Infinity);
-	orders.selectIndexesArgMax = Array(orders.all.length).fill(-Infinity);
-	orders.selectAndMoveIndexesArgMax = Array(orders.all.length).fill(-Infinity);
-	orders.selectAndShootIndexesArgMax = Array(orders.all.length).fill(-Infinity);
-
-	orders.nextPhaseIndexesArgMax[orders.nextPhaseIndex] = 0;
-	orders.selectIndexes.forEach(i => orders.selectIndexesArgMax[i] = 0);
-	orders.selectAndMoveIndexes.forEach(i => orders.selectAndMoveIndexesArgMax[i] = 0);
-	orders.selectAndShootIndexes.forEach(i => orders.selectAndShootIndexesArgMax[i] = 0)
-
-	return orders;
 }
 
 export function getStateTensor(state, h, w, c) {

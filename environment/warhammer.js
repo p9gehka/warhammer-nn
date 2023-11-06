@@ -2,7 +2,7 @@ import gameSettings from '../static/settings/game-settings0.1.json' assert { typ
 import tauUnits from '../static/settings/tau-units.json' assert { type: 'json' };
 import tauWeapons from '../static/settings/tau-weapons.json' assert { type: 'json' };
 
-import { scaleToLen, len, sub, add } from '../static/utils/vec2.js';
+import { mul, len, sub, add } from '../static/utils/vec2.js';
 
 const { battlefield, models } = gameSettings;
 const { size, objective_marker, objective_marker_control_distance } = battlefield;
@@ -56,7 +56,7 @@ class Model {
 		}
 	}
 	updateAvailableToShoot(value) {
-		if (!this.dead) {
+		if (!this.dead && this.unitProfile.ranged_weapons.length > 0) {
 			this.availableToShoot = value
 		}
 	}
@@ -86,6 +86,9 @@ export class Warhammer {
 	phase = Phase.Movement;
 	turn = 0
 	battlefield = battlefield;
+	constructor() {
+		this.reset();
+	}
 	reset() {
 		this.phase = Phase.Movement;
 		this.turn = 0
@@ -162,13 +165,13 @@ export class Warhammer {
 			}
 			model.updateAvailableToMove(false);
 			if (len(order.vector) > 0) {
-				const movementVector = scaleToLen(order.vector, model.unitProfile.m)
+				const movementVector = mul(order.vector, model.unitProfile.m)
 				model.update(add(model.position, movementVector));
 			}
 		}
 
 		if (order.action === BaseAction.Shoot) {
-			if (!model.availableToShoot || !this.models[order.target]) {
+			if (!model.availableToShoot || this.models[order.target] === null) {
 				return this.getState();
 			}
 

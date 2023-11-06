@@ -5,7 +5,6 @@ import { Warhammer, Phase } from './environment/warhammer.js';
 import { PlayerEnvironment, Action } from './environment/player-environment.js';
 import { RandomAgent } from './agents/random-agent0.1.js';
 import { GameAgent } from './agents/game-agent0.1.js';
-import { ReplayMemory } from './dqn/replay_memory.js';
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -22,10 +21,8 @@ app.get('/', (req,res) => res.sendFile('static/index.html', { root: __dirname })
 app.post('/play', (req,res) => {
   const env = new Warhammer();
 
-  const replayMemory =  new ReplayMemory(1e4);
-
   const players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
-  let agents = [new RandomAgent(players[0]), new RandomAgent(players[1])]
+  let agents = [new GameAgent(players[0]), new RandomAgent(players[1])]
   let state = env.reset();
   let attempts = 0;
 

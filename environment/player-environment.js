@@ -7,20 +7,25 @@ export const Action = {
 	Select: "SELECT"
 }
 
-
 export const Channel1 = {
 	Empty: 0,
-	Marker: 1,
-	SelfStrikeTeam: 2,
-	SelfStrikeTeamAvailableToMove: 3,
-	SelfStrikeTeamAvailableToShoot: 4,
-	SelfStealth: 5,
-	SelfStealthAvailableToMove: 6,
-	SelfStealthAvailableToShoot: 7,
-	EnemyStrikeTeam: 8,
-	EnemyStealth: 9
+	SelfModel: 1,
+	SelfModelAvailableToMove: 2,
+	SelfModelAvailableToShoot: 3,
+};
+
+export const Channel2 = {
+	Empty: 0,
+	Selected: 1,
+	Marker: 2,
+	Enemy: 3,
 }
-export const Channel2 = { Empty: 0, Selected: 1 };
+export const Channel3 = {
+	Empty: 0,
+	StrikeTeam: 1,
+	Stealth: 2,
+}
+
 export const Channel1Name = {}, Channel2Name = {};
 
 Object.keys(Channel1).forEach(name => Channel1Name[name] = name);
@@ -74,6 +79,7 @@ export class PlayerEnvironment {
 		if(newOrder.action === Action.Select || (this._selectedModel === null && (newOrder.action === Action.Move || newOrder.action === Action.Shoot ))) {
 			state = this.env.getState();
 		} else if (newOrder.action !== Action.Select) {
+
 			state = this.env.step(newOrder);
 			let doneReward = 0;
 			const { players } = state;
@@ -94,7 +100,7 @@ export class PlayerEnvironment {
 			state = this.env.getState();
 		}
 		this.cumulativeReward += reward;
-		return [newOrder, { ...state, selectedModel: this._selectedModel }, reward];
+		return [{ ...newOrder, misc: state.misc }, { ...state, selectedModel: this._selectedModel }, reward];
 	}
 	selectedModel() {
 		if (this.env.getState().models[this._selectedModel] === null) {
@@ -104,16 +110,16 @@ export class PlayerEnvironment {
 	}
 	getInput() {
 		const selectedModel = this.selectedModel();
+		const state = this.env.getState();
 		const battlefield = this.env.battlefield;
 		const input = {};
 		[...Object.keys(Channel1Name), ...Object.keys(Channel2Name)].forEach(name => {
 			input[name] = [];
 		})
-		input[Channel1Name.Marker] = battlefield.objective_marker;
-		const state = this.env.getState();
+		input[Channel2Name.Marker] = round(battlefield.objective_marker);
 
-		if (selectedModel && state.models[selectedModel]) {
-			input[Channel2Name.Selected] = [state.models[selectedModel]];
+		if (selectedModel !== null && state.models[selectedModel] !== null) {
+			input[Channel2Name.Selected] = [round(state.models[selectedModel])];
 		}
 
 		for (let player of state.players) {
@@ -121,38 +127,22 @@ export class PlayerEnvironment {
 				unit.models.forEach(modelId => {
 					const xy = state.models[modelId]
 					if (xy === null) { return; }
+
 					let entity = null;
 
 					if (unit.playerId === this.playerId) {
-						if (unit.name === 'strike_team') {
-							entity = Channel1Name.SelfStrikeTeam;
-							if(state.availableToMove.includes(modelId) && state.phase === Phase.Movement) {
-								entity = Channel1Name.SelfStrikeTeamAvailableToMove;
-							}
-							if(state.availableToShoot.includes(modelId) && state.phase === Phase.Shooting) {
-								entity = Channel1Name.SelfStrikeTeamAvailableToShoot;
-							}
+						entity = Channel1Name.SelfModel;
+						if(state.availableToMove.includes(modelId) && state.phase === Phase.Movement) {
+							entity = Channel1Name.SelfModelAvailableToMove;
 						}
 
-						if (unit.name === 'stealth_battlesuits') {
-							entity = Channel1Name.SelfStealth;
-
-							if(state.availableToMove.includes(modelId) && state.phase === Phase.Movement) {
-								entity = Channel1Name.SelfStealthAvailableToMove;
-							}
-							if(state.availableToShoot.includes(modelId) && state.phase === Phase.Shooting) {
-								entity = Channel1Name.SelfStealthmAvailableToShoot;
-							}
+						if(state.availableToShoot.includes(modelId) && state.phase === Phase.Shooting) {
+							entity = Channel1Name.SelfModelAvailableToShoot;
 						}
 					}
-					if (unit.playerId !== this.playerId) {
-						if (unit.name === 'strike_team') {
-							entity = Channel1Name.EnemyStrikeTeam;
-						}
 
-						if (unit.name === 'stealth_battlesuits') {
-							entity = Channel1Name.EnemyStealth;
-						}
+					if (unit.playerId !== this.playerId) {
+						entity = Channel2Name.Enemy;
 					}
 					if (entity !== null) {
 						if (input[entity] === undefined) {

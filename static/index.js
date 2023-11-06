@@ -36,7 +36,6 @@ async function start () {
 		li.innerHTML = JSON.stringify(order);
 		li.tabIndex = 0;
 		actionsList.appendChild(li);
-
 		let round = Math.floor(state.turn / 2);
 		if (lastRound !== round) {
 			const separator = document.createElement("LI");
