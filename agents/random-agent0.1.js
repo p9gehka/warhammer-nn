@@ -40,4 +40,8 @@ export class RandomAgent {
 		const order = this.orders.all[this.getOrderIndex()];
 		return this.game.step(order)
 	}
+
+	trainOnReplayBatch() {
+		
+	}
 }

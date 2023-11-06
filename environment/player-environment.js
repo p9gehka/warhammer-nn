@@ -34,6 +34,7 @@ export class PlayerEnvironment {
 	channels = 2;
 	vp = 0;
 	_selectedModel = null;
+	cumulativeReward = 0;
 	constructor(playerId, env) {
 		this.env = env;
 		this.playerId = playerId;
@@ -43,6 +44,7 @@ export class PlayerEnvironment {
 
 	reset() {
 		this.vp = 0;
+		this.cumulativeReward = 0;
 		this._selectedModel = null;
 	}
 
@@ -91,7 +93,7 @@ export class PlayerEnvironment {
 		} else {
 			state = this.env.getState();
 		}
-
+		this.cumulativeReward += reward;
 		return [newOrder, { ...state, selectedModel: this._selectedModel }, reward];
 	}
 	selectedModel() {
@@ -161,6 +163,6 @@ export class PlayerEnvironment {
 				});
 			}
 		}
-		return input
+		return input;
 	}
 }

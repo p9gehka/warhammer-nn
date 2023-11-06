@@ -63,6 +63,7 @@ export class ReplayMemory {
       throw new Error(
           `batchSize (${batchSize}) exceeds buffer length (${this.maxLen})`);
     }
+
     tf.util.shuffle(this.bufferIndices_);
 
     const out = [];
