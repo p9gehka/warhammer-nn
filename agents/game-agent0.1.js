@@ -15,6 +15,7 @@ export class GameAgent {
 		this.orders = (new Orders(this.game.env.players[this.game.playerId].models.length, this.game.env.players[this.game.enemyId].models.length)).getOrders();
 		this.onlineNetwork = nn ?? createDeepQNetwork(game.height, game.width, game.channels, this.orders.all.length);
 		this.targetNetwork = nn ?? createDeepQNetwork(game.height, game.width, game.channels, this.orders.all.length);
+		this.targetNetwork.trainable = false;
 		this.replayMemory = replayMemory ?? null;
 		this.frameCount = 0;
 	}
