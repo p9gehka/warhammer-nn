@@ -5,7 +5,7 @@ import { Warhammer, Phase } from './environment/warhammer.js';
 import { PlayerEnvironment, Action } from './environment/player-environment.js';
 import { RandomAgent } from './agents/random-agent0.1.js';
 import { GameAgent } from './agents/game-agent0.1.js';
-
+import * as tf from '@tensorflow/tfjs-node';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,7 +18,7 @@ app.use(express.static(__dirname + '/static'));
 
 app.get('/', (req,res) => res.sendFile('static/index.html', { root: __dirname }));
 
-app.post('/play', (req,res) => {
+app.post('/play', async (req,res) => {
   const env = new Warhammer();
 
   const players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];

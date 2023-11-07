@@ -38,7 +38,7 @@ async function train() {
 	const env = new Warhammer();
 	const replayMemory = new ReplayMemory(replayBufferSize);
 	let players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
-	let agents = [new RandomAgent(players[0], replayMemory), new RandomAgent(players[1], replayMemory)];
+	let agents = [new RandomAgent(players[0], { replayMemory }), new RandomAgent(players[1], { replayMemory })];
 	let state = env.reset();
 
 	for (let i = 0; i < replayBufferSize; ++i) {
@@ -51,7 +51,7 @@ async function train() {
 		agents[state.player].playStep();
 	}
 	players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
-	agents = [new GameAgent(players[0], replayMemory), new RandomAgent(players[1], replayMemory)];
+	agents = [new GameAgent(players[0], { replayMemory }), new RandomAgent(players[1], { replayMemory })];
 	env.reset();
 	let tPrev = new Date().getTime();
 	let frameCountPrev = players[0].frameCount + players[1].frameCount;

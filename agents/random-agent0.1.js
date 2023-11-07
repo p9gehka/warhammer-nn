@@ -8,7 +8,8 @@ import { Orders } from './utils.js';
 export class RandomAgent {
 	orders = []
 	attempts = 0;
-	constructor(game, replayMemory) {
+	constructor(game, config = {}) {
+		const { replayMemory } = config;
 		this.game = game;
 		this.orders = (new Orders(game.env.players[this.game.playerId].models.length, this.game.env.players[this.game.enemyId].models.length)).getOrders();
 		this.replayMemory = replayMemory;

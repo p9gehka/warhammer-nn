@@ -9,11 +9,12 @@ import { Action, Channel2Name, Channel1Name } from '../environment/player-enviro
 export class GameAgent {
 	orders = [];
 	attempts = 0;
-	constructor(game, replayMemory) {
+	constructor(game, config = {}) {
+		const { replayMemory, nn  } = config
 		this.game = game;
 		this.orders = (new Orders(this.game.env.players[this.game.playerId].models.length, this.game.env.players[this.game.enemyId].models.length)).getOrders();
-		this.onlineNetwork = createDeepQNetwork(game.height, game.width, game.channels, this.orders.all.length);
-		this.targetNetwork = createDeepQNetwork(game.height, game.width, game.channels, this.orders.all.length);
+		this.onlineNetwork = nn ?? createDeepQNetwork(game.height, game.width, game.channels, this.orders.all.length);
+		this.targetNetwork = nn ?? createDeepQNetwork(game.height, game.width, game.channels, this.orders.all.length);
 		this.replayMemory = replayMemory ?? null;
 		this.frameCount = 0;
 	}

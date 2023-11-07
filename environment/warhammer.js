@@ -21,10 +21,7 @@ export const BaseAction = {
 	Shoot: 'SHOOT',
 }
 
-function d6(n) {
-	if (n) {
-		return n
-	}
+function d6() {
 	const edge = [1,2,3,4,5,6].map(() => Math.random())
 	return edge.findIndex((v) => v ===Math.max(...edge)) + 1;
 }
