@@ -73,13 +73,12 @@ export class Battlefield extends Drawing {
 					0, 0, 2 * Math.PI
 				);
 			})
-		})
+		});
 
-
-		this.ctx.fillStyle = "gray";
-		this.battlefield.ruins.forEach((pos) => {
-			this.fillPath(() => {
-				this.ctx.rect(...pos, ...this.battlefield.ruins_size);
+		this.ctx.strokeStyle = "black";
+		this.battlefield.ruins.forEach(([[x1, y1], [x2, y2]]) => {
+			this.strokePath(() => {
+				this.ctx.rect(x1, y1, Math.max(Math.abs(x1 - x2), 1), Math.max(Math.abs(y1 - y2), 1));
 			})
 		})
 	}

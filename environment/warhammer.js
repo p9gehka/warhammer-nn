@@ -160,23 +160,23 @@ export class Warhammer {
 				return this.getState();
 			}
 			model.updateAvailableToMove(false);
+
 			if (len(order.vector) > 0) {
 				const movementVector = mul(order.vector, model.unitProfile.m)
 				model.update(add(model.position, movementVector));
 			}
+
 		}
 
 		if (order.action === BaseAction.Shoot) {
-			if (!model.availableToShoot || this.models[order.target] === null) {
+			if (!model.availableToShoot) {
 				return this.getState();
 			}
 
 			model.updateAvailableToShoot(false);
-
-			const weapon = tauWeapons[model.unitProfile.ranged_weapons[0]];
 			const targetModel = this.models[order.target];
-
-			if (weapon.range >= len(sub(targetModel.position, model.position)) && !targetModel.dead) {
+			if (targetModel !== null && this.canShoot(model, targetModel)) {
+				const weapon = tauWeapons[model.unitProfile.ranged_weapons[0]];
 				const targetToughness = targetModel.unitProfile.t;
 				const targetSave = targetModel.unitProfile.sv;
 				const hits = Array(weapon.a).fill(0).map(d6);
@@ -189,6 +189,10 @@ export class Warhammer {
 		}
 
 		return this.getState();
+	}
+	canShoot(model, targetModel) {
+		const weapon = tauWeapons[model.unitProfile.ranged_weapons[0]];
+		return !targetModel.dead && weapon.range >= len(sub(model.position, targetModel.position)) && this.battlefield.ruins.every(ruin => getLineIntersection([targetModel.position, model.position], ruin) === null)
 	}
 
 	strenghtVsToughness(s, t) {
@@ -233,4 +237,19 @@ export class Warhammer {
 			turn: this.turn,
 		};
 	}
+}
+
+function getLineIntersection([[p0_x, p0_y], [p1_x, p1_y]], [[p2_x, p2_y], [p3_x, p3_y]]) {
+	const s1_x = p1_x - p0_x;
+	const s1_y = p1_y - p0_y;
+	const s2_x = p3_x - p2_x;
+	const s2_y = p3_y - p2_y;
+
+	const s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
+	const t = ( s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
+
+	if (s >= 0 && s <= 1 && t >= 0 && t <= 1){
+		return [p0_x + (t * s1_x), p0_y + (t * s1_y)];
+	}
+	return null;
 }
