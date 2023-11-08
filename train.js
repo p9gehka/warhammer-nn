@@ -31,7 +31,7 @@ const batchSize = 64;
 const gamma = 0.99;
 const learningRate = 1e-3;
 const savePath = './models/dqn';
-const cumulativeRewardThreshold = 20;
+const cumulativeRewardThreshold = 220;
 const syncEveryFrames = 1e3;
 
 async function train() {
