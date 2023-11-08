@@ -26,7 +26,7 @@ export const Channel3 = {
 	StrikeTeam: 1,
 	Stealth: 2,
 }
-
+const m =  250;
 export const Channel1Name = {}, Channel2Name = {};
 
 Object.keys(Channel1).forEach(name => Channel1Name[name] = name);
@@ -87,10 +87,10 @@ export class PlayerEnvironment {
 			const { players } = state;
 			if (state.done) {
 				if (players[this.playerId].models.every(modelId => state.models[modelId] === null)) {
-					doneReward -= 20;
+					doneReward -= m;
 				}
 				if (players[this.enemyId].models.every(modelId => state.models[modelId] === null)) {
-					doneReward += 20;
+					doneReward += m;
 				}
 			}
 			let vpDelta = 0;
