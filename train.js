@@ -26,13 +26,13 @@ class MovingAverager {
   }
 }
 
-const replayBufferSize = 1e4;
-const batchSize = 64;
+const replayBufferSize = 5e4;
+const batchSize = 128;
 const gamma = 0.99;
 const learningRate = 1e-3;
 const savePath = './models/dqn';
 const cumulativeRewardThreshold = 220;
-const syncEveryFrames = 1e3;
+const syncEveryFrames = 5e3;
 
 async function train() {
 	const env = new Warhammer();
