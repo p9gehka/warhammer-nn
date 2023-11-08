@@ -76,7 +76,9 @@ export class Battlefield extends Drawing {
 		});
 
 		this.ctx.strokeStyle = "black";
-		this.battlefield.ruins.forEach(([[x1, y1], [x2, y2]]) => {
+		this.battlefield.ruins.forEach((ruin) => {
+			const [x1, y1] = ruin.at(0);
+			const [x2, y2] = ruin.at(-1);
 			this.strokePath(() => {
 				this.ctx.rect(x1, y1, Math.max(Math.abs(x1 - x2), 1), Math.max(Math.abs(y1 - y2), 1));
 			})

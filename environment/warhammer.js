@@ -192,7 +192,7 @@ export class Warhammer {
 	}
 	canShoot(model, targetModel) {
 		const weapon = tauWeapons[model.unitProfile.ranged_weapons[0]];
-		return !targetModel.dead && weapon.range >= len(sub(model.position, targetModel.position)) && this.battlefield.ruins.every(ruin => getLineIntersection([targetModel.position, model.position], ruin) === null)
+		return !targetModel.dead && weapon.range >= len(sub(model.position, targetModel.position)) && this.battlefield.ruins.every(ruin => getLineIntersection([targetModel.position, model.position], [ruin.at(0), ruin.at(-1)]) === null);
 	}
 
 	strenghtVsToughness(s, t) {

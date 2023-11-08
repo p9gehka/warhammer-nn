@@ -8,17 +8,18 @@ export const Action = {
 }
 
 export const Channel1 = {
-	Empty: 0,
-	SelfModel: 1,
-	SelfModelAvailableToMove: 2,
-	SelfModelAvailableToShoot: 3,
+	Empty: 0.1,
+	SelfModel: 0.33,
+	SelfModelAvailableToMove: 0.66,
+	SelfModelAvailableToShoot: 0.99,
 };
 
 export const Channel2 = {
-	Empty: 0,
-	Selected: 1,
-	Marker: 2,
-	Enemy: 3,
+	Empty: 0.1,
+	Selected: 0.25,
+	Marker: 0.5,
+	Enemy: 0.75,
+	Ruin: 0.99,
 }
 export const Channel3 = {
 	Empty: 0,
@@ -120,7 +121,13 @@ export class PlayerEnvironment {
 		[...Object.keys(Channel1Name), ...Object.keys(Channel2Name)].forEach(name => {
 			input[name] = [];
 		})
-		input[Channel2Name.Marker] = round(battlefield.objective_marker);
+
+		input[Channel2Name.Marker] = battlefield.objective_marker.map(round);
+		input[Channel2Name.Ruin] = battlefield.ruins.map(([[x1, y1], [x2, y2]]) => {
+			return Array.from({ length:Math.max(Math.abs(x1 - x2), Math.abs(y1 - y2))})
+			.fill((x, y) => [[x + Math.sign(x2 - x), y + Math.sign(y2 - y)]])
+			.reduce((list, cb) => list.concat(cb(...list.at(-1))), [[x1, y1]])	
+		})
 
 		if (selectedModel !== null && state.models[selectedModel] !== null) {
 			input[Channel2Name.Selected] = [round(state.models[selectedModel])];
@@ -160,3 +167,4 @@ export class PlayerEnvironment {
 		return input;
 	}
 }
+
