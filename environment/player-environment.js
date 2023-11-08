@@ -105,6 +105,7 @@ export class PlayerEnvironment {
 			state = this.env.getState();
 		}
 		this.cumulativeReward += reward;
+
 		return [{ ...newOrder, misc: state.misc }, { ...state, selectedModel: this._selectedModel }, reward];
 	}
 	selectedModel() {

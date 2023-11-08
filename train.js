@@ -26,8 +26,8 @@ class MovingAverager {
   }
 }
 
-const replayBufferSize = 5e4;
-const batchSize = 128;
+const replayBufferSize = 1e4;
+const batchSize = 64;
 const gamma = 0.99;
 const learningRate = 1e-3;
 const savePath = './models/dqn';
