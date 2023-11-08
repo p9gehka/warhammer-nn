@@ -12,6 +12,7 @@ const vpPlayer2Element = document.getElementById('player-2-vp');
 ctx.scale(canvas.width / gameSettings.battlefield.size[0], canvas.height / gameSettings.battlefield.size[1]);
 
 const battlefield = new Battlefield(ctx, { size: gameSettings.battlefield.size, objective_marker: [], ruins: [] });
+await battlefield.init()
 battlefield.draw()
 
 let actionAndStates = [];
@@ -28,6 +29,7 @@ async function start () {
 	const [,initState] = actionAndStates[0];
 
 	scene = new Scene(ctx, initState);
+	await scene.init();
 
 	let lastRound = 1;
 	actionAndStates.forEach(([order, state], i) => {
