@@ -16,19 +16,11 @@ export async function sendDataToTelegram(values, message) {
 	if (bot === null) {
 		bot  = new TelegramBot(config.token, {polling: true});
 	}
-	console.log(`send value to telegram ${message}`);
+	console.log(`Send value to telegram ${message}`);
 	const canvas = await createCanvas(values);
 	const data =  await canvas.toBuffer();
-	bot.sendMessage(config.chart_id, message)
-	bot.sendPhoto(config.chart_id, data);
+	await bot.sendMessage(config.chart_id, message)
+	await bot.sendPhoto(config.chart_id, data);
 }
 
-export function startBot(cb) {
-	if (bot === null) {
-		bot  = new TelegramBot(config.token, {polling: true});
-	}
-	bot.on('message', (msg) => {
-		sendDataToTelegram(...cb())
-	});
-}
 /* message*/

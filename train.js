@@ -120,7 +120,7 @@ async function train() {
 		  console.log('Sync\'ed weights from online network to target network');
 		}
 		if (frameCount !== null && frameCount % sendMessageEveryFrames === 0 && rewardAveragerBuffer.buffer.filter(v => v !== null).length > 0) {
-			sendDataToTelegram(rewardAveragerBuffer.buffer, `Frame #${frameCount}`)
+			await sendDataToTelegram(rewardAveragerBuffer.buffer, `Frame #${frameCount}`)
 		}
 		agents[state.player].trainOnReplayBatch(batchSize, gamma, optimizer);
 		agents[state.player].playStep();
