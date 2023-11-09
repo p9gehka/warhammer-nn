@@ -37,11 +37,16 @@ const cumulativeRewardThreshold = 220;
 const syncEveryFrames = 2e3;
 const sendMessageEveryFrames = 3e4;
 
-async function train() {
+async function train(nn) {
 	const env = new Warhammer();
 	const replayMemory = new ReplayMemory(replayBufferSize);
 	let players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
-	let agents = [new RandomAgent(players[0], { replayMemory }), new RandomAgent(players[1], { replayMemory })];
+	let agents = [
+		nn == null ? new RandomAgent(players[0], { replayMemory }): new GameAgent(players[0],{ replayMemory, nn }),
+		new RandomAgent(players[1], { replayMemory })
+	];
+
+
 	let state = env.reset();
 
 
@@ -55,17 +60,19 @@ async function train() {
 		agents[state.player].playStep();
 	}
 
+	if (nn === null) {
+		agents = [new GameAgent(players[0], { replayMemory }), new RandomAgent(players[1], { replayMemory })];
+	}
+	players[0].frameCount = 0;
+	players[1].frameCount = 0;
 
-	players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
-	agents = [new GameAgent(players[0], { replayMemory }), new RandomAgent(players[1], { replayMemory })];
 	env.reset();
 	let tPrev = new Date().getTime();
 	let frameCountPrev = players[0].frameCount + players[1].frameCount;
 	let averageReward100Best = -Infinity;
 	const optimizer = tf.train.adam(learningRate);
 	const rewardAverager100 = new MovingAverager(100);
-	const rewardAveragerBuffer = new MovingAverager(500)
-
+	const rewardAveragerBuffer = new MovingAverager(1000);
 
 	let frameCount = 0;
 
@@ -84,7 +91,7 @@ async function train() {
 			const cumulativeReward = players[0].cumulativeReward;
 			rewardAverager100.append(cumulativeReward)
 			const averageReward100 = rewardAverager100.average();
-			rewardAveragerBuffer.append(averageReward100);
+			rewardAveragerBuffer.append({ frame: frameCount, averageReward: averageReward100});
 			console.log(
 			    `Frame #${frameCount}: ` +
 			    `cumulativeReward100=${averageReward100.toFixed(1)}; ` +
@@ -115,12 +122,13 @@ async function train() {
 		 	players.forEach(p => p.reset());
 		 	agents.forEach(a => a.reset());
 		}
+
 		if (frameCount % syncEveryFrames === 0) { /* sync не произойдет */
 		  copyWeights(agents[0].targetNetwork, agents[0].onlineNetwork);
 		  console.log('Sync\'ed weights from online network to target network');
 		}
-		if (frameCount !== null && frameCount % sendMessageEveryFrames === 0 && rewardAveragerBuffer.buffer.filter(v => v !== null).length > 0) {
-			await sendDataToTelegram(rewardAveragerBuffer.buffer, `Frame #${frameCount}`)
+		if (frameCount !== null && frameCount % sendMessageEveryFrames === 0 && rewardAveragerBuffer.buffer.some(v => v !== null)) {
+			await sendDataToTelegram(rewardAveragerBuffer.buffer.filter(v => v!== null), `Frame #${frameCount}`)
 		}
 		agents[state.player].trainOnReplayBatch(batchSize, gamma, optimizer);
 		agents[state.player].playStep();
@@ -128,7 +136,12 @@ async function train() {
 }
 
 async function main() {
-	await train();
+	let nn = null
+	if (fs.existsSync(`${savePath}/model.json`)) {
+		console.log(`Loaded from ${savePath}/model.json`)
+		nn = await tf.loadLayersModel(`file://${savePath}/model.json`)
+	}
+	await train(nn);
 }
 
 main();

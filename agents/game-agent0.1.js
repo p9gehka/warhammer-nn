@@ -5,6 +5,7 @@ import { createDeepQNetwork } from '../dqn/dqn.js';
 import { getRandomInteger } from '../static/utils//index.js';
 import { Orders, getStateTensor } from './utils.js';
 import { Action, Channel2Name, Channel1Name } from '../environment/player-environment.js';
+import { copyWeights } from '../dqn/dqn.js';
 
 export class GameAgent {
 	orders = [];
@@ -13,8 +14,13 @@ export class GameAgent {
 		const { replayMemory, nn  } = config
 		this.game = game;
 		this.orders = (new Orders(this.game.env.players[this.game.playerId].models.length, this.game.env.players[this.game.enemyId].models.length)).getOrders();
-		this.onlineNetwork = nn ?? createDeepQNetwork(game.height, game.width, game.channels, this.orders.all.length);
-		this.targetNetwork = nn ?? createDeepQNetwork(game.height, game.width, game.channels, this.orders.all.length);
+		this.onlineNetwork = createDeepQNetwork(game.height, game.width, game.channels, this.orders.all.length);
+		this.targetNetwork = createDeepQNetwork(game.height, game.width, game.channels, this.orders.all.length);
+		if (nn) {
+			copyWeights(this.onlineNetwork, nn);
+			copyWeights(this.targetNetwork, nn);
+		}
+
 		this.targetNetwork.trainable = false;
 		this.replayMemory = replayMemory ?? null;
 		this.frameCount = 0;

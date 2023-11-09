@@ -5,8 +5,8 @@ import config from './config.json' assert { type: 'json' };
 
 
 async function createCanvas(values) {
-	const yourVlSpec = { mark: "line", encoding: { x: {field: 'a', type: 'quantitative'}, y: {field: 'b', type: 'quantitative'} } };
-	const vegaspec = lite.compile({ ...yourVlSpec, data: { values: values.map((b, a) => ({ a, b }))} }).spec
+	const yourVlSpec = { mark: "line", encoding: { x: {field: 'frame', type: 'quantitative'}, y: {field: 'averageReward', type: 'quantitative'} } };
+	const vegaspec = lite.compile({ ...yourVlSpec, data: { values } }).spec;
 	const view = new vega.View(vega.parse(vegaspec), {renderer: "none"});
 	return await view.toCanvas()
 }
@@ -14,13 +14,11 @@ async function createCanvas(values) {
 let bot = null;
 export async function sendDataToTelegram(values, message) {
 	if (bot === null) {
-		bot  = new TelegramBot(config.token, {polling: true});
+		bot = new TelegramBot(config.token, {polling: true});
 	}
 	console.log(`Send value to telegram ${message}`);
 	const canvas = await createCanvas(values);
-	const data =  await canvas.toBuffer();
-	await bot.sendMessage(config.chart_id, message)
+	const data = await canvas.toBuffer();
+	await bot.sendMessage(config.chart_id, message);
 	await bot.sendPhoto(config.chart_id, data);
 }
-
-/* message*/
