@@ -1,11 +1,12 @@
 import gameSettings from '../static/settings/game-settings0.1.json' assert { type: 'json' };
 import tauUnits from '../static/settings/tau-units.json' assert { type: 'json' };
 import tauWeapons from '../static/settings/tau-weapons.json' assert { type: 'json' };
+import battlefields from '../static/settings/battlefields.json' assert { type: 'json' };
 
 import { mul, len, sub, add } from '../static/utils/vec2.js';
 
-const { battlefield, models } = gameSettings;
-const { size, objective_marker, objective_marker_control_distance } = battlefield;
+const { models, objective_marker_control_distance } = gameSettings;
+import { getRandomInteger } from '../static/utils//index.js';
 
 
 export const Phase = {
@@ -82,11 +83,13 @@ export class Warhammer {
 	models = [];
 	phase = Phase.Movement;
 	turn = 0
-	battlefield = battlefield;
 	constructor() {
 		this.reset();
 	}
 	reset() {
+		const battlefieldsNames = Object.keys(battlefields);
+		this.battlefield = battlefields[battlefieldsNames[getRandomInteger(0, battlefieldsNames.length)]];
+
 		this.phase = Phase.Movement;
 		this.turn = 0
 
@@ -123,7 +126,7 @@ export class Warhammer {
 			this.phase = phaseOrd[(this.phase + 1) % phaseOrd.length];
 			this.models.forEach(model => {
 				const [x, y] = model.position;
-				if (x < 0 || size[0] < x || y < 0 || size[1] < y) {
+				if (x < 0 || this.battlefield.size[0] < x || y < 0 || this.battlefield.size[1] < y) {
 					model.kill();
 				}
 			})
@@ -207,10 +210,10 @@ export class Warhammer {
 	}
 
 	scoreVP() {
-		const objectiveControl = Array(objective_marker.length).fill(0);
+		const objectiveControl = Array(this.battlefield.objective_marker.length).fill(0);
 
 		this.models.forEach((model) => {
-			objective_marker.forEach((markerPosition, i) => {
+			this.battlefield.objective_marker.forEach((markerPosition, i) => {
 				if (len(sub(model.position, markerPosition)) < objective_marker_control_distance) {
 					const ocSign = model.playerId === this.getPlayer() ? 1 : -1;
 					const oc = model.unitProfile.oc * ocSign;
@@ -233,7 +236,7 @@ export class Warhammer {
 			availableToMove: this.models.filter(model => model.availableToMove).map(model=> model.id),
 			availableToShoot: this.models.filter(model => model.availableToShoot).map(model=> model.id),
 			misc,
-			battlefield,
+			battlefield: this.battlefield,
 			turn: this.turn,
 		};
 	}

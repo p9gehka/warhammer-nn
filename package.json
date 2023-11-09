@@ -17,6 +17,9 @@
     "shelljs": "^0.8.5"
   },
   "devDependencies": {
-    "redis": "^4.6.10"
+    "canvas": "^2.11.2",
+    "node-telegram-bot-api": "^0.64.0",
+    "vega": "^5.26.0",
+    "vega-lite": "^5.16.2"
   }
 }

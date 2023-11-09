@@ -89,12 +89,12 @@ export function getStateTensor(state, h, w, c) {
  
     channels.forEach((channel, i) => {
     	for (let entity in channel) {
-    		if (!state[n][entity]) {
-    			return
-    		}
-    		const enitities = state[n][entity].forEach(yx => {
-    		  buffer.set(channel[entity], n, yx[0], yx[1], i);
-    		})
+   		if (state[n][entity] === undefined) {
+   			return
+   		}
+   		const enitities = state[n][entity].forEach(yx => {
+   		  buffer.set(channel[entity], n, yx[0], yx[1], i);
+   		})
     	}
     });
   }

@@ -1,6 +1,6 @@
 import { BaseAction, Phase } from './warhammer.js';
-import { round } from '../static/utils/vec2.js';
-
+import { round, round2 } from '../static/utils/vec2.js';
+import { getStateTensor } from '../agents/utils.js';
 
 export const Action = {
 	...BaseAction,
@@ -8,18 +8,18 @@ export const Action = {
 }
 
 export const Channel1 = {
-	Empty: 0.1,
+	Empty: 0,
 	SelfModel: 0.33,
 	SelfModelAvailableToMove: 0.66,
-	SelfModelAvailableToShoot: 0.99,
+	SelfModelAvailableToShoot: 1,
 };
 
 export const Channel2 = {
-	Empty: 0.1,
+	Empty: 0,
 	Selected: 0.25,
 	Marker: 0.5,
 	Enemy: 0.75,
-	Ruin: 0.99,
+	Ruin: 1,
 }
 export const Channel3 = {
 	Empty: 0,
@@ -128,7 +128,7 @@ export class PlayerEnvironment {
 			return Array.from({ length:Math.max(Math.abs(x1 - x2), Math.abs(y1 - y2))})
 			.fill((x, y) => [[x + Math.sign(x2 - x), y + Math.sign(y2 - y)]])
 			.reduce((list, cb) => list.concat(cb(...list.at(-1))), [[x1, y1]])	
-		})
+		}).flat()
 
 		if (selectedModel !== null && state.models[selectedModel] !== null) {
 			input[Channel2Name.Selected] = [round(state.models[selectedModel])];
@@ -166,6 +166,34 @@ export class PlayerEnvironment {
 			}
 		}
 		return input;
+	}
+
+	printStateTensor() {
+		const input = this.getInput();
+		const stateTensor = getStateTensor([input], this.height, this.width, this.channels);
+
+		console.log('************************')
+		for (const line of stateTensor.arraySync()[0]) {
+		  console.log(JSON.stringify(line.map((ch) => {
+		  	const [ch1, ch2] = round2(ch);
+			if(ch2 !== 0) {
+				return {
+					[Channel2.Selected]: 'I',
+					[Channel2.Marker]: '*',
+					[Channel2.Enemy]: 'E',
+					[Channel2.Ruin]: '#'
+				}[ch2]
+			} else  if(ch1 !== 0) {
+				return {
+					[Channel1.SelfModel]: 'i',
+					[Channel1.SelfModelAvailableToMove]: 'M',
+					[Channel1.SelfModelAvailableToShoot]: 'S'
+				}[ch1]
+			}else {
+				return '.';
+			}
+		  })));
+		}
 	}
 }
 

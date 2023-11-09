@@ -1,4 +1,3 @@
-import gameSettings from './settings/game-settings.json' assert { type: 'json' };
 import { Battlefield, Scene } from './drawing-entities/drawing-entities.js';
 
 const startBtn = document.getElementById('start');
@@ -9,9 +8,9 @@ const ctx = canvas.getContext("2d");
 const vpPlayer1Element = document.getElementById('player-1-vp');
 const vpPlayer2Element = document.getElementById('player-2-vp');
 
-ctx.scale(canvas.width / gameSettings.battlefield.size[0], canvas.height / gameSettings.battlefield.size[1]);
+ctx.scale(canvas.width / 44, canvas.height / 30);
 
-const battlefield = new Battlefield(ctx, { size: gameSettings.battlefield.size, objective_marker: [], ruins: [] });
+const battlefield = new Battlefield(ctx, { size: [44, 30], objective_marker: [], ruins: [] });
 await battlefield.init()
 battlefield.draw()
 
