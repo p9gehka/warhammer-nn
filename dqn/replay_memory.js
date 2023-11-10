@@ -14,8 +14,9 @@
  * limitations under the License.
  * =============================================================================
  */
+import { getTF } from './utils.js';
 
-import * as tf from '@tensorflow/tfjs-node';
+let tf = await getTF();
 
 /** Replay buffer for DQN training. */
 export class ReplayMemory {

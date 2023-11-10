@@ -1,9 +1,10 @@
-import * as tf from '@tensorflow/tfjs-node';
 import { angleToVec2, round2 } from '../static/utils/vec2.js';
 import { Action, channels } from '../environment/player-environment.js';
+import { getTF } from '../dqn/utils.js';
 
 const distances = [0.25, 0.5, 0.75, 1];
 const angles = [0, 45, 90, 180, 225 , 270, 315];
+const tf = await getTF();
 
 export class Orders {
 	orders = null;
@@ -100,3 +101,5 @@ export function getStateTensor(state, h, w, c) {
   }
   return buffer.toTensor();
 }
+
+

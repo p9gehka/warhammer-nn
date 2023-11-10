@@ -14,8 +14,8 @@
  * limitations under the License.
  * =============================================================================
  */
-
-import * as tf from '@tensorflow/tfjs-node';
+import { getTF } from './utils.js';
+const tf = await getTF();
 
 export function createDeepQNetwork(h, w, c, numActions) {
   if (!(Number.isInteger(h) && h > 0)) {

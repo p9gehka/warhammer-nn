@@ -2,13 +2,14 @@ import { Warhammer, } from './environment/warhammer.js';
 import { PlayerEnvironment, Action } from './environment/player-environment.js';
 import { RandomAgent } from './agents/random-agent0.1.js';
 import { GameAgent } from './agents/game-agent0.1.js';
+import { getTF } from './dqn/utils.js';
 import { ReplayMemory } from './dqn/replay_memory.js';
 import { copyWeights } from './dqn/dqn.js';
 import shelljs from 'shelljs';
 import { sendDataToTelegram } from './visualization/utils.js';
 
 import * as fs from 'fs';
-import * as tf from '@tensorflow/tfjs-node';
+let tf = await getTF();
 
 class MovingAverager {
   constructor(bufferLength) {
