@@ -34,8 +34,8 @@ const gamma = 0.99;
 const learningRate = 1e-3;
 const savePath = './models/dqn';
 const cumulativeRewardThreshold = 220;
-const syncEveryFrames = 2e3;
-const sendMessageEveryFrames = 3e4;
+const syncEveryFrames = 4e3;
+const sendMessageEveryFrames = 1e4;
 
 async function train(nn) {
 	const env = new Warhammer();
@@ -128,7 +128,7 @@ async function train(nn) {
 		  console.log('Sync\'ed weights from online network to target network');
 		}
 		if (frameCount !== null && frameCount % sendMessageEveryFrames === 0 && rewardAveragerBuffer.buffer.some(v => v !== null)) {
-			await sendDataToTelegram(rewardAveragerBuffer.buffer.filter(v => v!== null), `Frame #${frameCount}`)
+			await sendDataToTelegram(rewardAveragerBuffer.buffer.filter(v => v!== null), `Frame #${frameCount}: Epsilon ${agents[0].epsilon}:`)
 		}
 		agents[state.player].trainOnReplayBatch(batchSize, gamma, optimizer);
 		agents[state.player].playStep();

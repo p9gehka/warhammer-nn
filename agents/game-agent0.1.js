@@ -24,6 +24,11 @@ export class GameAgent {
 		this.targetNetwork.trainable = false;
 		this.replayMemory = replayMemory ?? null;
 		this.frameCount = 0;
+		this.epsilonInit = 0.5;
+		this.epsilonFinal = 0.01;
+		this.epsilonDecayFrames = 3e5 
+		this.epsilonIncrement_ = (this.epsilonFinal - this.epsilonInit) / this.epsilonDecayFrames;
+
 	}
 	reset() {
 		this.attempts = 0;
@@ -62,7 +67,9 @@ export class GameAgent {
 	}
 	playStep() {
 		this.frameCount++;
-		this.epsilon = 0.5;
+		this.epsilon = this.frameCount >= this.epsilonDecayFrames ?
+		    this.epsilonFinal :
+		    this.epsilonInit + this.epsilonIncrement_  * this.frameCount;
 
 		const input = this.game.getInput();
 		let epsilon = this.epsilon;
