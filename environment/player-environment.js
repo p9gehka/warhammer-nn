@@ -95,7 +95,8 @@ export class PlayerEnvironment {
 			if (order.action === Action.NextPhase) {
 				vpDelta = newVP - players[this.enemyId].vp;
 			}
-			reward =  Math.min(newVP + vpDelta + doneReward - this.vp, 0) + 1;
+			reward =  Math.max(newVP + vpDelta + doneReward - this.vp, 0) + 1;
+
 			this.vp = newVP;
 
 		} else {

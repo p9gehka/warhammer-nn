@@ -31,10 +31,10 @@ async function start () {
 	await scene.init();
 
 	let lastRound = 1;
-	actionAndStates.forEach(([order, state], i) => {
+	actionAndStates.forEach(([order, state, reward], i) => {
 		const li = document.createElement("LI");
 		li.dataset.indexNumber = i;
-		li.innerHTML = JSON.stringify(order);
+		li.innerHTML = JSON.stringify(order) + ' ' + reward;
 		li.tabIndex = 0;
 		actionsList.appendChild(li);
 		let round = Math.floor(state.turn / 2);
