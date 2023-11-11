@@ -23,6 +23,6 @@ export async function sendDataToTelegram(values, message) {
 	console.log(`Send value to telegram ${message}`);
 	const canvas = await createCanvas(values);
 	const data = await canvas.toBuffer();
-	await bot?.sendMessage(config.chart_id, message + ':' + os.hostname());
-	await bot?.sendPhoto(config.chart_id, data);
+	await bot?.sendMessage(config.chat_id, message + ':' + os.hostname());
+	await bot?.sendPhoto(config.chat_id, data);
 }

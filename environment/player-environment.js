@@ -31,7 +31,8 @@ export const Channel4 = {
 	StrikeTeam: 1,
 	Stealth: 2,
 }
-const m =  250;
+
+const MAX_REWARD =  250;
 export const Channel1Name = {}, Channel2Name = {}, Channel3Name = {};
 
 Object.keys(Channel1).forEach(name => Channel1Name[name] = name);
@@ -93,7 +94,7 @@ export class PlayerEnvironment {
 			const { players } = state;
 
 			if ((state.done && players[this.enemyId].models.every(modelId => state.models[modelId] === null))) {
-				doneReward += m;
+				doneReward += MAX_REWARD;
 			}
 
 			let vpDelta = 0;
