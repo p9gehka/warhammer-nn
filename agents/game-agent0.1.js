@@ -13,6 +13,7 @@ let tf = await getTF();
 export class GameAgent {
 	orders = [];
 	attempts = 0;
+	prevOrderIndex = null;
 	constructor(game, config = {}) {
 		const { replayMemory, nn  } = config
 		this.game = game;
@@ -64,8 +65,8 @@ export class GameAgent {
 		return indexes[getRandomInteger(0, indexes.length)]
 	}
 	getIndexesArgMax() {
-		const indexesArgMax = Array(this.orders.all.length).fill(-Infinity);
-		this.getAvailableIndexes().forEach(i => indexesArgMax[i] = 0);
+		const indexesArgMax = Array(this.orders.all.length).fill(0);
+		this.getAvailableIndexes().forEach(i => indexesArgMax[i] = 1);
 		return indexesArgMax;
 	}
 	playStep() {
@@ -77,30 +78,38 @@ export class GameAgent {
 		const input = this.game.getInput();
 		let epsilon = this.epsilon;
 		let order = this.orders[Action.NextPhase][0];
+		let argMaxIndex;
 		let orderIndex;
 
 		this.attempts++;
 		if (Math.random() < this.epsilon) {
-			orderIndex = this.getOrderRandomIndex();
+			argMaxIndex = orderIndex = this.getOrderRandomIndex();
 		} else {
 			tf.tidy(() => {
-			const inputTensor = getStateTensor([input], this.game.height, this.game.width, this.game.channels);
-			const indexesArgMax = this.getIndexesArgMax();
-			orderIndex = this.onlineNetwork.predict(inputTensor)
-			orderIndex = tf.add(orderIndex, tf.tensor2d(indexesArgMax, [1, 33])).argMax(-1).dataSync()[0]
+				const inputTensor = getStateTensor([input], this.game.height, this.game.width, this.game.channels);
+				const indexesArgMax = this.getIndexesArgMax();
+				orderIndex = this.onlineNetwork.predict(inputTensor)
+				argMaxIndex = orderIndex.clone().argMax(-1).dataSync()[0];
+				orderIndex = tf.mul(orderIndex, tf.tensor2d(indexesArgMax, [1, 33])).argMax(-1).dataSync()[0];
 			});
 		}
 
 		if (orderIndex !== this.orders.nextPhaseIndex && orderIndex === this.prevOrderIndex) {
+			this.replayMemory?.append([input, orderIndex, 0, false, input]);
 			orderIndex = this.getOrderRandomIndex();
 		}
 
-		order = this.orders.all[orderIndex];
+		if (argMaxIndex !== orderIndex) {
+			this.replayMemory?.append([input, argMaxIndex, 0, false, input]);
+		}
 
+		order = this.orders.all[orderIndex];
 		this.prevOrderIndex = orderIndex;
+
 		const [order_, state, reward] = this.game.step(order);
 		const nextInput = this.game.getInput();
-		this.replayMemory?.append([input, orderIndex, reward, state.done, nextInput]);
+		const loss = state.done && !this.game.win();
+		this.replayMemory?.append([input, orderIndex, reward, loss, nextInput]);
 		return [order_, state, reward];
 	}
 
@@ -121,8 +130,8 @@ export class GameAgent {
 			const nextStateTensor = getStateTensor(batch.map(example => example[4]), this.game.height, this.game.width, this.game.channels);
 
 			const nextMaxQTensor = this.targetNetwork.predict(nextStateTensor).max(-1);
-			const doneMask = tf.scalar(1).sub(tf.tensor1d(batch.map(example => example[3])).asType('float32'));
-			const targetQs = rewardTensor.add(nextMaxQTensor.mul(doneMask).mul(gamma));
+			const loosMask = tf.scalar(1).sub(tf.tensor1d(batch.map(example => example[3])).asType('float32'));
+			const targetQs = rewardTensor.add(nextMaxQTensor.mul(loosMask).mul(gamma));
 			return tf.losses.meanSquaredError(targetQs, qs);
 		});
 

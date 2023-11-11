@@ -85,20 +85,17 @@ export class PlayerEnvironment {
 			state = this.env.step(newOrder);
 			let doneReward = 0;
 			const { players } = state;
-			if (state.done) {
-				if (players[this.playerId].models.every(modelId => state.models[modelId] === null)) {
-					doneReward -= m;
-				}
-				if (players[this.enemyId].models.every(modelId => state.models[modelId] === null)) {
-					doneReward += m;
-				}
+
+			if ((state.done && players[this.enemyId].models.every(modelId => state.models[modelId] === null))) {
+				doneReward += m;
 			}
+
 			let vpDelta = 0;
 			const newVP = players[this.playerId].vp;
 			if (order.action === Action.NextPhase) {
-				vpDelta = newVP - players[this.enemyId].vp
+				vpDelta = newVP - players[this.enemyId].vp;
 			}
-			reward = newVP + vpDelta + doneReward - this.vp ;
+			reward =  Math.min(newVP + vpDelta + doneReward - this.vp, 0) + 1;
 			this.vp = newVP;
 
 		} else {
@@ -194,6 +191,10 @@ export class PlayerEnvironment {
 			}
 		  })));
 		}
+	}
+	win() {
+		const player = this.env.players[this.playerId];
+		this.env.done() && player.vp > this.env.players[this.enemyId].vp && player.models.some(modelId => !this.env.models[modelId].dead)
 	}
 }
 

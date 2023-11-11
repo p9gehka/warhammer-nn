@@ -36,7 +36,7 @@ const learningRate = 1e-3;
 const savePath = './models/dqn';
 const cumulativeRewardThreshold = 220;
 const syncEveryFrames = 4e3;
-const sendMessageEveryFrames  = 6e4;
+const sendMessageEveryFrames = 3e4;
 
 async function train(nn) {
 	const env = new Warhammer();
@@ -49,7 +49,6 @@ async function train(nn) {
 
 
 	let state = env.reset();
-
 
 	for (let i = 0; i < replayBufferSize; ++i) {
 		state = env.getState();

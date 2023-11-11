@@ -74,7 +74,6 @@ export class Orders {
 				this.orders.all.push(order);
 			});
 		}
-
 		return this.orders;
 	}
 }
