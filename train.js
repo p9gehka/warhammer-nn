@@ -67,29 +67,32 @@ async function train(nn) {
 	players[1].frameCount = 0;
 
 	env.reset();
-	let tPrev = new Date().getTime();
-	let frameCountPrev = players[0].frameCount + players[1].frameCount;
+
 	let averageReward100Best = -Infinity;
 	const optimizer = tf.train.adam(learningRate);
 	const rewardAverager100 = new MovingAverager(100);
 	const rewardAveragerBuffer = new MovingAverager(1000);
+	const frameTimeAverager100 = new MovingAverager(100);
 
+	let frameCountPrev = 0;
 	let frameCount = 0;
-
+	let t = new Date().getTime();
 
 	while (true) {
-		const t = new Date().getTime();
-		frameCount = players[0].frameCount + players[1].frameCount;
-		const framesPerSecond =
-		    (frameCount - frameCountPrev) / ((t - tPrev) * 1e3 + 1);
-		tPrev = t;
-		frameCountPrev = frameCount;
-
 		state = env.getState();
-		
+		frameCount = players[0].frameCount + players[1].frameCount;
+
 		if (state.done) {
+			const currentFrameCount = frameCount - frameCountPrev; 
+			const currentT = new Date().getTime();
+			const framesPerSecond = currentFrameCount / (currentT - t) * 1e3;
 			const cumulativeReward = players[0].cumulativeReward;
+			frameTimeAverager100.append(framesPerSecond)
 			rewardAverager100.append(cumulativeReward)
+
+			t = currentT;
+			frameCountPrev = frameCount
+
 			const averageReward100 = rewardAverager100.average();
 			rewardAveragerBuffer.append({ frame: frameCount, averageReward: averageReward100});
 			console.log(
@@ -128,7 +131,9 @@ async function train(nn) {
 		  console.log('Sync\'ed weights from online network to target network');
 		}
 		if (frameCount !== null && frameCount % sendMessageEveryFrames === 0 && rewardAveragerBuffer.buffer.some(v => v !== null)) {
-			await sendDataToTelegram(rewardAveragerBuffer.buffer.filter(v => v!== null), `Frame #${frameCount}: Epsilon ${agents[0].epsilon}:`)
+			await sendDataToTelegram(
+				rewardAveragerBuffer.buffer.filter(v => v!== null),
+				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`)
 		}
 		agents[state.player].trainOnReplayBatch(batchSize, gamma, optimizer);
 		agents[state.player].playStep();
