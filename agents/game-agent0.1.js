@@ -15,15 +15,12 @@ export class GameAgent {
 	attempts = 0;
 	prevOrderIndex = null;
 	constructor(game, config = {}) {
-		const { replayMemory, nn  } = config
+		const { replayMemory, nn } = config
 		this.game = game;
 		this.orders = (new Orders(this.game.env.players[this.game.playerId].models.length, this.game.env.players[this.game.enemyId].models.length)).getOrders();
-		this.onlineNetwork = createDeepQNetwork(game.height, game.width, game.channels, this.orders.all.length);
-		this.targetNetwork = createDeepQNetwork(game.height, game.width, game.channels, this.orders.all.length);
-		if (nn) {
-			copyWeights(this.onlineNetwork, nn);
-			copyWeights(this.targetNetwork, nn);
-		}
+
+		this.onlineNetwork = nn ? nn[0] : createDeepQNetwork(game.height, game.width, game.channels, this.orders.all.length);
+		this.targetNetwork = nn ? nn[1] : createDeepQNetwork(game.height, game.width, game.channels, this.orders.all.length);
 
 		this.targetNetwork.trainable = false;
 		this.replayMemory = replayMemory ?? null;
