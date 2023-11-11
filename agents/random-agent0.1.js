@@ -1,5 +1,5 @@
 import { eq } from '../static/utils/vec2.js';
-import { Channel2Name, Channel1Name  } from '../environment/player-environment.js';
+import { Channel3Name, Channel2Name, Channel1Name  } from '../environment/player-environment.js';
 
 import { getRandomInteger } from '../static/utils/index.js';
 import { Orders } from './utils.js';
@@ -19,9 +19,9 @@ export class RandomAgent {
 	}
 	getOrderIndex() {
 		const input = this.game.getInput();
-		const selected = xy => eq(xy, input[Channel2Name.Selected].at(0));
+		const selected = xy => eq(xy, input[Channel3Name.Selected].at(0));
 
-		if (input[Channel2Name.Selected].length === 0) {
+		if (input[Channel3Name.Selected].length === 0) {
 			return this.orders.selectIndexes[getRandomInteger(0, this.orders.selectIndexes.length)];
 		}
 
