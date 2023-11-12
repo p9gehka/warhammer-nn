@@ -14,11 +14,16 @@ let tf = await getTF();
 class MovingAverager {
   constructor(bufferLength) {
     this.buffer = [];
+    this._full = false;
     for (let i = 0; i < bufferLength; ++i) {
       this.buffer.push(null);
     }
   }
-
+  isFull() {
+  	if(this._fill) { return true };
+  	this._fill = this.buffer.every(v=> v !== null);
+  	return this._fill
+  }
   append(x) {
     this.buffer.shift();
     this.buffer.push(x);
@@ -29,13 +34,13 @@ class MovingAverager {
   }
 }
 
-const replayBufferSize = 5e4;
-const batchSize = 128;
+const replayBufferSize = 1e5;
+const batchSize = 256;
 const gamma = 0.99;
 const learningRate = 1e-3;
 const savePath = './models/dqn';
 const cumulativeRewardThreshold = 220;
-const syncEveryFrames = 4e3;
+const syncEveryFrames = 6e3;
 const sendMessageEveryFrames = 3e4;
 
 async function train(nn) {
@@ -63,15 +68,17 @@ async function train(nn) {
 	if (nn === null) {
 		agents = [new GameAgent(players[0], { replayMemory }), new RandomAgent(players[1], { replayMemory })];
 	}
+	agents[0].onlineNetwork.summary()
 	players[0].frameCount = 0;
 	players[1].frameCount = 0;
 
 	env.reset();
 
 	let averageReward100Best = -Infinity;
+	let rewardAveragerBuffer = null;
+
 	const optimizer = tf.train.adam(learningRate);
-	const rewardAverager100 = new MovingAverager(100);
-	const rewardAveragerBuffer = new MovingAverager(1000);
+	const rewardAverager100 = new MovingAverager(2);
 	const frameTimeAverager100 = new MovingAverager(100);
 
 	let frameCountPrev = 0;
@@ -94,6 +101,10 @@ async function train(nn) {
 			frameCountPrev = frameCount
 
 			const averageReward100 = rewardAverager100.average();
+			if (rewardAveragerBuffer === null) {
+				rewardAveragerBuffer = new MovingAverager(1000);
+			}
+
 			rewardAveragerBuffer.append({ frame: frameCount, averageReward: averageReward100});
 			console.log(
 			    `Frame #${frameCount}: ` +
@@ -111,7 +122,8 @@ async function train(nn) {
 			       }
 			  break;
 			}
-			if (averageReward100 > averageReward100Best) {
+
+			if (averageReward100 > averageReward100Best && rewardAverager100.isFull()) {
 		       averageReward100Best = averageReward100;
 		       if (savePath != null) {
 		         if (!fs.existsSync(savePath)) {
@@ -130,7 +142,7 @@ async function train(nn) {
 		  copyWeights(agents[0].targetNetwork, agents[0].onlineNetwork);
 		  console.log('Sync\'ed weights from online network to target network');
 		}
-		if (frameCount !== null && frameCount % sendMessageEveryFrames === 0 && rewardAveragerBuffer.buffer.some(v => v !== null)) {
+		if (frameCount !== null && frameCount % sendMessageEveryFrames === 0 && rewardAveragerBuffer !== null) {
 			await sendDataToTelegram(
 				rewardAveragerBuffer.buffer.filter(v => v!== null),
 				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`)
@@ -144,7 +156,9 @@ async function main() {
 	let nn = null
 	if (fs.existsSync(`${savePath}/model.json`)) {
 		console.log(`Loaded from ${savePath}/model.json`)
-		nn = await tf.loadLayersModel(`file://${savePath}/model.json`)
+		nn = [];
+		nn[0] = await tf.loadLayersModel(`file://${savePath}/model.json`);
+		nn[1] = await tf.loadLayersModel(`file://${savePath}/model.json`);
 	}
 	await train(nn);
 }
