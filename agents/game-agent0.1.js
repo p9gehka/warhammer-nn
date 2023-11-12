@@ -96,7 +96,7 @@ export class GameAgent {
 			orderIndex = this.getOrderRandomIndex();
 		}
 
-		if (argMaxIndex !== orderIndex) {
+		if (orderIndex !== argMaxIndex) {
 			this.replayMemory?.append([input, argMaxIndex, 0, false, input]);
 		}
 

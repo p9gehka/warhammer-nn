@@ -29,13 +29,13 @@ class MovingAverager {
   }
 }
 
-const replayBufferSize = 5e4;
-const batchSize = 128;
+const replayBufferSize = 1e5;
+const batchSize = 256;
 const gamma = 0.99;
 const learningRate = 1e-3;
 const savePath = './models/dqn';
 const cumulativeRewardThreshold = 220;
-const syncEveryFrames = 4e3;
+const syncEveryFrames = 6e3;
 const sendMessageEveryFrames = 3e4;
 
 async function train(nn) {
@@ -144,7 +144,9 @@ async function main() {
 	let nn = null
 	if (fs.existsSync(`${savePath}/model.json`)) {
 		console.log(`Loaded from ${savePath}/model.json`)
-		nn = await tf.loadLayersModel(`file://${savePath}/model.json`)
+		nn = [];
+		nn[0] = await tf.loadLayersModel(`file://${savePath}/model.json`);
+		nn[1] = await tf.loadLayersModel(`file://${savePath}/model.json`);
 	}
 	await train(nn);
 }

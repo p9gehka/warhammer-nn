@@ -19,11 +19,11 @@ export class Orders {
 		const models = this.models;
 		const targets = this.targets;
 		this.orders = {
+			nextPhaseIndex: 0,
 			[Action.NextPhase]: [{ action: Action.NextPhase }],
 			[Action.Select]: [],
 			[Action.Move]: [],
 			[Action.Shoot]: [],
-			nextPhaseIndex: 0,
 			selectIndexes: [],
 			moveIndexes: [],
 			selectAndMoveIndexes: [],
@@ -48,11 +48,11 @@ export class Orders {
 		}
 
 		this.orders.all.push(...this.orders[Action.NextPhase]);
-		this.orders.selectIndexes.push(0)
-		this.orders.moveIndexes.push(0)
-		this.orders.shootIndexes.push(0)
-		this.orders.selectAndMoveIndexes.push(0);
-		this.orders.selectAndShootIndexes.push(0);
+		this.orders.selectIndexes.push(this.orders.nextPhaseIndex)
+		this.orders.moveIndexes.push(this.orders.nextPhaseIndex)
+		this.orders.shootIndexes.push(this.orders.nextPhaseIndex)
+		this.orders.selectAndMoveIndexes.push(this.orders.nextPhaseIndex);
+		this.orders.selectAndShootIndexes.push(this.orders.nextPhaseIndex);
 
 		for (let action of [Action.Select, Action.Move, Action.Shoot]){
 			this.orders[action].forEach((order) => {
