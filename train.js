@@ -42,6 +42,7 @@ const savePath = './models/dqn';
 const cumulativeRewardThreshold = 220;
 const syncEveryFrames = 6e3;
 const sendMessageEveryFrames = 3e4;
+const rewardAverager100Len = 100;
 
 async function train(nn) {
 	const env = new Warhammer();
@@ -78,7 +79,7 @@ async function train(nn) {
 	let rewardAveragerBuffer = null;
 
 	const optimizer = tf.train.adam(learningRate);
-	const rewardAverager100 = new MovingAverager(2);
+	const rewardAverager100 = new MovingAverager(rewardAverager100Len);
 	const frameTimeAverager100 = new MovingAverager(100);
 
 	let frameCountPrev = 0;
