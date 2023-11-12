@@ -1,4 +1,4 @@
 /node_modules
-**/*/.config
+visualization/.config.json
 **/*/.DS_Store
 .DS_Store
