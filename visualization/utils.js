@@ -1,7 +1,7 @@
 import vega from 'vega'
 import lite from 'vega-lite'
 import TelegramBot from 'node-telegram-bot-api';
-import config from './.config.json' assert { type: 'json' };
+import config from './config.json' assert { type: 'json' };
 import os from "os";
 
 async function createCanvas(values) {
@@ -24,5 +24,5 @@ export async function sendDataToTelegram(values, message) {
 	const canvas = await createCanvas(values);
 	const data = await canvas.toBuffer();
 	await bot?.sendMessage(config.chat_id, message + ':' + os.hostname(), { reply_to_message_id: config.reply_to_message_id });
-	await bot?.sendPhoto(config.chat_id, data);
+	await bot?.sendPhoto(config.chat_id, data, { reply_to_message_id: config.reply_to_message_id });
 }
