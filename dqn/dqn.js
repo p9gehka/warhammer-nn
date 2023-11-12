@@ -17,7 +17,7 @@
 import { getTF } from './utils.js';
 const tf = await getTF();
 
-export function createDeepQNetwork(h, w, c, numActions) {
+export function createDeepQNetwork(numActions, h, w, c) {
   if (!(Number.isInteger(h) && h > 0)) {
     throw new Error(`Expected height to be a positive integer, but got ${h}`);
   }
