@@ -29,7 +29,7 @@ export class GameAgent {
 		this.epsilonFinal = 0.01;
 		this.epsilonDecayFrames = 3e5 
 		this.epsilonIncrement_ = (this.epsilonFinal - this.epsilonInit) / this.epsilonDecayFrames;
-
+		this.epsilon = this.epsilonInit;
 	}
 	reset() {
 		this.attempts = 0;
