@@ -26,7 +26,7 @@ export const Channel3 = {
 	StrikeTeam: 1,
 	Stealth: 2,
 }
-const MAX_REWARD =  250;
+const MAX_REWARD =  50;
 export const Channel1Name = {}, Channel2Name = {};
 
 Object.keys(Channel1).forEach(name => Channel1Name[name] = name);
