@@ -18,9 +18,9 @@
 /**
  * Execute all unit tests in the current directory.
  */
-function runTests(specFiles) {
+export async function runTests(specFiles) {
   // tslint:disable-next-line:no-require-imports
-  const jasmineConstructor = require('jasmine');
+  const jasmineConstructor = (await import('jasmine')).default;
 
   Error.stackTraceLimit = Infinity;
 
@@ -43,5 +43,3 @@ function expectArraysClose(actual, expected) {
     expect(actualValues[i]).toBeCloseTo(expectedValues[i], PRECISION);
   }
 }
-
-module.exports = {runTests, expectArraysClose};
