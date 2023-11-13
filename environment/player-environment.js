@@ -90,12 +90,8 @@ export class PlayerEnvironment {
 				doneReward += MAX_REWARD;
 			}
 
-			let vpDelta = 0;
 			const newVP = players[this.playerId].vp;
-			if (order.action === Action.NextPhase) {
-				vpDelta = newVP - players[this.enemyId].vp;
-			}
-			reward =  Math.max(newVP + vpDelta + doneReward - this.vp, 0) + 1;
+			reward =  Math.max(newVP +  doneReward - this.vp, 0) + 1;
 
 			this.vp = newVP;
 
@@ -116,7 +112,9 @@ export class PlayerEnvironment {
 		const selectedModel = this.selectedModel();
 		const state = this.env.getState();
 		const battlefield = this.env.battlefield;
-		const input = {};
+		const input = {
+			turn: this.env.turn,
+		};
 		[...Object.keys(Channel1Name), ...Object.keys(Channel2Name)].forEach(name => {
 			input[name] = [];
 		})
