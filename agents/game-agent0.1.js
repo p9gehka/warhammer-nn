@@ -15,7 +15,7 @@ export class GameAgent {
 	attempts = 0;
 	prevOrderIndex = null;
 	constructor(game, config = {}) {
-		const { replayMemory, nn } = config
+		const { replayMemory, nn, epsilonInit } = config
 		this.game = game;
 		this.orders = (new Orders(this.game.env.players[this.game.playerId].models.length, this.game.env.players[this.game.enemyId].models.length)).getOrders();
 
@@ -25,7 +25,7 @@ export class GameAgent {
 		this.targetNetwork.trainable = false;
 		this.replayMemory = replayMemory ?? null;
 		this.frameCount = 0;
-		this.epsilonInit = 0.5;
+		this.epsilonInit = epsilonInit ?? 0.5;
 		this.epsilonFinal = 0.01;
 		this.epsilonDecayFrames = 3e5 
 		this.epsilonIncrement_ = (this.epsilonFinal - this.epsilonInit) / this.epsilonDecayFrames;
@@ -85,9 +85,9 @@ export class GameAgent {
 			tf.tidy(() => {
 				const inputTensor = getStateTensor([input], this.game.height, this.game.width, this.game.channels);
 				const indexesArgMax = this.getIndexesArgMax();
-				orderIndex = this.onlineNetwork.predict(inputTensor)
-				rawOrderIndex = orderIndex.clone().argMax(-1).dataSync()[0];
-				orderIndex = tf.mul(orderIndex, tf.tensor2d(indexesArgMax, [1, 33])).argMax(-1).dataSync()[0];
+				const predictions = this.onlineNetwork.predict(inputTensor);
+				rawOrderIndex = predictions.clone().argMax(-1).dataSync()[0];
+				orderIndex = tf.mul(predictions, tf.tensor2d(indexesArgMax, [1, 33])).argMax(-1).dataSync()[0];
 			});
 		}
 
@@ -102,7 +102,6 @@ export class GameAgent {
 
 		order = this.orders.all[orderIndex];
 		this.prevOrderIndex = orderIndex;
-
 		const [order_, state, reward] = this.game.step(order);
 		const nextInput = this.game.getInput();
 		const loss = state.done && !this.game.win();

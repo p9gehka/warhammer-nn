@@ -1,6 +1,7 @@
 import { Warhammer, } from './environment/warhammer.js';
 import { PlayerEnvironment, Action } from './environment/player-environment.js';
 import { RandomAgent } from './agents/random-agent0.1.js';
+import { RandomAgentForTrain } from './agents/random-agent-for-train.js';
 import { GameAgent } from './agents/game-agent0.1.js';
 import { getTF } from './dqn/utils.js';
 import { ReplayMemory } from './dqn/replay_memory.js';
@@ -49,14 +50,13 @@ async function train(nn) {
 	const replayMemory = new ReplayMemory(replayBufferSize);
 	let players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
 	let agents = [
-		nn == null ? new RandomAgent(players[0], { replayMemory }): new GameAgent(players[0],{ replayMemory, nn }),
-		new RandomAgent(players[1], { replayMemory })
+		nn == null ? new RandomAgentForTrain(players[0], { replayMemory }): new GameAgent(players[0],{ replayMemory, nn }),
+		new RandomAgentForTrain(players[1], { replayMemory })
 	];
 
 
 	let state = env.reset();
-
-	for (let i = 0; i < replayBufferSize; ++i) {
+	while (replayMemory.length < replayBufferSize ) {
 		state = env.getState();
 		if (state.done) {
 			state = env.reset();
@@ -144,9 +144,24 @@ async function train(nn) {
 		  console.log('Sync\'ed weights from online network to target network');
 		}
 		if (frameCount !== null && frameCount % sendMessageEveryFrames === 0 && rewardAveragerBuffer !== null) {
+
+			const counterPhases = {};
+			const counterAction = {};
+			replayMemory.buffer.forEach((v, i)=> {
+				if (!(v[0].turn in counterPhases)) {
+					counterPhases[v[0].turn] = 0
+				}
+				if (!(v[1] in counterAction)) {
+					counterAction[v[1]] = 0
+				}
+				counterPhases[v[0].turn]++;
+				counterAction[v[1]]++;
+			});
+			
 			await sendDataToTelegram(
-				rewardAveragerBuffer.buffer.filter(v => v!== null),
-				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`)
+				rewardAveragerBuffer.buffer.filter(v => v !== null),
+				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s::${JSON.stringify(counterPhases)}::${JSON.stringify(counterAction)}:`)
+
 		}
 		agents[state.player].trainOnReplayBatch(batchSize, gamma, optimizer);
 		agents[state.player].playStep();

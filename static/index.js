@@ -31,8 +31,11 @@ async function start () {
 	await scene.init();
 
 	let lastRound = 1;
+	let prevPlayer = 'player-0';
 	actionAndStates.forEach(([order, state, reward], i) => {
 		const li = document.createElement("LI");
+		li.classList.add(prevPlayer);
+		prevPlayer = state.player === 0 ? 'player-0': 'player-1';
 		li.dataset.indexNumber = i;
 		li.innerHTML = JSON.stringify(order) + ' ' + reward;
 		li.tabIndex = 0;
