@@ -4,7 +4,7 @@
   "description": "",
   "main": "start.js",
   "scripts": {
-    "test": "babel-node tests/run-tests.js"
+    "test": "babel-node ./run-tests.js"
   },
   "author": "",
   "license": "ISC",
