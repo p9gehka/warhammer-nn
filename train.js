@@ -1,7 +1,6 @@
 import { Warhammer, } from './environment/warhammer.js';
 import { PlayerEnvironment, Action } from './environment/player-environment.js';
 import { RandomAgent } from './agents/random-agent0.1.js';
-import { RandomAgentForTrain } from './agents/random-agent-for-train.js';
 import { GameAgent } from './agents/game-agent0.1.js';
 import { getTF } from './dqn/utils.js';
 import { ReplayMemory } from './dqn/replay_memory.js';
@@ -34,6 +33,14 @@ class MovingAverager {
     return this.buffer.reduce((x, prev) => x + prev) / this.buffer.length;
   }
 }
+const actionsProb = {
+	0: 0.03,
+	1: 0.03,
+	2: 0.03,
+	31: 0.1,
+	32: 0.1,
+}
+
 
 const replayBufferSize = 1e5;
 const batchSize = 256;
@@ -50,8 +57,8 @@ async function train(nn) {
 	const replayMemory = new ReplayMemory(replayBufferSize);
 	let players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
 	let agents = [
-		nn == null ? new RandomAgentForTrain(players[0], { replayMemory }): new GameAgent(players[0],{ replayMemory, nn }),
-		new RandomAgentForTrain(players[1], { replayMemory })
+		nn == null ? new RandomAgent(players[0], { replayMemory, actionsProb }): new GameAgent(players[0],{ replayMemory, nn, actionsProb }),
+		new RandomAgent(players[1], { replayMemory, actionsProb })
 	];
 
 
@@ -67,7 +74,7 @@ async function train(nn) {
 	}
 
 	if (nn === null) {
-		agents = [new GameAgent(players[0], { replayMemory }), new RandomAgent(players[1], { replayMemory })];
+		agents = [new GameAgent(players[0], { replayMemory, actionsProb }), new RandomAgent(players[1] )];
 	}
 	agents[0].onlineNetwork.summary()
 	players[0].frameCount = 0;
@@ -157,7 +164,7 @@ async function train(nn) {
 				counterPhases[v[0].turn]++;
 				counterAction[v[1]]++;
 			});
-			
+
 			await sendDataToTelegram(
 				rewardAveragerBuffer.buffer.filter(v => v !== null),
 				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s::${JSON.stringify(counterPhases)}::${JSON.stringify(counterAction)}:`)
