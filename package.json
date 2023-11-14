@@ -4,7 +4,7 @@
   "description": "",
   "main": "start.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "babel-node tests/run-tests.js"
   },
   "author": "",
   "license": "ISC",
@@ -17,7 +17,9 @@
     "shelljs": "^0.8.5"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
     "canvas": "^2.11.2",
+    "jasmine": "^5.1.0",
     "node-telegram-bot-api": "^0.64.0",
     "vega": "^5.26.0",
     "vega-lite": "^5.16.2"

@@ -33,13 +33,21 @@ class MovingAverager {
     return this.buffer.reduce((x, prev) => x + prev) / this.buffer.length;
   }
 }
+const actionsProb = {
+	0: 0.03,
+	1: 0.03,
+	2: 0.03,
+	31: 0.1,
+	32: 0.1,
+}
+
 
 const replayBufferSize = 1e5;
 const batchSize = 256;
 const gamma = 0.99;
 const learningRate = 1e-3;
 const savePath = './models/dqn';
-const cumulativeRewardThreshold = 220;
+const cumulativeRewardThreshold = 40;
 const syncEveryFrames = 6e3;
 const sendMessageEveryFrames = 3e4;
 const rewardAverager100Len = 100;
@@ -49,14 +57,13 @@ async function train(nn) {
 	const replayMemory = new ReplayMemory(replayBufferSize);
 	let players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
 	let agents = [
-		nn == null ? new RandomAgent(players[0], { replayMemory }): new GameAgent(players[0],{ replayMemory, nn }),
-		new RandomAgent(players[1], { replayMemory })
+		nn == null ? new RandomAgent(players[0], { replayMemory, actionsProb }): new GameAgent(players[0],{ replayMemory, nn, actionsProb }),
+		new RandomAgent(players[1], { replayMemory, actionsProb })
 	];
 
 
 	let state = env.reset();
-
-	for (let i = 0; i < replayBufferSize; ++i) {
+	while (replayMemory.length < replayBufferSize ) {
 		state = env.getState();
 		if (state.done) {
 			state = env.reset();
@@ -67,7 +74,7 @@ async function train(nn) {
 	}
 
 	if (nn === null) {
-		agents = [new GameAgent(players[0], { replayMemory }), new RandomAgent(players[1], { replayMemory })];
+		agents = [new GameAgent(players[0], { replayMemory, actionsProb }), new RandomAgent(players[1] )];
 	}
 	agents[0].onlineNetwork.summary()
 	players[0].frameCount = 0;
@@ -144,9 +151,24 @@ async function train(nn) {
 		  console.log('Sync\'ed weights from online network to target network');
 		}
 		if (frameCount !== null && frameCount % sendMessageEveryFrames === 0 && rewardAveragerBuffer !== null) {
+
+			const counterPhases = {};
+			const counterAction = {};
+			replayMemory.buffer.forEach((v, i)=> {
+				if (!(v[0].turn in counterPhases)) {
+					counterPhases[v[0].turn] = 0
+				}
+				if (!(v[1] in counterAction)) {
+					counterAction[v[1]] = 0
+				}
+				counterPhases[v[0].turn]++;
+				counterAction[v[1]]++;
+			});
+
 			await sendDataToTelegram(
-				rewardAveragerBuffer.buffer.filter(v => v!== null),
-				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`)
+				rewardAveragerBuffer.buffer.filter(v => v !== null),
+				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s::${JSON.stringify(counterPhases)}::${JSON.stringify(counterAction)}:`)
+
 		}
 		agents[state.player].trainOnReplayBatch(batchSize, gamma, optimizer);
 		agents[state.player].playStep();

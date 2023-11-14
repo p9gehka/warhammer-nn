@@ -32,8 +32,9 @@ export const Channel4 = {
 	Stealth: 2,
 }
 
-const MAX_REWARD =  250;
+const MAX_REWARD =  50;
 export const Channel1Name = {}, Channel2Name = {}, Channel3Name = {};
+
 
 Object.keys(Channel1).forEach(name => Channel1Name[name] = name);
 Object.keys(Channel2).forEach(name => Channel2Name[name] = name);
@@ -97,12 +98,8 @@ export class PlayerEnvironment {
 				doneReward += MAX_REWARD;
 			}
 
-			let vpDelta = 0;
 			const newVP = players[this.playerId].vp;
-			if (order.action === Action.NextPhase) {
-				vpDelta = newVP - players[this.enemyId].vp;
-			}
-			reward =  Math.max(newVP + vpDelta + doneReward - this.vp, 0) + 1;
+			reward =  Math.max(newVP +  doneReward - this.vp, 0) + 1;
 
 			this.vp = newVP;
 
@@ -123,7 +120,9 @@ export class PlayerEnvironment {
 		const selectedModel = this.selectedModel();
 		const state = this.env.getState();
 		const battlefield = this.env.battlefield;
-		const input = {};
+		const input = {
+			turn: this.env.turn,
+		};
 		[...Object.keys(Channel1Name), ...Object.keys(Channel2Name), ...Object.keys(Channel3Name)].forEach(name => {
 			input[name] = [];
 		})
