@@ -42,7 +42,6 @@ const actionsProb = {
 	32: 0.1,
 }
 
-
 const replayBufferSize = 1e4;
 const batchSize = 32;
 const gamma = 0.99;
@@ -59,7 +58,7 @@ async function train(nn) {
 	let players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
 	let agents = [
 		nn == null ? new RandomAgent(players[0], { replayMemory, actionsProb }): new GameAgent(players[0],{ replayMemory, nn, actionsProb }),
-		new RandomAgent(players[1], { actionsProb })
+		new RandomAgent(players[1],)
 	];
 
 
@@ -176,16 +175,21 @@ async function train(nn) {
 				if (testState.done) {
 				  break;
 				}
-				testActions.push(testAgents[testState.player].playStep())
+
+				let actionIndex = testAgents[testState.player].playStep();
+				if (testState.player == 0) {
+					testActions.push(actionIndex)
+				}
 				testAttempst++;
 			 }
 			 env.reset();
 			 players.forEach(p => p.reset());
-
+			
 			await sendDataToTelegram(
 				rewardAveragerBuffer.buffer.filter(v => v !== null),
 				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s::${JSON.stringify(counterPhases)}::${JSON.stringify(counterAction)}::${JSON.stringify(testActions)}:`
 			);
+			
 			
 		}
 		agents[state.player].trainOnReplayBatch(batchSize, gamma, optimizer);
