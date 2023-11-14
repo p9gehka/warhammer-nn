@@ -10,8 +10,8 @@ import * as tf from '@tensorflow/tfjs-node';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-
 const app = express();
+const savePath = './models/dqn-green';
 
 app.use(express.json())
 app.use(express.static(__dirname + '/static'));
@@ -19,12 +19,15 @@ app.use(express.static(__dirname + '/static'));
 app.get('/', (req,res) => res.sendFile('static/index.html', { root: __dirname }));
 
 app.post('/play', async (req,res) => {
+  const onlineNetwork = await tf.loadLayersModel(`file://${savePath}/model.json`);
+  const targetNetwork = await tf.loadLayersModel(`file://${savePath}/model.json`);
   const env = new Warhammer();
 
   const players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
-  let agents = [new GameAgent(players[0]), new RandomAgent(players[1])]
+  let agents = [new GameAgent(players[0], { nn:[onlineNetwork, targetNetwork], epsilonInit: 0.01 }), new RandomAgent(players[1])]
   let state = env.reset();
   let attempts = 0;
+
 
   const actionsAndStates = [[null, state]];
   const states = [];
@@ -37,6 +40,7 @@ app.post('/play', async (req,res) => {
      actionsAndStates.push(order)
      attempts++;
    }
+   console.log(players[0].cumulativeReward)
   res.json(actionsAndStates)
 });
 
