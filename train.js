@@ -182,11 +182,9 @@ async function train(nn) {
 			 env.reset();
 			 players.forEach(p => p.reset());
 
-
-			 
 			await sendDataToTelegram(
 				rewardAveragerBuffer.buffer.filter(v => v !== null),
-				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s::${JSON.stringify(counterPhases)}::${JSON.stringify(counterAction)}:`
+				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s::${JSON.stringify(counterPhases)}::${JSON.stringify(counterAction)}::${JSON.stringify(testActions)}:`
 			);
 			
 		}
