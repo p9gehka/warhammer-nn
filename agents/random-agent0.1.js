@@ -9,7 +9,8 @@ export class RandomAgent {
 	orders = []
 	attempts = 0;
 	constructor(game, config = {}) {
-		const { replayMemory } = config;
+		const { replayMemory, actionsProb } = config;
+		this.actionsProb = actionsProb ?? {};
 		this.game = game;
 		this.orders = (new Orders(game.env.players[this.game.playerId].models.length, this.game.env.players[this.game.enemyId].models.length)).getOrders();
 		this.replayMemory = replayMemory;
@@ -46,9 +47,16 @@ export class RandomAgent {
 		const input = this.game.getInput();
 		const [order_, state, reward] = this.game.step(order);
 		const nextInput = this.game.getInput();
-		this.replayMemory?.append([input, orderIndex, reward, state.done, nextInput]);
+		if (this.needSave(orderIndex)) {
+			this.replayMemory?.append([input, orderIndex, reward, state.done, nextInput]);
+		}
 		return [order_, state, reward];
 	}
-
+	needSave(orderIndex) {
+		if (orderIndex in this.actionsProb) {
+			return this.actionsProb[orderIndex] > Math.random();
+		}
+		return true
+	}
 	trainOnReplayBatch() {}
 }

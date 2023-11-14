@@ -15,7 +15,8 @@ export class GameAgent {
 	attempts = 0;
 	prevOrderIndex = null;
 	constructor(game, config = {}) {
-		const { replayMemory, nn, epsilonInit } = config
+		const { replayMemory, nn, epsilonInit, actionsProb } = config
+		this.actionsProb = actionsProb ?? {};
 		this.game = game;
 		this.orders = (new Orders(this.game.env.players[this.game.playerId].models.length, this.game.env.players[this.game.enemyId].models.length)).getOrders();
 
@@ -96,7 +97,9 @@ export class GameAgent {
 		}
 
 		if (orderIndex !== this.orders.nextPhaseIndex && orderIndex === this.prevOrderIndex) {
-			this.replayMemory?.append([input, orderIndex, 0, false, input]);
+			if (this.needSave(orderIndex)) {
+				this.replayMemory?.append([input, orderIndex, 0, false, input]);
+			}
 			orderIndex = this.getOrderRandomIndex();
 		}
 
@@ -104,11 +107,18 @@ export class GameAgent {
 		this.prevOrderIndex = orderIndex;
 		const [order_, state, reward] = this.game.step(order);
 		const nextInput = this.game.getInput();
-		const loss = state.done && !this.game.win();
-		this.replayMemory?.append([input, orderIndex, reward, loss, nextInput]);
+		const loose = state.done && !this.game.win();
+		if (this.needSave(orderIndex) || loose) {
+			this.replayMemory?.append([input, orderIndex, reward, loose, nextInput]);
+		}
 		return [order_, state, reward];
 	}
-
+	needSave(orderIndex) {
+		if (orderIndex in this.actionsProb) {
+			return this.actionsProb[orderIndex] > Math.random();
+		}
+		return true
+	}
 	trainOnReplayBatch(batchSize, gamma, optimizer) {
 		// Get a batch of examples from the replay buffer.
 		if (this.replayMemory === null) {
