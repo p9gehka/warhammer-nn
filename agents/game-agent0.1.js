@@ -12,7 +12,6 @@ let tf = await getTF();
 
 export class GameAgent {
 	orders = [];
-	attempts = 0;
 	prevOrderIndex = null;
 	constructor(game, config = {}) {
 		const { replayMemory, nn, epsilonInit, actionsProb } = config
@@ -32,9 +31,7 @@ export class GameAgent {
 		this.epsilonIncrement_ = (this.epsilonFinal - this.epsilonInit) / this.epsilonDecayFrames;
 		this.epsilon = this.epsilonInit;
 	}
-	reset() {
-		this.attempts = 0;
-	}
+
 	getAvailableIndexes() {
 		const input = this.game.getInput();
 		const selected = xy => eq(xy, input[Channel2Name.Selected].at(0));
@@ -79,7 +76,6 @@ export class GameAgent {
 		let rawOrderIndex;
 		let orderIndex;
 
-		this.attempts++;
 		if (Math.random() < this.epsilon) {
 			rawOrderIndex = orderIndex = this.getOrderRandomIndex();
 		} else {

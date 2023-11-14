@@ -68,7 +68,6 @@ async function train(nn) {
 		if (state.done) {
 			state = env.reset();
 			players.forEach(player=> player.reset());
-			agents.forEach(a=> a.reset());
 		}
 		agents[state.player].playStep();
 	}
@@ -143,7 +142,6 @@ async function train(nn) {
 			 }
 			state = env.reset();
 			players.forEach(p => p.reset());
-			agents.forEach(a => a.reset());
 		}
 
 		if (frameCount % syncEveryFrames === 0) { /* sync не произойдет */

@@ -7,16 +7,12 @@ import { Orders } from './utils.js';
 
 export class RandomAgent {
 	orders = []
-	attempts = 0;
 	constructor(game, config = {}) {
 		const { replayMemory, actionsProb } = config;
 		this.actionsProb = actionsProb ?? {};
 		this.game = game;
 		this.orders = (new Orders(game.env.players[this.game.playerId].models.length, this.game.env.players[this.game.enemyId].models.length)).getOrders();
 		this.replayMemory = replayMemory;
-	}
-	reset() {
-		this.attempts = 0;
 	}
 	getOrderIndex() {
 		const input = this.game.getInput();
@@ -41,7 +37,6 @@ export class RandomAgent {
 	}
 
 	playStep() {
-		this.attempts++;
 		const orderIndex = this.getOrderIndex();
 		const order = this.orders.all[orderIndex];
 		const input = this.game.getInput();

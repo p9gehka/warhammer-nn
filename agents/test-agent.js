@@ -7,7 +7,6 @@ let tf = await getTF();
 
 export class TestAgent {
 	orders = [];
-	attempts = 0;
 	prevOrderIndex = null;
 	constructor(game, config = {}) {
 		const { nn } = config
@@ -17,7 +16,6 @@ export class TestAgent {
 		this.onlineNetwork = nn[0];
 	
 	}
-	reset() {}
 
 	playStep() {
 
