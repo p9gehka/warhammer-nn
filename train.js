@@ -49,7 +49,7 @@ const learningRate = 1e-3;
 const savePath = './models/dqn';
 const cumulativeRewardThreshold = 40;
 const syncEveryFrames = 1e3;
-const sendMessageEveryFrames = 5e2;
+const sendMessageEveryFrames = 3e4;
 const rewardAverager100Len = 100;
 
 async function train(nn) {
