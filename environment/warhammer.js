@@ -3,7 +3,7 @@ import tauUnits from '../static/settings/tau-units.json' assert { type: 'json' }
 import tauWeapons from '../static/settings/tau-weapons.json' assert { type: 'json' };
 import battlefields from '../static/settings/battlefields.json' assert { type: 'json' };
 
-import { mul, len, sub, add } from '../static/utils/vec2.js';
+import { mul, len, sub, add, round, eq } from '../static/utils/vec2.js';
 
 const { models, objective_marker_control_distance } = gameSettings;
 import { getRandomInteger } from '../static/utils//index.js';
@@ -65,7 +65,7 @@ class Model {
 		this.wound -= value;
 		if (this.wound <= 0) {
 			this.dead = true;
-			this.wound = 0
+			this.wound = 0;
 		}
 	}
 	kill() {
@@ -166,7 +166,11 @@ export class Warhammer {
 
 			if (len(order.vector) > 0) {
 				const movementVector = mul(order.vector, model.unitProfile.m)
-				model.update(add(model.position, movementVector));
+				const newPosition = add(model.position, movementVector);
+
+				if (!this.models.some(m => eq(round(m.position), round(newPosition)) && !m.dead )) {
+					model.update(newPosition);
+				}
 			}
 
 		}
