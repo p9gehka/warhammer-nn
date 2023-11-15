@@ -90,9 +90,7 @@ export class GameAgent {
 		}
 
 		if (orderIndex !== rawOrderIndex) {
-			if (this.needSave(orderIndex)) {
-				this.replayMemory?.append([input, rawOrderIndex, 0, false, input]);
-			}
+			this.replayMemory?.append([input, rawOrderIndex, 0, false, input]);
 		}
 
 		if (orderIndex !== orders.nextPhaseIndex && orderIndex === this.prevOrderIndex) {
