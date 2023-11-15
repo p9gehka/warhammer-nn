@@ -50,7 +50,7 @@ export class PlayerEnvironment {
 	_selectedModel = null;
 	cumulativeReward = 0;
 	frameCount = 0;
-
+	prevOrderAction = 0;
 	constructor(playerId, env) {
 		this.env = env;
 		this.playerId = playerId;
@@ -101,7 +101,11 @@ export class PlayerEnvironment {
 			}
 
 			const newVP = players[this.playerId].vp;
-			reward =  Math.max(newVP +  doneReward - this.vp, 0) + 1;
+			reward =  Math.max(newVP +  doneReward - this.vp, 0);
+
+			if (order.action !== this.prevOrderAction) {
+				reward++;
+			}
 
 			this.vp = newVP;
 
@@ -109,7 +113,7 @@ export class PlayerEnvironment {
 			state = this.env.getState();
 		}
 		this.cumulativeReward += reward;
-
+		this.prevOrderAction = order.action;
 		return [{ ...newOrder, misc: state.misc }, { ...state, selectedModel: this._selectedModel }, reward];
 	}
 	selectedModel() {

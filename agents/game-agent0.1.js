@@ -68,8 +68,8 @@ export class GameAgent {
 		const { orders, height, width, channels } = this.game;
 		this.frameCount++;
 		this.epsilon = this.frameCount >= this.epsilonDecayFrames ?
-		    this.epsilonFinal :
-		    this.epsilonInit + this.epsilonIncrement_  * this.frameCount;
+		this.epsilonFinal :
+		this.epsilonInit + this.epsilonIncrement_  * this.frameCount;
 
 		const input = this.game.getInput();
 		let epsilon = this.epsilon;
@@ -107,7 +107,7 @@ export class GameAgent {
 		const [order_, state, reward] = this.game.step(order);
 		const nextInput = this.game.getInput();
 		const loose = state.done && !this.game.win();
-		if (this.needSave(orderIndex) || loose) {
+		if (this.needSave(orderIndex) || loose || reward > 1) {
 			this.replayMemory?.append([input, orderIndex, reward, loose, nextInput]);
 		}
 		return [order_, state, reward];

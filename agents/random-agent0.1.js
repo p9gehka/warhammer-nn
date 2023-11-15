@@ -40,7 +40,8 @@ export class RandomAgent {
 		const input = this.game.getInput();
 		const [order_, state, reward] = this.game.step(order);
 		const nextInput = this.game.getInput();
-		if (this.needSave(orderIndex)) {
+		const loose = state.done && !this.game.win();
+		if (this.needSave(orderIndex) || reward > 1 || loose) {
 			this.replayMemory?.append([input, orderIndex, reward, state.done, nextInput]);
 		}
 		return [order_, state, reward];
