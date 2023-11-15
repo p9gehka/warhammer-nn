@@ -42,13 +42,13 @@ const actionsProb = {
 	32: 0.1,
 }
 
-const replayBufferSize = 1e5;
-const batchSize = 256;
+const replayBufferSize = 1e4;
+const batchSize = 32;
 const gamma = 0.99;
 const learningRate = 1e-3;
 const savePath = './models/dqn';
 const cumulativeRewardThreshold = 40;
-const syncEveryFrames = 6e3;
+const syncEveryFrames = 1e3;
 const sendMessageEveryFrames = 3e4;
 const rewardAverager100Len = 100;
 
