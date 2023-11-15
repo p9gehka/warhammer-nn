@@ -42,13 +42,13 @@ const actionsProb = {
 	32: 0.1,
 }
 
-const replayBufferSize = 1e4;
-const batchSize = 32;
+const replayBufferSize = 1e5;
+const batchSize = 256;
 const gamma = 0.99;
 const learningRate = 1e-3;
 const savePath = './models/dqn';
 const cumulativeRewardThreshold = 40;
-const syncEveryFrames = 1e3;
+const syncEveryFrames = 6e3;
 const sendMessageEveryFrames = 3e4;
 const rewardAverager100Len = 100;
 
@@ -68,7 +68,6 @@ async function train(nn) {
 		if (state.done) {
 			state = env.reset();
 			players.forEach(player=> player.reset());
-			agents.forEach(a=> a.reset());
 		}
 		agents[state.player].playStep();
 	}
@@ -143,7 +142,6 @@ async function train(nn) {
 			 }
 			state = env.reset();
 			players.forEach(p => p.reset());
-			agents.forEach(a => a.reset());
 		}
 
 		if (frameCount % syncEveryFrames === 0) { /* sync не произойдет */
@@ -155,9 +153,6 @@ async function train(nn) {
 			const counterPhases = {};
 			const counterAction = {};
 			replayMemory.buffer.forEach((v, i)=> {
-				if (!(v[0].turn in counterPhases)) {
-					counterPhases[v[0].turn] = 0
-				}
 				if (!(v[1] in counterAction)) {
 					counterAction[v[1]] = 0
 				}
@@ -184,10 +179,11 @@ async function train(nn) {
 			 }
 			 env.reset();
 			 players.forEach(p => p.reset());
-			
 			await sendDataToTelegram(
 				rewardAveragerBuffer.buffer.filter(v => v !== null),
-				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s::${JSON.stringify(counterPhases)}::${JSON.stringify(counterAction)}::${JSON.stringify(testActions)}:`
+				Object.entries(counterAction).map(([action, value]) => ({ action: Number(action), value })),
+				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
+				`:${JSON.stringify(testActions)}:`
 			);
 			
 			

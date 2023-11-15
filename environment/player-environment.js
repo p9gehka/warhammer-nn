@@ -1,6 +1,6 @@
 import { BaseAction, Phase } from './warhammer.js';
 import { round, round2 } from '../static/utils/vec2.js';
-import { getStateTensor } from '../agents/utils.js';
+import { getStateTensor, Orders } from '../agents/utils.js';
 
 export const Action = {
 	...BaseAction,
@@ -50,11 +50,13 @@ export class PlayerEnvironment {
 	_selectedModel = null;
 	cumulativeReward = 0;
 	frameCount = 0;
+
 	constructor(playerId, env) {
 		this.env = env;
 		this.playerId = playerId;
 		this.enemyId = (playerId+1) % 2;
 		this.reset();
+		this.orders = (new Orders(env.players[playerId].models.length, env.players[this.enemyId].models.length)).getOrders()
 	}
 
 	reset() {
@@ -120,9 +122,8 @@ export class PlayerEnvironment {
 		const selectedModel = this.selectedModel();
 		const state = this.env.getState();
 		const battlefield = this.env.battlefield;
-		const input = {
-			turn: this.env.turn,
-		};
+
+		const input = {};
 		[...Object.keys(Channel1Name), ...Object.keys(Channel2Name), ...Object.keys(Channel3Name)].forEach(name => {
 			input[name] = [];
 		})
