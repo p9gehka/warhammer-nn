@@ -2,6 +2,7 @@ import { BaseAction, Phase } from './warhammer.js';
 import { round, round2 } from '../static/utils/vec2.js';
 import { getStateTensor, Orders } from '../agents/utils.js';
 
+
 export const Action = {
 	...BaseAction,
 	Select: "SELECT"
@@ -94,10 +95,11 @@ export class PlayerEnvironment {
 
 			const newVP = players[this.playerId].vp;
 			reward =  Math.max(newVP +  doneReward - this.vp, 0);
-
-			if (order.action !== this.prevOrderAction) {
+			if (order.action !== this.prevOrderAction && (order.action !== Action.Shoot || state.misc.hits !== undefined)) {
 				reward++;
 			}
+
+
 
 			this.vp = newVP;
 
@@ -174,7 +176,7 @@ export class PlayerEnvironment {
 
 		console.log('************************')
 		for (const line of stateTensor.arraySync()[0]) {
-		  console.log(JSON.stringify(line.map((ch) => {
+		  console.log(line.map((ch) => {
 		  	const [ch1, ch2] = round2(ch);
 			if(ch2 !== 0) {
 				return {
@@ -192,7 +194,7 @@ export class PlayerEnvironment {
 			}else {
 				return '.';
 			}
-		  })));
+		  }).join());
 		}
 	}
 	win() {

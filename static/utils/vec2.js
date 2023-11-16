@@ -27,12 +27,12 @@ function rotated([x, y], angleRadians) {
 	return [x * cos - y * sin, x * sin + y * cos];
 }
 
-export function round2([x, y]) {
-	return [Math.round(x * 100) / 100, Math.round(y * 100) / 100];
+export function round2(vec) {
+	return vec.map(x => Math.round(x * 100) / 100) 
 }
 
-export function round([x, y]) {
-	return [Math.round(x), Math.round(y)];
+export function round(vec) {
+	return vec.map(x => Math.round(x));
 }
 
 export function rotatedDegrees(vec, degrees) {
