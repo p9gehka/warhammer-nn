@@ -42,8 +42,8 @@ const actionsProb = {
 	32: 0.1,
 }
 
-const replayBufferSize = 1e4;
-const batchSize = 32;
+const replayBufferSize = 2e4;
+const batchSize = 64;
 const gamma = 0.99;
 const learningRate = 1e-3;
 const savePath = './models/dqn';
