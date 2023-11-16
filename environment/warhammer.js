@@ -99,9 +99,14 @@ export class Warhammer {
 		this.players = [{ units: units[0], models: units[0].map(unit => unit.models).flat(), vp: 0 }, { units: units[1], models: units[1].map(unit => unit.models).flat(), vp: 0 }]
 		this.units = units.flat();
 
+		const usedPosition = [];
 		this.models = this.units.map(unit => {
-			return unit.models.map(id => new Model(id, unit, models[id]));
+			return unit.models.map(id => {
+				usedPosition.push(this.getRandomStartPosition(usedPosition))
+				return new Model(id, unit, usedPosition.at(-1))
+			});
 		}).flat();
+
 
 		this.models.forEach((model) => {
 			if (model.playerId === this.getPlayer()) {
@@ -110,7 +115,15 @@ export class Warhammer {
 		})
 		return this.getState();
 	}
-
+	getRandomStartPosition(exclude) {
+		while(true) {
+			let x1 = getRandomInteger(0, this.battlefield.size[0]);
+			let y1 = getRandomInteger(0, this.battlefield.size[1]);
+			if (!exclude.some(pos => eq([x1, y1], pos))) {
+				return [x1, y1];
+			}
+		}
+	}
 	step(order) {
 		if (this.done()) {
 			return this.getState();
@@ -239,7 +252,7 @@ export class Warhammer {
 			done: this.done(),
 			availableToMove: this.models.filter(model => model.availableToMove).map(model=> model.id),
 			availableToShoot: this.models.filter(model => model.availableToShoot).map(model=> model.id),
-			misc,
+			misc: misc ?? {},
 			battlefield: this.battlefield,
 			turn: this.turn,
 		};
