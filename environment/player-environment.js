@@ -10,9 +10,10 @@ export const Action = {
 
 export const Channel1 = {
 	Empty: 0,
-	SelfModel: 0.33,
-	SelfModelAvailableToMove: 0.66,
-	SelfModelAvailableToShoot: 1,
+	SelfModelAvailableToMove: 0.25,
+	SelfModelNotAvailableToMove: 0.5,
+	SelfModelAvailableToShoot: 0.75,
+	SelfModelNotAvailableToShoot: 1,
 };
 
 export const Channel2 = {
@@ -145,13 +146,14 @@ export class PlayerEnvironment {
 					let entity = null;
 
 					if (unit.playerId === this.playerId) {
-						entity = Channel1Name.SelfModel;
-						if(state.availableToMove.includes(modelId) && state.phase === Phase.Movement) {
-							entity = Channel1Name.SelfModelAvailableToMove;
+						if (state.phase === Phase.Movement) {
+							entity = state.availableToMove.includes(modelId) ?
+								Channel1Name.SelfModelAvailableToMove : Channel1Name.SelfModelNotAvailableToMove;
 						}
-
-						if(state.availableToShoot.includes(modelId) && state.phase === Phase.Shooting) {
-							entity = Channel1Name.SelfModelAvailableToShoot;
+						
+						if (state.phase === Phase.Shooting) {
+							entity = state.availableToShoot.includes(modelId) ?
+								Channel1Name.SelfModelAvailableToShoot : Channel1Name.SelfModelNotAvailableToShoot;
 						}
 					}
 
@@ -187,8 +189,9 @@ export class PlayerEnvironment {
 				}[ch2]
 			} else  if(ch1 !== 0) {
 				return {
-					[Channel1.SelfModel]: 'i',
+					[Channel1.SelfModelNotAvailableToMove]: 'm',
 					[Channel1.SelfModelAvailableToMove]: 'M',
+					[Channel1.SelfModelNotAvailableToShoot]: 's',
 					[Channel1.SelfModelAvailableToShoot]: 'S'
 				}[ch1]
 			}else {
