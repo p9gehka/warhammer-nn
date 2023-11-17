@@ -26,7 +26,7 @@ export class GameAgent {
 		this.frameCount = 0;
 		this.epsilonInit = epsilonInit ?? 0.5;
 		this.epsilonFinal = 0.01;
-		this.epsilonDecayFrames = 6e5 
+		this.epsilonDecayFrames = 1e6;
 		this.epsilonIncrement_ = (this.epsilonFinal - this.epsilonInit) / this.epsilonDecayFrames;
 		this.epsilon = this.epsilonInit;
 	}
