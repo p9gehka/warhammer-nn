@@ -1,10 +1,12 @@
 {
 	"units": [
 		[
-			{ "name": "strike_team", "models": [0, 1] }
+			{ "name": "strike_team", "models": [0] },
+			{ "name": "strike_team", "models": [1] }
 		],
 		[
-			{ "name": "strike_team", "models": [2, 3] }
+			{ "name": "strike_team", "models": [2] },
+			{ "name": "strike_team", "models": [3] }
 		]
 	],
 	"models": [
