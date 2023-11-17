@@ -7,7 +7,7 @@ import { getTF } from './dqn/utils.js';
 import { ReplayMemory } from './dqn/replay_memory.js';
 import { copyWeights } from './dqn/dqn.js';
 import shelljs from 'shelljs';
-import { sendDataToTelegram } from './visualization/utils.js';
+import { sendDataToTelegram, sendMesage } from './visualization/utils.js';
 
 import * as fs from 'fs';
 let tf = await getTF();
@@ -125,8 +125,9 @@ async function train(nn) {
 					   shelljs.mkdir('-p', savePath);
 					 }
 					 await agents[0].onlineNetwork.save(`file://${savePath}`);
+					 await sendMesage('Train Completed!!!');
 					 console.log(`Saved DQN to ${savePath}`);
-				   }
+				}
 			  break;
 			}
 
