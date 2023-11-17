@@ -44,3 +44,14 @@ export async function sendDataToTelegram(rewardAverager, counterAction, message)
 	await bot?.sendPhoto(config.chat_id, rewardAveragerPNG, { reply_to_message_id: config.reply_to_message_id });
 	await bot?.sendPhoto(config.chat_id, counterActionPNG, { reply_to_message_id: config.reply_to_message_id });
 }
+
+
+export async function sendMesage(message) {
+	if (bot === null && config.token.length > 0) {
+		bot = new TelegramBot(config.token, {polling: true});
+	}
+	console.log(`Send value to telegram ${message}`);
+
+	await bot?.sendMessage(config.chat_id, message + ':' + os.hostname(), { reply_to_message_id: config.reply_to_message_id });
+}
+

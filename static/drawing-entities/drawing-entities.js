@@ -84,7 +84,7 @@ export class Battlefield extends Drawing {
 			const [x1, y1] = ruin.at(0);
 			const [x2, y2] = ruin.at(-1);
 			this.strokePath(() => {
-				this.ctx.rect(x1, y1, Math.max(Math.abs(x1 - x2), 1), Math.max(Math.abs(y1 - y2), 1));
+				this.ctx.rect(x1, y1, Math.max(Math.abs(x1 - x2), 0.5), Math.max(Math.abs(y1 - y2), 0.5));
 			})
 		})
 	}
