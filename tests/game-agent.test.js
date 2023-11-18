@@ -7,7 +7,7 @@ describe('game agent', () => {
      const env = new Warhammer();
      const player = new PlayerEnvironment(0, env);
      const gameAgent = new GameAgent(player);
-     let action = null
+     let action = null;
      player.step = (order) => action = order.action;
 
      gameAgent.playStep();
