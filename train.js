@@ -64,7 +64,6 @@ async function train(nn) {
 			players.forEach(player=> player.reset());
 		}
 		agents[state.player].playStep();
-		console.log(replayMemory.length,  replayBufferSize)
 	}
 
 	if (nn === null) {
