@@ -37,7 +37,7 @@ class MovingAverager {
 }
 
 const replayBufferSize = 2e4;
-const batchSize = 64;
+const batchSize = 32;
 const gamma = 0.99;
 const learningRate = 1e-3;
 const savePath = './models/dqn';
@@ -64,6 +64,7 @@ async function train(nn) {
 			players.forEach(player=> player.reset());
 		}
 		agents[state.player].playStep();
+
 	}
 
 	if (nn === null) {
@@ -166,7 +167,6 @@ async function train(nn) {
 			 players.forEach(p => p.reset());
 			await sendDataToTelegram(
 				rewardAveragerBuffer.buffer.filter(v => v !== null),
-				[],
 				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
 				`:${JSON.stringify(testActions)}:`
 			);
