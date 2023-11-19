@@ -173,7 +173,6 @@ async function train(nn) {
 			
 			
 		}
-		console.log(`Frame #${frameCount}: `)
 		agents[state.player].trainOnReplayBatch(batchSize, gamma, optimizer);
 		agents[state.player].playStep();
 	}
