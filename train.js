@@ -9,6 +9,7 @@ import { ReplayMemoryByAction } from './environment/replay-memory-by-action.js';
 import { copyWeights } from './dqn/dqn.js';
 import shelljs from 'shelljs';
 import { sendDataToTelegram, sendMesage } from './visualization/utils.js';
+import { fillReplayMemory } from './environment/fill-replay-memory.js';
 
 import * as fs from 'fs';
 let tf = await getTF();
@@ -50,31 +51,21 @@ async function train(nn) {
 	const env = new Warhammer();
 	let players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
 	const replayMemory = new ReplayMemoryByAction(players[0], replayBufferSize)
-	let agents = [
-		nn == null ? new RandomAgent(players[0], { replayMemory }): new GameAgent(players[0],{ replayMemory, nn }),
-		new RandomAgent(players[1],)
-	];
+	let agents;
 
-
-	let state = env.reset();
-	while (replayMemory.length < replayBufferSize ) {
-		state = env.getState();
-		if (state.done) {
-			state = env.reset();
-			players.forEach(player=> player.reset());
-		}
-		agents[state.player].playStep();
-
+	if (nn !== null) {
+		agents = [new GameAgent(players[0],{ replayMemory, nn }), new RandomAgent(players[1])];
 	}
+
+	fillReplayMemory(env, replayMemory, agents)
 
 	if (nn === null) {
-		agents = [new GameAgent(players[0], { replayMemory }), new RandomAgent(players[1] )];
+		agents = [new GameAgent(players[0], { replayMemory }), new RandomAgent(players[1])];
 	}
+
 	agents[0].onlineNetwork.summary()
 	players[0].frameCount = 0;
 	players[1].frameCount = 0;
-
-	env.reset();
 
 	let averageReward100Best = -Infinity;
 	let rewardAveragerBuffer = null;
@@ -86,11 +77,12 @@ async function train(nn) {
 	let frameCountPrev = 0;
 	let frameCount = 0;
 	let t = new Date().getTime();
+	let state = env.reset();
 
 	while (true) {
 		state = env.getState();
 		frameCount = players[0].frameCount + players[1].frameCount;
-
+		console.log(`Frame #${frameCount}: `)
 		if (state.done) {
 			const currentFrameCount = frameCount - frameCountPrev; 
 			const currentT = new Date().getTime();
