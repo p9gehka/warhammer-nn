@@ -52,6 +52,13 @@ export function createDeepQNetwork(numActions, h, w, c) {
     strides: 1,
     activation: 'relu',
   }));
+  model.add(tf.layers.batchNormalization());
+  model.add(tf.layers.conv2d({
+   filters: 256,
+    kernelSize: 3,
+    strides: 1,
+    activation: 'relu',
+  }));
   model.add(tf.layers.flatten());
   model.add(tf.layers.dense({units: 518, activation: 'relu'}));
   model.add(tf.layers.dropout({ rate: 0.25 }));
