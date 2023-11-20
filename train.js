@@ -58,7 +58,7 @@ async function train(nn) {
 	let players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
 	let agents = [
 		nn == null ? new RandomAgent(players[0], { replayMemory, actionsProb }): new GameAgent(players[0],{ replayMemory, nn, actionsProb }),
-		new RandomAgent(players[1],)
+		new RandomAgent(players[1])
 	];
 
 
