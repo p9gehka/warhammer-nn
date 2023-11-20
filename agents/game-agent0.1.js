@@ -3,7 +3,7 @@ import { eq } from '../static/utils/vec2.js';
 import { createDeepQNetwork } from '../dqn/dqn.js';
 import { getRandomInteger } from '../static/utils//index.js';
 import { getStateTensor } from './utils.js';
-import { Action, Channel2Name, Channel1Name } from '../environment/player-environment.js';
+import { Action, Channel3Name, Channel2Name, Channel1Name } from '../environment/player-environment.js';
 import { copyWeights } from '../dqn/dqn.js';
 import { getTF  } from '../dqn/utils.js';
 
@@ -33,9 +33,9 @@ export class GameAgent {
 	getAvailableIndexes() {
 		const { orders } = this.game;
 		const input = this.game.getInput();
-		const selected = xy => eq(xy, input[Channel2Name.Selected].at(0));
+		const selected = xy => eq(xy, input[Channel3Name.Selected].at(0));
 
-		if (input[Channel2Name.Selected].length === 0) {
+		if (input[Channel3Name.Selected].length === 0) {
 			return orders.selectIndexes;
 		}
 

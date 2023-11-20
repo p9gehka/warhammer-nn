@@ -82,7 +82,7 @@ async function train(nn) {
 	while (true) {
 		state = env.getState();
 		frameCount = players[0].frameCount + players[1].frameCount;
-		console.log(`Frame #${frameCount}: `)
+
 		if (state.done) {
 			const currentFrameCount = frameCount - frameCountPrev; 
 			const currentT = new Date().getTime();
@@ -137,8 +137,6 @@ async function train(nn) {
 		  console.log('Sync\'ed weights from online network to target network');
 		}
 		if (frameCount !== null && frameCount % sendMessageEveryFrames === 0 && rewardAveragerBuffer !== null) {
-
-
 			const testActions = [];
 			const testAgents = [new TestAgent(players[0], { nn: [agents[0].onlineNetwork] }), new RandomAgent(players[1])]
 			let testAttempst = 0;
@@ -162,8 +160,6 @@ async function train(nn) {
 				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
 				`:${JSON.stringify(testActions)}:`
 			);
-			
-			
 		}
 		agents[state.player].trainOnReplayBatch(batchSize, gamma, optimizer);
 		agents[state.player].playStep();

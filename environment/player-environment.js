@@ -18,28 +18,35 @@ export const Channel1 = {
 
 export const Channel2 = {
 	Empty: 0,
-	Selected: 0.25,
 	Marker: 0.5,
-	Enemy: 0.75,
 	Ruin: 1,
 }
+
 export const Channel3 = {
+	Empty: 0,
+	Selected: 0.5,
+	Enemy: 1,
+}
+
+export const Channel4 = {
 	Empty: 0,
 	StrikeTeam: 1,
 	Stealth: 2,
 }
+
 const MAX_REWARD =  50;
-export const Channel1Name = {}, Channel2Name = {};
+export const Channel1Name = {}, Channel2Name = {}, Channel3Name = {};
 
 Object.keys(Channel1).forEach(name => Channel1Name[name] = name);
 Object.keys(Channel2).forEach(name => Channel2Name[name] = name);
+Object.keys(Channel3).forEach(name => Channel3Name[name] = name);
 
 export const channels = [Channel1, Channel2];
 
 export class PlayerEnvironment {
 	height = 44;
 	width = 30;
-	channels = 2;
+	channels = 3;
 	vp = 0;
 	_selectedModel = null;
 	cumulativeReward = 0;
@@ -122,7 +129,7 @@ export class PlayerEnvironment {
 		const state = this.env.getState();
 		const battlefield = this.env.battlefield;
 		const input = {};
-		[...Object.keys(Channel1Name), ...Object.keys(Channel2Name)].forEach(name => {
+		[...Object.keys(Channel1Name), ...Object.keys(Channel2Name), ...Object.keys(Channel3Name)].forEach(name => {
 			input[name] = [];
 		})
 
@@ -134,7 +141,7 @@ export class PlayerEnvironment {
 		}).flat()
 
 		if (selectedModel !== null && state.models[selectedModel] !== null) {
-			input[Channel2Name.Selected] = [round(state.models[selectedModel])];
+			input[Channel3Name.Selected] = [round(state.models[selectedModel])];
 		}
 
 		for (let player of state.players) {
@@ -158,7 +165,7 @@ export class PlayerEnvironment {
 					}
 
 					if (unit.playerId !== this.playerId) {
-						entity = Channel2Name.Enemy;
+						entity = Channel3Name.Enemy;
 					}
 					if (entity !== null) {
 						if (input[entity] === undefined) {
@@ -179,24 +186,27 @@ export class PlayerEnvironment {
 		console.log('************************')
 		for (const line of stateTensor.arraySync()[0]) {
 		  console.log(line.map((ch) => {
-		  	const [ch1, ch2] = round2(ch);
-			if(ch2 !== 0) {
-				return {
-					[Channel2.Selected]: 'I',
-					[Channel2.Marker]: '*',
-					[Channel2.Enemy]: 'E',
-					[Channel2.Ruin]: '#'
-				}[ch2]
-			} else  if(ch1 !== 0) {
-				return {
-					[Channel1.SelfModelNotAvailableToMove]: 'm',
-					[Channel1.SelfModelAvailableToMove]: 'M',
-					[Channel1.SelfModelNotAvailableToShoot]: 's',
-					[Channel1.SelfModelAvailableToShoot]: 'S'
-				}[ch1]
-			}else {
-				return '.';
-			}
+			const [ch1, ch2, ch3] = round2(ch);
+				if (ch3 !== 0) {
+					return {
+						[Channel3.Selected]: 'I',
+						[Channel3.Enemy]: 'E',
+					}[ch3]
+				} else if(ch2 !== 0) {
+					return {
+						[Channel2.Marker]: '*',
+						[Channel2.Ruin]: '#'
+					}[ch2]
+				} else  if(ch1 !== 0) {
+					return {
+						[Channel1.SelfModelNotAvailableToMove]: 'm',
+						[Channel1.SelfModelAvailableToMove]: 'M',
+						[Channel1.SelfModelNotAvailableToShoot]: 's',
+						[Channel1.SelfModelAvailableToShoot]: 'S'
+					}[ch1]
+				}else {
+					return '.';
+				}
 		  }).join());
 		}
 	}
