@@ -84,7 +84,7 @@ export function getStateTensor(state, h, w, channels) {
 
   let buffer = tf.buffer([numExamples, h, w, c]);
   for (let n = 0; n < numExamples; ++n) {
-    if (state[n] == null) {
+    if (state[n] === null) {
       continue;
     }
     channels.forEach((channel, i) => {

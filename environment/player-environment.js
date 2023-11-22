@@ -8,6 +8,12 @@ export const Action = {
 	Select: "SELECT"
 }
 
+export const Channel0 = {
+	Empty: 0,
+	0: 0.5,
+	1: 1,
+}
+
 export const Channel1 = {
 	Empty: 0,
 	SelfModelAvailableToMove: 0.25,
@@ -23,7 +29,8 @@ export const Channel2 = {
 	Enemy: 0.75,
 	Ruin: 1,
 }
-export const Channel3 = {
+
+export const Channel4 = {
 	Empty: 0,
 	StrikeTeam: 1,
 	Stealth: 2,
@@ -46,7 +53,7 @@ export function emptyInput() {
 export class PlayerEnvironment {
 	height = 44;
 	width = 30;
-	channels = [Channel1, Channel2];
+	channels = [Channel0, Channel1, Channel2];
 	vp = 0;
 	_selectedModel = null;
 	cumulativeReward = 0;
@@ -173,6 +180,14 @@ export class PlayerEnvironment {
 				});
 			}
 		}
+
+		state.players[this.playerId].models.forEach((modelId, i) => {
+			const modelPosition = state.models[modelId];
+			if (modelPosition !== null) {
+				input[i] = [modelPosition]
+			}
+		});
+
 		return input;
 	}
 

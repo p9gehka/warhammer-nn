@@ -12,6 +12,6 @@ describe('get state tensor', () => {
 		const ch = 'SelfModelAvailableToMove';
 		input[ch].push([0, 0])
 		const stateTensor = getStateTensor([input], 44, 30, player.channels);
-		expect(stateTensor.arraySync()[0][0][0]).toEqual([player.channels[0][ch], 0]);
+		expect(stateTensor.arraySync()[0][0][0]).toEqual([0, player.channels[1][ch], 0]);
 	});
 });
