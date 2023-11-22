@@ -169,12 +169,12 @@ async function train(nn) {
 			while (!testState.done && testAttempst < 100) {
 				testState = env.getState();
 				if (testState.done) {
-				  break;
+					break;
 				}
 
 				let actionIndex = testAgents[testState.player].playStep();
 				if (testState.player === 0) {
-					testActions.push(actionIndex)
+					testActions.push(actionIndex);
 				}
 				testAttempst++;
 			 }
