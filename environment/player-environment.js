@@ -8,6 +8,12 @@ export const Action = {
 	Select: "SELECT"
 }
 
+export const Channel0 = {
+	Empty: 0,
+	0: 0.5,
+	1: 1,
+}
+
 export const Channel1 = {
 	Empty: 0,
 	SelfModelAvailableToMove: 0.25,
@@ -41,12 +47,19 @@ Object.keys(Channel1).forEach(name => Channel1Name[name] = name);
 Object.keys(Channel2).forEach(name => Channel2Name[name] = name);
 Object.keys(Channel3).forEach(name => Channel3Name[name] = name);
 
-export const channels = [Channel1, Channel2];
+
+export function emptyInput() {
+	const input = {};
+	[...Object.keys(Channel1Name), ...Object.keys(Channel2Name), ...Object.keys(Channel3Name)].forEach(name => {
+		input[name] = [];
+	});
+	return input;
+}
 
 export class PlayerEnvironment {
 	height = 44;
 	width = 30;
-	channels = 3;
+	channels = [Channel0, Channel1, Channel2, Channel3];
 	vp = 0;
 	_selectedModel = null;
 	cumulativeReward = 0;
@@ -128,10 +141,7 @@ export class PlayerEnvironment {
 		const selectedModel = this.selectedModel();
 		const state = this.env.getState();
 		const battlefield = this.env.battlefield;
-		const input = {};
-		[...Object.keys(Channel1Name), ...Object.keys(Channel2Name), ...Object.keys(Channel3Name)].forEach(name => {
-			input[name] = [];
-		})
+		const input = emptyInput();
 
 		input[Channel2Name.Marker] = battlefield.objective_marker.map(round);
 		input[Channel2Name.Ruin] = battlefield.ruins.map(([[x1, y1], [x2, y2]]) => {
@@ -176,6 +186,14 @@ export class PlayerEnvironment {
 				});
 			}
 		}
+
+		state.players[this.playerId].models.forEach((modelId, i) => {
+			const modelPosition = state.models[modelId];
+			if (modelPosition !== null) {
+				input[i] = [modelPosition]
+			}
+		});
+
 		return input;
 	}
 
@@ -207,7 +225,7 @@ export class PlayerEnvironment {
 				}else {
 					return '.';
 				}
-		  }).join());
+			}).join());
 		}
 	}
 	win() {
