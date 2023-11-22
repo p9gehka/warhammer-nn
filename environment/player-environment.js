@@ -41,8 +41,9 @@ export const Channel4 = {
 }
 
 const MAX_REWARD =  50;
-export const Channel1Name = {}, Channel2Name = {}, Channel3Name = {};
+export const Channel0Name = {}, Channel1Name = {}, Channel1Name = {}, Channel2Name = {};
 
+Object.keys(Channel0).forEach(name => Channel0Name[name] = name);
 Object.keys(Channel1).forEach(name => Channel1Name[name] = name);
 Object.keys(Channel2).forEach(name => Channel2Name[name] = name);
 Object.keys(Channel3).forEach(name => Channel3Name[name] = name);
@@ -50,7 +51,7 @@ Object.keys(Channel3).forEach(name => Channel3Name[name] = name);
 
 export function emptyInput() {
 	const input = {};
-	[...Object.keys(Channel1Name), ...Object.keys(Channel2Name), ...Object.keys(Channel3Name)].forEach(name => {
+	[...Object.keys(Channel0Name), ...Object.keys(Channel1Name), ...Object.keys(Channel2Name), ...Object.keys(Channel3Name)].forEach(name => {
 		input[name] = [];
 	});
 	return input;
