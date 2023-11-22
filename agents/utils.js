@@ -1,5 +1,5 @@
 import { angleToVec2, round2 } from '../static/utils/vec2.js';
-import { Action, channels } from '../environment/player-environment.js';
+import { Action } from '../environment/player-environment.js';
 import { getTF } from '../dqn/utils.js';
 
 const distances = [0.25, 0.5, 0.75, 1];
@@ -78,26 +78,25 @@ export class Orders {
 	}
 }
 
-export function getStateTensor(state, h, w, c) {
-  const numExamples = state.length;
+export function getStateTensor(state, h, w, channels) {
+	const c = channels.length;
+	const numExamples = state.length;
 
-  let buffer = tf.buffer([numExamples, h, w, c]);
-  for (let n = 0; n < numExamples; ++n) {
-    if (state[n] == null) {
-      continue;
-    }
-    channels.forEach((channel, i) => {
-    	for (let entity in channel) {
-	   		if (state[n][entity] === undefined) {
-	   			return
-	   		}
-	   		const enitities = state[n][entity].forEach(yx => {
-	   		  buffer.set(channel[entity], n, yx[0], yx[1], i);
-	   		})
-    	}
-    });
-  }
-  return buffer.toTensor();
+	let buffer = tf.buffer([numExamples, h, w, c]);
+	for (let n = 0; n < numExamples; ++n) {
+		if (state[n] === null) {
+			continue;
+		}
+		channels.forEach((channel, i) => {
+			for (let entity in channel) {
+				if (state[n][entity] === undefined) {
+					return
+				}
+				const enitities = state[n][entity].forEach(yx => {
+					buffer.set(channel[entity], n, yx[0], yx[1], i);
+				})
+			}
+		});
+	}
+	return buffer.toTensor();
 }
-
-

@@ -1,12 +1,13 @@
 import tf from '@tensorflow/tfjs-node';
 import { getStateTensor } from '../agents/utils.js';
 import { createDeepQNetwork } from '../dqn/dqn.js';
+import { Channel1 } from '../environment/player-environment.js';
 
-describe('getAction', () => {
+describe('dqn', () => {
   it('getAction', () => {
      const height = 44;
      const width = 30;
-     const channels = 1;
+     const channels = [Channel1];
      const state = {
         Empty: [],
         SelfModel: [],
@@ -33,7 +34,7 @@ describe('getAction', () => {
         ]
       }
      const numAction = 33;
-     const network = createDeepQNetwork(numAction, height, width, channels);
+     const network = createDeepQNetwork(numAction, height, width, channels.length);
      const input = getStateTensor([state], height, width, channels);
      const order = network.predict(input);
 

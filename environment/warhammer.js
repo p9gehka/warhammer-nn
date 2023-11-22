@@ -96,7 +96,10 @@ export class Warhammer {
 		const units = gameSettings.units.map(
 			(units, playerId) => units.map(unit => ({...unit, playerId }))
 		);
-		this.players = [{ units: units[0], models: units[0].map(unit => unit.models).flat(), vp: 0 }, { units: units[1], models: units[1].map(unit => unit.models).flat(), vp: 0 }]
+		this.players = [
+			{ units: units[0], models: units[0].map(unit => unit.models).flat(), vp: 0 },
+			{ units: units[1], models: units[1].map(unit => unit.models).flat(), vp: 0 }
+		];
 		this.units = units.flat();
 
 		const usedPosition = [];
@@ -244,7 +247,7 @@ export class Warhammer {
 
 	getState(misc) {
 		return {
-			players: this.players.map(player => ({ ...player })),
+			players: this.players,
 			units: this.units,
 			models: this.models.map(model => !model.dead ? model.position : null),
 			phase: this.phase,

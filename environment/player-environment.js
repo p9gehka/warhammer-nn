@@ -8,6 +8,12 @@ export const Action = {
 	Select: "SELECT"
 }
 
+export const Channel0 = {
+	Empty: 0,
+	0: 0.5,
+	1: 1,
+}
+
 export const Channel1 = {
 	Empty: 0,
 	SelfModelAvailableToMove: 0.25,
@@ -23,7 +29,8 @@ export const Channel2 = {
 	Enemy: 0.75,
 	Ruin: 1,
 }
-export const Channel3 = {
+
+export const Channel4 = {
 	Empty: 0,
 	StrikeTeam: 1,
 	Stealth: 2,
@@ -34,12 +41,19 @@ export const Channel1Name = {}, Channel2Name = {};
 Object.keys(Channel1).forEach(name => Channel1Name[name] = name);
 Object.keys(Channel2).forEach(name => Channel2Name[name] = name);
 
-export const channels = [Channel1, Channel2];
+
+export function emptyInput() {
+	const input = {};
+	[...Object.keys(Channel1Name), ...Object.keys(Channel2Name)].forEach(name => {
+		input[name] = [];
+	});
+	return input;
+}
 
 export class PlayerEnvironment {
 	height = 44;
 	width = 30;
-	channels = 2;
+	channels = [Channel0, Channel1, Channel2];
 	vp = 0;
 	_selectedModel = null;
 	cumulativeReward = 0;
@@ -121,10 +135,7 @@ export class PlayerEnvironment {
 		const selectedModel = this.selectedModel();
 		const state = this.env.getState();
 		const battlefield = this.env.battlefield;
-		const input = {};
-		[...Object.keys(Channel1Name), ...Object.keys(Channel2Name)].forEach(name => {
-			input[name] = [];
-		})
+		const input = emptyInput();
 
 		input[Channel2Name.Marker] = battlefield.objective_marker.map(round);
 		input[Channel2Name.Ruin] = battlefield.ruins.map(([[x1, y1], [x2, y2]]) => {
@@ -169,6 +180,14 @@ export class PlayerEnvironment {
 				});
 			}
 		}
+
+		state.players[this.playerId].models.forEach((modelId, i) => {
+			const modelPosition = state.models[modelId];
+			if (modelPosition !== null) {
+				input[i] = [modelPosition]
+			}
+		});
+
 		return input;
 	}
 
@@ -178,26 +197,26 @@ export class PlayerEnvironment {
 
 		console.log('************************')
 		for (const line of stateTensor.arraySync()[0]) {
-		  console.log(line.map((ch) => {
-		  	const [ch1, ch2] = round2(ch);
-			if(ch2 !== 0) {
-				return {
-					[Channel2.Selected]: 'I',
-					[Channel2.Marker]: '*',
-					[Channel2.Enemy]: 'E',
-					[Channel2.Ruin]: '#'
-				}[ch2]
-			} else  if(ch1 !== 0) {
-				return {
-					[Channel1.SelfModelNotAvailableToMove]: 'm',
-					[Channel1.SelfModelAvailableToMove]: 'M',
-					[Channel1.SelfModelNotAvailableToShoot]: 's',
-					[Channel1.SelfModelAvailableToShoot]: 'S'
-				}[ch1]
-			}else {
-				return '.';
-			}
-		  }).join());
+			console.log(line.map((ch) => {
+				const [ch1, ch2] = round2(ch);
+				if(ch2 !== 0) {
+					return {
+						[Channel2.Selected]: 'I',
+						[Channel2.Marker]: '*',
+						[Channel2.Enemy]: 'E',
+						[Channel2.Ruin]: '#'
+					}[ch2]
+				} else  if(ch1 !== 0) {
+					return {
+						[Channel1.SelfModelNotAvailableToMove]: 'm',
+						[Channel1.SelfModelAvailableToMove]: 'M',
+						[Channel1.SelfModelNotAvailableToShoot]: 's',
+						[Channel1.SelfModelAvailableToShoot]: 'S'
+					}[ch1]
+				}else {
+					return '.';
+				}
+			}).join());
 		}
 	}
 	win() {

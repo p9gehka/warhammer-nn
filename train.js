@@ -146,12 +146,12 @@ async function train(nn) {
 			while (!testState.done && testAttempst < 100) {
 				testState = env.getState();
 				if (testState.done) {
-				  break;
+					break;
 				}
 
 				let actionIndex = testAgents[testState.player].playStep();
-				if (testState.player == 0) {
-					testActions.push(actionIndex)
+				if (testState.player === 0) {
+					testActions.push(actionIndex);
 				}
 				testAttempst++;
 			 }
@@ -162,8 +162,6 @@ async function train(nn) {
 				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
 				`:${JSON.stringify(testActions)}:`
 			);
-			
-			
 		}
 		agents[state.player].trainOnReplayBatch(batchSize, gamma, optimizer);
 		agents[state.player].playStep();
