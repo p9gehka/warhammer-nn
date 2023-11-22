@@ -36,15 +36,16 @@ export const Channel4 = {
 	Stealth: 2,
 }
 const MAX_REWARD =  50;
-export const Channel1Name = {}, Channel2Name = {};
+export const Channel0Name = {},  Channel1Name = {}, Channel2Name = {};
 
+Object.keys(Channel0).forEach(name => Channel0Name[name] = name);
 Object.keys(Channel1).forEach(name => Channel1Name[name] = name);
 Object.keys(Channel2).forEach(name => Channel2Name[name] = name);
 
 
 export function emptyInput() {
 	const input = {};
-	[...Object.keys(Channel1Name), ...Object.keys(Channel2Name)].forEach(name => {
+	[...Object.keys(Channel0Name), ...Object.keys(Channel1Name), ...Object.keys(Channel2Name)].forEach(name => {
 		input[name] = [];
 	});
 	return input;
