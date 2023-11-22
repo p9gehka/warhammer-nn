@@ -18,8 +18,8 @@ export class GameAgent {
 		this.actionsProb = actionsProb ?? {};
 		this.game = game;
 
-		this.onlineNetwork = nn[0] ?? createDeepQNetwork(game.orders.all.length, game.height, game.width, game.channels);
-		this.targetNetwork = nn[1] ?? createDeepQNetwork(game.orders.all.length, game.height, game.width, game.channels);
+		this.onlineNetwork = nn[0] ?? createDeepQNetwork(game.orders.all.length, game.height, game.width, game.channels.length);
+		this.targetNetwork = nn[1] ?? createDeepQNetwork(game.orders.all.length, game.height, game.width, game.channels.length);
 
 		this.targetNetwork.trainable = false;
 		this.replayMemory = replayMemory ?? null;

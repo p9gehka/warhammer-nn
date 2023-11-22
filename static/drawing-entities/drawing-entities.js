@@ -35,7 +35,7 @@ class Model extends Drawing {
 		}
 		const { base } = this.unitProfile;
 		const radius = 1
-		this.ctx.fillStyle = this.playerId == 1 ? 'blue' : 'red';
+		this.ctx.fillStyle = this.playerId === 1 ? 'blue' : 'red';
 
 		this.fillPath(() => {
 			this.ctx.ellipse(this.position[0], this.position[1], mmToInch(base[0] / 2), mmToInch(base[0] / 2), 0, 0, 2 * Math.PI);
