@@ -41,7 +41,7 @@ export const Channel4 = {
 }
 
 const MAX_REWARD =  50;
-export const Channel0Name = {}, Channel1Name = {}, Channel1Name = {}, Channel2Name = {};
+export const Channel0Name = {}, Channel1Name = {}, Channel2Name = {}, Channel3Name = {};
 
 Object.keys(Channel0).forEach(name => Channel0Name[name] = name);
 Object.keys(Channel1).forEach(name => Channel1Name[name] = name);
