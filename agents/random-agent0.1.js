@@ -6,8 +6,7 @@ import { getRandomInteger } from '../static/utils/index.js';
 export class RandomAgent {
 	orders = []
 	constructor(game, config = {}) {
-		const { replayMemory, actionsProb } = config;
-		this.actionsProb = actionsProb ?? {};
+		const { replayMemory } = config;
 		this.game = game;
 		this.replayMemory = replayMemory;
 	}
@@ -41,16 +40,9 @@ export class RandomAgent {
 		const [order_, state, reward] = this.game.step(order);
 		const nextInput = this.game.getInput();
 		const loose = state.done && !this.game.win();
-		if (this.needSave(orderIndex) || reward > 1 || loose) {
-			this.replayMemory?.append([input, orderIndex, reward, state.done, nextInput]);
-		}
+		this.replayMemory?.append([input, orderIndex, reward, state.done, nextInput]);
 		return [order_, state, reward];
 	}
-	needSave(orderIndex) {
-		if (orderIndex in this.actionsProb) {
-			return this.actionsProb[orderIndex] > Math.random();
-		}
-		return true
-	}
+
 	trainOnReplayBatch() {}
 }

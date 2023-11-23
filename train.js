@@ -5,9 +5,11 @@ import { GameAgent } from './agents/game-agent0.1.js';
 import { TestAgent } from './agents/test-agent.js';
 import { getTF } from './dqn/utils.js';
 import { ReplayMemory } from './dqn/replay_memory.js';
+import { ReplayMemoryByAction } from './environment/replay-memory-by-action.js';
 import { copyWeights } from './dqn/dqn.js';
 import shelljs from 'shelljs';
 import { sendDataToTelegram, sendMesage } from './visualization/utils.js';
+import { fillReplayMemory } from './environment/fill-replay-memory.js';
 
 import * as fs from 'fs';
 let tf = await getTF();
@@ -34,13 +36,6 @@ class MovingAverager {
 	return this.buffer.reduce((x, prev) => x + prev) / this.buffer.length;
 	}
 }
-const actionsProb = {
-	0: 0.03,
-	1: 0.03,
-	2: 0.03,
-	31: 0.1,
-	32: 0.1,
-}
 
 const replayBufferSize = 1e5;
 const batchSize = 256;
@@ -54,33 +49,25 @@ const rewardAverager100Len = 100;
 
 async function train(nn) {
 	const env = new Warhammer();
-	const replayMemory = new ReplayMemory(replayBufferSize);
 	let players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
-	let agents = [
-		nn === null ? new RandomAgent(players[0], { replayMemory, actionsProb }): new GameAgent(players[0],{ replayMemory, nn, actionsProb }),
-		new RandomAgent(players[1])
-	];
+	const replayMemory = new ReplayMemoryByAction(players[0], replayBufferSize)
+	let agents;
 
-	let state = env.reset();
-	players.forEach(player=> player.reset());
-
-	while (replayMemory.length < replayBufferSize ) {
-		state = env.getState();
-		if (state.done) {
-			state = env.reset();
-			players.forEach(player=> player.reset());
-		}
-		agents[state.player].playStep();
+	if (nn !== null) {
+		agents = [new GameAgent(players[0],{ replayMemory, nn }), new RandomAgent(players[1])];
 	}
+
+	fillReplayMemory(env, replayMemory, agents);
 
 	if (nn === null) {
-		agents = [new GameAgent(players[0], { replayMemory, actionsProb }), new RandomAgent(players[1] )];
+		agents = [new GameAgent(players[0], { replayMemory }), new RandomAgent(players[1])];
 	}
+
 	agents[0].onlineNetwork.summary()
 	players[0].frameCount = 0;
 	players[1].frameCount = 0;
 
-	env.reset();
+	let state = env.reset();
 	players.forEach(player=> player.reset());
 
 	let averageReward100Best = -Infinity;
@@ -151,16 +138,6 @@ async function train(nn) {
 			console.log('Sync\'ed weights from online network to target network');
 		}
 		if (frameCount !== null && frameCount % sendMessageEveryFrames === 0 && rewardAveragerBuffer !== null) {
-			const counterPhases = {};
-			const counterAction = {};
-			replayMemory.buffer.forEach((v, i)=> {
-				if (!(v[1] in counterAction)) {
-					counterAction[v[1]] = 0
-				}
-				counterPhases[v[0].turn]++;
-				counterAction[v[1]]++;
-			});
-
 			const testActions = [];
 			const testAgents = [new TestAgent(players[0], { nn: [agents[0].onlineNetwork] }), new RandomAgent(players[1])]
 			let testAttempst = 0;
@@ -184,7 +161,6 @@ async function train(nn) {
 
 			await sendDataToTelegram(
 				rewardAveragerBuffer.buffer.filter(v => v !== null),
-				Object.entries(counterAction).map(([action, value]) => ({ action: Number(action), value })),
 				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
 				`:${JSON.stringify(testActions)}:`
 			);

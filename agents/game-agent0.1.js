@@ -13,8 +13,7 @@ export class GameAgent {
 	orders = {};
 	prevOrderIndex = null;
 	constructor(game, config = {}) {
-		const { replayMemory, nn = [], epsilonInit, actionsProb } = config
-		this.actionsProb = actionsProb ?? {};
+		const { replayMemory, nn = [], epsilonInit } = config
 		this.game = game;
 
 		this.onlineNetwork = nn[0] ?? createDeepQNetwork(game.orders.all.length, game.height, game.width, game.channels.length);
@@ -73,31 +72,20 @@ export class GameAgent {
 		const input = this.game.getInput();
 		let epsilon = this.epsilon;
 		let order = orders[Action.NextPhase][0];
-		let rawOrderIndex;
 		let orderIndex;
 
 		if (Math.random() < this.epsilon) {
-			rawOrderIndex = orderIndex = this.getOrderRandomIndex();
+			orderIndex = this.getOrderRandomIndex();
 		} else {
 			tf.tidy(() => {
 				const inputTensor = getStateTensor([input], height, width, channels);
 				const indexesArgMax = this.getIndexesArgMax();
 				const predictions = this.onlineNetwork.predict(inputTensor);
-				rawOrderIndex = predictions.clone().argMax(-1).dataSync()[0];
 				orderIndex = tf.add(predictions, tf.tensor2d(indexesArgMax, [1, 33])).argMax(-1).dataSync()[0];
 			});
 		}
 
-		if (orderIndex !== rawOrderIndex) {
-			if (this.needSave(orderIndex)) {
-				this.replayMemory?.append([input, rawOrderIndex, 0, false, input]);
-			}
-		}
-
 		if (orderIndex !== orders.nextPhaseIndex && orderIndex === this.prevOrderIndex) {
-			if (this.needSave(orderIndex)) {
-				this.replayMemory?.append([input, orderIndex, 0, false, input]);
-			}
 			orderIndex = this.getOrderRandomIndex();
 		}
 
@@ -106,17 +94,11 @@ export class GameAgent {
 		const [order_, state, reward] = this.game.step(order);
 		const nextInput = this.game.getInput();
 		const loose = state.done && !this.game.win();
-		if (this.needSave(orderIndex) || loose || reward > 1) {
-			this.replayMemory?.append([input, orderIndex, reward, loose, nextInput]);
-		}
+		this.replayMemory?.append([input, orderIndex, reward, loose, nextInput]);
+
 		return [order_, state, reward];
 	}
-	needSave(orderIndex) {
-		if (orderIndex in this.actionsProb) {
-			return this.actionsProb[orderIndex] > Math.random();
-		}
-		return true
-	}
+
 	trainOnReplayBatch(batchSize, gamma, optimizer) {
 		// Get a batch of examples from the replay buffer.
 		const { width, height, orders, channels } = this.game;
