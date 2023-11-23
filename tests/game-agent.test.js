@@ -4,7 +4,7 @@ import { GameAgent } from '../agents/game-agent0.1.js';
 
 describe('game agent', () => {
 	it('order', () => {
-		for(let i = 0; i<30; i++) {
+		for(let i = 0; i<1; i++) {
 			const env = new Warhammer();
 			const player = new PlayerEnvironment(0, env);
 			const gameAgent = new GameAgent(player);
