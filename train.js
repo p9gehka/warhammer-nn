@@ -1,4 +1,4 @@
-	import { Warhammer, } from './environment/warhammer.js';
+import { Warhammer, } from './environment/warhammer.js';
 import { PlayerEnvironment, Action } from './environment/player-environment.js';
 import { RandomAgent } from './agents/random-agent0.1.js';
 import { GameAgent } from './agents/game-agent0.1.js';
@@ -57,7 +57,8 @@ async function train(nn) {
 		agents = [new GameAgent(players[0],{ replayMemory, nn }), new RandomAgent(players[1])];
 	}
 
-	fillReplayMemory(env, replayMemory, agents)
+
+	fillReplayMemory(env, replayMemory, agents);
 
 	if (nn === null) {
 		agents = [new GameAgent(players[0], { replayMemory }), new RandomAgent(players[1])];
@@ -66,6 +67,9 @@ async function train(nn) {
 	agents[0].onlineNetwork.summary()
 	players[0].frameCount = 0;
 	players[1].frameCount = 0;
+
+	let state = env.reset();
+	players.forEach(player=> player.reset());
 
 	let averageReward100Best = -Infinity;
 	let rewardAveragerBuffer = null;
@@ -77,7 +81,6 @@ async function train(nn) {
 	let frameCountPrev = 0;
 	let frameCount = 0;
 	let t = new Date().getTime();
-	let state = env.reset();
 
 	while (true) {
 		state = env.getState();
@@ -140,6 +143,8 @@ async function train(nn) {
 			const testAgents = [new TestAgent(players[0], { nn: [agents[0].onlineNetwork] }), new RandomAgent(players[1])]
 			let testAttempst = 0;
 			let testState = env.reset();
+			players.forEach(player=> player.reset());
+
 			while (!testState.done && testAttempst < 100) {
 				testState = env.getState();
 				if (testState.done) {
@@ -154,6 +159,7 @@ async function train(nn) {
 			}
 			env.reset();
 			players.forEach(p => p.reset());
+
 			await sendDataToTelegram(
 				rewardAveragerBuffer.buffer.filter(v => v !== null),
 				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+

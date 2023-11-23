@@ -41,7 +41,6 @@ export async function sendDataToTelegram(rewardAverager, message) {
 	await bot?.sendPhoto(config.chat_id, rewardAveragerPNG, { reply_to_message_id: config.reply_to_message_id });
 }
 
-
 export async function sendMesage(message) {
 	if (bot === null && config.token.length > 0) {
 		bot = new TelegramBot(config.token, {polling: true});

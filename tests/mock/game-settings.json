@@ -1,0 +1,18 @@
+{
+	"units": [
+		[
+			{ "name": "test_strike_team", "models": [0] },
+			{ "name": "test_strike_team", "models": [1] }
+		],
+		[
+			{ "name": "strike_team", "models": [2] },
+			{ "name": "strike_team", "models": [3] }
+		]
+	],
+	"models": [
+		[8, 15], [22,7],
+		[15,17], null
+	],
+	"primary_objective": "take_and_hold",
+	"objective_marker_control_distance": 3
+}

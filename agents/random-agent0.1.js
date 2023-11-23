@@ -44,5 +44,6 @@ export class RandomAgent {
 		this.replayMemory?.append([input, orderIndex, reward, state.done, nextInput]);
 		return [order_, state, reward];
 	}
+
 	trainOnReplayBatch() {}
 }

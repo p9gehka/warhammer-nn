@@ -1,13 +1,39 @@
+import tf from '@tensorflow/tfjs-node';
 import { Warhammer } from '../environment/warhammer.js';
 import { PlayerEnvironment } from '../environment/player-environment.js';
 import { GameAgent } from '../agents/game-agent0.1.js';
+import { ReplayMemoryByAction } from '../environment/replay-memory-by-action.js';
+import { fillReplayMemory } from '../environment/fill-replay-memory.js';
+import { ReplayMemory } from '../dqn/replay_memory.js';
+import { ControlledAgent } from '../agents/controlled-agent.js';
+
+import battlefields from './mock/battlefields.json' assert { type: 'json' };
+import gameSettings from './mock/game-settings.json' assert { type: 'json' };
 
 describe('game agent', () => {
+	const nn = [];
+	let env = null
+	let player = null;
+	let gameAgent = null;
+	let optimizer = null;
+	let replayMemory = null;
+	beforeAll(async () => {
+		nn[0] = await tf.loadLayersModel(`file://tests/mock/dqn-test/model.json`);
+		nn[1] = await tf.loadLayersModel(`file://tests/mock/dqn-test/model.json`);
+		env = new Warhammer({ gameSettings, battlefields });
+		player = new PlayerEnvironment(0, env);
+		replayMemory = new ReplayMemory(1);
+		optimizer = tf.train.adam(1e-3);
+	});
+
+	beforeEach(() => {
+		env.reset()
+		player.reset()
+	});
+
 	it('order', () => {
-		for(let i = 0; i<1; i++) {
-			const env = new Warhammer();
-			const player = new PlayerEnvironment(0, env);
-			const gameAgent = new GameAgent(player);
+		const gameAgent = new GameAgent(player, { nn });
+		for(let i = 0; i<30; i++) {
 			let action = null;
 			player.step = (order) => {
 				action = order.action;
@@ -18,4 +44,10 @@ describe('game agent', () => {
 			expect(action).toMatch(/NEXT_PHASE|SELECT$/);
 		}
 	});
+
+	it('replayMemory', () => {
+		const gameAgent = new GameAgent(player, { nn, replayMemory });
+		const controlledAgent= new ControlledAgent(player);
+		expect('Next phase state before enemy turn').toBe('Next phase state with reward after enemy turn');
+	})
 });

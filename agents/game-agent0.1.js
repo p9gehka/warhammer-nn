@@ -72,17 +72,15 @@ export class GameAgent {
 		const input = this.game.getInput();
 		let epsilon = this.epsilon;
 		let order = orders[Action.NextPhase][0];
-		let rawOrderIndex;
 		let orderIndex;
 
 		if (Math.random() < this.epsilon) {
-			rawOrderIndex = orderIndex = this.getOrderRandomIndex();
+			orderIndex = this.getOrderRandomIndex();
 		} else {
 			tf.tidy(() => {
 				const inputTensor = getStateTensor([input], height, width, channels);
 				const indexesArgMax = this.getIndexesArgMax();
 				const predictions = this.onlineNetwork.predict(inputTensor);
-				rawOrderIndex = predictions.clone().argMax(-1).dataSync()[0];
 				orderIndex = tf.add(predictions, tf.tensor2d(indexesArgMax, [1, 33])).argMax(-1).dataSync()[0];
 			});
 		}
@@ -97,6 +95,7 @@ export class GameAgent {
 		const nextInput = this.game.getInput();
 		const loose = state.done && !this.game.win();
 		this.replayMemory?.append([input, orderIndex, reward, loose, nextInput]);
+
 		return [order_, state, reward];
 	}
 
