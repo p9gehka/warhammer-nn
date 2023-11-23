@@ -1,0 +1,9 @@
+{
+	"testBattlefield": {
+		"size": [44, 30],
+		"ruins": [[[5, 7], [5, 17]], [[28, 15], [38, 15]], [[22, 10], [22, 20]], [[39, 13], [39, 23]], [[6, 15], [16, 15]]],
+		"deploment": [],
+		"objective_marker": [[8, 15], [22, 7], [22, 23], [36, 15]],
+		"objective_marker_control_distance": 3
+	}
+}

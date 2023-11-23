@@ -9,13 +9,11 @@ import { getTF  } from '../dqn/utils.js';
 
 let tf = await getTF();
 
-
 export class GameAgent {
 	orders = {};
 	prevOrderIndex = null;
 	constructor(game, config = {}) {
-		const { replayMemory, nn = [], epsilonInit, actionsProb } = config
-		this.actionsProb = actionsProb ?? {};
+		const { replayMemory, nn = [], epsilonInit } = config
 		this.game = game;
 
 		this.onlineNetwork = nn[0] ?? createDeepQNetwork(game.orders.all.length, game.height, game.width, game.channels.length);
@@ -26,7 +24,7 @@ export class GameAgent {
 		this.frameCount = 0;
 		this.epsilonInit = epsilonInit ?? 0.5;
 		this.epsilonFinal = 0.01;
-		this.epsilonDecayFrames = 1e6;
+		this.epsilonDecayFrames = 3e5 
 		this.epsilonIncrement_ = (this.epsilonFinal - this.epsilonInit) / this.epsilonDecayFrames;
 		this.epsilon = this.epsilonInit;
 	}
@@ -60,8 +58,8 @@ export class GameAgent {
 		return indexes[getRandomInteger(0, indexes.length)]
 	}
 	getIndexesArgMax() {
-		const indexesArgMax = Array(this.game.orders.all.length).fill(0);
-		this.getAvailableIndexes().forEach(i => indexesArgMax[i] = 1);
+		const indexesArgMax = Array(this.game.orders.all.length).fill(-Infinity);
+		this.getAvailableIndexes().forEach(i => indexesArgMax[i] = 0);
 		return indexesArgMax;
 	}
 	playStep() {
@@ -74,29 +72,20 @@ export class GameAgent {
 		const input = this.game.getInput();
 		let epsilon = this.epsilon;
 		let order = orders[Action.NextPhase][0];
-		let rawOrderIndex;
 		let orderIndex;
 
 		if (Math.random() < this.epsilon) {
-			rawOrderIndex = orderIndex = this.getOrderRandomIndex();
+			orderIndex = this.getOrderRandomIndex();
 		} else {
 			tf.tidy(() => {
 				const inputTensor = getStateTensor([input], height, width, channels);
 				const indexesArgMax = this.getIndexesArgMax();
 				const predictions = this.onlineNetwork.predict(inputTensor);
-				rawOrderIndex = predictions.clone().argMax(-1).dataSync()[0];
-				orderIndex = tf.mul(predictions, tf.tensor2d(indexesArgMax, [1, 33])).argMax(-1).dataSync()[0];
+				orderIndex = tf.add(predictions, tf.tensor2d(indexesArgMax, [1, 33])).argMax(-1).dataSync()[0];
 			});
 		}
 
-		if (orderIndex !== rawOrderIndex) {
-			this.replayMemory?.append([input, rawOrderIndex, 0, false, input]);
-		}
-
 		if (orderIndex !== orders.nextPhaseIndex && orderIndex === this.prevOrderIndex) {
-			if (this.needSave(orderIndex)) {
-				this.replayMemory?.append([input, orderIndex, 0, false, input]);
-			}
 			orderIndex = this.getOrderRandomIndex();
 		}
 
@@ -105,17 +94,11 @@ export class GameAgent {
 		const [order_, state, reward] = this.game.step(order);
 		const nextInput = this.game.getInput();
 		const loose = state.done && !this.game.win();
-		if (this.needSave(orderIndex) || loose || reward > 1) {
-			this.replayMemory?.append([input, orderIndex, reward, loose, nextInput]);
-		}
+		this.replayMemory?.append([input, orderIndex, reward, loose, nextInput]);
+
 		return [order_, state, reward];
 	}
-	needSave(orderIndex) {
-		if (orderIndex in this.actionsProb) {
-			return this.actionsProb[orderIndex] > Math.random();
-		}
-		return true
-	}
+
 	trainOnReplayBatch(batchSize, gamma, optimizer) {
 		// Get a batch of examples from the replay buffer.
 		const { width, height, orders, channels } = this.game;

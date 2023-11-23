@@ -6,9 +6,8 @@ import { PlayerEnvironment } from '../environment/player-environment.js';
 describe('get state tensor', () => {
 	it('state tensor test', () => {
 		const input = emptyInput();
-
 		const env = new Warhammer();
-		const player = new PlayerEnvironment(0, env)
+		const player = new PlayerEnvironment(0, env);
 		const ch = 'SelfModelAvailableToMove';
 		input[ch].push([0, 0])
 		const stateTensor = getStateTensor([input], 44, 30, player.channels);
