@@ -95,7 +95,6 @@ async function train(nn) {
 	while (true) {
 		state = env.getState();
 		frameCount = players[0].frameCount + players[1].frameCount;
-		console.log(`Frame #${frameCount}: `)
 		if (state.done) {
 			const currentFrameCount = frameCount - frameCountPrev; 
 			const currentT = new Date().getTime();
