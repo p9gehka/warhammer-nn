@@ -9,7 +9,6 @@ import { getTF  } from '../dqn/utils.js';
 
 let tf = await getTF();
 
-
 export class GameAgent {
 	orders = {};
 	prevOrderIndex = null;
@@ -59,8 +58,8 @@ export class GameAgent {
 		return indexes[getRandomInteger(0, indexes.length)]
 	}
 	getIndexesArgMax() {
-		const indexesArgMax = Array(this.game.orders.all.length).fill(0);
-		this.getAvailableIndexes().forEach(i => indexesArgMax[i] = 1);
+		const indexesArgMax = Array(this.game.orders.all.length).fill(-Infinity);
+		this.getAvailableIndexes().forEach(i => indexesArgMax[i] = 0);
 		return indexesArgMax;
 	}
 	playStep() {
@@ -73,18 +72,16 @@ export class GameAgent {
 		const input = this.game.getInput();
 		let epsilon = this.epsilon;
 		let order = orders[Action.NextPhase][0];
-		let rawOrderIndex;
 		let orderIndex;
 
 		if (Math.random() < this.epsilon) {
-			rawOrderIndex = orderIndex = this.getOrderRandomIndex();
+			orderIndex = this.getOrderRandomIndex();
 		} else {
 			tf.tidy(() => {
 				const inputTensor = getStateTensor([input], height, width, channels);
 				const indexesArgMax = this.getIndexesArgMax();
 				const predictions = this.onlineNetwork.predict(inputTensor);
-				rawOrderIndex = predictions.clone().argMax(-1).dataSync()[0];
-				orderIndex = tf.mul(predictions, tf.tensor2d(indexesArgMax, [1, 33])).argMax(-1).dataSync()[0];
+				orderIndex = tf.add(predictions, tf.tensor2d(indexesArgMax, [1, 33])).argMax(-1).dataSync()[0];
 			});
 		}
 
@@ -98,6 +95,7 @@ export class GameAgent {
 		const nextInput = this.game.getInput();
 		const loose = state.done && !this.game.win();
 		this.replayMemory?.append([input, orderIndex, reward, loose, nextInput]);
+
 		return [order_, state, reward];
 	}
 

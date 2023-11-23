@@ -67,5 +67,15 @@
 		"s": 7,
 		"ap": 1,
 		"d": 2
+	},
+
+	"wipe_pulse_rifle": {
+		"range": 30,
+		"a": 30,
+		"bs": 1,
+		"s": 10,
+		"ap": 10,
+		"d": 1,
+		"abilities": { "rapid_fire": 1 }
 	}
 }

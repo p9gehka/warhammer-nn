@@ -40,9 +40,9 @@ export class RandomAgent {
 		const [order_, state, reward] = this.game.step(order);
 		const nextInput = this.game.getInput();
 		const loose = state.done && !this.game.win();
-
 		this.replayMemory?.append([input, orderIndex, reward, state.done, nextInput]);
 		return [order_, state, reward];
 	}
+
 	trainOnReplayBatch() {}
 }
