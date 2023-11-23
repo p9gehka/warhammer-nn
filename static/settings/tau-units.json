@@ -59,5 +59,18 @@
 		"composition": 1,
 		"ranged_weapons": ["cyclic_ion_raker"],
 		"melee_weapons": ["ghostkeel_fists"]
+	},
+
+	"test_strike_team": {
+		"m": 6,
+		"t": 3,
+		"sv": 4,
+		"w": 1,
+		"ld": 7,
+		"oc": 2,
+		"base": [25],
+		"composition": 10,
+		"ranged_weapons": ["wipe_pulse_rifle"],
+		"melee_weapons": ["close_combat_weapon_2"]
 	}
 }
