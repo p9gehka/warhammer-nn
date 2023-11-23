@@ -3,10 +3,8 @@ import tauUnits from '../static/settings/tau-units.json' assert { type: 'json' }
 import tauWeapons from '../static/settings/tau-weapons.json' assert { type: 'json' };
 import battlefields from '../static/settings/battlefields.json' assert { type: 'json' };
 
-import { mul, len, sub, add, round, eq } from '../static/utils/vec2.js';
-
-const { models, objective_marker_control_distance } = gameSettings;
-import { getRandomInteger } from '../static/utils//index.js';
+import { mul, len, sub, add, round, eq } from '../static/utils/vec2.js'
+import { getRandomInteger } from '../static/utils/index.js';
 
 
 export const Phase = {
@@ -23,24 +21,26 @@ export const BaseAction = {
 }
 
 function d6() {
-	const edge = [1,2,3,4,5,6].map(() => Math.random())
+	const edge = [1,2,3,4,5,6].map(() => Math.random());
 	return edge.findIndex((v) => v ===Math.max(...edge)) + 1;
 }
 
 class Model {
-	position = [0, 0];
+	position = [NaN, NaN];
 	wound = 0;
-	dead = false;
+	dead = true;
+	availableToMove = false;
+	availableToShoot = false;
 	constructor(id, unit, position) {
 		this.id = id;
 		this.name = unit.name;
 		this.playerId = unit.playerId;
-		this.position = position;
 		this.unitProfile = tauUnits[unit.name];
-		this.availableToMove = false;
-		this.availableToShoot = false;
-		this.wound = this.unitProfile.w;
-		this.dead = false;
+		if (position !== null) {
+			this.position = position;
+			this.dead = false;
+			this.wound = this.unitProfile.w;
+		}
 	}
 
 	update(position) {
@@ -82,19 +82,22 @@ export class Warhammer {
 	units = [];
 	models = [];
 	phase = Phase.Movement;
-	turn = 0
-	constructor() {
+	turn = 0;
+	objectiveControlReward = 5;
+	constructor(config) {
+		this.gameSettings = config?.gameSettings ?? gameSettings;
+		this.battlefields = config?.battlefields ?? battlefields;
 		this.reset();
 	}
 	reset() {
-		const battlefieldsNames = Object.keys(battlefields);
-		this.battlefield = battlefields[battlefieldsNames[getRandomInteger(0, battlefieldsNames.length)]];
+		const battlefieldsNames = Object.keys(this.battlefields);
+		this.battlefield = this.battlefields[battlefieldsNames[getRandomInteger(0, battlefieldsNames.length)]];
 
 		this.phase = Phase.Movement;
 		this.turn = 0
 
-		const units = gameSettings.units.map(
-			(units, playerId) => units.map(unit => ({...unit, playerId }))
+		const units = this.gameSettings.units.map(
+			(playerUnits, playerId) => playerUnits.map(unit => ({...unit, playerId }))
 		);
 		this.players = [
 			{ units: units[0], models: units[0].map(unit => unit.models).flat(), vp: 0 },
@@ -105,17 +108,19 @@ export class Warhammer {
 		const usedPosition = [];
 		this.models = this.units.map(unit => {
 			return unit.models.map(id => {
-				usedPosition.push(this.getRandomStartPosition(usedPosition))
-				return new Model(id, unit, usedPosition.at(-1))
+				if (this.gameSettings.models.length !== 0) {
+					return new Model(id, unit, this.gameSettings.models[id]);
+				}
+				usedPosition.push(this.getRandomStartPosition(usedPosition));
+				return new Model(id, unit, usedPosition.at(-1));
 			});
 		}).flat();
 
-
-		this.models.forEach((model) => {
+		this.models.forEach(model => {
 			if (model.playerId === this.getPlayer()) {
 				model.updateAvailableToMove(true);
 			}
-		})
+		});
 		return this.getState();
 	}
 	getRandomStartPosition(exclude) {
@@ -145,7 +150,7 @@ export class Warhammer {
 				if (x < 0 || this.battlefield.size[0] < x || y < 0 || this.battlefield.size[1] < y) {
 					model.kill();
 				}
-			})
+			});
 		}
 
 		const currentPlayerId = this.getPlayer();
@@ -156,8 +161,7 @@ export class Warhammer {
 					if (model.playerId === currentPlayerId) {
 						model.updateAvailableToMove(true);
 					}
-				})
-
+				});
 			}
 
 			if (this.phase === Phase.Shooting) {
@@ -165,8 +169,7 @@ export class Warhammer {
 					if (model.playerId === currentPlayerId) {
 						model.updateAvailableToShoot(true);
 					}
-				})
-
+				});
 			}
 
 			return this.getState();
@@ -181,14 +184,13 @@ export class Warhammer {
 			model.updateAvailableToMove(false);
 
 			if (len(order.vector) > 0) {
-				const movementVector = mul(order.vector, model.unitProfile.m)
+				const movementVector = mul(order.vector, model.unitProfile.m);
 				const newPosition = add(model.position, movementVector);
 
-				if (!this.models.some(m => eq(round(m.position), round(newPosition)) && !m.dead )) {
+				if (!this.models.some(m => eq(round(m.position), round(newPosition)) && !m.dead)) {
 					model.update(newPosition);
 				}
 			}
-
 		}
 
 		if (order.action === BaseAction.Shoot) {
@@ -205,7 +207,7 @@ export class Warhammer {
 				const hits = Array(weapon.a).fill(0).map(d6);
 				const wounds = hits.filter(v => v >= weapon.bs).map(d6);
 				const saves = wounds.filter(v => v >= this.strenghtVsToughness(weapon.s, targetToughness)).map(d6);
-				const saveFails = saves.filter(v => v < (targetSave + weapon.ap)).length
+				const saveFails = saves.filter(v => v < (targetSave + weapon.ap)).length;
 				targetModel.inflictDamage(saveFails * weapon.d);
 				return this.getState({ hits, wounds, saves, targetPosition: targetModel.position });
 			}
@@ -222,8 +224,8 @@ export class Warhammer {
 		return [s >= t * 2, s > t, s === t, s < t && t < s * 2, s * 2 <= t].findIndex(v=> v) + 2;
 	}
 
-	getPlayer() { return this.turn % 2 }
-	setDone() { this.turn = 10 }
+	getPlayer() { return this.turn % 2; }
+	setDone() { this.turn = 10; }
 	done() {
 		const ids = this.models.filter(model => !model.dead).map(model => model.playerId);
 		return this.turn > 9 || Math.min(...ids) === Math.max(...ids);
@@ -234,7 +236,7 @@ export class Warhammer {
 
 		this.models.forEach((model) => {
 			this.battlefield.objective_marker.forEach((markerPosition, i) => {
-				if (len(sub(model.position, markerPosition)) < objective_marker_control_distance) {
+				if (len(sub(model.position, markerPosition)) < this.gameSettings.objective_marker_control_distance) {
 					const ocSign = model.playerId === this.getPlayer() ? 1 : -1;
 					const oc = model.unitProfile.oc * ocSign;
 					objectiveControl[i] =+ oc;
@@ -242,7 +244,7 @@ export class Warhammer {
 			});
 		});
 
-		return Math.min(objectiveControl.filter(oc => oc > 0).length * 5, 15)
+		return Math.min(objectiveControl.filter(oc => oc > 0).length * this.objectiveControlReward, 15);
 	}
 
 	getState(misc) {
@@ -271,7 +273,7 @@ function getLineIntersection([[p0_x, p0_y], [p1_x, p1_y]], [[p2_x, p2_y], [p3_x,
 	const s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
 	const t = ( s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
 
-	if (s >= 0 && s <= 1 && t >= 0 && t <= 1){
+	if (s >= 0 && s <= 1 && t >= 0 && t <= 1) {
 		return [p0_x + (t * s1_x), p0_y + (t * s1_y)];
 	}
 	return null;

@@ -35,7 +35,8 @@ export const Channel4 = {
 	StrikeTeam: 1,
 	Stealth: 2,
 }
-const MAX_REWARD =  50;
+
+const MAX_ROUND_REWARD = 8;
 export const Channel0Name = {},  Channel1Name = {}, Channel2Name = {};
 
 Object.keys(Channel0).forEach(name => Channel0Name[name] = name);
@@ -106,19 +107,15 @@ export class PlayerEnvironment {
 			const { players } = state;
 
 			if ((state.done && players[this.enemyId].models.every(modelId => state.models[modelId] === null))) {
-				doneReward += MAX_REWARD;
+				doneReward += (5 - Math.round(state.turn / 2)) * (this.env.objectiveControlReward);
 			}
-
 			const newVP = players[this.playerId].vp;
-			reward =  Math.max(newVP +  doneReward - this.vp, 0);
-			if (order.action !== this.prevOrderAction && (order.action !== Action.Shoot || state.misc.hits !== undefined)) {
+			reward = newVP - this.vp + doneReward;
+			if (order.action !== this.prevOrderAction && (order.action !== Action.Shoot || state.misc.hits !== undefined) || order.action === Action.NextPhase) {
 				reward++;
 			}
 
-
-
 			this.vp = newVP;
-
 		} else {
 			state = this.env.getState();
 		}
