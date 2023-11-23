@@ -4,8 +4,6 @@ import { GameAgent } from './game-agent0.1.js';
 let tf = await getTF();
 
 export class TestAgent {
-	orders = [];
-
 	constructor(game, config = {}) {
 		const { nn } = config;
 		this.game = game;
@@ -21,7 +19,6 @@ export class TestAgent {
 			const indexesArgMax = this.gameAgent.getIndexesArgMax();
 			index = tf.mul(this.onlineNetwork.predict(inputTensor), tf.tensor2d(indexesArgMax, [1, 33])).argMax(-1).dataSync()[0];
 		});
-
 		this.game.step(this.game.orders.all[index]);
 		return index;
 	}

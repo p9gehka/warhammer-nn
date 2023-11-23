@@ -110,15 +110,12 @@ export class PlayerEnvironment {
 			}
 
 			const newVP = players[this.playerId].vp;
-			reward =  Math.max(newVP +  doneReward - this.vp, 0);
-			if (order.action !== this.prevOrderAction && (order.action !== Action.Shoot || state.misc.hits !== undefined)) {
+			reward = newVP - this.vp + doneReward;
+			if (order.action !== this.prevOrderAction && (order.action !== Action.Shoot || state.misc.hits !== undefined) || order.action === Action.NextPhase) {
 				reward++;
 			}
 
-
-
 			this.vp = newVP;
-
 		} else {
 			state = this.env.getState();
 		}

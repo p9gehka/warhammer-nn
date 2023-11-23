@@ -9,10 +9,7 @@
 			{ "name": "strike_team", "models": [3] }
 		]
 	],
-	"models": [
-		[10, 6], [12,6],
-		[34,26],[32,26]
-	],
+	"models": [],
 	"primary_objective": "take_and_hold",
 	"objective_marker_control_distance": 3
 }
