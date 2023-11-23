@@ -82,7 +82,8 @@ export class Warhammer {
 	units = [];
 	models = [];
 	phase = Phase.Movement;
-	turn = 0
+	turn = 0;
+	objectiveControlReward = 5;
 	constructor(config) {
 		this.gameSettings = config?.gameSettings ?? gameSettings;
 		this.battlefields = config?.battlefields ?? battlefields;
@@ -243,7 +244,7 @@ export class Warhammer {
 			});
 		});
 
-		return Math.min(objectiveControl.filter(oc => oc > 0).length * 5, 15);
+		return Math.min(objectiveControl.filter(oc => oc > 0).length * this.objectiveControlReward, 15);
 	}
 
 	getState(misc) {

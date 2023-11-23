@@ -42,6 +42,7 @@ describe('reward', () => {
 				break
 			}
 			agents[state.player].playStep(0);
+			agents[state.player].playStep(0);
 		}
 		expect(players[0].cumulativeReward).toBe(50);
 	});
@@ -53,6 +54,7 @@ describe('reward', () => {
 			if (state.done) {
 				break
 			}
+			agents[state.player].playStep(0);
 			if (state.player === 0) {
 				agents[state.player].playStep(1);
 				agents[state.player].playStep(31);
@@ -61,6 +63,6 @@ describe('reward', () => {
 			}
 			agents[state.player].playStep(0);
 		}
-		expect(players[0].cumulativeReward).toBe(193);
+		expect(players[0].cumulativeReward).toBe(63);
 	});
 });
