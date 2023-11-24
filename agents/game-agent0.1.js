@@ -11,7 +11,7 @@ let tf = await getTF();
 
 export class GameAgent {
 	orders = {};
-	prevOrderIndex = null;
+	prevState = null;
 	constructor(game, config = {}) {
 		const { replayMemory, nn = [], epsilonInit } = config
 		this.game = game;
@@ -55,21 +55,26 @@ export class GameAgent {
 
 	getOrderRandomIndex() {
 		const indexes = this.getAvailableIndexes();
-		return indexes[getRandomInteger(0, indexes.length)]
+		return indexes[getRandomInteger(0, indexes.length)];
 	}
+
 	getIndexesArgMax() {
 		const indexesArgMax = Array(this.game.orders.all.length).fill(-Infinity);
 		this.getAvailableIndexes().forEach(i => indexesArgMax[i] = 0);
 		return indexesArgMax;
 	}
+
 	playStep() {
 		const { orders, height, width, channels } = this.game;
 		this.frameCount++;
 		this.epsilon = this.frameCount >= this.epsilonDecayFrames ?
-		this.epsilonFinal :
-		this.epsilonInit + this.epsilonIncrement_  * this.frameCount;
+			this.epsilonFinal :
+			this.epsilonInit + this.epsilonIncrement_ * this.frameCount;
 
 		const input = this.game.getInput();
+		if (this.prevState !== null) {
+			this.replayMemory?.append([...this.prevState, input]);
+		}
 		let epsilon = this.epsilon;
 		let order = orders[Action.NextPhase][0];
 		let orderIndex;
@@ -85,20 +90,19 @@ export class GameAgent {
 			});
 		}
 
-		if (orderIndex !== orders.nextPhaseIndex && orderIndex === this.prevOrderIndex) {
+		if (orderIndex !== orders.nextPhaseIndex && this.prevState !== null && orderIndex === this.prevState[1]) {
 			orderIndex = this.getOrderRandomIndex();
 		}
 
 		order = orders.all[orderIndex];
-		this.prevOrderIndex = orderIndex;
 		const [order_, state, reward] = this.game.step(order);
-		const nextInput = this.game.getInput();
-		const loose = state.done && !this.game.win();
-		this.replayMemory?.append([input, orderIndex, reward, loose, nextInput]);
+		this.prevState = [input, orderIndex, reward];
 
 		return [order_, state, reward];
 	}
-
+	reset() {
+		this.prevState = null;
+	}
 	trainOnReplayBatch(batchSize, gamma, optimizer) {
 		// Get a batch of examples from the replay buffer.
 		const { width, height, orders, channels } = this.game;
@@ -114,11 +118,10 @@ export class GameAgent {
 			const qs = this.onlineNetwork.apply(stateTensor, {training: true}).mul(tf.oneHot(actionTensor, orders.all.length)).sum(-1);
 
 			const rewardTensor = tf.tensor1d(batch.map(example => example[2]));
-			const nextStateTensor = getStateTensor(batch.map(example => example[4]), height, width, channels);
+			const nextStateTensor = getStateTensor(batch.map(example => example[3]), height, width, channels);
 
 			const nextMaxQTensor = this.targetNetwork.predict(nextStateTensor).max(-1);
-			const loosMask = tf.scalar(1).sub(tf.tensor1d(batch.map(example => example[3])).asType('float32'));
-			const targetQs = rewardTensor.add(nextMaxQTensor.mul(loosMask).mul(gamma));
+			const targetQs = rewardTensor.add(nextMaxQTensor.mul(gamma));
 			return tf.losses.meanSquaredError(targetQs, qs);
 		});
 

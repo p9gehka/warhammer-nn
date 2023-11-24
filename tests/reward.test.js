@@ -14,7 +14,7 @@ describe('reward', () => {
 		while (true) {
 			state = env.getState();
 			if (state.done) {
-				break
+				break;
 			}
 			agents[state.player].playStep(0);
 			agents[state.player].playStep(0);
@@ -28,7 +28,7 @@ describe('reward', () => {
 		while (true) {
 			state = env.getState();
 			if (state.done) {
-				break
+				break;
 			}
 			agents[state.player].playStep(0);
 			if (state.player === 0) {

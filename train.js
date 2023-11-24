@@ -70,6 +70,7 @@ async function train(nn) {
 
 	let state = env.reset();
 	players.forEach(player=> player.reset());
+	agents.forEach(agent => agent.reset());
 
 	let averageReward100Best = -Infinity;
 	let rewardAveragerBuffer = null;
@@ -131,7 +132,8 @@ async function train(nn) {
 				}
 			}
 			state = env.reset();
-			players.forEach(p => p.reset());
+			players.forEach(player => player.reset());
+			agents.forEach(agent => agent.reset());
 		}
 
 		if (frameCount % syncEveryFrames === 0) { /* sync не произойдет */
@@ -144,6 +146,7 @@ async function train(nn) {
 			let testAttempst = 0;
 			let testState = env.reset();
 			players.forEach(player=> player.reset());
+			agents.forEach(agent => agent.reset());
 
 			while (!testState.done && testAttempst < 100) {
 				testState = env.getState();
@@ -158,8 +161,8 @@ async function train(nn) {
 				testAttempst++;
 			}
 			env.reset();
-			players.forEach(p => p.reset());
-
+			players.forEach(player => player.reset());
+			agents.forEach(agent => agent.reset());
 			await sendDataToTelegram(
 				rewardAveragerBuffer.buffer.filter(v => v !== null),
 				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+

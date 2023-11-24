@@ -16,22 +16,19 @@ describe('game agent', () => {
 	let player = null;
 	let gameAgent = null;
 	let optimizer = null;
-	let replayMemory = null;
 	beforeAll(async () => {
 		nn[0] = await tf.loadLayersModel(`file://tests/mock/dqn-test/model.json`);
 		nn[1] = await tf.loadLayersModel(`file://tests/mock/dqn-test/model.json`);
 		env = new Warhammer({ gameSettings, battlefields });
-		player = new PlayerEnvironment(0, env);
-		replayMemory = new ReplayMemory(1);
 		optimizer = tf.train.adam(1e-3);
 	});
 
 	beforeEach(() => {
-		env.reset()
-		player.reset()
+		env.reset();;
 	});
 
 	it('order', () => {
+		const player = new PlayerEnvironment(0, env);
 		const gameAgent = new GameAgent(player, { nn });
 		for(let i = 0; i<30; i++) {
 			let action = null;
@@ -45,9 +42,16 @@ describe('game agent', () => {
 		}
 	});
 
-	it('replayMemory', () => {
-		const gameAgent = new GameAgent(player, { nn, replayMemory });
-		const controlledAgent= new ControlledAgent(player);
-		expect('Next phase state before enemy turn').toBe('Next phase state with reward after enemy turn');
+	it('Next phase state before enemy turn to b eNext phase state with reward after enemy turn ', () => {
+		const replayMemory = new ReplayMemory(1);
+		const players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)]
+		const controlledAgent = [new ControlledAgent(players[0], { replayMemory }), new ControlledAgent(players[1])];
+		controlledAgent[0].playStep(0);
+		controlledAgent[0].playStep(0);
+		controlledAgent[1].playStep(0);
+		controlledAgent[1].playStep(0);
+		controlledAgent[0].playStep(0);
+		controlledAgent[0].playStep(0);
+		expect(replayMemory.sample(1)[0][2]).toBe(11);
 	})
 });
