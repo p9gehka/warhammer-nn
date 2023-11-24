@@ -4,7 +4,7 @@ import { PlayerEnvironment } from '../environment/player-environment.js';
 import { ReplayMemoryByAction } from '../environment/replay-memory-by-action.js';
 
 describe('replayMemoryByAction', () => {
-	it('memoryType', async () => {
+	it('memory type', async () => {
 		const env = new Warhammer();
 		const player = new PlayerEnvironment(0, env);
 		const replayMemory = new ReplayMemoryByAction(player, 100);
