@@ -52,6 +52,6 @@ describe('game agent', () => {
 		controlledAgent[1].playStep(0);
 		controlledAgent[0].playStep(0);
 		controlledAgent[0].playStep(0);
-		expect(replayMemory.sample(1)[0][2]).toBe(11);
+		expect(replayMemory.sample(1)[0][2]).toBe(10);
 	})
 });

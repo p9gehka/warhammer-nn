@@ -111,8 +111,8 @@ export class PlayerEnvironment {
 			}
 			const newVP = players[this.playerId].vp;
 			reward = newVP - this.vp + doneReward;
-			if (order.action !== this.prevOrderAction && (order.action !== Action.Shoot || state.misc.hits !== undefined) || order.action === Action.NextPhase) {
-				reward++;
+			if ((order.action === this.prevOrderAction && order.action !== Action.NextPhase) || (order.action === Action.Shoot && state.misc.hits === undefined) ) {
+				reward--;
 			}
 
 			this.vp = newVP;

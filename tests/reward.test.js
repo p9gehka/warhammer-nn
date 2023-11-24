@@ -19,7 +19,7 @@ describe('reward', () => {
 			agents[state.player].playStep(0);
 			agents[state.player].playStep(0);
 		}
-		expect(players[0].cumulativeReward).toBe(50);
+		expect(players[0].cumulativeReward).toBe(40);
 	});
 
 	it('count wipe reward', () => {
@@ -39,6 +39,6 @@ describe('reward', () => {
 			}
 			agents[state.player].playStep(0);
 		}
-		expect(players[0].cumulativeReward).toBe(53);
+		expect(players[0].cumulativeReward).toBe(49);
 	});
 });
