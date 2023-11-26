@@ -120,7 +120,7 @@ export class PlayerEnvironment {
 			reward++;
 		}
 
-		if (playerOrder === Action.NextPhase) {
+		if (action === Action.NextPhase) {
 			this.phaseStepCounter = 0;
 		}
 
