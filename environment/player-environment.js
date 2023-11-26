@@ -130,10 +130,6 @@ export class PlayerEnvironment {
 			reward += (5 - Math.round(state.turn / 2)) * (this.env.objectiveControlReward * totalUnits);
 		}
 
-		if (this.loose()) {
-			reward -= 5 * this.env.objectiveControlReward * totalUnits;
-		}
-
 		this.cumulativeReward += reward;
 		return reward;
 	}
