@@ -39,7 +39,7 @@ export class RandomAgent {
 		const order = this.game.orders.all[orderIndex];
 		const input = this.game.getInput();
 		if (this.prevState !== null) {
-			this.replayMemory?.append([...this.prevState, input]);
+			this.replayMemory?.append([...this.prevState, false, input]);
 		}
 		const [order_, state, reward] = this.game.step(order);
 		this.prevState = [input, orderIndex, reward]
@@ -50,7 +50,7 @@ export class RandomAgent {
 		const nextInput = this.game.getInput();
 		if (this.replayMemory !== null && this.prevState !== null) {
 			const [input, orderIndex] = this.prevState;
-			this.replayMemory?.append([input, orderIndex, reward, nextInput]);
+			this.replayMemory?.append([input, orderIndex, reward, true, nextInput]);
 		}
 	}
 	reset() {

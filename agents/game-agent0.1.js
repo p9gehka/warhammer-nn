@@ -73,7 +73,7 @@ export class GameAgent {
 
 		const input = this.game.getInput();
 		if (this.prevState !== null) {
-			this.replayMemory?.append([...this.prevState, input]);
+			this.replayMemory?.append([...this.prevState, false, input]);
 		}
 		let epsilon = this.epsilon;
 		let order = orders[Action.NextPhase][0];
@@ -105,7 +105,7 @@ export class GameAgent {
 		const nextInput = this.game.getInput();
 		if (this.replayMemory !== null && this.prevState !== null) {
 			const [input, orderIndex] = this.prevState;
-			this.replayMemory?.append([input, orderIndex, reward, nextInput]);
+			this.replayMemory?.append([input, orderIndex, reward, true, nextInput]);
 		}
 	}
 	reset() {
@@ -127,10 +127,13 @@ export class GameAgent {
 			const qs = this.onlineNetwork.apply(stateTensor, {training: true}).mul(tf.oneHot(actionTensor, orders.all.length)).sum(-1);
 
 			const rewardTensor = tf.tensor1d(batch.map(example => example[2]));
-			const nextStateTensor = getStateTensor(batch.map(example => example[3]), height, width, channels);
+			const nextStateTensor = getStateTensor(batch.map(example => example[4]), height, width, channels);
 
 			const nextMaxQTensor = this.targetNetwork.predict(nextStateTensor).max(-1);
-			const targetQs = rewardTensor.add(nextMaxQTensor.mul(gamma));
+			const doneMask = tf.scalar(1).sub(
+				tf.tensor1d(batch.map(example => example[3])).asType('float32'));
+			doneMask.print()
+			const targetQs = rewardTensor.add(nextMaxQTensor.mul(doneMask).mul(gamma));
 			return tf.losses.meanSquaredError(targetQs, qs);
 		});
 
