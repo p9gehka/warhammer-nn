@@ -86,7 +86,7 @@ export class PlayerEnvironment {
 			playerOrder = { action, id: this._selectedModel };
 		} else if (action === Action.Move) {
 			playerOrder = {action, id: this._selectedModel, vector: order.vector };
-		} else if (order.action === Action.Shoot) {
+		} else if (action === Action.Shoot) {
 			playerOrder = {
 				action,
 				id: this._selectedModel,
