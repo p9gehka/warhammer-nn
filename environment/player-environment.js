@@ -116,6 +116,10 @@ export class PlayerEnvironment {
 			reward++;
 		}
 
+		if (playerOrder === Action.NextPhase) {
+			this.phaseStepCounter = 0;
+		}
+
 		this.cumulativeReward += reward;
 		this.prevOrderAction = action;
 		return [{ ...playerOrder, misc: state.misc }, { ...state, selectedModel: this._selectedModel }, reward];
