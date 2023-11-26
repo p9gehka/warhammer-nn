@@ -30,7 +30,6 @@ export class RandomAgent {
 		if (input[Channel1Name.SelfModelAvailableToMove].length === 0 && input[Channel1Name.SelfModelAvailableToShoot].length === 0) {
 			return orders.nextPhaseIndex;
 		}
-		
 		return orders.selectIndexes[getRandomInteger(1, orders.selectIndexes.length)];
 	}
 

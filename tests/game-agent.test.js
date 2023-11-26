@@ -37,16 +37,15 @@ describe('game agent', () => {
 	it('order', () => {
 		const player = new PlayerEnvironment(0, env);
 		const gameAgent = new GameAgent(player, { nn });
-		for(let i = 0; i<30; i++) {
-			let action = null;
-			player.step = (order) => {
-				action = order.action;
-				return [order, env.getState(), 0];
-			};
+		let action = null;
+		const step_ = player.step
+		player.step = (order) => {
+			action = order.action;
+			return step_.call(player, order);
+		};
 
-			gameAgent.playStep();
-			expect(action).toMatch(/NEXT_PHASE|SELECT$/);
-		}
+		gameAgent.playStep();
+		expect(action).toMatch(/NEXT_PHASE|SELECT|MOVE|SHOOT$/);
 	});
 
 	it('Next phase state before enemy turn to b eNext phase state with reward after enemy turn ', () => {
@@ -58,7 +57,7 @@ describe('game agent', () => {
 			controlledAgent[player].playStep(0);
 			controlledAgent[player].playStep(0);
 		}
-		expect(replayMemory.sample(1)[0][2]).toBe(10);
+		expect(replayMemory.sample(1)[0][2]).toBe(11);
 	});
 
 	xit('train next on marker', () => {

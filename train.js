@@ -87,7 +87,6 @@ async function train(nn) {
 		frameCount = players[0].frameCount + players[1].frameCount;
 		if (state.done) {
 			agents.forEach(agent => agent.awarding());
-
 			const currentFrameCount = frameCount - frameCountPrev; 
 			const currentT = new Date().getTime();
 			const framesPerSecond = currentFrameCount / (currentT - t) * 1e3;
