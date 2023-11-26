@@ -36,7 +36,6 @@ export const Channel4 = {
 	Stealth: 2,
 }
 
-const MAX_ROUND_REWARD = 8;
 export const Channel0Name = {},  Channel1Name = {}, Channel2Name = {};
 
 Object.keys(Channel0).forEach(name => Channel0Name[name] = name);
@@ -80,35 +79,32 @@ export class PlayerEnvironment {
 	step(order) {
 		this.phaseStepCounter++;
 		this.frameCount++;
-		let newOrder;
-		if (order.action === Action.Select) {
-			const { action, id } = order;
-			this._selectedModel = this.env.players[this.playerId].models[id];
-			newOrder = { action, id: this._selectedModel };
-		} else if (order.action === Action.Move) {
-			const { action, vector } = order;
-			newOrder = {action, id: this._selectedModel, vector };
+		let playerOrder;
+		const { action } = order;
+		if (action === Action.Select) {
+			this._selectedModel = this.env.players[this.playerId].models[order.id];
+			playerOrder = { action, id: this._selectedModel };
+		} else if (action === Action.Move) {
+			playerOrder = {action, id: this._selectedModel, vector: order.vector };
 		} else if (order.action === Action.Shoot) {
-			const { action, target } = order;
-			newOrder = {
+			playerOrder = {
 				action,
 				id: this._selectedModel,
-				target: this.env.players[this.enemyId].models[target]
+				target: this.env.players[this.enemyId].models[order.target]
 			}
 		} else {
-			newOrder = order;
+			playerOrder = order;
 		}
 		let state;
 		let reward = 0;
-
 		if (this.phaseStepCounter > 15) {
 			this.env.end();
 		}
 
-		if(newOrder.action === Action.Select || (this._selectedModel === null && (newOrder.action === Action.Move || newOrder.action === Action.Shoot ))) {
+		if(action === Action.Select || (this._selectedModel === null && (action === Action.Move || action === Action.Shoot))) {
 			state = this.env.getState();
-		} else if (newOrder.action !== Action.Select) {
-			state = this.env.step(newOrder);
+		} else if (action !== Action.Select) {
+			state = this.env.step(playerOrder);
 			const { vp } = state.players[this.playerId];
 			reward = vp - this.vp;
 			this.vp = vp;
@@ -116,18 +112,19 @@ export class PlayerEnvironment {
 			state = this.env.getState();
 		}
 
-		if ((newOrder.action === this.prevOrderAction && newOrder.action !== Action.NextPhase) || (newOrder.action === Action.Shoot && state.misc.hits === undefined)) {
+		if ((playerOrder.action === this.prevOrderAction && playerOrder.action !== Action.NextPhase) || (playerOrder.action === Action.Shoot && state.misc.hits === undefined)) {
 			reward--;
 		} else {
 			reward++;
 		}
-		if (newOrder === Action.NextPhase) {
+
+		if (playerOrder === Action.NextPhase) {
 			this.phaseStepCounter = 0;
 		}
 
 		this.cumulativeReward += reward;
-		this.prevOrderAction = newOrder.action;
-		return [{ ...newOrder, misc: state.misc }, { ...state, selectedModel: this._selectedModel }, reward];
+		this.prevOrderAction = action;
+		return [{ ...playerOrder, misc: state.misc }, { ...state, selectedModel: this._selectedModel }, reward];
 	}
 	awarding() {
 		const state = this.env.getState();
