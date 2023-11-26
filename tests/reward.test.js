@@ -9,6 +9,11 @@ describe('reward', () => {
 	const players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
 	const agents = [new ControlledAgent(players[0]), new ControlledAgent(players[1])];
 
+	beforeEach(() => {
+		env.reset();
+		agents.forEach(agent => agent.reset());
+	});
+
 	it('count object reward', () => {
 		let state = env.reset();
 		while (true) {
@@ -23,22 +28,41 @@ describe('reward', () => {
 	});
 
 	it('count wipe reward', () => {
-		let state = env.reset();
-		players.forEach(p => p.reset())
 		while (true) {
-			state = env.getState();
+			const state = env.getState();
 			if (state.done) {
+				agents.forEach(agent => agent.awarding());
 				break;
 			}
 			agents[state.player].playStep(0);
 			if (state.player === 0) {
-				agents[state.player].playStep(1);
-				agents[state.player].playStep(31);
-				agents[state.player].playStep(2);
-				agents[state.player].playStep(31);
+				agents[0].playStep(1);
+				agents[0].playStep(31);
+				agents[0].playStep(2);
+				agents[0].playStep(31);
 			}
 			agents[state.player].playStep(0);
 		}
 		expect(players[0].cumulativeReward).toBe(49);
+		expect(players[1].cumulativeReward).toBe(-50);
+	});
+	it('count penalty', () => {
+		while (true) {
+			const state = env.getState();
+			if (state.done) {
+				agents.forEach(agent => agent.awarding());
+				break;
+			}
+
+			if (state.player === 0) {
+				agents[0].playStep(1);
+				agents[0].playStep(26);
+				agents[0].playStep(2);
+				agents[0].playStep(27);
+			}
+			agents[state.player].playStep(0);
+			agents[state.player].playStep(0);
+		}
+		expect(players[0].cumulativeReward).toBe(-50);
 	});
 });

@@ -13,8 +13,10 @@ export function fillReplayMemory(env, replayMemory, agents) {
 	while (replayMemory.length < replayMemory.maxLen) {
 		state = env.getState();
 		if (state.done) {
+			agents.forEach(agent => agent.awarding())
+
 			state = env.reset();
-			agents.forEach(agent=> agent.game.reset());
+			agents.forEach(agent => agent.reset());
 		}
 		agents[state.player].playStep();
 	}

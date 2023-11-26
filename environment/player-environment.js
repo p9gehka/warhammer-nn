@@ -101,27 +101,37 @@ export class PlayerEnvironment {
 		if(newOrder.action === Action.Select || (this._selectedModel === null && (newOrder.action === Action.Move || newOrder.action === Action.Shoot ))) {
 			state = this.env.getState();
 		} else if (newOrder.action !== Action.Select) {
-
 			state = this.env.step(newOrder);
-			let doneReward = 0;
-			const { players } = state;
 
-			if ((state.done && players[this.enemyId].models.every(modelId => state.models[modelId] === null))) {
-				doneReward += (5 - Math.round(state.turn / 2)) * (this.env.objectiveControlReward);
-			}
-			const newVP = players[this.playerId].vp;
-			reward = newVP - this.vp + doneReward;
+			const { vp } = state.players[this.playerId];
+			reward = vp - this.vp;
 			if ((order.action === this.prevOrderAction && order.action !== Action.NextPhase) || (order.action === Action.Shoot && state.misc.hits === undefined) ) {
 				reward--;
 			}
 
-			this.vp = newVP;
+			this.vp = vp;
 		} else {
 			state = this.env.getState();
 		}
 		this.cumulativeReward += reward;
 		this.prevOrderAction = order.action;
 		return [{ ...newOrder, misc: state.misc }, { ...state, selectedModel: this._selectedModel }, reward];
+	}
+	awarding() {
+		const state = this.env.getState();
+		const { players } = state;
+		let reward = 0;
+		const totalUnits = 2;
+		if (this.win()) {
+			reward += (5 - Math.round(state.turn / 2)) * (this.env.objectiveControlReward * totalUnits);
+		}
+
+		if (this.loose()) {
+			reward -= 5 * this.env.objectiveControlReward * totalUnits;
+		}
+
+		this.cumulativeReward += reward;
+		return reward;
 	}
 	selectedModel() {
 		if (this.env.getState().models[this._selectedModel] === null) {
@@ -217,9 +227,13 @@ export class PlayerEnvironment {
 			}).join());
 		}
 	}
-	win() {
+	loose() {
 		const player = this.env.players[this.playerId];
-		this.env.done() && player.vp > this.env.players[this.enemyId].vp && player.models.some(modelId => !this.env.models[modelId].dead)
+		return player.models.every(modelId => this.env.models[modelId].dead);
+	}
+	win() {
+		const enemy = this.env.players[this.enemyId];
+		return enemy.models.every(modelId => this.env.models[modelId].dead);
 	}
 }
 

@@ -22,4 +22,7 @@ export class TestAgent {
 		this.game.step(this.game.orders.all[index]);
 		return index;
 	}
+	reset() {
+		this.game.reset();
+	}
 }
