@@ -230,7 +230,9 @@ export class Warhammer {
 		const ids = this.models.filter(model => !model.dead).map(model => model.playerId);
 		return this.turn > 9 || Math.min(...ids) === Math.max(...ids);
 	}
-
+	end() {
+		this.turn = 10;
+	}
 	scoreVP() {
 		const objectiveControl = Array(this.battlefield.objective_marker.length).fill(0);
 
