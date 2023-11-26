@@ -43,7 +43,7 @@ describe('reward', () => {
 			}
 			agents[state.player].playStep(0);
 		}
-		expect(players[0].cumulativeReward).toBe(53);
+		expect(players[0].cumulativeReward).toBe(55);
 		expect(players[1].cumulativeReward).toBe(-50);
 	});
 	it('count penalty', () => {
@@ -63,6 +63,6 @@ describe('reward', () => {
 			agents[state.player].playStep(0);
 			agents[state.player].playStep(0);
 		}
-		expect(players[0].cumulativeReward).toBe(-42);
+		expect(players[0].cumulativeReward).toBe(-38);
 	});
 });

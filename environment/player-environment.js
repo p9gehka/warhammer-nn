@@ -36,7 +36,6 @@ export const Channel4 = {
 	Stealth: 2,
 }
 
-const MAX_ROUND_REWARD = 8;
 export const Channel0Name = {},  Channel1Name = {}, Channel2Name = {};
 
 Object.keys(Channel0).forEach(name => Channel0Name[name] = name);
@@ -61,6 +60,7 @@ export class PlayerEnvironment {
 	cumulativeReward = 0;
 	frameCount = 0;
 	prevOrderAction = 0;
+	phaseStepCounter = 0;
 	constructor(playerId, env) {
 		this.env = env;
 		this.playerId = playerId;
@@ -72,50 +72,53 @@ export class PlayerEnvironment {
 	reset() {
 		this.vp = 0;
 		this.cumulativeReward = 0;
+		this.phaseStepCounter = 0;
 		this._selectedModel = null;
 	}
 
 	step(order) {
-		let newOrder;
+		this.phaseStepCounter++;
 		this.frameCount++;
-		if (order.action === Action.Select) {
-			const { action, id } = order;
-			this._selectedModel = this.env.players[this.playerId].models[id];
-			newOrder = { action, id: this._selectedModel };
-		} else if (order.action === Action.Move) {
-			const { action, vector } = order;
-			newOrder = {action, id: this._selectedModel, vector };
+		let playerOrder;
+		const { action } = order;
+		if (action === Action.Select) {
+			this._selectedModel = this.env.players[this.playerId].models[order.id];
+			playerOrder = { action, id: this._selectedModel };
+		} else if (action === Action.Move) {
+			playerOrder = {action, id: this._selectedModel, vector: order.vector };
 		} else if (order.action === Action.Shoot) {
-			const { action, target } = order;
-			newOrder = {
+			playerOrder = {
 				action,
 				id: this._selectedModel,
-				target: this.env.players[this.enemyId].models[target]
+				target: this.env.players[this.enemyId].models[order.target]
 			}
 		} else {
-			newOrder = order;
+			playerOrder = order;
 		}
 		let state;
 		let reward = 0;
+		if (this.phaseStepCounter > 15) {
+			this.env.end();
+		}
 
-		if(newOrder.action === Action.Select || (this._selectedModel === null && (newOrder.action === Action.Move || newOrder.action === Action.Shoot ))) {
+		if(action === Action.Select || (this._selectedModel === null && (action === Action.Move || action === Action.Shoot))) {
 			state = this.env.getState();
-		} else if (newOrder.action !== Action.Select) {
-			state = this.env.step(newOrder);
+		} else if (action !== Action.Select) {
+			state = this.env.step(playerOrder);
 
 			const { vp } = state.players[this.playerId];
 			reward = vp - this.vp;
-			if (order.action !== this.prevOrderAction && (order.action !== Action.Shoot || state.misc.hits !== undefined) || order.action === Action.NextPhase) {
-				reward++;
-			}
-
 			this.vp = vp;
 		} else {
 			state = this.env.getState();
 		}
+		if (action !== this.prevOrderAction && (action !== Action.Shoot || state.misc.hits !== undefined) || action === Action.NextPhase) {
+			reward++;
+		}
+
 		this.cumulativeReward += reward;
-		this.prevOrderAction = order.action;
-		return [{ ...newOrder, misc: state.misc }, { ...state, selectedModel: this._selectedModel }, reward];
+		this.prevOrderAction = action;
+		return [{ ...playerOrder, misc: state.misc }, { ...state, selectedModel: this._selectedModel }, reward];
 	}
 	awarding() {
 		const state = this.env.getState();
