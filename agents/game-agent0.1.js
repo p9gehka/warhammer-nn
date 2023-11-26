@@ -132,7 +132,6 @@ export class GameAgent {
 			const nextMaxQTensor = this.targetNetwork.predict(nextStateTensor).max(-1);
 			const doneMask = tf.scalar(1).sub(
 				tf.tensor1d(batch.map(example => example[3])).asType('float32'));
-			doneMask.print()
 			const targetQs = rewardTensor.add(nextMaxQTensor.mul(doneMask).mul(gamma));
 			return tf.losses.meanSquaredError(targetQs, qs);
 		});
