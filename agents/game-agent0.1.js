@@ -100,8 +100,17 @@ export class GameAgent {
 
 		return [order_, state, reward];
 	}
+	awarding() {
+		const reward = this.game.awarding();
+		const nextInput = this.game.getInput();
+		if (this.replayMemory !== null && this.prevState !== null) {
+			const [input, orderIndex] = this.prevState;
+			this.replayMemory?.append([input, orderIndex, reward, nextInput]);
+		}
+	}
 	reset() {
 		this.prevState = null;
+		this.game.reset();
 	}
 	trainOnReplayBatch(batchSize, gamma, optimizer) {
 		// Get a batch of examples from the replay buffer.

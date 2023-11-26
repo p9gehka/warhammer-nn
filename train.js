@@ -68,7 +68,6 @@ async function train(nn) {
 	players[1].frameCount = 0;
 
 	let state = env.reset();
-	players.forEach(player=> player.reset());
 	agents.forEach(agent => agent.reset());
 
 	let averageReward100Best = -Infinity;
@@ -86,6 +85,8 @@ async function train(nn) {
 		state = env.getState();
 		frameCount = players[0].frameCount + players[1].frameCount;
 		if (state.done) {
+			agents.forEach(agent => agent.awarding());
+
 			const currentFrameCount = frameCount - frameCountPrev; 
 			const currentT = new Date().getTime();
 			const framesPerSecond = currentFrameCount / (currentT - t) * 1e3;
@@ -131,7 +132,6 @@ async function train(nn) {
 				}
 			}
 			state = env.reset();
-			players.forEach(player => player.reset());
 			agents.forEach(agent => agent.reset());
 		}
 
@@ -144,7 +144,6 @@ async function train(nn) {
 			const testAgents = [new TestAgent(players[0], { nn: [agents[0].onlineNetwork] }), new RandomAgent(players[1])]
 			let testAttempst = 0;
 			let testState = env.reset();
-			players.forEach(player=> player.reset());
 			agents.forEach(agent => agent.reset());
 
 			while (!testState.done && testAttempst < 100) {
@@ -159,8 +158,8 @@ async function train(nn) {
 				}
 				testAttempst++;
 			}
+
 			env.reset();
-			players.forEach(player => player.reset());
 			agents.forEach(agent => agent.reset());
 			await sendDataToTelegram(
 				rewardAveragerBuffer.buffer.filter(v => v !== null),

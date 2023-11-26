@@ -87,14 +87,13 @@ describe('game agent', () => {
 				copyWeights(gameAgent.targetNetwork, gameAgent.onlineNetwork);
 			}
 		}
-	
 
 		console.log(Math.round(gameAgent.onlineNetwork.predict(inputAtTheEndPhase).dataSync()[0]));
 		expect(Math.round(gameAgent.onlineNetwork.predict(inputAtTheEndPhase).dataSync()[0])).toBe(1 + 11 * gamma);
 		expect(Math.round(gameAgent.onlineNetwork.predict(input).dataSync()[0])).toBe(11);
-	});	
+	});
 
-	xt('train move to marker', () => {
+	xit('train move to marker', () => {
 		const replayMemory = new ReplayMemory(4);
 		const players = [new PlayerEnvironment(0, env2), new PlayerEnvironment(1, env2)]
 		const controlledAgent = [new ControlledAgent(players[0], { replayMemory }), new ControlledAgent(players[1])];
