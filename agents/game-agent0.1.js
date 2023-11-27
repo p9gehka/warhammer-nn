@@ -52,11 +52,6 @@ export class GameAgent {
 
 		return orders.selectIndexes;
 }
-	resetEpsilon({ epsilonInit, epsilonFinal }) {
-		this.epsilonInit = epsilonInit ?? this.epsilonInit;
-		this.epsilonFinal = epsilonFinal ?? this.epsilonFinal;
-		this.epsilon = this.epsilonInit;
-	}
 
 	getOrderRandomIndex() {
 		const indexes = this.getAvailableIndexes();
