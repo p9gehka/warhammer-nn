@@ -50,11 +50,11 @@ const rewardAverager100Len = 100;
 async function train(nn) {
 	const env = new Warhammer();
 	let players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
-	const replayMemory = new ReplayMemoryByAction(players[0], replayBufferSize)
+	const replayMemory = new ReplayMemoryByAction(players[0], replayBufferSize);
 	let agents;
 
 	if (nn !== null) {
-		agents = [new GameAgent(players[0],{ replayMemory, nn }), new RandomAgent(players[1])];
+		agents = [new GameAgent(players[0],{ replayMemory, nn, epsilonFinal: 0.5 }), new RandomAgent(players[1])];
 	}
 
 
@@ -65,6 +65,7 @@ async function train(nn) {
 	}
 
 	agents[0].onlineNetwork.summary()
+	agents[0].resetEpsilon({ epsilonFinal: 0.01 });
 	players[0].frameCount = 0;
 	players[1].frameCount = 0;
 

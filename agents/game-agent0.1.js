@@ -13,7 +13,7 @@ export class GameAgent {
 	orders = {};
 	prevState = null;
 	constructor(game, config = {}) {
-		const { replayMemory, nn = [], epsilonInit } = config
+		const { replayMemory, nn = [], epsilonInit, epsilonFinal } = config
 		this.game = game;
 
 		this.onlineNetwork = nn[0] ?? createDeepQNetwork(game.orders.all.length, game.height, game.width, game.channels.length);
@@ -23,9 +23,15 @@ export class GameAgent {
 		this.replayMemory = replayMemory ?? null;
 		this.frameCount = 0;
 		this.epsilonInit = epsilonInit ?? 0.5;
-		this.epsilonFinal = 0.01;
+		this.epsilonFinal = epsilonFinal ?? 0.01;
 		this.epsilonDecayFrames = 1e6;
 		this.epsilonIncrement_ = (this.epsilonFinal - this.epsilonInit) / this.epsilonDecayFrames;
+		this.epsilon = this.epsilonInit;
+	}
+
+	resetEpsilon({ epsilonInit, epsilonFinal }) {
+		this.epsilonInit = epsilonInit ?? this.epsilonInit;
+		this.epsilonFinal = epsilonFinal ?? this.epsilonFinal;
 		this.epsilon = this.epsilonInit;
 	}
 
