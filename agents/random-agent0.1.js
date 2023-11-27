@@ -30,6 +30,7 @@ export class RandomAgent {
 		if (input[Channel1Name.SelfModelAvailableToMove].length === 0 && input[Channel1Name.SelfModelAvailableToShoot].length === 0) {
 			return orders.nextPhaseIndex;
 		}
+
 		return orders.selectIndexes[getRandomInteger(1, orders.selectIndexes.length)];
 	}
 
@@ -41,7 +42,6 @@ export class RandomAgent {
 			this.replayMemory?.append([...this.prevState, false, input]);
 		}
 		const [order_, state, reward] = this.game.step(order);
-
 		this.prevState = [input, orderIndex, reward]
 		return [order_, state, reward];
 	}
