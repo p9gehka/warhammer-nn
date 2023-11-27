@@ -13,7 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const savePath = './models/dqn-green/';
+const savePath = './models/dqn-grey/';
 
 app.use(express.json())
 app.use(express.static(__dirname + '/static'));
@@ -43,7 +43,7 @@ app.post('/play', async (req,res) => {
      actionsAndStates.push(order)
      attempts++;
    }
-   console.log(players[0].cumulativeReward)
+   console.log('cumulativeReward', players[0].cumulativeReward)
   res.json(actionsAndStates)
 });
 
