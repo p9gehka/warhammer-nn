@@ -51,16 +51,14 @@ async function train(nn) {
 	const env = new Warhammer();
 	let players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
 	const replayMemory = new ReplayMemoryByAction(players[0], replayBufferSize);
-	let agents;
+	fillReplayMemory(env, replayMemory);
 
 
 
 	fillReplayMemory(env, replayMemory, agents);
-
-	agents = [new GameAgent(players[0], { replayMemory }), new RandomAgent(players[1])];
+	const agents = [new GameAgent(players[0], { nn: nn ?? undefined, replayMemory }), new RandomAgent(players[1])];
 
 	agents[0].onlineNetwork.summary()
-	agents[0].resetEpsilon({ epsilonFinal: 0.01 });
 	players[0].frameCount = 0;
 	players[1].frameCount = 0;
 

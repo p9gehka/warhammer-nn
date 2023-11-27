@@ -29,12 +29,6 @@ export class GameAgent {
 		this.epsilon = this.epsilonInit;
 	}
 
-	resetEpsilon({ epsilonInit, epsilonFinal }) {
-		this.epsilonInit = epsilonInit ?? this.epsilonInit;
-		this.epsilonFinal = epsilonFinal ?? this.epsilonFinal;
-		this.epsilon = this.epsilonInit;
-	}
-
 	getOrderRandomIndex() {
 		return getRandomInteger(0, this.game.orders.all.length);
 	}
