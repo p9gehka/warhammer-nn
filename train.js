@@ -53,16 +53,11 @@ async function train(nn) {
 	const replayMemory = new ReplayMemoryByAction(players[0], replayBufferSize);
 	let agents;
 
-	if (nn !== null) {
-		agents = [new GameAgent(players[0],{ replayMemory, nn, epsilonFinal: 0.5 }), new RandomAgent(players[1])];
-	}
 
 
 	fillReplayMemory(env, replayMemory, agents);
 
-	if (nn === null) {
-		agents = [new GameAgent(players[0], { replayMemory }), new RandomAgent(players[1])];
-	}
+	agents = [new GameAgent(players[0], { replayMemory }), new RandomAgent(players[1])];
 
 	agents[0].onlineNetwork.summary()
 	agents[0].resetEpsilon({ epsilonFinal: 0.01 });
