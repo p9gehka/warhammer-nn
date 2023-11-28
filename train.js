@@ -37,8 +37,8 @@ class MovingAverager {
 	}
 }
 
-const replayBufferSize = 2e4;
-const batchSize = 32;
+const replayBufferSize = 4e4;
+const batchSize = 128;
 const gamma = 0.99;
 const learningRate = 1e-3;
 const savePath = './models/dqn';
@@ -53,9 +53,6 @@ async function train(nn) {
 	const replayMemory = new ReplayMemoryByAction(players[0], replayBufferSize);
 	fillReplayMemory(env, replayMemory);
 
-
-
-	fillReplayMemory(env, replayMemory, agents);
 	const agents = [new GameAgent(players[0], { nn: nn ?? undefined, replayMemory }), new RandomAgent(players[1])];
 
 	agents[0].onlineNetwork.summary()
