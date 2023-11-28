@@ -112,7 +112,7 @@ export class PlayerEnvironment {
 			state = this.env.getState();
 		}
 
-		if ((playerOrder.action === this.prevOrderAction && playerOrder.action !== Action.NextPhase) || (playerOrder.action === Action.Shoot && state.misc.hits === undefined) || (playerOrder.action === Action.Move && this.selectedModel === null)) {
+		if ((playerOrder.action === this.prevOrderAction && playerOrder.action !== Action.NextPhase) || (playerOrder.action === Action.Shoot && state.misc.hits === undefined) || (playerOrder.action === Action.Move && this._selectedModel === null)) {
 			reward--;
 		} else {
 			reward++;
