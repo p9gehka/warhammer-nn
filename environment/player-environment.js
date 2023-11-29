@@ -81,6 +81,7 @@ export class PlayerEnvironment {
 		this.frameCount++;
 		let playerOrder;
 		const { action } = order;
+		const prevSelectedModel = this._selectedModel;
 		if (action === Action.Select) {
 			this._selectedModel = this.env.players[this.playerId].models[order.id];
 			playerOrder = { action, id: this._selectedModel };
@@ -112,7 +113,12 @@ export class PlayerEnvironment {
 			state = this.env.getState();
 		}
 
-		if ((playerOrder.action === this.prevOrderAction && playerOrder.action !== Action.NextPhase) || (playerOrder.action === Action.Shoot && state.misc.hits === undefined) || (playerOrder.action === Action.Move && this._selectedModel === null)) {
+		if (
+			(playerOrder.action === this.prevOrderAction && playerOrder.action !== Action.NextPhase) ||
+			(playerOrder.action === Action.Shoot && state.misc.hits === undefined) ||
+			(playerOrder.action === Action.Move && this._selectedModel === null) ||
+			(playerOrder.action === Action.Select && this._selectedModel === prevSelectedModel)
+		) {
 			reward--;
 		} else {
 			reward++;
