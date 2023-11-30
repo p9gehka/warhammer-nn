@@ -1,5 +1,5 @@
 import { BaseAction, Phase } from './warhammer.js';
-import { round, round2 } from '../static/utils/vec2.js';
+import { round, round2, eq } from '../static/utils/vec2.js';
 import { getStateTensor, Orders } from '../agents/utils.js';
 
 
@@ -82,6 +82,7 @@ export class PlayerEnvironment {
 		let playerOrder;
 		const { action } = order;
 		const prevSelectedModel = this._selectedModel;
+		const prevState = this.env.getState();
 		if (action === Action.Select) {
 			this._selectedModel = this.env.players[this.playerId].models[order.id];
 			playerOrder = { action, id: this._selectedModel };
@@ -114,9 +115,9 @@ export class PlayerEnvironment {
 		}
 
 		if (
-			(playerOrder.action === this.prevOrderAction && playerOrder.action !== Action.NextPhase) ||
 			(playerOrder.action === Action.Shoot && state.misc.hits === undefined) ||
-			(playerOrder.action === Action.Move && this._selectedModel === null) ||
+			(playerOrder.action === Action.Move && this.selectedModel() === null) ||
+			(playerOrder.action === Action.Move && eq(prevState.models[this._selectedModel], state.models[this._selectedModel])) ||
 			(playerOrder.action === Action.Select && this._selectedModel === prevSelectedModel)
 		) {
 			reward--;
