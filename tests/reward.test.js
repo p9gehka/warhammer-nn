@@ -15,9 +15,8 @@ describe('reward', () => {
 	});
 
 	it('count object reward', () => {
-		let state = env.reset();
 		while (true) {
-			state = env.getState();
+			const state = env.getState();
 			if (state.done) {
 				break;
 			}
@@ -25,6 +24,14 @@ describe('reward', () => {
 			agents[state.player].playStep(0);
 		}
 		expect(players[0].cumulativeReward).toBe(50);
+	});
+	it('count move penalty', () => {
+		const state = env.getState();
+		agents[state.player].playStep(1);
+		agents[state.player].playStep(3);
+		expect(players[0].cumulativeReward).toBe(3);
+		agents[state.player].playStep(5);
+		expect(players[0].cumulativeReward).toBe(2);
 	});
 
 	it('count wipe reward', () => {
