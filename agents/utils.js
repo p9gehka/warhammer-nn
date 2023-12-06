@@ -82,7 +82,11 @@ export function getStateTensor(state, h, w, channels) {
 	const c = channels.length;
 	const numExamples = state.length;
 
-	let buffer = tf.buffer([numExamples, h, w, c]);
+	const phaseNumber = 2;
+
+	const conv2Buffer = tf.buffer([numExamples, h, w, c]);
+	const denseBuffer = tf.buffer([numExamples, phaseNumber]);
+
 	for (let n = 0; n < numExamples; ++n) {
 		if (state[n] === null) {
 			continue;
@@ -93,10 +97,10 @@ export function getStateTensor(state, h, w, channels) {
 					return
 				}
 				const enitities = state[n][entity].forEach(yx => {
-					buffer.set(channel[entity], n, yx[0], yx[1], i);
+					conv2Buffer.set(channel[entity], n, yx[0], yx[1], i);
 				})
 			}
 		});
 	}
-	return buffer.toTensor();
+	return [conv2Buffer.toTensor(), denseBuffer.toTensor()];
 }

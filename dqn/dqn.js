@@ -29,35 +29,38 @@ export function createDeepQNetwork(numActions, h, w, c) {
         `Expected numActions to be a integer greater than 1, ` +
         `but got ${numActions}`);
   }
-
-  const model = tf.sequential();
-  model.add(tf.layers.conv2d({
+  const phaseNumber = 2;
+  const inputConv2d = tf.input({shape: [h, w, c]});
+  const inputDense = tf.input({shape: [phaseNumber]});
+  let conv2d = tf.layers.conv2d({
      filters: 128,
      kernelSize: 3,
      strides: 1,
      activation: 'relu',
-     inputShape: [h, w, c]
-  }));
-  model.add(tf.layers.batchNormalization());
-  model.add(tf.layers.conv2d({
+  }).apply(inputConv2d);
+  conv2d = tf.layers.batchNormalization().apply(conv2d);
+  conv2d = tf.layers.conv2d({
     filters: 256,
     kernelSize: 3,
     strides: 1,
     activation: 'relu',
-  }));
-  model.add(tf.layers.batchNormalization());
-  model.add(tf.layers.conv2d({
-   filters: 256,
+  }).apply(conv2d);
+  conv2d = tf.layers.batchNormalization().apply(conv2d);
+  conv2d = tf.layers.conv2d({
+    filters: 256,
     kernelSize: 3,
     strides: 1,
     activation: 'relu',
-  }));
-  model.add(tf.layers.flatten());
-  model.add(tf.layers.dense({units: 256, activation: 'relu'}));
-  model.add(tf.layers.dense({units: 518, activation: 'relu'}));
-  model.add(tf.layers.dropout({ rate: 0.25 }));
-  model.add(tf.layers.dense({units: numActions}));
+  }).apply(conv2d);
 
+  let conv2dOut = tf.layers.flatten().apply(conv2d);
+  const concatinate = tf.layers.concatenate().apply([conv2dOut, inputDense]);
+
+  let mlp = tf.layers.dense({units: 256, activation: 'relu'}).apply(concatinate);
+  mlp = tf.layers.dense({units: 518, activation: 'relu'}).apply(mlp);
+  mlp = tf.layers.dropout({ rate: 0.25 }).apply(mlp);
+  const output = tf.layers.dense({units: numActions}).apply(mlp);
+  const model = tf.model({ inputs: [inputConv2d, inputDense], outputs: output });
   return model;
 }
 
