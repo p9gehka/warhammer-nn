@@ -37,14 +37,14 @@ class MovingAverager {
 	}
 }
 
-const replayBufferSize = 1e5;
-const batchSize = 256;
+const replayBufferSize = 2e4;
+const batchSize = 16;
 const gamma = 0.99;
 const learningRate = 1e-3;
 const savePath = './models/dqn';
 const cumulativeRewardThreshold = 42;
 const syncEveryFrames = 6e3;
-const sendMessageEveryFrames = 3e4;
+const sendMessageEveryFrames = 1e3;
 const rewardAverager100Len = 100;
 
 async function train(nn) {
@@ -144,20 +144,27 @@ async function train(nn) {
 					break;
 				}
 
-				let actionIndex = testAgents[testState.player].playStep();
+				let actionInfo = testAgents[testState.player].playStep().at(-1);
 				if (testState.player === 0) {
-					testActions.push(actionIndex);
+					testActions.push(actionInfo);
 				}
 				testAttempst++;
 			}
 
 			env.reset();
 			agents.forEach(agent => agent.reset());
+			console.log(
+				rewardAveragerBuffer.buffer.filter(v => v !== null),
+				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
+				`:${JSON.stringify(testActions)}:`
+			)
+			/*
 			await sendDataToTelegram(
 				rewardAveragerBuffer.buffer.filter(v => v !== null),
 				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
 				`:${JSON.stringify(testActions)}:`
 			);
+			*/
 		}
 		agents[state.player].trainOnReplayBatch(batchSize, gamma, optimizer);
 		agents[state.player].playStep();
