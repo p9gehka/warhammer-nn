@@ -84,6 +84,7 @@ export class Warhammer {
 	phase = Phase.Movement;
 	turn = 0;
 	objectiveControlReward = 5;
+	totalRounds = 5;
 	constructor(config) {
 		this.gameSettings = config?.gameSettings ?? gameSettings;
 		this.battlefields = config?.battlefields ?? battlefields;
@@ -229,10 +230,10 @@ export class Warhammer {
 
 	done() {
 		const ids = this.models.filter(model => !model.dead).map(model => model.playerId);
-		return this.turn > 9 || Math.min(...ids) === Math.max(...ids);
+		return this.turn > (this.totalRounds * 2) - 1 || Math.min(...ids) === Math.max(...ids);
 	}
 	end() {
-		this.turn = 10;
+		this.turn = (this.totalRounds * 2);
 	}
 	scoreVP() {
 		const objectiveControl = Array(this.battlefield.objective_marker.length).fill(0);
@@ -263,6 +264,7 @@ export class Warhammer {
 			misc: misc ?? {},
 			battlefield: this.battlefield,
 			turn: this.turn,
+			round: Math.floor(this.turn / 2),
 		};
 	}
 }

@@ -10,11 +10,26 @@ describe('warhammer environment', () => {
 		expect(env.getState().done).toBe(true);
 	});
 
-	it('phase', () => {
+	it('phase turn round', () => {
 		const env = new Warhammer({ gameSettings, battlefields });
 		let state = env.getState()
 		expect(state.phase).toBe(Phase.Movement);
+		expect(state.turn).toBe(0);
+		expect(state.round).toBe(0);
 		state = env.step({ action: BaseAction.NextPhase });
 		expect(state.phase).toBe(Phase.Shooting);
+		expect(state.turn).toBe(0);
+		expect(state.round).toBe(0);
+		state = env.step({ action: BaseAction.NextPhase });
+
+		expect(state.phase).toBe(Phase.Movement);
+		expect(state.turn).toBe(1);
+		expect(state.round).toBe(0);
+
+		state = env.step({ action: BaseAction.NextPhase });
+		state = env.step({ action: BaseAction.NextPhase });
+		expect(state.phase).toBe(Phase.Movement);
+		expect(state.turn).toBe(2);
+		expect(state.round).toBe(1);
 	});
 });
