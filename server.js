@@ -22,25 +22,24 @@ app.get('/', (req,res) => res.sendFile('static/index.html', { root: __dirname })
 
 app.post('/play', async (req,res) => {
   const onlineNetwork = await tf.loadLayersModel(`file://${savePath}/model.json`);
-  const targetNetwork = await tf.loadLayersModel(`file://${savePath}/model.json`);
   const env = new Warhammer();
 
   const players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
-  let agents = [new GameAgent(players[0], { nn: [onlineNetwork, targetNetwork], epsilonInit: 0.01 }), new RandomAgent(players[1])]
+  let agents = [new TestAgent(players[0], { nn: [onlineNetwork] }), new RandomAgent(players[1])]
   let state = env.reset();
   agents.forEach(a => a.reset());
   let attempts = 0;
   const actionsAndStates = [[null, state]];
   const states = [];
 
-  while (!state.done && attempts < 500) {
+  while (!state.done && attempts < 100) {
      state = env.getState();
      if (state.done) {
        agents.forEach(agent => agent.awarding());
        break;
      }
-     const order = agents[state.player].playStep();
-     actionsAndStates.push(order)
+     const stepInfo = agents[state.player].playStep();
+     actionsAndStates.push(stepInfo)
      attempts++;
    }
    console.log('cumulativeReward', players[0].cumulativeReward)

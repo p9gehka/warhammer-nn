@@ -14,14 +14,19 @@ export class TestAgent {
 	playStep() {
 		const input = this.game.getInput();
 		let index = 0;
+		let estimate = 0;
 		tf.tidy(() => {
 			const inputTensor = getStateTensor([input], this.game.height, this.game.width, this.game.channels);
-			index = this.onlineNetwork.predict(inputTensor).argMax(-1).dataSync()[0];
+			const prediction = this.onlineNetwork.predict(inputTensor)
+			estimate = prediction.max(-1).dataSync()[0];
+			index = prediction.argMax(-1).dataSync()[0];
 		});
-		this.game.step(this.game.orders.all[index]);
-		return index;
+		const stepResult = this.game.step(this.game.orders.all[index]);
+		return [...stepResult, { index, estimate }];
 	}
 	reset() {
 		this.game.reset();
 	}
+
+	awarding() {}
 }

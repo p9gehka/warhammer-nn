@@ -143,15 +143,22 @@ async function train(nn) {
 					break;
 				}
 
-				let actionIndex = testAgents[testState.player].playStep();
+				let actionInfo = testAgents[testState.player].playStep().at(-1);
 				if (testState.player === 0) {
-					testActions.push(actionIndex);
+					testActions.push(actionInfo);
 				}
 				testAttempst++;
 			}
 
 			env.reset();
 			agents.forEach(agent => agent.reset());
+			/*
+			console.log(
+				rewardAveragerBuffer.buffer.filter(v => v !== null),
+				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
+				`:${JSON.stringify(testActions)}:`
+			)
+			*/
 			await sendDataToTelegram(
 				rewardAveragerBuffer.buffer.filter(v => v !== null),
 				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
