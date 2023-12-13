@@ -82,25 +82,27 @@ export function getStateTensor(state, h, w, channels) {
 	const c = channels.length;
 	const numExamples = state.length;
 
-	const phaseNumber = 2;
+	const totalRounds = 5;
 
-	const conv2Buffer = tf.buffer([numExamples, h, w, c]);
-	const denseBuffer = tf.buffer([numExamples, phaseNumber]);
+	const img2Buffer = tf.buffer([numExamples, h, w, c]);
+	const roundBuffer = tf.buffer([numExamples, totalRounds]);
 
 	for (let n = 0; n < numExamples; ++n) {
 		if (state[n] === null) {
 			continue;
 		}
+		const [img, round] = state[n];
 		channels.forEach((channel, i) => {
 			for (let entity in channel) {
-				if (state[n][entity] === undefined) {
+				if (img[entity] === undefined) {
 					return
 				}
-				const enitities = state[n][entity].forEach(yx => {
-					conv2Buffer.set(channel[entity], n, yx[0], yx[1], i);
-				})
+				const enitities = img[entity].forEach(yx => {
+					img2Buffer.set(channel[entity], n, yx[0], yx[1], i);
+				});
+				roundBuffer.set(1, n, round);
 			}
 		});
 	}
-	return [conv2Buffer.toTensor(), denseBuffer.toTensor()];
+	return [img2Buffer.toTensor(), roundBuffer.toTensor()];
 }

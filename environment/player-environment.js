@@ -215,7 +215,7 @@ export class PlayerEnvironment {
 			}
 		});
 
-		return input;
+		return [input, state.round];
 	}
 
 	printStateTensor() {

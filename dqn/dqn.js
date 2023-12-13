@@ -29,9 +29,9 @@ export function createDeepQNetwork(numActions, h, w, c) {
         `Expected numActions to be a integer greater than 1, ` +
         `but got ${numActions}`);
   }
-  const phaseNumber = 2;
+  const totalRounds = 5;
   const inputConv2d = tf.input({shape: [h, w, c]});
-  const inputDense = tf.input({shape: [phaseNumber]});
+  const inputDense = tf.input({shape: [totalRounds]});
   let conv2d = tf.layers.conv2d({
      filters: 128,
      kernelSize: 3,
