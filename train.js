@@ -37,15 +37,17 @@ class MovingAverager {
 	}
 }
 
-const replayBufferSize = 2e4;
-const batchSize = 16;
+const replayBufferSize = 4e4;
+const batchSize = 64;
 const gamma = 0.99;
 const learningRate = 1e-3;
 const savePath = './models/dqn';
+const syncEveryFrames = 1e3;
 const cumulativeRewardThreshold = 42;
 const syncEveryFrames = 6e3;
 const sendMessageEveryFrames = 1e3;
 const rewardAverager100Len = 100;
+
 
 async function train(nn) {
 	const env = new Warhammer();
@@ -78,7 +80,6 @@ async function train(nn) {
 		frameCount = players[0].frameCount + players[1].frameCount;
 		if (state.done) {
 			agents.forEach(agent => agent.awarding());
-
 			const currentFrameCount = frameCount - frameCountPrev; 
 			const currentT = new Date().getTime();
 			const framesPerSecond = currentFrameCount / (currentT - t) * 1e3;
@@ -153,18 +154,18 @@ async function train(nn) {
 
 			env.reset();
 			agents.forEach(agent => agent.reset());
+			/*
 			console.log(
 				rewardAveragerBuffer.buffer.filter(v => v !== null),
 				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
 				`:${JSON.stringify(testActions)}:`
 			)
-			/*
+			*/
 			await sendDataToTelegram(
 				rewardAveragerBuffer.buffer.filter(v => v !== null),
 				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
 				`:${JSON.stringify(testActions)}:`
 			);
-			*/
 		}
 		agents[state.player].trainOnReplayBatch(batchSize, gamma, optimizer);
 		agents[state.player].playStep();

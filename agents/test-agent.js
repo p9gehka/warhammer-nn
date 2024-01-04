@@ -17,8 +17,7 @@ export class TestAgent {
 		let estimate = 0;
 		tf.tidy(() => {
 			const inputTensor = getStateTensor([input], this.game.height, this.game.width, this.game.channels);
-			const indexesArgMax = this.gameAgent.getIndexesArgMax();
-			const prediction = tf.mul(this.onlineNetwork.predict(inputTensor), tf.tensor2d(indexesArgMax, [1, 33]));
+			const prediction = this.onlineNetwork.predict(inputTensor);
 			estimate = prediction.max(-1).dataSync()[0];
 			index = prediction.argMax(-1).dataSync()[0];
 		});
