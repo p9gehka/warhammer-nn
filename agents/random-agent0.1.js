@@ -24,10 +24,7 @@ export class RandomAgent {
 			return orders.moveIndexes[getRandomInteger(0, orders.moveIndexes.length)];
 		}
 
-		if (input[Channel1Name.SelfModelAvailableToShoot].some(selected)) {
-			return orders.shootIndexes[getRandomInteger(0, orders.shootIndexes.length)];
-		}
-		if (input[Channel1Name.SelfModelAvailableToMove].length === 0 && input[Channel1Name.SelfModelAvailableToShoot].length === 0) {
+		if (input[Channel1Name.SelfModelAvailableToMove].length === 0) {
 			return orders.nextPhaseIndex;
 		}
 

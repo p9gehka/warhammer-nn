@@ -16,6 +16,5 @@ describe('replayMemoryByAction', () => {
 		expect(orders).toContain('NEXT_PHASE');
 		expect(orders).toContain('SELECT');
 		expect(orders).toContain('MOVE');
-		expect(orders).toContain('SHOOT');
 	});
 });

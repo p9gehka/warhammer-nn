@@ -23,12 +23,9 @@ export class Orders {
 			[Action.NextPhase]: [{ action: Action.NextPhase }],
 			[Action.Select]: [],
 			[Action.Move]: [],
-			[Action.Shoot]: [],
 			selectIndexes: [],
 			moveIndexes: [],
 			selectAndMoveIndexes: [],
-			shootIndexes: [],
-			selectAndShootIndexes: [],
 			all: []
 		}
 
@@ -43,23 +40,16 @@ export class Orders {
 			}
 		}
 
-		for (let target of targets) {
-			this.orders[Action.Shoot].push({ action: Action.Shoot, target });
-		}
-
 		this.orders.all.push(...this.orders[Action.NextPhase]);
 		this.orders.selectIndexes.push(this.orders.nextPhaseIndex)
 		this.orders.moveIndexes.push(this.orders.nextPhaseIndex)
-		this.orders.shootIndexes.push(this.orders.nextPhaseIndex)
 		this.orders.selectAndMoveIndexes.push(this.orders.nextPhaseIndex);
-		this.orders.selectAndShootIndexes.push(this.orders.nextPhaseIndex);
 
-		for (let action of [Action.Select, Action.Move, Action.Shoot]){
+		for (let action of [Action.Select, Action.Move]){
 			this.orders[action].forEach((order) => {
 				if (action === Action.Select) {
 					this.orders.selectIndexes.push(this.orders.all.length);
 					this.orders.selectAndMoveIndexes.push(this.orders.all.length);
-					this.orders.selectAndShootIndexes.push(this.orders.all.length);
 				}
 
 				if (action === Action.Move) {
@@ -67,10 +57,6 @@ export class Orders {
 					this.orders.selectAndMoveIndexes.push(this.orders.all.length);
 				}
 
-				if (action === Action.Shoot) {
-					this.orders.shootIndexes.push(this.orders.all.length)
-					this.orders.selectAndShootIndexes.push(this.orders.all.length)
-				}
 				this.orders.all.push(order);
 			});
 		}

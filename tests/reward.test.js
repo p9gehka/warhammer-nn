@@ -44,9 +44,9 @@ describe('reward', () => {
 			agents[state.player].playStep(0);
 			if (state.player === 0) {
 				agents[0].playStep(1);
-				agents[0].playStep(31);
+				agents[0].playStep(29);
 				agents[0].playStep(2);
-				agents[0].playStep(31);
+				agents[0].playStep(29);
 			}
 			agents[state.player].playStep(0);
 		}

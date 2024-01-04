@@ -8,44 +8,26 @@ export const Action = {
 	Select: "SELECT"
 }
 
-export const Channel0 = {
-	Empty: 0,
-	0: 0.5,
-	1: 1,
-}
-
 export const Channel1 = {
 	Empty: 0,
-	SelfModelAvailableToMove: 0.25,
-	SelfModelNotAvailableToMove: 0.5,
-	SelfModelAvailableToShoot: 0.75,
-	SelfModelNotAvailableToShoot: 1,
+	SelfModelAvailableToMove: 0.5,
+	SelfModelNotAvailableToMove: 1,
 };
 
 export const Channel2 = {
 	Empty: 0,
-	Selected: 0.25,
-	Marker: 0.5,
-	Enemy: 0.75,
-	Ruin: 1,
+	Selected: 0.5,
+	Marker: 1,
 }
 
-export const Channel4 = {
-	Empty: 0,
-	StrikeTeam: 1,
-	Stealth: 2,
-}
+export const Channel1Name = {}, Channel2Name = {};
 
-export const Channel0Name = {},  Channel1Name = {}, Channel2Name = {};
-
-Object.keys(Channel0).forEach(name => Channel0Name[name] = name);
 Object.keys(Channel1).forEach(name => Channel1Name[name] = name);
 Object.keys(Channel2).forEach(name => Channel2Name[name] = name);
 
-
 export function emptyInput() {
 	const input = {};
-	[...Object.keys(Channel0Name), ...Object.keys(Channel1Name), ...Object.keys(Channel2Name)].forEach(name => {
+	[...Object.keys(Channel1Name), ...Object.keys(Channel2Name)].forEach(name => {
 		input[name] = [];
 	});
 	return input;
@@ -54,7 +36,7 @@ export function emptyInput() {
 export class PlayerEnvironment {
 	height = 44;
 	width = 30;
-	channels = [Channel0, Channel1, Channel2];
+	channels = [Channel1, Channel2];
 	vp = 0;
 	_selectedModel = null;
 	cumulativeReward = 0;
@@ -88,12 +70,6 @@ export class PlayerEnvironment {
 			playerOrder = { action, id: this._selectedModel };
 		} else if (action === Action.Move) {
 			playerOrder = {action, id: this._selectedModel, vector: order.vector };
-		} else if (action === Action.Shoot) {
-			playerOrder = {
-				action,
-				id: this._selectedModel,
-				target: this.env.players[this.enemyId].models[order.target]
-			}
 		} else {
 			playerOrder = order;
 		}
@@ -103,7 +79,7 @@ export class PlayerEnvironment {
 			this.env.end();
 		}
 
-		if(action === Action.Select || (this._selectedModel === null && (action === Action.Move || action === Action.Shoot))) {
+		if(action === Action.Select || (this._selectedModel === null && action === Action.Move)) {
 			state = this.env.getState();
 		} else if (action !== Action.Select) {
 			state = this.env.step(playerOrder);
@@ -115,7 +91,6 @@ export class PlayerEnvironment {
 		}
 
 		if (
-			(playerOrder.action === Action.Shoot && state.misc.hits === undefined) ||
 			(playerOrder.action === Action.Move && this.selectedModel() === null) ||
 			(playerOrder.action === Action.Move && eq(prevState.models[this._selectedModel], state.models[this._selectedModel])) ||
 			(playerOrder.action === Action.Select && this._selectedModel === prevSelectedModel)
@@ -141,9 +116,6 @@ export class PlayerEnvironment {
 		const { players } = state;
 		let reward = 0;
 		const totalUnits = 2;
-		if (this.win()) {
-			reward += (5 - Math.round(state.turn / 2)) * (this.env.objectiveControlReward * totalUnits);
-		}
 
 		if (this.loose()) {
 			reward -= 5 * this.env.objectiveControlReward * totalUnits;
@@ -165,11 +137,6 @@ export class PlayerEnvironment {
 		const input = emptyInput();
 
 		input[Channel2Name.Marker] = battlefield.objective_marker.map(round);
-		input[Channel2Name.Ruin] = battlefield.ruins.map(([[x1, y1], [x2, y2]]) => {
-			return Array.from({ length:Math.max(Math.abs(x1 - x2), Math.abs(y1 - y2))})
-			.fill((x, y) => [[x + Math.sign(x2 - x), y + Math.sign(y2 - y)]])
-			.reduce((list, cb) => list.concat(cb(...list.at(-1))), [[x1, y1]])	
-		}).flat()
 
 		if (selectedModel !== null && state.models[selectedModel] !== null) {
 			input[Channel2Name.Selected] = [round(state.models[selectedModel])];
@@ -188,16 +155,8 @@ export class PlayerEnvironment {
 							entity = state.availableToMove.includes(modelId) ?
 								Channel1Name.SelfModelAvailableToMove : Channel1Name.SelfModelNotAvailableToMove;
 						}
-						
-						if (state.phase === Phase.Shooting) {
-							entity = state.availableToShoot.includes(modelId) ?
-								Channel1Name.SelfModelAvailableToShoot : Channel1Name.SelfModelNotAvailableToShoot;
-						}
 					}
 
-					if (unit.playerId !== this.playerId) {
-						entity = Channel2Name.Enemy;
-					}
 					if (entity !== null) {
 						if (input[entity] === undefined) {
 							input[entity] = [];
@@ -230,15 +189,11 @@ export class PlayerEnvironment {
 					return {
 						[Channel2.Selected]: 'I',
 						[Channel2.Marker]: '*',
-						[Channel2.Enemy]: 'E',
-						[Channel2.Ruin]: '#'
 					}[ch2]
 				} else  if(ch1 !== 0) {
 					return {
 						[Channel1.SelfModelNotAvailableToMove]: 'm',
 						[Channel1.SelfModelAvailableToMove]: 'M',
-						[Channel1.SelfModelNotAvailableToShoot]: 's',
-						[Channel1.SelfModelAvailableToShoot]: 'S'
 					}[ch1]
 				}else {
 					return '.';
@@ -249,10 +204,6 @@ export class PlayerEnvironment {
 	loose() {
 		const player = this.env.players[this.playerId];
 		return player.models.every(modelId => this.env.models[modelId].dead);
-	}
-	win() {
-		const enemy = this.env.players[this.enemyId];
-		return enemy.models.every(modelId => this.env.models[modelId].dead);
 	}
 }
 
