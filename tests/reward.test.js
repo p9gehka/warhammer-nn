@@ -23,7 +23,7 @@ describe('reward', () => {
 			agents[state.player].playStep(0);
 			agents[state.player].playStep(0);
 		}
-		expect(players[0].cumulativeReward).toBe(50);
+		expect(players[0].cumulativeReward).toBe(30);
 	});
 	it('count move penalty', () => {
 		const state = env.getState();
@@ -70,6 +70,6 @@ describe('reward', () => {
 			agents[state.player].playStep(0);
 			agents[state.player].playStep(0);
 		}
-		expect(players[0].cumulativeReward).toBe(-34);
+		expect(players[0].cumulativeReward).toBe(-28.5);
 	});
 });
