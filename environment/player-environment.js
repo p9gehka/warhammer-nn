@@ -34,8 +34,8 @@ export function emptyInput() {
 }
 
 export class PlayerEnvironment {
-	height = 44;
-	width = 30;
+	height = 22;
+	width = 15;
 	channels = [Channel1, Channel2];
 	vp = 0;
 	_selectedModel = null;
