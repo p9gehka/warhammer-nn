@@ -44,7 +44,6 @@ const learningRate = 1e-3;
 const savePath = './models/dqn';
 const syncEveryFrames = 1e3;
 const cumulativeRewardThreshold = 42;
-const syncEveryFrames = 6e3;
 const sendMessageEveryFrames = 1e3;
 const rewardAverager100Len = 100;
 

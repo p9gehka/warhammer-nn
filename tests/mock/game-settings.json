@@ -10,7 +10,7 @@
 		]
 	],
 	"models": [
-		[8, 15], [22,7],
+		[8, 15], [10,16],
 		[15,17], null
 	],
 	"primary_objective": "take_and_hold",
