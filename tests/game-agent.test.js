@@ -12,6 +12,7 @@ import { copyWeights } from '../dqn/dqn.js';
 import battlefields from './mock/battlefields.json' assert { type: 'json' };
 import gameSettings from './mock/game-settings.json' assert { type: 'json' };
 
+const fileName = `file://tests/mock/dqn-test22x15/model.json`;
 describe('game agent', () => {
 	const nn = [];
 	let env = null;
@@ -20,8 +21,8 @@ describe('game agent', () => {
 	let gameAgent = null;
 	let optimizer = null;
 	beforeAll(async () => {
-		nn[0] = await tf.loadLayersModel(`file://tests/mock/dqn-test/model.json`);
-		nn[1] = await tf.loadLayersModel(`file://tests/mock/dqn-test/model.json`);
+		nn[0] = await tf.loadLayersModel(fileName);
+		nn[1] = await tf.loadLayersModel(fileName);
 		env = new Warhammer({ gameSettings, battlefields });
 		const env2Models = [...gameSettings.models];
 		env2Models[0] = [4, 15]
@@ -53,11 +54,9 @@ describe('game agent', () => {
 		const players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)]
 		const controlledAgent = [new ControlledAgent(players[0], { replayMemory }), new ControlledAgent(players[1])];
 
-		for (let player of [0, 1, 0]) {
-			controlledAgent[player].playStep(0);
+		for (let player of [0, 1, 0, 1, 0]) {
 			controlledAgent[player].playStep(0);
 		}
-
 		expect(replayMemory.sample(1)[0][2]).toBe(6);
 	});
 

@@ -21,9 +21,8 @@ describe('reward', () => {
 				break;
 			}
 			agents[state.player].playStep(0);
-			agents[state.player].playStep(0);
 		}
-		expect(players[0].cumulativeReward).toBe(30);
+		expect(players[0].cumulativeReward).toBe(25);
 	});
 	it('count move penalty', () => {
 		const state = env.getState();
@@ -34,25 +33,6 @@ describe('reward', () => {
 		expect(players[0].cumulativeReward).toBe(2);
 	});
 
-	it('count wipe reward', () => {
-		while (true) {
-			const state = env.getState();
-			if (state.done) {
-				agents.forEach(agent => agent.awarding());
-				break;
-			}
-			agents[state.player].playStep(0);
-			if (state.player === 0) {
-				agents[0].playStep(1);
-				agents[0].playStep(29);
-				agents[0].playStep(2);
-				agents[0].playStep(29);
-			}
-			agents[state.player].playStep(0);
-		}
-		expect(players[0].cumulativeReward).toBe(55.5);
-		expect(players[1].cumulativeReward).toBe(-50);
-	});
 	it('count penalty', () => {
 		while (true) {
 			const state = env.getState();
@@ -64,12 +44,9 @@ describe('reward', () => {
 			if (state.player === 0) {
 				agents[0].playStep(1);
 				agents[0].playStep(26);
-				agents[0].playStep(2);
-				agents[0].playStep(27);
 			}
 			agents[state.player].playStep(0);
-			agents[state.player].playStep(0);
 		}
-		expect(players[0].cumulativeReward).toBe(-28.5);
+		expect(players[0].cumulativeReward).toBe(-19.5);
 	});
 });

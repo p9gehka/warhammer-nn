@@ -87,7 +87,7 @@ export class Warhammer {
 		const usedPosition = [];
 		this.models = this.units.map(unit => {
 			return unit.models.map(id => {
-				if (this.gameSettings.models.length !== 0) {
+				if (this.gameSettings.models.length !== 0 && this.gameSettings.models[id] !== undefined) {
 					return new Model(id, unit, this.gameSettings.models[id]);
 				}
 				usedPosition.push(this.getRandomStartPosition(usedPosition));

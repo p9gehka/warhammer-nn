@@ -7,7 +7,7 @@
 			{ "name": "strike_team", "models": [1] }
 		]
 	],
-	"models": [],
+	"models": [[11, 8], [0, 0]],
 	"primary_objective": "take_and_hold",
 	"objective_marker_control_distance": 3
 }

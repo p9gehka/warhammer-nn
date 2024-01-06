@@ -16,18 +16,23 @@ export const Channel1 = {
 
 export const Channel2 = {
 	Empty: 0,
-	Selected: 0.5,
+	Selected: 1,
+}
+
+export const Channel3 = {
+	Empty: 0,
 	Marker: 1,
 }
 
-export const Channel1Name = {}, Channel2Name = {};
+export const Channel1Name = {}, Channel2Name = {}, Channel3Name = {};
 
 Object.keys(Channel1).forEach(name => Channel1Name[name] = name);
 Object.keys(Channel2).forEach(name => Channel2Name[name] = name);
+Object.keys(Channel3).forEach(name => Channel3Name[name] = name);
 
 export function emptyInput() {
 	const input = {};
-	[...Object.keys(Channel1Name), ...Object.keys(Channel2Name)].forEach(name => {
+	[...Object.keys(Channel1Name), ...Object.keys(Channel2Name), ...Object.keys(Channel3Name)].forEach(name => {
 		input[name] = [];
 	});
 	return input;
@@ -36,7 +41,7 @@ export function emptyInput() {
 export class PlayerEnvironment {
 	height = 22;
 	width = 15;
-	channels = [Channel1, Channel2];
+	channels = [Channel1, Channel2, Channel3];
 	vp = 0;
 	_selectedModel = null;
 	cumulativeReward = 0;
@@ -115,10 +120,9 @@ export class PlayerEnvironment {
 		const state = this.env.getState();
 		const { players } = state;
 		let reward = 0;
-		const totalUnits = 2;
 
 		if (this.loose()) {
-			reward -= 5 * this.env.objectiveControlReward * totalUnits;
+			reward -= 5 * this.env.objectiveControlReward * this.env.battlefield.objective_marker.length;
 		}
 
 		this.cumulativeReward += reward;
@@ -136,7 +140,7 @@ export class PlayerEnvironment {
 		const battlefield = this.env.battlefield;
 		const input = emptyInput();
 
-		input[Channel2Name.Marker] = battlefield.objective_marker.map(round);
+		input[Channel3Name.Marker] = battlefield.objective_marker.map(round);
 
 		if (selectedModel !== null && state.models[selectedModel] !== null) {
 			input[Channel2Name.Selected] = [round(state.models[selectedModel])];
@@ -167,13 +171,6 @@ export class PlayerEnvironment {
 			}
 		}
 
-		state.players[this.playerId].models.forEach((modelId, i) => {
-			const modelPosition = state.models[modelId];
-			if (modelPosition !== null) {
-				input[i] = [modelPosition]
-			}
-		});
-
 		return input;
 	}
 
@@ -184,18 +181,17 @@ export class PlayerEnvironment {
 		console.log('************************')
 		for (const line of stateTensor.arraySync()[0]) {
 			console.log(line.map((ch) => {
-				const [ch1, ch2] = round2(ch);
+				const [ch1, ch2, ch3] = round2(ch);
 				if(ch2 !== 0) {
-					return {
-						[Channel2.Selected]: 'I',
-						[Channel2.Marker]: '*',
-					}[ch2]
-				} else  if(ch1 !== 0) {
+					return { [Channel2.Selected]: 'I'}[ch2]
+				} else if(ch1 !== 0) {
 					return {
 						[Channel1.SelfModelNotAvailableToMove]: 'm',
 						[Channel1.SelfModelAvailableToMove]: 'M',
 					}[ch1]
-				}else {
+				} else if (ch3 !== 0) {
+					return { [Channel3.Marker]: '*' }[ch3]
+				} else {
 					return '.';
 				}
 			}).join());
