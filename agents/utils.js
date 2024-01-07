@@ -21,18 +21,10 @@ export class Orders {
 		this.orders = {
 			nextPhaseIndex: 0,
 			[Action.NextPhase]: [{ action: Action.NextPhase }],
-			[Action.Select]: [],
 			[Action.Move]: [],
-			selectIndexes: [],
 			moveIndexes: [],
-			selectAndMoveIndexes: [],
 			all: []
 		}
-
-		for (let id of models) {
-			this.orders[Action.Select].push({ action: Action.Select, id });
-		}
-
 
 		for (let distance of distances) {
 			for (let angle of angles) {
@@ -40,26 +32,13 @@ export class Orders {
 			}
 		}
 
-		this.orders.all.push(...this.orders[Action.NextPhase]);
-		this.orders.selectIndexes.push(this.orders.nextPhaseIndex)
 		this.orders.moveIndexes.push(this.orders.nextPhaseIndex)
-		this.orders.selectAndMoveIndexes.push(this.orders.nextPhaseIndex);
+		this.orders.all.push(...this.orders[Action.NextPhase]);
 
-		for (let action of [Action.Select, Action.Move]){
-			this.orders[action].forEach((order) => {
-				if (action === Action.Select) {
-					this.orders.selectIndexes.push(this.orders.all.length);
-					this.orders.selectAndMoveIndexes.push(this.orders.all.length);
-				}
-
-				if (action === Action.Move) {
-					this.orders.moveIndexes.push(this.orders.all.length)
-					this.orders.selectAndMoveIndexes.push(this.orders.all.length);
-				}
-
-				this.orders.all.push(order);
-			});
-		}
+		this.orders[Action.Move].forEach((order) => {
+			this.orders.moveIndexes.push(this.orders.all.length)
+			this.orders.all.push(order);
+		});
 		return this.orders;
 	}
 }

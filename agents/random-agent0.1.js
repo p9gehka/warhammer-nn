@@ -14,23 +14,14 @@ export class RandomAgent {
 	getOrderIndex() {
 		const { orders } = this.game;
 		const input = this.game.getInput();
-		const selected = xy => eq(xy, input[Channel2Name.Selected].at(0));
 
-		if (input[Channel2Name.Selected].length === 0) {
-			return orders.selectIndexes[getRandomInteger(0, orders.selectIndexes.length)];
-		}
-
-		if (input[Channel1Name.SelfModelAvailableToMove].some(selected)) {
-			return orders.moveIndexes[getRandomInteger(0, orders.moveIndexes.length)];
-		}
 
 		if (input[Channel1Name.SelfModelAvailableToMove].length === 0) {
 			return orders.nextPhaseIndex;
 		}
 
-		return orders.selectIndexes[getRandomInteger(1, orders.selectIndexes.length)];
+		return orders.moveIndexes[getRandomInteger(0, orders.moveIndexes.length)];
 	}
-
 	playStep() {
 		const orderIndex = this.getOrderIndex();
 		const order = this.game.orders.all[orderIndex];

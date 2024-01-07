@@ -25,7 +25,7 @@ describe('game agent', () => {
 		nn[1] = await tf.loadLayersModel(fileName);
 		env = new Warhammer({ gameSettings, battlefields });
 		const env2Models = [...gameSettings.models];
-		env2Models[0] = [4, 15]
+		env2Models[0] = [0, 0]
 		env2 = new Warhammer({ gameSettings: { ...gameSettings, models: env2Models }, battlefields });
 		optimizer = tf.train.adam(1e-3);
 	});
@@ -46,7 +46,7 @@ describe('game agent', () => {
 		};
 
 		gameAgent.playStep();
-		expect(action).toMatch(/NEXT_PHASE|SELECT|MOVE|SHOOT$/);
+		expect(action).toMatch(/NEXT_PHASE|MOVE|SHOOT$/);
 	});
 
 	it('Next phase state before enemy turn to b eNext phase state with reward after enemy turn ', () => {
@@ -65,11 +65,11 @@ describe('game agent', () => {
 		const players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)]
 		const controlledAgent = [new ControlledAgent(players[0], { replayMemory }), new ControlledAgent(players[1])];
 		controlledAgent[0].playStep(0);
-		const inputAtTheEndPhase = getStateTensor([players[0].getInput()], 44, 30, players[0].channels);
+		const inputAtTheEndPhase = getStateTensor([players[0].getInput()], 22, 15, players[0].channels);
 		controlledAgent[0].playStep(0);
 		controlledAgent[1].playStep(0);
 		controlledAgent[1].playStep(0);
-		const input = getStateTensor([players[0].getInput()], 44, 30, players[0].channels); /* state */
+		const input = getStateTensor([players[0].getInput()], 22, 15, players[0].channels); /* state */
 		controlledAgent[0].playStep(0);
 		controlledAgent[0].playStep(0); /* save to replay memory reward with 11 */
 
@@ -78,7 +78,7 @@ describe('game agent', () => {
 		const gamma = 0.99
 		expect(Math.round(gameAgent.onlineNetwork.predict(inputAtTheEndPhase).dataSync()[0])).not.toBe(10, 12);
 		expect(Math.round(gameAgent.onlineNetwork.predict(input).dataSync()[0])).not.toBe(10, 12);
-		for (let i = 0; i <= 10000; i++) {
+		for (let i = 0; i <= 100; i++) {
 			console.log('****', i)
 			console.log(gameAgent.onlineNetwork.predict(inputAtTheEndPhase).dataSync()[0]);
 			console.log(gameAgent.onlineNetwork.predict(input).dataSync()[0]);
@@ -98,7 +98,7 @@ describe('game agent', () => {
 		const players = [new PlayerEnvironment(0, env2), new PlayerEnvironment(1, env2)]
 		const controlledAgent = [new ControlledAgent(players[0], { replayMemory }), new ControlledAgent(players[1])];
 		controlledAgent[0].playStep(1);
-		const inputBeforeMove = getStateTensor([players[0].getInput()], 44, 30, players[0].channels);
+		const inputBeforeMove = getStateTensor([players[0].getInput()], 22, 15, players[0].channels);
 		controlledAgent[0].playStep(29);
 		controlledAgent[0].playStep(0);
 		//console.log(replayMemory.buffer[0][0])
@@ -108,8 +108,8 @@ describe('game agent', () => {
 		console.log(players[0].getInput())
 		controlledAgent[0].playStep(0);
 		console.log(replayMemory.sample(1)[0][0])
-		
-		const inputAtTheEndPhase = getStateTensor([replayMemory.sample(1)[0][0]], 44, 30, players[0].channels);
+
+		const inputAtTheEndPhase = getStateTensor([replayMemory.sample(1)[0][0]], 22, 15, players[0].channels);
 
 		controlledAgent[0].playStep(0);
 		//console.log(replayMemory.length)
@@ -120,7 +120,7 @@ describe('game agent', () => {
 		//gameAgent.trainOnReplayBatch(batchSize, gamma, optimizer);
 
 
-		const input = getStateTensor([replayMemory.sample(1)[0][0]], 44, 30, players[0].channels);
+		const input = getStateTensor([replayMemory.sample(1)[0][0]], 22, 15, players[0].channels);
 		expect(gameAgent.onlineNetwork.predict(inputAtTheEndPhase).argMax(-1).dataSync()[0]).toBe(26);
 		expect(gameAgent.onlineNetwork.predict(input).argMax(-1).dataSync()[0]).toBe(26);
 
