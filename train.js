@@ -5,7 +5,6 @@ import { GameAgent } from './agents/game-agent0.1.js';
 import { TestAgent } from './agents/test-agent.js';
 import { getTF } from './dqn/utils.js';
 import { ReplayMemory } from './dqn/replay_memory.js';
-import { ReplayMemoryByAction } from './environment/replay-memory-by-action.js';
 import { copyWeights } from './dqn/dqn.js';
 import shelljs from 'shelljs';
 import { sendDataToTelegram, sendMesage } from './visualization/utils.js';
@@ -39,7 +38,7 @@ class MovingAverager {
 
 const replayBufferSize = 1e4;
 const batchSize = 64;
-const gamma = 0.99;
+const gamma = 0.2;
 const learningRate = 1e-3;
 const savePath = './models/dqn';
 const syncEveryFrames = 1e3;
@@ -51,7 +50,7 @@ const rewardAverager100Len = 100;
 async function train(nn) {
 	const env = new Warhammer();
 	let players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
-	const replayMemory = new ReplayMemoryByAction(players[0], replayBufferSize);
+	const replayMemory = new ReplayMemory(replayBufferSize);
 	fillReplayMemory(env, replayMemory);
 
 	const agents = [new GameAgent(players[0], { nn: nn ?? undefined, replayMemory }), new RandomAgent(players[1])];
