@@ -170,8 +170,7 @@ export class Warhammer {
 	getPlayer() { return this.turn % 2; }
 
 	done() {
-		const ids = this.models.filter(model => !model.dead).map(model => model.playerId);
-		return this.turn > 9 || Math.min(...ids) === Math.max(...ids);
+		return this.turn > 9;
 	}
 	end() {
 		this.turn = 10;

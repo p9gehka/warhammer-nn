@@ -74,16 +74,13 @@ export class PlayerEnvironment {
 			this.env.end();
 		}
 
-		if (action !== Action.Select) {
-			state = this.env.step(playerOrder);
-			const { vp } = state.players[this.playerId];
-			reward = vp - this.vp;
-			this.vp = vp;
-		} else {
-			state = this.env.getState();
-		}
+		state = this.env.step(playerOrder);
+		const { vp } = state.players[this.playerId];
+		reward = vp - this.vp;
+		this.vp = vp;
 
-		if (playerOrder.action === Action.Move && eq(prevState.models[this._selectedModel], state.models[this._selectedModel])
+		if (
+			state.models[this._selectedModel] === null || (playerOrder.action === Action.Move && eq(prevState.models[this._selectedModel], state.models[this._selectedModel]))
 		) {
 			reward--;
 		} else {

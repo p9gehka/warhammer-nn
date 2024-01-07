@@ -25,7 +25,7 @@ describe('game agent', () => {
 		nn[1] = await tf.loadLayersModel(fileName);
 		env = new Warhammer({ gameSettings, battlefields });
 		const env2Models = [...gameSettings.models];
-		env2Models[0] = [0, 0]
+		env2Models[0] = [5, 5]
 		env2 = new Warhammer({ gameSettings: { ...gameSettings, models: env2Models }, battlefields });
 		optimizer = tf.train.adam(1e-3);
 	});
@@ -64,68 +64,69 @@ describe('game agent', () => {
 		const replayMemory = new ReplayMemory(2);
 		const players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)]
 		const controlledAgent = [new ControlledAgent(players[0], { replayMemory }), new ControlledAgent(players[1])];
-		controlledAgent[0].playStep(0);
-		const inputAtTheEndPhase = getStateTensor([players[0].getInput()], 22, 15, players[0].channels);
-		controlledAgent[0].playStep(0);
-		controlledAgent[1].playStep(0);
-		controlledAgent[1].playStep(0);
-		const input = getStateTensor([players[0].getInput()], 22, 15, players[0].channels); /* state */
-		controlledAgent[0].playStep(0);
-		controlledAgent[0].playStep(0); /* save to replay memory reward with 11 */
-
-		//console.log(replayMemory.sample(1))
 		const gameAgent = new GameAgent(players[0], { nn, replayMemory });
-		const gamma = 0.99
-		expect(Math.round(gameAgent.onlineNetwork.predict(inputAtTheEndPhase).dataSync()[0])).not.toBe(10, 12);
-		expect(Math.round(gameAgent.onlineNetwork.predict(input).dataSync()[0])).not.toBe(10, 12);
-		for (let i = 0; i <= 100; i++) {
-			console.log('****', i)
-			console.log(gameAgent.onlineNetwork.predict(inputAtTheEndPhase).dataSync()[0]);
-			console.log(gameAgent.onlineNetwork.predict(input).dataSync()[0]);
-			gameAgent.trainOnReplayBatch(2,gamma, optimizer);
-			if(i % 100 === 30) {
+		let input = getStateTensor([players[0].getInput()], 22, 15, players[0].channels);
+		expect(gameAgent.onlineNetwork.predict(input).argMax(-1).dataSync()[0]).not.toBe(0);
+		[1,2,3].forEach(() => {
+			controlledAgent[0].playStep(0);
+			controlledAgent[1].playStep(0);
+		});
+
+		const gamma = 0.99;
+		for (let i = 0; i <= 15; i++) {
+			gameAgent.trainOnReplayBatch(2, gamma, optimizer);
+			if(i % 100 === 5) {
 				copyWeights(gameAgent.targetNetwork, gameAgent.onlineNetwork);
 			}
 		}
 
-		console.log(Math.round(gameAgent.onlineNetwork.predict(inputAtTheEndPhase).dataSync()[0]));
-		expect(Math.round(gameAgent.onlineNetwork.predict(inputAtTheEndPhase).dataSync()[0])).toBe(1 + 11 * gamma);
-		expect(Math.round(gameAgent.onlineNetwork.predict(input).dataSync()[0])).toBe(11);
+		expect(gameAgent.onlineNetwork.predict(input).argMax(-1).dataSync()[0]).toBe(0);
 	});
 
 	xit('train move to marker', () => {
-		const replayMemory = new ReplayMemory(4);
+		const replayMemory = new ReplayMemory(5);
 		const players = [new PlayerEnvironment(0, env2), new PlayerEnvironment(1, env2)]
 		const controlledAgent = [new ControlledAgent(players[0], { replayMemory }), new ControlledAgent(players[1])];
-		controlledAgent[0].playStep(1);
-		const inputBeforeMove = getStateTensor([players[0].getInput()], 22, 15, players[0].channels);
-		controlledAgent[0].playStep(29);
-		controlledAgent[0].playStep(0);
-		//console.log(replayMemory.buffer[0][0])
-		controlledAgent[0].playStep(0);
-		controlledAgent[1].playStep(0);
-		controlledAgent[1].playStep(0);
-		console.log(players[0].getInput())
-		controlledAgent[0].playStep(0);
-		console.log(replayMemory.sample(1)[0][0])
-
-		const inputAtTheEndPhase = getStateTensor([replayMemory.sample(1)[0][0]], 22, 15, players[0].channels);
-
-		controlledAgent[0].playStep(0);
-		//console.log(replayMemory.length)
-		//console.log(replayMemory.sample(4))
-
-
 		const gameAgent = new GameAgent(players[0], { nn, replayMemory });
-		//gameAgent.trainOnReplayBatch(batchSize, gamma, optimizer);
+		let input = getStateTensor([players[0].getInput()], 22, 15, players[0].channels);
 
+		/*
+			Write Next phase with small reward
+		*/
+		[1,2,3].forEach(() => {
+			controlledAgent[0].playStep(0);
+			controlledAgent[1].playStep(0);
+		});
 
-		const input = getStateTensor([replayMemory.sample(1)[0][0]], 22, 15, players[0].channels);
-		expect(gameAgent.onlineNetwork.predict(inputAtTheEndPhase).argMax(-1).dataSync()[0]).toBe(26);
-		expect(gameAgent.onlineNetwork.predict(input).argMax(-1).dataSync()[0]).toBe(26);
+		env2.reset();
+		controlledAgent.forEach(a => a.reset());
 
-		gameAgent.trainOnReplayBatch(3, 0.99, optimizer);
-		expect(gameAgent.onlineNetwork.predict(inputAtTheEndPhase).argMax(-1).dataSync()[0]).toBe(0);
-		expect(gameAgent.onlineNetwork.predict(input).argMax(-1).dataSync()[0]).toBe(0);
+		/*
+			Move to marker
+		*/
+		controlledAgent[0].playStep(28);
+		controlledAgent[0].playStep(0);
+		controlledAgent[1].playStep(0);
+		let input2 = getStateTensor([players[0].getInput()], 22, 15, players[0].channels);
+		[1,2].forEach(() => {
+			controlledAgent[0].playStep(0);
+			controlledAgent[1].playStep(0);
+		});
+
+		/*
+			Train
+		*/
+		const gamma = 0.99;
+		for (let i = 0; i <= 1000; i++) {
+			gameAgent.trainOnReplayBatch(2, gamma, optimizer);
+			if(i % 100 === 5) {
+				copyWeights(gameAgent.targetNetwork, gameAgent.onlineNetwork);
+			}
+		}
+
+		env2.reset();
+		controlledAgent.forEach(a => a.reset());
+		expect(gameAgent.onlineNetwork.predict(input).argMax(-1).dataSync()[0]).toBe(28);
+		expect(gameAgent.onlineNetwork.predict(input2).argMax(-1).dataSync()[0]).toBe(0);
 	});
 });

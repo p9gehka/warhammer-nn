@@ -37,15 +37,15 @@ class MovingAverager {
 	}
 }
 
-const replayBufferSize = 4e4;
+const replayBufferSize = 1e4;
 const batchSize = 64;
 const gamma = 0.99;
 const learningRate = 1e-3;
 const savePath = './models/dqn';
 const syncEveryFrames = 1e3;
-const cumulativeRewardThreshold = 42;
-const sendMessageEveryFrames = 1e3;
-const rewardAverager100Len = 10;
+const cumulativeRewardThreshold = 20;
+const sendMessageEveryFrames = 3e5;
+const rewardAverager100Len = 100;
 
 
 async function train(nn) {
