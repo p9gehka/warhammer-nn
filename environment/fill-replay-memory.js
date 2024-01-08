@@ -1,5 +1,5 @@
 import { PlayerEnvironment } from './player-environment.js';
-import { RandomAgent } from '../agents/random-agent0.1.js';
+import { RandomAgent } from '../agents/random-agent0.2.js';
 
 export function fillReplayMemory(env, replayMemory, agents) {
 	if (agents === undefined) {
