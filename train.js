@@ -1,6 +1,7 @@
 import { Warhammer, } from './environment/warhammer.js';
 import { PlayerEnvironment, Action } from './environment/player-environment.js';
 import { RandomAgent } from './agents/random-agent0.1.js';
+import { DumbAgent } from './agents/dumb-agent.js';
 import { GameAgent } from './agents/game-agent0.1.js';
 import { TestAgent } from './agents/test-agent.js';
 import { getTF } from './dqn/utils.js';
@@ -53,7 +54,7 @@ async function train(nn) {
 	const replayMemory = new ReplayMemory(replayBufferSize);
 	fillReplayMemory(env, replayMemory);
 
-	const agents = [new GameAgent(players[0], { nn: nn ?? undefined, replayMemory }), new RandomAgent(players[1])];
+	const agents = [new GameAgent(players[0], { nn: nn ?? undefined, replayMemory }), new DumbAgent(players[1])];
 
 	agents[0].onlineNetwork.summary()
 	players[0].frameCount = 0;

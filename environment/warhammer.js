@@ -124,12 +124,6 @@ export class Warhammer {
 				this.turn++;
 			}
 			this.phase = phaseOrd[(this.phase + 1) % phaseOrd.length];
-			this.models.forEach(model => {
-				const [x, y] = model.position;
-				if (x < 0 || this.battlefield.size[0] < x || y < 0 || this.battlefield.size[1] < y) {
-					model.kill();
-				}
-			});
 		}
 
 		const currentPlayerId = this.getPlayer();
@@ -162,6 +156,12 @@ export class Warhammer {
 					model.update(newPosition);
 				}
 			}
+			this.models.forEach(model => {
+				const [x, y] = model.position;
+				if (x < 0 || this.battlefield.size[0] < x || y < 0 || this.battlefield.size[1] < y) {
+					model.kill();
+				}
+			});
 		}
 
 		return this.getState();
@@ -170,7 +170,8 @@ export class Warhammer {
 	getPlayer() { return this.turn % 2; }
 
 	done() {
-		return this.turn > 9;
+		const ids = this.models.filter(model => !model.dead).map(model => model.playerId);
+		return this.turn > 9 || new Set(ids).size === 1;
 	}
 	end() {
 		this.turn = 10;
