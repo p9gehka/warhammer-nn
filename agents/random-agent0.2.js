@@ -11,19 +11,11 @@ export class RandomAgent {
 		this.game = game;
 		this.replayMemory = replayMemory;
 	}
-	getOrderIndex() {
-		const { orders } = this.game;
-		const input = this.game.getInput();
-
-
-		if (input[Channel1Name.SelfModelAvailableToMove].length === 0) {
-			return orders.nextPhaseIndex;
-		}
-
-		return orders.moveIndexes[getRandomInteger(0, orders.moveIndexes.length)];
+	getOrderRandomIndex() {
+		return getRandomInteger(0, this.game.orders.all.length);
 	}
 	playStep() {
-		const orderIndex = this.getOrderIndex();
+		const orderIndex = this.getOrderRandomIndex();
 		const order = this.game.orders.all[orderIndex];
 		const input = this.game.getInput();
 		if (this.prevState !== null) {

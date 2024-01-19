@@ -1,11 +1,11 @@
 import { Warhammer, } from './environment/warhammer.js';
 import { PlayerEnvironment, Action } from './environment/player-environment.js';
 import { RandomAgent } from './agents/random-agent0.1.js';
+import { DumbAgent } from './agents/dumb-agent.js';
 import { GameAgent } from './agents/game-agent0.1.js';
 import { TestAgent } from './agents/test-agent.js';
 import { getTF } from './dqn/utils.js';
 import { ReplayMemory } from './dqn/replay_memory.js';
-import { ReplayMemoryByAction } from './environment/replay-memory-by-action.js';
 import { copyWeights } from './dqn/dqn.js';
 import shelljs from 'shelljs';
 import { sendDataToTelegram, sendMesage } from './visualization/utils.js';
@@ -37,23 +37,24 @@ class MovingAverager {
 	}
 }
 
-const replayBufferSize = 2e4;
-const batchSize = 16;
-const gamma = 0.99;
+const replayBufferSize = 1e4;
+const batchSize = 64;
+const gamma = 0.2;
 const learningRate = 1e-3;
 const savePath = './models/dqn';
-const cumulativeRewardThreshold = 42;
-const syncEveryFrames = 6e3;
-const sendMessageEveryFrames = 1e3;
+const syncEveryFrames = 1e3;
+const cumulativeRewardThreshold = 20;
+const sendMessageEveryFrames = 3e4;
 const rewardAverager100Len = 100;
+
 
 async function train(nn) {
 	const env = new Warhammer();
 	let players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
-	const replayMemory = new ReplayMemoryByAction(players[0], replayBufferSize);
+	const replayMemory = new ReplayMemory(replayBufferSize);
 	fillReplayMemory(env, replayMemory);
 
-	const agents = [new GameAgent(players[0], { nn: nn ?? undefined, replayMemory }), new RandomAgent(players[1])];
+	const agents = [new GameAgent(players[0], { nn: nn ?? undefined, replayMemory }), new DumbAgent(players[1])];
 
 	agents[0].onlineNetwork.summary()
 	players[0].frameCount = 0;
@@ -78,7 +79,6 @@ async function train(nn) {
 		frameCount = players[0].frameCount + players[1].frameCount;
 		if (state.done) {
 			agents.forEach(agent => agent.awarding());
-
 			const currentFrameCount = frameCount - frameCountPrev; 
 			const currentT = new Date().getTime();
 			const framesPerSecond = currentFrameCount / (currentT - t) * 1e3;
@@ -153,18 +153,18 @@ async function train(nn) {
 
 			env.reset();
 			agents.forEach(agent => agent.reset());
+			/*
 			console.log(
 				rewardAveragerBuffer.buffer.filter(v => v !== null),
 				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
 				`:${JSON.stringify(testActions)}:`
 			)
-			/*
+			*/
 			await sendDataToTelegram(
 				rewardAveragerBuffer.buffer.filter(v => v !== null),
 				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
 				`:${JSON.stringify(testActions)}:`
 			);
-			*/
 		}
 		agents[state.player].trainOnReplayBatch(batchSize, gamma, optimizer);
 		agents[state.player].playStep();

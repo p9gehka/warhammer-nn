@@ -15,37 +15,23 @@ describe('reward', () => {
 	});
 
 	it('count object reward', () => {
-		let state = env.reset();
-		while (true) {
-			state = env.getState();
-			if (state.done) {
-				break;
-			}
-			agents[state.player].playStep(0);
-			agents[state.player].playStep(0);
-		}
-		expect(players[0].cumulativeReward).toBe(50);
-	});
-
-	it('count wipe reward', () => {
 		while (true) {
 			const state = env.getState();
 			if (state.done) {
-				agents.forEach(agent => agent.awarding());
 				break;
 			}
 			agents[state.player].playStep(0);
-			if (state.player === 0) {
-				agents[0].playStep(1);
-				agents[0].playStep(31);
-				agents[0].playStep(2);
-				agents[0].playStep(31);
-			}
-			agents[state.player].playStep(0);
 		}
-		expect(players[0].cumulativeReward).toBe(55);
-		expect(players[1].cumulativeReward).toBe(-50);
+		expect(players[0].cumulativeReward).toBe(25);
 	});
+	it('count move penalty', () => {
+		const state = env.getState();
+		agents[state.player].playStep(3);
+		expect(players[0].cumulativeReward).toBe(1.5);
+		agents[state.player].playStep(5);
+		expect(players[0].cumulativeReward).toBe(0.5);
+	});
+
 	it('count penalty', () => {
 		while (true) {
 			const state = env.getState();
@@ -57,12 +43,9 @@ describe('reward', () => {
 			if (state.player === 0) {
 				agents[0].playStep(1);
 				agents[0].playStep(26);
-				agents[0].playStep(2);
-				agents[0].playStep(27);
 			}
 			agents[state.player].playStep(0);
-			agents[state.player].playStep(0);
 		}
-		expect(players[0].cumulativeReward).toBe(-38);
+		expect(players[0].cumulativeReward).toBe(-12.5);
 	});
 });
