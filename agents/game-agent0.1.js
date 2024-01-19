@@ -24,44 +24,13 @@ export class GameAgent {
 		this.frameCount = 0;
 		this.epsilonInit = epsilonInit ?? 0.5;
 		this.epsilonFinal = epsilonFinal ?? 0.01;
-		this.epsilonDecayFrames = 3e5
+		this.epsilonDecayFrames = 1e6;
 		this.epsilonIncrement_ = (this.epsilonFinal - this.epsilonInit) / this.epsilonDecayFrames;
 		this.epsilon = this.epsilonInit;
 	}
 
-	getAvailableIndexes() {
-		const { orders } = this.game;
-		const input = this.game.getInput();
-		const selected = xy => eq(xy, input[Channel2Name.Selected].at(0));
-
-		if (input[Channel2Name.Selected].length === 0) {
-			return orders.selectIndexes;
-		}
-
-		if (input[Channel1Name.SelfModelAvailableToMove].some(selected)) {
-			return orders.selectAndMoveIndexes;
-		}
-
-		if (input[Channel1Name.SelfModelAvailableToShoot].some(selected)) {
-			return orders.selectAndShootIndexes;
-		}
-
-		if (input[Channel1Name.SelfModelAvailableToMove].length === 0 && input[Channel1Name.SelfModelAvailableToShoot].length === 0) {
-			return [orders.nextPhaseIndex];
-		}
-
-		return orders.selectIndexes;
-}
-
 	getOrderRandomIndex() {
-		const indexes = this.getAvailableIndexes();
-		return indexes[getRandomInteger(0, indexes.length)];
-	}
-
-	getIndexesArgMax() {
-		const indexesArgMax = Array(this.game.orders.all.length).fill(-Infinity);
-		this.getAvailableIndexes().forEach(i => indexesArgMax[i] = 0);
-		return indexesArgMax;
+		return getRandomInteger(0, this.game.orders.all.length);
 	}
 
 	playStep() {
@@ -84,14 +53,9 @@ export class GameAgent {
 		} else {
 			tf.tidy(() => {
 				const inputTensor = getStateTensor([input], height, width, channels);
-				const indexesArgMax = this.getIndexesArgMax();
 				const predictions = this.onlineNetwork.predict(inputTensor);
-				orderIndex = tf.add(predictions, tf.tensor2d(indexesArgMax, [1, 33])).argMax(-1).dataSync()[0];
+				orderIndex = predictions.argMax(-1).dataSync()[0];
 			});
-		}
-
-		if (orderIndex !== orders.nextPhaseIndex && this.prevState !== null && orderIndex === this.prevState[1]) {
-			orderIndex = this.getOrderRandomIndex();
 		}
 
 		order = orders.all[orderIndex];

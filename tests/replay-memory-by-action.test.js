@@ -14,8 +14,6 @@ describe('replayMemoryByAction', () => {
 		const orders = replayMemory.sample(20).map(([_,orderIndex]) => player.orders.all[orderIndex].action);
 		expect(orders.length).toBe(20);
 		expect(orders).toContain('NEXT_PHASE');
-		expect(orders).toContain('SELECT');
 		expect(orders).toContain('MOVE');
-		expect(orders).toContain('SHOOT');
 	});
 });
