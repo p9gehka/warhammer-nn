@@ -21,10 +21,21 @@ export class Orders {
 		this.orders = {
 			nextPhaseIndex: 0,
 			[Action.NextPhase]: [{ action: Action.NextPhase }],
+			[Action.Select]: [],
 			[Action.Move]: [],
+			[Action.Shoot]: [],
+			selectIndexes: [],
 			moveIndexes: [],
+			selectAndMoveIndexes: [],
+			shootIndexes: [],
+			selectAndShootIndexes: [],
 			all: []
 		}
+
+		for (let id of models) {
+			this.orders[Action.Select].push({ action: Action.Select, id });
+		}
+
 
 		for (let distance of distances) {
 			for (let angle of angles) {
@@ -32,13 +43,37 @@ export class Orders {
 			}
 		}
 
-		this.orders.moveIndexes.push(this.orders.nextPhaseIndex)
-		this.orders.all.push(...this.orders[Action.NextPhase]);
+		for (let target of targets) {
+			this.orders[Action.Shoot].push({ action: Action.Shoot, target });
+		}
 
-		this.orders[Action.Move].forEach((order) => {
-			this.orders.moveIndexes.push(this.orders.all.length)
-			this.orders.all.push(order);
-		});
+		this.orders.all.push(...this.orders[Action.NextPhase]);
+		this.orders.selectIndexes.push(this.orders.nextPhaseIndex)
+		this.orders.moveIndexes.push(this.orders.nextPhaseIndex)
+		this.orders.shootIndexes.push(this.orders.nextPhaseIndex)
+		this.orders.selectAndMoveIndexes.push(this.orders.nextPhaseIndex);
+		this.orders.selectAndShootIndexes.push(this.orders.nextPhaseIndex);
+
+		for (let action of [Action.Select, Action.Move, Action.Shoot]){
+			this.orders[action].forEach((order) => {
+				if (action === Action.Select) {
+					this.orders.selectIndexes.push(this.orders.all.length);
+					this.orders.selectAndMoveIndexes.push(this.orders.all.length);
+					this.orders.selectAndShootIndexes.push(this.orders.all.length);
+				}
+
+				if (action === Action.Move) {
+					this.orders.moveIndexes.push(this.orders.all.length)
+					this.orders.selectAndMoveIndexes.push(this.orders.all.length);
+				}
+
+				if (action === Action.Shoot) {
+					this.orders.shootIndexes.push(this.orders.all.length)
+					this.orders.selectAndShootIndexes.push(this.orders.all.length)
+				}
+				this.orders.all.push(order);
+			});
+		}
 		return this.orders;
 	}
 }

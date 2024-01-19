@@ -35,6 +35,7 @@ export async function sendDataToTelegram(rewardAverager, message) {
 	}
 	console.log(`Send value to telegram ${message}`);
 	const rewardAveragerSvg = await createSVG(rewardAverager, 'line');
+
 	const rewardAveragerPNG = await sharp(Buffer.from(rewardAveragerSvg)).toFormat('png').toBuffer();
 
 	await bot?.sendMessage(config.chat_id, message + ':' + os.hostname(), { reply_to_message_id: config.reply_to_message_id });
