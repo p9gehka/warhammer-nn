@@ -46,6 +46,7 @@ class Model extends Drawing {
 	}
 }
 
+const sceneSize = [44, 30];
 export class Battlefield extends Drawing {
 	constructor(ctx, battlefield) {
 		super();
@@ -54,7 +55,7 @@ export class Battlefield extends Drawing {
 	}
 	async init() {
 		return new Promise((resolve) => {
-			this.bg = new Image(...this.battlefield.size);
+			this.bg = new Image(...sceneSize);
 			this.bg.addEventListener('load', resolve)
 			this.bg.src = "image/map.jpg";
 		});
@@ -65,8 +66,15 @@ export class Battlefield extends Drawing {
 	}
 
 	draw() {
-		this.ctx.drawImage(this.bg, 0, 0, ...this.battlefield.size);
+		this.ctx.drawImage(this.bg, 0, 0, ...sceneSize);
+		this.battlefield.size
 		this.ctx.lineWidth = 0.1;
+
+		this.ctx.strokeStyle = "red";
+		this.strokePath(() => {
+			this.ctx.rect(0, 0, ...this.battlefield.size)
+		});
+
 		this.ctx.strokeStyle = "burlywood";
 		this.battlefield.objective_marker.forEach((pos) => {
 			this.strokePath(() => {

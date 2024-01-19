@@ -28,5 +28,7 @@ export class TestAgent {
 		this.game.reset();
 	}
 
-	awarding() {}
+	awarding() {
+		this.game.awarding();
+	}
 }

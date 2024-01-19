@@ -10,6 +10,10 @@ const vpPlayer2Element = document.getElementById('player-2-vp');
 
 ctx.scale(canvas.width / 44, canvas.height / 30);
 
+const battlefield = new Battlefield(ctx, { size: [0, 0], objective_marker: [], ruins: [] });
+await battlefield.init()
+battlefield.draw()
+
 let actionAndStates = [];
 let scene = null
 async function start () {
