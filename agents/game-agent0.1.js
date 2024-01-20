@@ -1,10 +1,7 @@
-
-import { eq } from '../static/utils/vec2.js';
 import { createDeepQNetwork } from '../dqn/dqn.js';
 import { getRandomInteger } from '../static/utils//index.js';
 import { getStateTensor } from './utils.js';
-import { Action, Channel2Name, Channel1Name } from '../environment/player-environment.js';
-import { copyWeights } from '../dqn/dqn.js';
+import { Action } from '../environment/player-environment.js';
 import { getTF  } from '../dqn/utils.js';
 
 let tf = await getTF();

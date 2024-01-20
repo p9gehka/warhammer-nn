@@ -34,18 +34,19 @@ describe('reward', () => {
 
 	it('count penalty', () => {
 		while (true) {
-			const state = env.getState();
+			let state = env.getState();
+
 			if (state.done) {
 				agents.forEach(agent => agent.awarding());
 				break;
 			}
 
 			if (state.player === 0) {
-				agents[0].playStep(1);
-				agents[0].playStep(26);
+				console.log(players[0].cumulativeReward);
+				agents[0].playStep(16);
 			}
 			agents[state.player].playStep(0);
 		}
-		expect(players[0].cumulativeReward).toBe(-12.5);
+		expect(players[0].cumulativeReward).toBe(-24.5);
 	});
 });
