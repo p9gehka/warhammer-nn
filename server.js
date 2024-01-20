@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { Warhammer, Phase } from './environment/warhammer.js';
 import { PlayerEnvironment, Action } from './environment/player-environment.js';
-import { DumbAgent } from './agents/dumb-agent.js';
+import { RandomAgent } from './agents/random-agent0.1.js';
 import { GameAgent } from './agents/game-agent0.1.js';
 import { TestAgent } from './agents/test-agent.js';
 
@@ -13,7 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const savePath = './models/dqn/';
+const savePath = './models/dqn-grey/';
 
 app.use(express.json())
 app.use(express.static(__dirname + '/static'));
@@ -25,7 +25,7 @@ app.post('/play', async (req,res) => {
   const env = new Warhammer();
 
   const players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
-  let agents = [new TestAgent(players[0], { nn: [onlineNetwork] }), new DumbAgent(players[1])]
+  let agents = [new TestAgent(players[0], { nn: [onlineNetwork] }), new RandomAgent(players[1])]
   let state = env.reset();
   agents.forEach(a => a.reset());
   let attempts = 0;

@@ -9,8 +9,8 @@ describe('get state tensor', () => {
 		const env = new Warhammer();
 		const player = new PlayerEnvironment(0, env);
 		const ch = 'SelfModelAvailableToMove';
-		input[ch].push([0, 0]);
-		const stateTensor = getStateTensor([input], 5, 5, player.channels);
-		expect(stateTensor.arraySync()[0][0][0]).toEqual([player.channels[0][ch], 0]);
+		input[ch].push([0, 0])
+		const stateTensor = getStateTensor([input], 44, 30, player.channels);
+		expect(stateTensor.arraySync()[0][0][0]).toEqual([0, player.channels[1][ch], 0]);
 	});
 });
