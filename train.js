@@ -38,7 +38,7 @@ class MovingAverager {
 }
 
 const replayBufferSize = 1e4;
-const batchSize = 64;
+const batchSize = 128;
 const gamma = 0.2;
 const learningRate = 1e-3;
 const savePath = './models/dqn';
@@ -133,7 +133,7 @@ async function train(nn) {
 		}
 		if (frameCount !== null && frameCount % sendMessageEveryFrames === 0 && rewardAveragerBuffer !== null) {
 			const testActions = [];
-			const testAgents = [new TestAgent(players[0], { nn: [agents[0].onlineNetwork] }), new RandomAgent(players[1])]
+			const testAgents = [new TestAgent(players[0], { nn: [agents[0].onlineNetwork] }), new DumbAgent(players[1])]
 			let testAttempst = 0;
 			let testState = env.reset();
 			agents.forEach(agent => agent.reset());

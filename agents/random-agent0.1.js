@@ -1,6 +1,4 @@
-import { eq } from '../static/utils/vec2.js';
-import { Channel2Name, Channel1Name  } from '../environment/player-environment.js';
-
+import { Channel1Name  } from '../environment/player-environment.js';
 import { getRandomInteger } from '../static/utils/index.js';
 
 export class RandomAgent {
@@ -16,7 +14,7 @@ export class RandomAgent {
 		const input = this.game.getInput();
 
 
-		if (input[Channel1Name.SelfModelAvailableToMove].length === 0) {
+		if (input[Channel1Name.Stamina].length === 0) {
 			return orders.nextPhaseIndex;
 		}
 
@@ -30,7 +28,7 @@ export class RandomAgent {
 			this.replayMemory?.append([...this.prevState, false, input]);
 		}
 		const [order_, state, reward] = this.game.step(order);
-		this.prevState = [input, orderIndex, reward]
+		this.prevState = [input, orderIndex, reward];
 		return [order_, state, reward];
 	}
 	awarding() {

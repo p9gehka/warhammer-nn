@@ -1,6 +1,3 @@
-import { eq } from '../static/utils/vec2.js';
-import { Channel2Name, Channel1Name  } from '../environment/player-environment.js';
-
 import { getRandomInteger } from '../static/utils/index.js';
 
 export class RandomAgent {

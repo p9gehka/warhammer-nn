@@ -3,9 +3,8 @@ import tauUnits from '../static/settings/tau-units.json' assert { type: 'json' }
 import tauWeapons from '../static/settings/tau-weapons.json' assert { type: 'json' };
 import battlefields from '../static/settings/battlefields-small.json' assert { type: 'json' };
 
-import { mul, len, sub, add, round, eq } from '../static/utils/vec2.js'
+import { mul, len, sub, add, eq } from '../static/utils/vec2.js'
 import { getRandomInteger } from '../static/utils/index.js';
-
 
 export const Phase = {
 	Movement: 0,
@@ -105,8 +104,8 @@ export class Warhammer {
 	}
 	getRandomStartPosition(exclude) {
 		while(true) {
-			let x1 = getRandomInteger(0, this.battlefield.size[0]);
-			let y1 = getRandomInteger(0, this.battlefield.size[1]);
+			let x1 = getRandomInteger(0, this.battlefield.size[0] - 1);
+			let y1 = getRandomInteger(0, this.battlefield.size[1] - 1);
 			if (!exclude.some(pos => eq([x1, y1], pos))) {
 				return [x1, y1];
 			}
@@ -149,17 +148,15 @@ export class Warhammer {
 			}
 			model.updateAvailableToMove(false);
 
-			if (len(order.vector) > 0) {
-				const movementVector = mul(order.vector, model.unitProfile.m);
-				const newPosition = add(model.position, movementVector);
+			const newPosition = add(model.position, order.vector);
 
-				if (!this.models.some(m => eq(round(m.position), round(newPosition)) && !m.dead)) {
-					model.update(newPosition);
-				}
+			if (!this.models.some(m => eq(m.position, newPosition) && !m.dead)) {
+				model.update(newPosition);
 			}
+
 			this.models.forEach(model => {
 				const [x, y] = model.position;
-				if (x < 0 || this.battlefield.size[0] < x || y < 0 || this.battlefield.size[1] < y) {
+				if (x < 0 || this.battlefield.size[0] <= x || y < 0 || this.battlefield.size[1] <= y) {
 					model.kill();
 				}
 			});

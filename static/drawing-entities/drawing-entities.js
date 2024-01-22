@@ -67,12 +67,22 @@ export class Battlefield extends Drawing {
 
 	draw() {
 		this.ctx.drawImage(this.bg, 0, 0, ...sceneSize);
-		this.battlefield.size
 		this.ctx.lineWidth = 0.1;
 
 		this.ctx.strokeStyle = "red";
 		this.strokePath(() => {
-			this.ctx.rect(0, 0, ...this.battlefield.size)
+			this.ctx.rect(0, 0, ...this.battlefield.size);
+		});
+		this.ctx.fillStyle = '#b4dfb4';
+		this.fillPath(() => {
+			for (let i = 0; i < sceneSize[0]; i++) {
+				for (let ii = 0; ii < sceneSize[1]; ii++) {
+					this.ctx.rect(i - 0.05, ii - 0.05, 0.1, 0.1);
+				}
+			}
+		});
+		this.strokePath(() => {
+			this.ctx.rect(0, 0, ...this.battlefield.size);
 		});
 
 		this.ctx.strokeStyle = "burlywood";
@@ -84,7 +94,7 @@ export class Battlefield extends Drawing {
 					this.battlefield.objective_marker_control_distance,
 					0, 0, 2 * Math.PI
 				);
-			})
+			});
 		});
 
 		this.ctx.strokeStyle = "black";
@@ -93,8 +103,8 @@ export class Battlefield extends Drawing {
 			const [x2, y2] = ruin.at(-1);
 			this.strokePath(() => {
 				this.ctx.rect(x1, y1, Math.max(Math.abs(x1 - x2), 0.5), Math.max(Math.abs(y1 - y2), 0.5));
-			})
-		})
+			});
+		});
 	}
 }
 
@@ -105,8 +115,8 @@ export class Scene extends Drawing {
 	constructor(ctx, state) {
 		super();
 		this.ctx = ctx;
-		this.players = state.players
-		this.units = state.units
+		this.players = state.players;
+		this.units = state.units;
 		this.battlefield = new Battlefield(ctx, state.battlefield);
 		this.models = state.units.map(unit => {
 			return unit.models.map(id => new Model(ctx, unit, state.models[id]));
@@ -118,7 +128,7 @@ export class Scene extends Drawing {
 	}
 	draw() {
 		this.battlefield.draw();
-		this.models.forEach(model => model.draw())
+		this.models.forEach(model => model.draw());
 	}
 	drawOrder(order) {
 		if (order === null) {
@@ -132,12 +142,11 @@ export class Scene extends Drawing {
 			this.ctx.strokeStyle = "orange";
 			this.strokePath(() => {
 				this.ctx.moveTo(...this.models[order.id].position);
-				this.ctx.lineTo(...order.misc.targetPosition)
+				this.ctx.lineTo(...order.misc.targetPosition);
 			});
 		}
 	}
 	updateState(state) {
-
 		state.models.forEach((position, id) => {
 			this.models[id].update(position);
 		})
