@@ -9,6 +9,8 @@ import { fillReplayMemory } from './environment/fill-replay-memory.js';
 import { ReplayMemoryClient } from './replay-memory/replay-memory-client.js';
 import { Trainer } from './dqn/trainer.js';
 
+import { config } from './config.json' assert { type: 'json' };
+
 const tf = await getTF();
 
 const replayBufferSize = 4e4;
@@ -63,8 +65,8 @@ async function main() {
 	if (fs.existsSync(`${savePath}/model.json`)) {
 		console.log(`Loaded from ${savePath}/model.json`)
 		nn = [];
-		nn[0] = await tf.loadLayersModel(`file://${savePath}/model.json`);
-		nn[1] = await tf.loadLayersModel(`file://${savePath}/model.json`);
+		nn[0] = await tf.loadLayersModel(config.loadModelPath);
+		nn[1] = await tf.loadLayersModel(config.loadModelPath);
 	}
 	await train(nn);
 }

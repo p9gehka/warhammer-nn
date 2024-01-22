@@ -27,6 +27,9 @@ app.get('/sample', (req,res) => {
 	res.json({ buffer: replayMemory.sample(batchSize) });
 });
 
+app.get('/model', (req,res) => res.sendFile('static/dqn/model.json', { root: __dirname }));
+app.get('/weight', (req,res) => res.sendFile('static/dqn/weight.bin', { root: __dirname }));
+
 const hostname = '127.0.0.1';
 const port = 3000;
 

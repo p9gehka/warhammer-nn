@@ -12,6 +12,8 @@ import { ReplayMemoryClient } from './replay-memory/replay-memory-client.js';
 import { sendDataToTelegram } from './visualization/utils.js';
 import { MovingAverager } from './moving-averager.js';
 
+import config from './config.json' assert { type: 'json' };
+
 const replayBufferSize = 1e4;
 const savePath = './models/dqn';
 const cumulativeRewardThreshold = 20;
@@ -19,14 +21,30 @@ const sendMessageEveryFrames = 3e4;
 const rewardAverager100Len = 100;
 
 
-async function play(nn) {
+async function play() {
+
+
+
 	const env = new Warhammer();
 	let players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
 	const replayMemory = new ReplayMemoryClient(replayBufferSize);
-	const agents = [new GameAgent(players[0], { nn: nn ?? undefined, replayMemory }), new DumbAgent(players[1])];
+
+	let agents = [new RandomAgent(players[0], { replayMemory }),  new DumbAgent(players[1])]
+
+	async function tryUpdateModel() {
+		try {
+			const nn = [];
+			nn[0] = await tf.loadLayersModel(config.loadModelPath);
+			nn[1] = await tf.loadLayersModel(config.loadModelPath);
+			console.log(`Load model from ${config.loadModelPath} success`);
+			agents[0] = new GameAgent(players[0], { nn, replayMemory });
+		} catch {
+			console.log(`Load model from ${config.loadModelPath} faile`);
+		}
+	}
+	await tryUpdateModel();
 
 	players[0].frameCount = 0;
-	players[1].frameCount = 0;
 
 	let state = env.reset();
 	agents.forEach(agent => agent.reset());
@@ -37,14 +55,15 @@ async function play(nn) {
 	const frameTimeAverager100 = new MovingAverager(100);
 
 	let frameCountPrev = 0;
-	let frameCount = 0;
 	let t = new Date().getTime();
 
 	while (true) {
 		state = env.getState();
-		frameCount = players[0].frameCount + players[1].frameCount;
+		let frameCount = players[0].frameCount;
+
 		if (state.done) {
 			agents.forEach(agent => agent.awarding());
+
 			const currentFrameCount = frameCount - frameCountPrev; 
 			const currentT = new Date().getTime();
 			const framesPerSecond = currentFrameCount / (currentT - t) * 1e3;
@@ -66,7 +85,7 @@ async function play(nn) {
 				`cumulativeReward100=${averageReward100.toFixed(1)}; ` +
 				`(epsilon=${agents[0].epsilon.toFixed(3)}) ` +
 				`(${framesPerSecond.toFixed(1)} frames/s)`);
-			/*
+
 			if (averageReward100 >= cumulativeRewardThreshold) {
 				if (savePath != null) {
 					if (!fs.existsSync(savePath)) {
@@ -88,7 +107,7 @@ async function play(nn) {
 					console.log(`Saved DQN to ${savePath}`);
 				}
 			}
-			*/
+
 			state = env.reset();
 			agents.forEach(agent => agent.reset());
 		}
@@ -133,20 +152,14 @@ async function play(nn) {
 			console.log('Update server buffer');
 			await replayMemory.updateServer();
 			replayMemory.clean();
+			await tryUpdateModel();
 		}
 		agents[state.player].playStep();
 	}
 }
 
 async function main() {
-	let nn = null
-	if (fs.existsSync(`${savePath}/model.json`)) {
-		console.log(`Loaded from ${savePath}/model.json`)
-		nn = [];
-		nn[0] = await tf.loadLayersModel(`file://${savePath}/model.json`);
-		nn[1] = await tf.loadLayersModel(`file://${savePath}/model.json`);
-	}
-	await play(nn);
+	await play();
 }
 
 main();
