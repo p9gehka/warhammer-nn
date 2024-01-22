@@ -1,7 +1,7 @@
 import { getStateTensor } from './utils.js';
-import { getTF  } from '../dqn/utils.js';
+import { getTF } from '../dqn/utils.js';
 import { GameAgent } from './game-agent0.1.js';
-let tf = await getTF();
+const tf = await getTF();
 
 export class TestAgent {
 	constructor(game, config = {}) {

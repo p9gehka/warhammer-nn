@@ -1,31 +1,31 @@
 import { BaseAction, Phase } from './warhammer.js';
-import { round, round2, eq } from '../static/utils/vec2.js';
-import { getStateTensor, Orders } from '../agents/utils.js';
-
+import { eq } from '../static/utils/vec2.js';
+import { getStateTensor } from '../agents/utils.js';
+import {  Orders } from './orders.js';
 
 export const Action = {
 	...BaseAction,
 }
 
-export const Channel1 = {
+export const Channel0 = {
 	Empty: 0,
-	SelfModelAvailableToMove: 0.5,
-	SelfModelNotAvailableToMove: 1,
-};
-
-export const Channel2 = {
-	Empty: 0,
-	Marker: 1,
+	0: 1,
 }
 
-export const Channel1Name = {}, Channel2Name = {};
+export const Channel1 = {
+	Empty: 0,
+	Stamina: 1,
+};
 
+
+export const Channel0Name = {}, Channel1Name = {};
+
+Object.keys(Channel0).forEach(name => Channel0Name[name] = name);
 Object.keys(Channel1).forEach(name => Channel1Name[name] = name);
-Object.keys(Channel2).forEach(name => Channel2Name[name] = name);
 
 export function emptyInput() {
 	const input = {};
-	[...Object.keys(Channel1Name), ...Object.keys(Channel2Name)].forEach(name => {
+	[...Object.keys(Channel0Name), ...Object.keys(Channel1Name)].forEach(name => {
 		if (name === 'Empty') { return; }
 		input[name] = [];
 	});
@@ -35,7 +35,7 @@ export function emptyInput() {
 export class PlayerEnvironment {
 	height = 22;
 	width = 15;
-	channels = [Channel1, Channel2];
+	channels = [Channel0, Channel1];
 	vp = 0;
 	_selectedModel = null;
 	cumulativeReward = 0;
@@ -117,32 +117,28 @@ export class PlayerEnvironment {
 		const battlefield = this.env.battlefield;
 		const input = emptyInput();
 
-		input[Channel2Name.Marker] = battlefield.objective_marker.map(round);
+		state.players.forEach((player, playerId) => {
+			player.models.forEach((gameModelId, playerModelId) => {
+				const xy = state.models[gameModelId]
+				if (xy === null) { return; }
 
-		for (let player of state.players) {
-			for (let unit of player.units) {
-				unit.models.forEach(modelId => {
-					const xy = state.models[modelId]
-					if (xy === null) { return; }
+				let entity = null;
 
-					let entity = null;
-
-					if (unit.playerId === this.playerId) {
-						if (state.phase === Phase.Movement) {
-							entity = state.availableToMove.includes(modelId) ?
-								Channel1Name.SelfModelAvailableToMove : Channel1Name.SelfModelNotAvailableToMove;
-						}
+				if (playerId === this.playerId) {
+					input[playerModelId] = [xy];
+					if (state.phase === Phase.Movement && state.availableToMove.includes(gameModelId)) {
+						entity = Channel1Name.Stamina;
 					}
+				}
 
-					if (entity !== null) {
-						if (input[entity] === undefined) {
-							input[entity] = [];
-						}
-						input[entity].push(round(xy))
+				if (entity !== null) {
+					if (input[entity] === undefined) {
+						input[entity] = [];
 					}
-				});
-			}
-		}
+					input[entity].push(xy)
+				}
+			});
+		})
 
 		return input;
 	}
@@ -154,14 +150,13 @@ export class PlayerEnvironment {
 		console.log('************************')
 		for (const line of stateTensor.arraySync()[0]) {
 			console.log(line.map((ch) => {
-				const [ch1, ch2] = round2(ch);
+				const [ch0, ch1] = ch;
 				if(ch1 !== 0) {
 					return {
-						[Channel1.SelfModelNotAvailableToMove]: 'm',
-						[Channel1.SelfModelAvailableToMove]: 'M',
+						[Channel1Name.Stamina]: 'M',
 					}[ch1]
-				} else if (ch2 !== 0) {
-					return { [Channel2.Marker]: '*' }[ch2s]
+				} else if (c0 !== 0) {
+					return c0
 				} else {
 					return '.';
 				}
@@ -170,6 +165,6 @@ export class PlayerEnvironment {
 	}
 	loose() {
 		const player = this.env.players[this.playerId];
-		return player.models.every(modelId => this.env.models[modelId].dead);
+		return player.models.every(gameModelId => this.env.models[gameModelId].dead);
 	}
 }
