@@ -11,19 +11,24 @@ import { Trainer } from './dqn/trainer.js';
 
 const tf = await getTF();
 
-const replayBufferSize = 1e4;
+const replayBufferSize = 4e4;
 const batchSize = 64;
 const gamma = 0.2;
 const learningRate = 1e-3;
 const savePath = './models/dqn';
 const syncEveryEpoch = 1e3;
-const saveEveryEpoch = 1e3;
+const saveEveryEpoch = 5;
 
 async function train(nn) {
 	const env = new Warhammer();
 	const game = new PlayerEnvironment(0, env);
 	const replayMemory = new ReplayMemoryClient(replayBufferSize);
-	fillReplayMemory(env, replayMemory);
+
+	await replayMemory.updateClient();
+	if (replayMemory.length < replayBufferSize) {
+		fillReplayMemory(env, replayMemory);
+	}
+
 	const trainer = new Trainer(game, { nn: nn ?? undefined, replayMemory });
 	trainer.onlineNetwork.summary();
 
@@ -46,6 +51,7 @@ async function train(nn) {
 				await trainer.onlineNetwork.save(`file://${savePath}`);
 				console.log(`Saved DQN to ${savePath}`);
 			}
+			await replayMemory.updateClient();
 		}
 
 		epoch++;

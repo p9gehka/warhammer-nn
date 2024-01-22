@@ -18,6 +18,7 @@ export class Trainer {
 			throw new Error(`trainOnReplayBatch without replayMemory`);
 		}
 		const batch = this.replayMemory.sample(batchSize);
+
 		const lossFunction = () => tf.tidy(() => {
 			const stateTensor = getStateTensor(batch.map(example => example[0]), height, width, channels);
 			const actionTensor = tf.tensor1d(batch.map(example => example[1]), 'int32');

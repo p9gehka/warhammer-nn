@@ -26,6 +26,7 @@ Object.keys(Channel2).forEach(name => Channel2Name[name] = name);
 export function emptyInput() {
 	const input = {};
 	[...Object.keys(Channel1Name), ...Object.keys(Channel2Name)].forEach(name => {
+		if (name === 'Empty') { return; }
 		input[name] = [];
 	});
 	return input;
@@ -172,4 +173,3 @@ export class PlayerEnvironment {
 		return player.models.every(modelId => this.env.models[modelId].dead);
 	}
 }
-

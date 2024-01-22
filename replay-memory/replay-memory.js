@@ -21,7 +21,11 @@ export class ReplayMemory {
       this.bufferIndices_.push(i);
     }
   }
-
+  clean() {
+    this.buffer = [];
+    this.length = 0;
+    this.index = 0;
+  }
   /**
    * Append an item to the replay buffer.
    *

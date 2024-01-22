@@ -1,6 +1,7 @@
 import { ReplayMemory } from './replay-memory.js';
 
-const serverAddress = '127.0.0.1:3030';
+const serverAddress = '127.0.0.1:3000';
+
 export class ReplayMemoryClient {
 	constructor(maxLen) {
 		this.memory = new ReplayMemory(maxLen);
@@ -14,20 +15,37 @@ export class ReplayMemoryClient {
 	sample(batchSize) {
 		return this.memory.sample(batchSize);
 	}
+	clean() {
+		this.memory.clean();
+		this.length = 0;
+	}
 
 	async updateServer() {
-		const response = await fetch('http://${serverAddress}/append', {
-			method: 'POST',
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ memory: this.memory }),
-		});
+		try {
+			const response = await fetch(`http://${serverAddress}/append`, {
+				method: 'POST',
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ buffer: this.memory.buffer }),
+			});
+		} catch (e) {
+			console.log(e.message);
+		}
 	}
 
 	async updateClient() {
-		const response = await fetch('http://${serverAddress}/sample', {
-			method: 'GET',
-			headers: { "Content-Type": "application/json" },
-		});
-		this.memory = response.json();
+		try {
+			const response = await fetch(`http://${serverAddress}/sample?batchSize=${this.maxLen}`, {
+				method: 'GET',
+				headers: { "Content-Type": "application/json" },
+			});
+			const data = await response.json()
+			if (data.buffer.length === this.maxLen) {
+				this.memory.buffer = data.buffer;
+				this.length = this.maxLen
+			}
+		} catch (e) {
+			console.log(e.message);
+		}
 	}
 }
+
