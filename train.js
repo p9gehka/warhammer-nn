@@ -17,8 +17,6 @@ const replayBufferSize = 4e4;
 const batchSize = 64;
 const gamma = 0.2;
 const learningRate = 1e-3;
-const syncEveryEpoch = 1e3;
-const saveEveryEpoch = 5;
 
 async function train(nn) {
 	const env = new Warhammer();
@@ -39,12 +37,12 @@ async function train(nn) {
 	while (true) {
 		trainer.trainOnReplayBatch(batchSize, gamma, optimizer);
 		console.log(`epoch: ${epoch}`);
-		if (epoch % syncEveryEpoch === 0) { /* sync не произойдет */
+		if (epoch % config.syncEveryEpoch === 0) { /* sync не произойдет */
 			copyWeights(trainer.targetNetwork, trainer.onlineNetwork);
 			console.log('Sync\'ed weights from online network to target network');
 		}
 
-		if (epoch % saveEveryEpoch === 0) {
+		if (epoch % config.saveEveryEpoch === 0) {
 			if (!fs.existsSync(config.savePath)) {
 				shelljs.mkdir('-p', config.savePath);
 			}

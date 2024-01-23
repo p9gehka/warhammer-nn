@@ -1,5 +1,10 @@
 {
 	"memoryAddress": "",
 	"loadPath": "",
-	"savePath": ""
+	"savePath": "",
+
+
+
+	"syncEveryEpoch": 1e2,
+	"saveEveryEpoch": 1e2
 }
