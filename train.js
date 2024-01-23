@@ -62,8 +62,8 @@ async function main() {
 	if (fs.existsSync(`${config.savePath}/model.json`)) {
 		console.log(`Loaded from ${config.savePath}/model.json`)
 		nn = [];
-		nn[0] = await tf.loadLayersModel(config.savePath);
-		nn[1] = await tf.loadLayersModel(config.savePath);
+		nn[0] = await tf.loadLayersModel(`${config.savePath}/model.json`);
+		nn[1] = await tf.loadLayersModel(`${config.savePath}/model.json`);
 	}
 	await train(nn);
 }
