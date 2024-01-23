@@ -1,4 +1,5 @@
 import { ReplayMemory } from './replay-memory.js';
+import config from '../config.json' assert { type: 'json' };
 
 const serverAddress = '127.0.0.1:3000';
 
@@ -22,7 +23,7 @@ export class ReplayMemoryClient {
 
 	async updateServer() {
 		try {
-			const response = await fetch(`http://${serverAddress}/append`, {
+			const response = await fetch(`${config.memoryAddress}/append`, {
 				method: 'POST',
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ buffer: this.memory.buffer }),
@@ -34,7 +35,7 @@ export class ReplayMemoryClient {
 
 	async updateClient() {
 		try {
-			const response = await fetch(`http://${serverAddress}/sample?batchSize=${this.maxLen}`, {
+			const response = await fetch(`${config.memoryAddress}/sample?batchSize=${this.maxLen}`, {
 				method: 'GET',
 				headers: { "Content-Type": "application/json" },
 			});

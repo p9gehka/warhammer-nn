@@ -17,7 +17,6 @@ const replayBufferSize = 4e4;
 const batchSize = 64;
 const gamma = 0.2;
 const learningRate = 1e-3;
-const savePath = './models/dqn';
 const syncEveryEpoch = 1e3;
 const saveEveryEpoch = 5;
 
@@ -46,13 +45,11 @@ async function train(nn) {
 		}
 
 		if (epoch % saveEveryEpoch === 0) {
-			if (savePath != null) {
-				if (!fs.existsSync(savePath)) {
-					shelljs.mkdir('-p', savePath);
-				}
-				await trainer.onlineNetwork.save(`file://${savePath}`);
-				console.log(`Saved DQN to ${savePath}`);
+			if (!fs.existsSync(config.savePath)) {
+				shelljs.mkdir('-p', config.savePath);
 			}
+			await trainer.onlineNetwork.save(`file://${config.savePath}`);
+			console.log(`Saved DQN to ${config.savePath}`);
 			await replayMemory.updateClient();
 		}
 
@@ -62,11 +59,11 @@ async function train(nn) {
 
 async function main() {
 	let nn = null
-	if (fs.existsSync(`${savePath}/model.json`)) {
-		console.log(`Loaded from ${savePath}/model.json`)
+	if (fs.existsSync(`${config.savePath}/model.json`)) {
+		console.log(`Loaded from ${config.savePath}/model.json`)
 		nn = [];
-		nn[0] = await tf.loadLayersModel(config.loadModelPath);
-		nn[1] = await tf.loadLayersModel(config.loadModelPath);
+		nn[0] = await tf.loadLayersModel(config.savePath);
+		nn[1] = await tf.loadLayersModel(config.savePath);
 	}
 	await train(nn);
 }

@@ -22,9 +22,6 @@ const rewardAverager100Len = 100;
 
 
 async function play() {
-
-
-
 	const env = new Warhammer();
 	let players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
 	const replayMemory = new ReplayMemoryClient(replayBufferSize);
@@ -34,12 +31,12 @@ async function play() {
 	async function tryUpdateModel() {
 		try {
 			const nn = [];
-			nn[0] = await tf.loadLayersModel(config.loadModelPath);
-			nn[1] = await tf.loadLayersModel(config.loadModelPath);
-			console.log(`Load model from ${config.loadModelPath} success`);
+			nn[0] = await tf.loadLayersModel(config.loadPath);
+			nn[1] = await tf.loadLayersModel(config.loadPath);
+			console.log(`Load model from ${config.loadPath} success`);
 			agents[0] = new GameAgent(players[0], { nn, replayMemory });
 		} catch {
-			console.log(`Load model from ${config.loadModelPath} faile`);
+			console.log(`Load model from ${config.loadPath} faile`);
 		}
 	}
 	await tryUpdateModel();
