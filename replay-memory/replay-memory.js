@@ -1,4 +1,4 @@
-import * as tf from '@tensorflow/tfjs-node';
+const tf = await getTF();
 
 /** Replay buffer for DQN training. */
 export class ReplayMemory {
