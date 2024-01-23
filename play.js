@@ -34,7 +34,7 @@ async function play() {
 			nn[0] = await tf.loadLayersModel(config.loadPath);
 			console.log(`Load model from ${config.loadPath} success`);
 			if (agents[0].onlineNetwork === undefined) {
-				agents[0] = new GameAgent(players[0], { nn, replayMemory });
+				agents[0] = new GameAgent(players[0], { nn, replayMemory, epsilonDecayFrames: config.epsilonDecayFrames });
 			} else {
 				agents[0].onlineNetwork = nn[0]
 			}

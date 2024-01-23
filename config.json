@@ -1,11 +1,12 @@
 {
-	"memoryAddress": "",
-	"loadPath": "",
-	"savePath": "",
-
-
+	"memoryAddress": "http://192.168.0.107:3000",
+	"loadPath": "http://192.168.0.107/dqn-share/model.json",
+	"savePath": "/Users/p9gehka/Hobies/warhammer/warhammer-nn/models/dqn",
 
 	"syncEveryEpoch": 1e2,
 	"saveEveryEpoch": 1e2,
-	"batchSize": 64
+	"batchSize": 64,
+
+
+	"epsilonDecayFrames": 1e6
 }
