@@ -137,8 +137,7 @@ export class PlayerEnvironment {
 					input[entity].push(xy)
 				}
 			});
-		})
-
+		});
 		return input;
 	}
 
@@ -167,4 +166,3 @@ export class PlayerEnvironment {
 		return player.models.every(gameModelId => this.env.models[gameModelId].dead);
 	}
 }
-

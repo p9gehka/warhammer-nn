@@ -4,7 +4,8 @@
   "description": "",
   "main": "start.js",
   "scripts": {
-    "test": "babel-node ./run-tests.js"
+    "test": "babel-node ./run-tests.js",
+    "replay-memory-server": "node ./replay-memory/replay-memory-server"
   },
   "author": "",
   "license": "ISC",

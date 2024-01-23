@@ -1,0 +1,11 @@
+{
+	"memoryAddress": "",
+	"loadPath": "",
+	"savePath": "",
+
+
+
+	"syncEveryEpoch": 1e2,
+	"saveEveryEpoch": 1e2,
+	"batchSize": 64
+}
