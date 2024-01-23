@@ -1,3 +1,5 @@
+import { getTF } from './utils.js';
+
 const tf = await getTF();
 
 /** Replay buffer for DQN training. */
