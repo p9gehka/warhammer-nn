@@ -1,5 +1,6 @@
 import { getTF } from './utils.js';
 import { getStateTensor } from '../agents/utils.js';
+import { createDeepQNetwork } from '../dqn/dqn.js';
 
 const tf = await getTF();
 
