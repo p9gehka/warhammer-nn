@@ -26,7 +26,6 @@ Object.keys(Channel1).forEach(name => Channel1Name[name] = name);
 export function emptyInput() {
 	const input = {};
 	[...Object.keys(Channel0Name), ...Object.keys(Channel1Name)].forEach(name => {
-		if (name === 'Empty') { return; }
 		input[name] = [];
 	});
 	return input;
@@ -138,8 +137,7 @@ export class PlayerEnvironment {
 					input[entity].push(xy)
 				}
 			});
-		})
-
+		});
 		return input;
 	}
 
