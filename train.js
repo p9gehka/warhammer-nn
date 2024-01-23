@@ -9,7 +9,7 @@ import { fillReplayMemory } from './environment/fill-replay-memory.js';
 import { ReplayMemoryClient } from './replay-memory/replay-memory-client.js';
 import { Trainer } from './dqn/trainer.js';
 
-import { config } from './config.json' assert { type: 'json' };
+import config from './config.json' assert { type: 'json' };
 
 const tf = await getTF();
 
