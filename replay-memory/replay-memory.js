@@ -1,4 +1,4 @@
-import { getTF } from './utils.js';
+import { getTF } from '../dqn/utils.js';
 
 const tf = await getTF();
 

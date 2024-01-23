@@ -80,7 +80,7 @@ async function play() {
 			console.log(
 				`Frame #${frameCount}: ` +
 				`cumulativeReward100=${averageReward100.toFixed(1)}; ` +
-				`(epsilon=${agents[0].epsilon.toFixed(3)}) ` +
+				`(epsilon=${agents[0].epsilon?.toFixed(3)}) ` +
 				`(${framesPerSecond.toFixed(1)} frames/s)`);
 
 			if (averageReward100 >= cumulativeRewardThreshold) {
@@ -88,7 +88,7 @@ async function play() {
 					if (!fs.existsSync(savePath)) {
 						shelljs.mkdir('-p', savePath);
 					}
-					await agents[0].onlineNetwork.save(`file://${savePath}`);
+					await agents[0].onlineNetwork?.save(`file://${savePath}`);
 					console.log(`Saved DQN to ${savePath}`);
 				}
 				break;
@@ -100,7 +100,7 @@ async function play() {
 					if (!fs.existsSync(savePath)) {
 						shelljs.mkdir('-p', savePath);
 					}
-					await agents[0].onlineNetwork.save(`file://${savePath}`);
+					await agents[0].onlineNetwork?.save(`file://${savePath}`);
 					console.log(`Saved DQN to ${savePath}`);
 				}
 			}
@@ -109,7 +109,7 @@ async function play() {
 			agents.forEach(agent => agent.reset());
 		}
 
-		if (frameCount !== null && frameCount % sendMessageEveryFrames === 0 && rewardAveragerBuffer !== null) {
+		if (agents[0].onlineNetwork !== undefined && frameCount !== null && frameCount % sendMessageEveryFrames === 0 && rewardAveragerBuffer !== null) {
 			const testActions = [];
 			const testAgents = [new TestAgent(players[0], { nn: [agents[0].onlineNetwork] }), new DumbAgent(players[1])]
 			let testAttempst = 0;
@@ -134,13 +134,13 @@ async function play() {
 			/*
 			console.log(
 				rewardAveragerBuffer.buffer.filter(v => v !== null),
-				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
+				`Frame #${frameCount}::Epsilon ${agents[0].epsilon?.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
 				`:${JSON.stringify(testActions)}:`
 			)
 			*/
 			await sendDataToTelegram(
 				rewardAveragerBuffer.buffer.filter(v => v !== null),
-				`Frame #${frameCount}::Epsilon ${agents[0].epsilon.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
+				`Frame #${frameCount}::Epsilon ${agents[0].epsilon?.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
 				`:${JSON.stringify(testActions)}:`
 			);
 		}
