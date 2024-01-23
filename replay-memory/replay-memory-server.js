@@ -33,5 +33,5 @@ app.get('/weight', (req,res) => res.sendFile('static/dqn/weight.bin', { root: __
 const port = 3000;
 
 app.listen(port, () => {
-	console.log(`Replay Memory Server running at http://${hostname}:${port}/`);
+	console.log(`Replay Memory Server running`);
 });
