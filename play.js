@@ -32,9 +32,12 @@ async function play() {
 		try {
 			const nn = [];
 			nn[0] = await tf.loadLayersModel(config.loadPath);
-			nn[1] = await tf.loadLayersModel(config.loadPath);
 			console.log(`Load model from ${config.loadPath} success`);
-			agents[0] = new GameAgent(players[0], { nn, replayMemory });
+			if (agents[0].onlineNetwork === undefined) {
+				agents[0] = new GameAgent(players[0], { nn, replayMemory });
+			} else {
+				agents[0].onlineNetwork = nn[0]
+			}
 		} catch {
 			console.log(`Load model from ${config.loadPath} faile`);
 		}
