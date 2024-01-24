@@ -39,7 +39,7 @@ export class Orders {
 				this.orders[Action.Move].push({ action: Action.Move, vector });
 			}
 		});
-		console.log(this.orders[Action.Move])
+
 		this.orders.moveIndexes.push(this.orders.nextPhaseIndex);
 		this.orders.all.push(...this.orders[Action.NextPhase]);
 

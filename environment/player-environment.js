@@ -1,5 +1,5 @@
 import { BaseAction, Phase } from './warhammer.js';
-import { eq } from '../static/utils/vec2.js';
+import { eq, len } from '../static/utils/vec2.js';
 import { getStateTensor } from '../agents/utils.js';
 import { Orders } from './orders.js';
 
@@ -11,15 +11,17 @@ export const Action = {
 
 export const Channel0 = { 0: 1 }
 export const Channel1 = { Stamina: 1 };
+export const Channel2 = { ObjectiveMarker: 1 };
 
-export const Channel0Name = {}, Channel1Name = {};
+export const Channel0Name = {}, Channel1Name = {}, Channel2Name = {};
 
 Object.keys(Channel0).forEach(name => Channel0Name[name] = name);
 Object.keys(Channel1).forEach(name => Channel1Name[name] = name);
+Object.keys(Channel2).forEach(name => Channel2Name[name] = name);
 
 export function emptyInput() {
 	const input = {};
-	[...Object.keys(Channel0Name), ...Object.keys(Channel1Name)].forEach(name => {
+	[...Object.keys(Channel0Name), ...Object.keys(Channel1Name), ...Object.keys(Channel2Name)].forEach(name => {
 		input[name] = [];
 	});
 	return input;
@@ -28,7 +30,8 @@ export function emptyInput() {
 export class PlayerEnvironment {
 	height = 22;
 	width = 15;
-	channels = [Channel0, Channel1];
+	channels = [Channel0, Channel1, Channel2];
+	objectiveMarkerInput = [];
 	vp = 0;
 	_selectedModel = null;
 	cumulativeReward = 0;
@@ -48,6 +51,19 @@ export class PlayerEnvironment {
 		this.vp = 0;
 		this.cumulativeReward = 0;
 		this.phaseStepCounter = 0;
+
+		this.objectiveMarkerInput = [];
+
+		this.env.battlefield.objective_marker.forEach(([x, y]) => {
+			const delta = this.env.battlefield.objective_marker_control_distance;
+			for(let i = -delta; i <= delta; i++) {
+				for(let ii = -delta; ii <= delta; ii++) {
+					if (len([i, ii]) <= delta) {
+						this.objectiveMarkerInput.push([x + i, y + ii]);
+					}
+				}
+			}
+		});
 	}
 
 	step(order) {
@@ -110,6 +126,8 @@ export class PlayerEnvironment {
 		const battlefield = this.env.battlefield;
 		const input = emptyInput();
 
+		input[Channel2Name.ObjectiveMarker] = this.objectiveMarkerInput;
+
 		state.players.forEach((player, playerId) => {
 			player.models.forEach((gameModelId, playerModelId) => {
 				const xy = state.models[gameModelId]
@@ -138,22 +156,9 @@ export class PlayerEnvironment {
 	printStateTensor() {
 		const input = this.getInput();
 		const stateTensor = getStateTensor([input], this.height, this.width, this.channels);
-
-		console.log('************************')
-		for (const line of stateTensor.arraySync()[0]) {
-			console.log(line.map((ch) => {
-				const [ch0, ch1] = ch;
-				if(ch1 !== 0) {
-					return {
-						[Channel1Name.Stamina]: 'M',
-					}[ch1]
-				} else if (c0 !== 0) {
-					return c0
-				} else {
-					return '.';
-				}
-			}).join());
-		}
+		console.log('*************************')
+		console.log(stateTensor.arraySync().map(v => v.map(c=> c.join('|')).join('\n')).join('\n'))
+		console.log('*************************')
 	}
 	loose() {
 		const player = this.env.players[this.playerId];
