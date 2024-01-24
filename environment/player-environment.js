@@ -9,14 +9,8 @@ export const Action = {
 
 //{ Empty: 0 }
 
-export const Channel0 = {
-	0: 1,
-}
-
-export const Channel1 = {
-	Stamina: 1,
-};
-
+export const Channel0 = { 0: 1 }
+export const Channel1 = { Stamina: 1 };
 
 export const Channel0Name = {}, Channel1Name = {};
 
