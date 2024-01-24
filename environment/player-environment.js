@@ -1,19 +1,19 @@
 import { BaseAction, Phase } from './warhammer.js';
 import { eq } from '../static/utils/vec2.js';
 import { getStateTensor } from '../agents/utils.js';
-import {  Orders } from './orders.js';
+import { Orders } from './orders.js';
 
 export const Action = {
 	...BaseAction,
 }
 
+//{ Empty: 0 }
+
 export const Channel0 = {
-	Empty: 0,
 	0: 1,
 }
 
 export const Channel1 = {
-	Empty: 0,
 	Stamina: 1,
 };
 
