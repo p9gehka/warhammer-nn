@@ -4,7 +4,7 @@ import { PlayerEnvironment } from '../environment/player-environment.js';
 import { TestAgent } from '../agents/test-agent.js';
 import { ReplayMemoryByAction } from '../environment/replay-memory-by-action.js';
 import { fillReplayMemory } from '../environment/fill-replay-memory.js';
-import { ReplayMemory } from '../dqn/replay_memory.js';
+import { ReplayMemory } from '../replay-memory/replay-memory.js';
 import { ControlledAgent } from '../agents/controlled-agent.js';
 import { getStateTensor } from '../agents/utils.js';
 import { copyWeights } from '../dqn/dqn.js';

@@ -1,4 +1,4 @@
-import { ReplayMemory } from '../dqn/replay_memory.js';
+import { ReplayMemory } from '../replay-memory/replay-memory.js';
 import { Action } from './player-environment.js';
 
 export class ReplayMemoryByAction {

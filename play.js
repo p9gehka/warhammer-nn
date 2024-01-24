@@ -76,7 +76,7 @@ async function play() {
 
 			const averageReward100 = rewardAverager100.average();
 			if (rewardAveragerBuffer === null) {
-				rewardAveragerBuffer = new MovingAverager(1000);
+				rewardAveragerBuffer = new MovingAverager(config.rewardAveragerBufferLength);
 			}
 
 			rewardAveragerBuffer.append({ frame: frameCount, averageReward: averageReward100});
