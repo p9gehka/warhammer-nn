@@ -68,7 +68,10 @@ async function play() {
 			const currentT = new Date().getTime();
 			const framesPerSecond = currentFrameCount / (currentT - t) * 1e3;
 			const cumulativeReward = players[0].cumulativeReward;
-			frameTimeAverager100.append(framesPerSecond);
+
+			if (Number.isFinite(framesPerSecond)) {
+				frameTimeAverager100.append(framesPerSecond);
+			}
 			rewardAverager100.append(cumulativeReward);
 
 			t = currentT;
