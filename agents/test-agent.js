@@ -22,7 +22,7 @@ export class TestAgent {
 			index = prediction.argMax(-1).dataSync()[0];
 		});
 		const stepResult = this.game.step(this.game.orders.all[index]);
-		return [...stepResult, { index, estimate }];
+		return [...stepResult, { index, estimate: estimate.toFixed(3) }];
 	}
 	reset() {
 		this.game.reset();
