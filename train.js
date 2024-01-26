@@ -15,8 +15,8 @@ const tf = await getTF();
 
 const replayBufferSize = 4e4;
 
-const gamma = 0.2;
-const learningRate = 1e-3;
+const gamma = 0.4;
+const learningRate = 25e-4;
 
 async function train(nn) {
 	const env = new Warhammer();
