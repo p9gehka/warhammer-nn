@@ -1,9 +1,10 @@
-import * as tf from '@tensorflow/tfjs-node';
-
 import { createDeepQNetwork } from '../dqn/dqn.js';
 import { getRandomInteger } from '../static/utils//index.js';
 import { getStateTensor } from './utils.js';
 import { Action } from '../environment/player-environment.js';
+import { getTF } from '../dqn/utils.js';
+
+const tf = await getTF();
 
 export class GameAgent {
 	orders = {};

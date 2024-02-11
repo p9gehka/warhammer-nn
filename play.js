@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import * as tf from '@tensorflow/tfjs-node';
+import * as tfnode from '@tensorflow/tfjs-node';
 import shelljs from 'shelljs';
 
 import { Warhammer } from './environment/warhammer.js';
@@ -11,9 +11,12 @@ import { TestAgent } from './agents/test-agent.js';
 import { ReplayMemoryClient } from './replay-memory/replay-memory-client.js';
 import { sendDataToTelegram } from './visualization/utils.js';
 import { MovingAverager } from './moving-averager.js';
+import { getTF } from './dqn/utils.js';
+import { copyWeights, createDeepQNetwork } from './dqn/dqn.js';
 
 import config from './config.json' assert { type: 'json' };
 
+const tf = getTF();
 const replayBufferSize = 1e4;
 const savePath = './models/dqn';
 const cumulativeRewardThreshold = 20;
@@ -31,15 +34,17 @@ async function play() {
 	async function tryUpdateModel() {
 		try {
 			const nn = [];
-			nn[0] = await tf.loadLayersModel(config.loadPath);
+			const loadedModel = await tfnode.loadLayersModel(config.loadPath);
+			nn[0] = copyWeights(createDeepQNetwork(players[0].orders.all.length, players[0].height, players[0].width, players[0].channels.length), loadedModel);
 			console.log(`Load model from ${config.loadPath} success`);
 			if (agents[0].onlineNetwork === undefined) {
 				agents[0] = new GameAgent(players[0], { nn, replayMemory, epsilonDecayFrames: config.epsilonDecayFrames });
 			} else {
 				agents[0].onlineNetwork = nn[0]
 			}
-		} catch {
+		} catch(e) {
 			console.log(`Load model from ${config.loadPath} faile`);
+			console.log(e.message)
 		}
 	}
 	await tryUpdateModel();
