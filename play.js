@@ -26,7 +26,7 @@ async function play() {
 	let players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
 	const replayMemory = new ReplayMemoryClient(replayBufferSize);
 
-	let agents = [new RandomAgent(players[0], { replayMemory }),  new DumbAgent(players[1])]
+	let agents = [new RandomAgent(players[0], { replayMemory }), new RandomAgent(players[1], { replayMemory })];
 
 	async function tryUpdateModel() {
 		try {
@@ -35,8 +35,10 @@ async function play() {
 			console.log(`Load model from ${config.loadPath} success`);
 			if (agents[0].onlineNetwork === undefined) {
 				agents[0] = new GameAgent(players[0], { nn, replayMemory, epsilonDecayFrames: config.epsilonDecayFrames });
+				agents[1] = new GameAgent(players[1], { nn, replayMemory, epsilonDecayFrames: config.epsilonDecayFrames });
 			} else {
-				agents[0].onlineNetwork = nn[0]
+				agents[0].onlineNetwork = nn[0];
+				agents[1].onlineNetwork = nn[0];
 			}
 		} catch {
 			console.log(`Load model from ${config.loadPath} faile`);

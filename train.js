@@ -13,7 +13,7 @@ import config from './config.json' assert { type: 'json' };
 
 const tf = await getTF();
 
-const replayBufferSize = 4e4;
+const { replayBufferSize } = config;
 
 const gamma = 0.2;
 const learningRate = 1e-3;
@@ -58,10 +58,14 @@ async function train(nn) {
 async function main() {
 	let nn = null
 	if (fs.existsSync(`${config.savePath}/model.json`)) {
-		console.log(`Loaded from ${config.savePath}/model.json`)
 		nn = [];
-		nn[0] = await tf.loadLayersModel(`file://${config.savePath}/model.json`);
-		nn[1] = await tf.loadLayersModel(`file://${config.savePath}/model.json`);
+		try {
+			nn[0] = await tf.loadLayersModel(`file://${config.savePath}/model.json`);
+			nn[1] = await tf.loadLayersModel(`file://${config.savePath}/model.json`);
+			console.log(`Loaded from ${config.savePath}/model.json`);
+		} catch (e) {
+			console.log(e.message);
+		}
 	}
 	await train(nn);
 }

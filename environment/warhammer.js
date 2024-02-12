@@ -52,6 +52,7 @@ class Model {
 		}
 		this.wound === 0;
 		this.dead = true;
+		this.position = [NaN, NaN];
 	}
 }
 
@@ -149,10 +150,7 @@ export class Warhammer {
 			model.updateAvailableToMove(false);
 
 			const newPosition = add(model.position, order.vector);
-
-			if (!this.models.some(m => eq(m.position, newPosition) && !m.dead)) {
-				model.update(newPosition);
-			}
+			model.update(newPosition);
 
 			this.models.forEach(model => {
 				const [x, y] = model.position;
