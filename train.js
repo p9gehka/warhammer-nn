@@ -7,6 +7,7 @@ import { getTF } from './dqn/utils.js';
 import { copyWeights } from './dqn/dqn.js';
 import { fillReplayMemory } from './environment/fill-replay-memory.js';
 import { ReplayMemoryClient } from './replay-memory/replay-memory-client.js';
+import { isLocked } from './replay-memory/lock-api.js';
 import { Trainer } from './dqn/trainer.js';
 
 import config from './config.json' assert { type: 'json' };
@@ -49,6 +50,10 @@ async function train(nn) {
 			await trainer.onlineNetwork.save(`file://${config.savePath}`);
 			console.log(`Saved DQN to ${config.savePath}`);
 			await replayMemory.updateClient();
+			if (await isLocked()) {
+				console.log('Memory locked, train terminated');
+				break;
+			}
 		}
 
 		epoch++;

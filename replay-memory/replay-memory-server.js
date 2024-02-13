@@ -1,19 +1,36 @@
 import express from 'express';
-import { ReplayMemory } from './replay-memory.js';
-
+import { ReplayMemory } from './replay-memory-by-key.js';
+import hash from 'object-hash';
 const replayBufferSize = 4e4;
 const replayMemory = new ReplayMemory(replayBufferSize);
 const app = express();
 
+let locked = false;
 app.use(express.json({ limit: '50mb' }));
 
-app.get('/', (req,res) => res.sendStatus(200));
-app.post('/append', (req,res) => {
-	req.body.buffer.forEach((item) => replayMemory.append(item));
-	console.log(`Memory updated, size: ${replayMemory.length}`)
+app.get('/', (req,res) => {
+	if (locked) {
+		res.sendStatus(423);
+		return;
+	}
 	res.sendStatus(200);
 });
+
+app.post('/append', (req,res) => {
+	if (locked) {
+		res.sendStatus(423);
+		return;
+	}
+	req.body.buffer.forEach((item) => replayMemory.append(item, hash.MD5({ ...item[0], orderIndex: item[1] })));
+	console.log(`Memory updated, size: ${replayMemory.length}`);
+	res.sendStatus(200);
+});
+
 app.get('/sample', (req,res) => {
+	if (locked) {
+		res.sendStatus(423);
+		return;
+	}
 	const batchSize = parseInt(req.query.batchSize);
 
 	if (replayMemory.length !== replayBufferSize) {
@@ -32,6 +49,10 @@ app.get('/weight', (req,res) => res.sendFile('static/dqn/weight.bin', { root: __
 
 const port = 3000;
 
+app.post('/lock', () => {
+	console.log('memory locked');
+	locked = true;
+});
 app.listen(port, () => {
 	console.log(`Replay Memory Server running`);
 });

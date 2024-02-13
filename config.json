@@ -9,6 +9,7 @@
 
 
 	"epsilonDecayFrames": 5e5,
-	"rewardAveragerBufferLength": 1500
+	"rewardAveragerBufferLength": 1500,
+	"replayBufferSize": 4e4
 
 }
