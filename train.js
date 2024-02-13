@@ -16,7 +16,7 @@ const tf = await getTF();
 
 const { replayBufferSize } = config;
 
-const gamma = 0.2;
+const gamma = 0.99;
 const learningRate = 1e-3;
 
 async function train(nn) {
