@@ -12,7 +12,7 @@ export async function lock() {
 }
 
 export async function isLocked() {
-	const response = await fetch(`${config.memoryAddress}/`, {
+	const response = await fetch(`${config.memoryAddress}`, {
 		method: 'GET',
 		headers: { "Content-Type": "application/json" },
 	});
