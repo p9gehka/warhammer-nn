@@ -12,9 +12,13 @@ export async function lock() {
 }
 
 export async function isLocked() {
-	const response = await fetch(`${config.memoryAddress}`, {
-		method: 'GET',
-		headers: { "Content-Type": "application/json" },
-	});
-	return response.status === 423;
+	try {
+		const response = await fetch(`${config.memoryAddress}`, {
+			method: 'GET',
+			headers: { "Content-Type": "application/json" },
+		});
+		return response.status === 423;
+	} catch (e) {
+		console.log(e.message);
+	}
 }
