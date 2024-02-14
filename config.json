@@ -6,7 +6,7 @@
 	"syncEveryEpoch": 1e2,
 	"saveEveryEpoch": 1e2,
 	"batchSize": 64,
-
+	"gamma": 0.3,
 
 	"epsilonDecayFrames": 5e5,
 	"rewardAveragerBufferLength": 1500,

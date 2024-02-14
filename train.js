@@ -14,9 +14,8 @@ import config from './config.json' assert { type: 'json' };
 
 const tf = await getTF();
 
-const { replayBufferSize } = config;
+const { replayBufferSize, gamma } = config;
 
-const gamma = 0.5;
 const learningRate = 1e-3;
 
 async function train(nn) {
