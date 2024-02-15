@@ -91,9 +91,12 @@ export class PlayerEnvironment {
 		if (
 			state.models[this._selectedModel] === null || (playerOrder.action === Action.Move && eq(prevState.models[this._selectedModel], state.models[this._selectedModel]))
 		) {
-			reward-=5;
+			reward--;
 		} else {
-			reward-=0.2;
+			reward++;
+			if (playerOrder.action !== Action.NextPhase) {
+				reward += 0.5;
+			}
 		}
 
 		if (action === Action.NextPhase) {
