@@ -123,21 +123,22 @@ export class Scene extends Drawing {
 			return unit.models.map(id => new Model(ctx, unit, state.models[id]));
 		}).flat();
 	}
+
 	async init() {
 		await this.battlefield.init()
 		this.draw()
 	}
+
 	draw() {
 		this.battlefield.draw();
 		this.models.forEach(model => model.draw());
-
 	}
+
 	drawOrder(order) {
 		if (order === null) {
 			return;
 		}
 		if (order.action === "SHOOT") {
-			
 			if (!this.models[order.id].position || !order?.misc?.targetPosition) {
 				return;
 			}
@@ -148,6 +149,7 @@ export class Scene extends Drawing {
 			});
 		}
 	}
+
 	updateState(state) {
 		state.models.forEach((position, id) => {
 			this.models[id].update(position);
