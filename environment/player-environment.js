@@ -7,16 +7,9 @@ export const Action = {
 	...BaseAction,
 }
 
-export const Channel0 = {
-	Empty: 0,
-	0: 1,
-}
-
-export const Channel1 = {
-	Empty: 0,
-	Stamina: 1,
-};
-
+//{ Empty: 0 }
+export const Channel0 = { 0: 1 }
+export const Channel1 = { Stamina: 1 }
 
 export const Channel0Name = {}, Channel1Name = {};
 
@@ -144,22 +137,9 @@ export class PlayerEnvironment {
 	printStateTensor() {
 		const input = this.getInput();
 		const stateTensor = getStateTensor([input], this.height, this.width, this.channels);
-
-		console.log('************************')
-		for (const line of stateTensor.arraySync()[0]) {
-			console.log(line.map((ch) => {
-				const [ch0, ch1] = ch;
-				if(ch1 !== 0) {
-					return {
-						[Channel1Name.Stamina]: 'M',
-					}[ch1]
-				} else if (c0 !== 0) {
-					return c0
-				} else {
-					return '.';
-				}
-			}).join());
-		}
+		console.log('*************************');
+		console.log(stateTensor.arraySync().map(v => v.map(c=> c.join('|')).join('\n')).join('\n'));
+		console.log('*************************');
 	}
 	loose() {
 		const player = this.env.players[this.playerId];

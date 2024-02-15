@@ -11,12 +11,13 @@ import { TestAgent } from './agents/test-agent.js';
 import { ReplayMemoryClient } from './replay-memory/replay-memory-client.js';
 import { sendDataToTelegram } from './visualization/utils.js';
 import { MovingAverager } from './moving-averager.js';
+import { lock } from './replay-memory/lock-api.js'
 
 import config from './config.json' assert { type: 'json' };
 
 const replayBufferSize = 1e4;
 const savePath = './models/dqn';
-const cumulativeRewardThreshold = 20;
+const cumulativeRewardThreshold = 12;
 const sendMessageEveryFrames = 3e4;
 const rewardAverager100Len = 100;
 
@@ -26,7 +27,7 @@ async function play() {
 	let players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
 	const replayMemory = new ReplayMemoryClient(replayBufferSize);
 
-	let agents = [new RandomAgent(players[0], { replayMemory }),  new DumbAgent(players[1])]
+	let agents = [new RandomAgent(players[0], { replayMemory }), new RandomAgent(players[1], { replayMemory })];
 
 	async function tryUpdateModel() {
 		try {
@@ -35,8 +36,10 @@ async function play() {
 			console.log(`Load model from ${config.loadPath} success`);
 			if (agents[0].onlineNetwork === undefined) {
 				agents[0] = new GameAgent(players[0], { nn, replayMemory, epsilonDecayFrames: config.epsilonDecayFrames });
+				agents[1] = new GameAgent(players[1], { nn, replayMemory, epsilonDecayFrames: config.epsilonDecayFrames });
 			} else {
-				agents[0].onlineNetwork = nn[0]
+				agents[0].onlineNetwork = nn[0];
+				agents[1].onlineNetwork = nn[0];
 			}
 		} catch {
 			console.log(`Load model from ${config.loadPath} faile`);
@@ -90,13 +93,19 @@ async function play() {
 				`(${framesPerSecond.toFixed(1)} frames/s)`);
 
 			if (averageReward100 >= cumulativeRewardThreshold) {
+				await lock();
 				if (savePath != null) {
 					if (!fs.existsSync(savePath)) {
 						shelljs.mkdir('-p', savePath);
 					}
+
 					await agents[0].onlineNetwork?.save(`file://${savePath}`);
 					console.log(`Saved DQN to ${savePath}`);
 				}
+				await sendDataToTelegram(
+					rewardAveragerBuffer.buffer.filter(v => v !== null),
+					`Training done - averageReward100:${averageReward100.toFixed(1)} cumulativeRewardThreshold ${cumulativeRewardThreshold}`
+				);
 				break;
 			}
 

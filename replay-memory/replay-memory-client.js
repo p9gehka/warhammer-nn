@@ -39,14 +39,16 @@ export class ReplayMemoryClient {
 				method: 'GET',
 				headers: { "Content-Type": "application/json" },
 			});
+			if (response.status !== 200) {
+				throw Error('bad response');
+			}
 			const data = await response.json()
 			if (data.buffer.length === this.maxLen) {
 				this.memory.buffer = data.buffer;
-				this.length = this.maxLen
+				this.length = this.maxLen;
 			}
 		} catch (e) {
-			console.log(e.message);
+			console.log('updateClient', e.message);
 		}
 	}
 }
-
