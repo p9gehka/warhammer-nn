@@ -1,13 +1,18 @@
 import config from '../config.json' assert { type: 'json' };
 
 export async function lock() {
-	try {
-		const response = await fetch(`${config.memoryAddress}/lock`, {
-			method: 'POST',
-			headers: { "Content-Type": "application/json" },
-		});
-	} catch (e) {
-		console.log(e.message);
+	const locked = false;
+
+	while(!locked) {
+		try {
+			await fetch(`${config.memoryAddress}/lock`, {
+				method: 'POST',
+				headers: { "Content-Type": "application/json" },
+			});
+			locked = true;
+		} catch (e) {
+			console.log(e.message);
+		}
 	}
 }
 

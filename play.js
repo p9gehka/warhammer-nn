@@ -17,7 +17,8 @@ import config from './config.json' assert { type: 'json' };
 
 const replayBufferSize = 1e4;
 const savePath = './models/dqn';
-const cumulativeRewardThreshold = 12;
+
+const { cumulativeRewardThreshold } = config;
 const sendMessageEveryFrames = 3e4;
 const rewardAverager100Len = 100;
 

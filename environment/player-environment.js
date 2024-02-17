@@ -77,9 +77,10 @@ export class PlayerEnvironment {
 		) {
 			reward--;
 		} else {
-			reward++;
 			if (playerOrder.action !== Action.NextPhase) {
-				reward += 0.5;
+				reward++;
+			} else {
+				reward -= 0.1;
 			}
 		}
 
