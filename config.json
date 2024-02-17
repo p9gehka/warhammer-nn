@@ -8,6 +8,7 @@
 	"batchSize": 64,
 	"gamma": 0.3,
 
+	"cumulativeRewardThreshold": 4,
 	"epsilonDecayFrames": 5e5,
 	"rewardAveragerBufferLength": 1500,
 	"replayBufferSize": 4e4
