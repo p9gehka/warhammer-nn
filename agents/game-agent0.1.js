@@ -65,7 +65,7 @@ export class GameAgent {
 		const nextInput = this.game.getInput();
 		if (this.replayMemory !== null && this.prevState !== null) {
 			const [input, orderIndex] = this.prevState;
-			this.replayMemory?.append([input, orderIndex, reward, true, nextInput]);
+			this.replayMemory?.append([input, orderIndex, reward, this.game.loose(), nextInput]);
 		}
 	}
 	reset() {
