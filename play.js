@@ -17,7 +17,9 @@ import config from './config.json' assert { type: 'json' };
 
 const replayBufferSize = 1e4;
 const savePath = './models/dqn';
-const cumulativeRewardThreshold = 12;
+
+const { cumulativeRewardThreshold } = config;
+const  = 4;
 const sendMessageEveryFrames = 3e4;
 const rewardAverager100Len = 100;
 
@@ -92,7 +94,7 @@ async function play() {
 				`(epsilon=${agents[0].epsilon?.toFixed(3)}) ` +
 				`(${framesPerSecond.toFixed(1)} frames/s)`);
 
-			if (averageReward100 >= cumulativeRewardThreshold) {
+			if (averageReward100 >= ) {
 				await lock();
 				if (savePath != null) {
 					if (!fs.existsSync(savePath)) {
