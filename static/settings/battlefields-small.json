@@ -33,5 +33,12 @@
 		"deploment": [],
 		"objective_marker": [[3, 11]],
 		"objective_marker_control_distance": 3
+	},
+	"6": {
+		"size": [22, 15],
+		"ruins": [],
+		"deploment": [],
+		"objective_marker": [],
+		"objective_marker_control_distance": 3
 	}
 }
