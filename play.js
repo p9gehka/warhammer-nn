@@ -157,7 +157,7 @@ async function play() {
 			*/
 			await sendDataToTelegram(
 				rewardAveragerBuffer.buffer.filter(v => v !== null),
-				`Frame #${frameCount}::Epsilon ${agents[0].epsilon?.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
+				`Frame #${frameCount}::Epsilon ${agents[0].epsilon?.toFixed(3)}::averageReward100Best ${averageReward100Best}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
 				`:${JSON.stringify(testActions)}:`
 			);
 		}
