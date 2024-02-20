@@ -28,7 +28,7 @@ export function emptyInput() {
 
 export class PlayerEnvironment {
 	height = 22;
-	width = 15;
+	width = 22;
 	channels = [Channel0, Channel1, Channel2];
 	objectiveMarkerInput = [];
 	vp = 0;
