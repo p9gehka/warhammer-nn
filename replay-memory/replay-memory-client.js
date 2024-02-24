@@ -22,14 +22,23 @@ export class ReplayMemoryClient {
 	}
 
 	async updateServer() {
-		try {
-			const response = await fetch(`${config.memoryAddress}/append`, {
-				method: 'POST',
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ buffer: this.memory.buffer }),
-			});
-		} catch (e) {
-			console.log(e.message);
+		while(true) {
+			try {
+				console.log('Try update server')
+				const response = await fetch(`${config.memoryAddress}/append`, {
+					method: 'POST',
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ buffer: this.memory.buffer }),
+				});
+				if (response.status !== 200) {
+					console.log('Bad response');
+				} else {
+					console.log('Update success')
+					return;
+				}
+			} catch (e) {
+				console.log(e.message);
+			}
 		}
 	}
 
