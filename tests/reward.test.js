@@ -22,14 +22,14 @@ describe('reward', () => {
 			}
 			agents[state.player].playStep(0);
 		}
-		expect(players[0].cumulativeReward).toBe(25);
+		expect(players[0].cumulativeReward).toBe(19.5);
 	});
 	it('count move penalty', () => {
 		const state = env.getState();
 		agents[state.player].playStep(3);
-		expect(players[0].cumulativeReward).toBe(1.5);
+		expect(players[0].cumulativeReward).toBe(1);
 		agents[state.player].playStep(5);
-		expect(players[0].cumulativeReward).toBe(0.5);
+		expect(players[0].cumulativeReward).toBe(0);
 	});
 
 	it('count penalty', () => {

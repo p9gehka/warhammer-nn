@@ -57,7 +57,7 @@ describe('game agent', () => {
 		for (let player of [0, 1, 0, 1, 0]) {
 			controlledAgent[player].playStep(0);
 		}
-		expect(replayMemory.sample(1)[0][2]).toBe(6);
+		expect(replayMemory.sample(1)[0][2]).toBe(4.9);
 	});
 
 	xit('train next on marker', () => {
