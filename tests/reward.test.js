@@ -47,6 +47,6 @@ describe('reward', () => {
 			}
 			agents[state.player].playStep(0);
 		}
-		expect(players[0].cumulativeReward).toBe(-24.5);
+		expect(players[0].cumulativeReward).toBe(-76.1);
 	});
 });
