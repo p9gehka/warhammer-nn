@@ -2,8 +2,9 @@ import * as fs from 'fs';
 import * as tf from '@tensorflow/tfjs-node';
 import shelljs from 'shelljs';
 
-import { Warhammer } from './environment/warhammer.js';
-import { PlayerEnvironment, Action } from './environment/player-environment.js';
+import { Warhammer } from './static/environment/warhammer.js';
+import { Action } from './static/environment/orders.js';
+import { PlayerEnvironment } from './environment/player-environment.js';
 import { RandomAgent } from './agents/random-agent0.1.js';
 import { DumbAgent } from './agents/dumb-agent.js';
 import { GameAgent } from './agents/game-agent0.1.js';
@@ -16,7 +17,7 @@ import { lock } from './replay-memory/lock-api.js'
 import config from './config.json' assert { type: 'json' };
 
 const replayBufferSize = 1e4;
-const savePath = './models/dqn';
+const savePath = './models/static/dqn/';
 
 const { cumulativeRewardThreshold } = config;
 const sendMessageEveryFrames = 3e4;
@@ -42,7 +43,8 @@ async function play() {
 				agents[0].onlineNetwork = nn[0];
 				agents[1].onlineNetwork = nn[0];
 			}
-		} catch {
+		} catch(e) {
+			console.log(e.message)
 			console.log(`Load model from ${config.loadPath} faile`);
 		}
 	}

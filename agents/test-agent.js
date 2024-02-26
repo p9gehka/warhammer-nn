@@ -1,5 +1,5 @@
-import { getStateTensor } from './utils.js';
-import { getTF } from '../dqn/utils.js';
+import { getStateTensor } from '../static/utils/get-state-tensor.js';
+import { getTF } from '../static/utils/get-tf.js';
 import { GameAgent } from './game-agent0.1.js';
 const tf = await getTF();
 

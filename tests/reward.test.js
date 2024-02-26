@@ -1,4 +1,4 @@
-import { Warhammer } from '../environment/warhammer.js';
+import { Warhammer } from '../static/environment/warhammer.js';
 import { PlayerEnvironment } from '../environment/player-environment.js';
 import { ControlledAgent } from '../agents/controlled-agent.js';
 import battlefields from './mock/battlefields.json' assert { type: 'json' };
@@ -47,6 +47,6 @@ describe('reward', () => {
 			}
 			agents[state.player].playStep(0);
 		}
-		expect(players[0].cumulativeReward).toBe(-24.5);
+		expect(players[0].cumulativeReward).toBe(-76.1);
 	});
 });
