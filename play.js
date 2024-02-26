@@ -17,7 +17,7 @@ import { lock } from './replay-memory/lock-api.js'
 import config from './config.json' assert { type: 'json' };
 
 const replayBufferSize = 1e4;
-const savePath = './models/static/dqn/';
+const savePath = './static/models/dqn/';
 
 const { cumulativeRewardThreshold } = config;
 const sendMessageEveryFrames = 3e4;
@@ -103,7 +103,9 @@ async function play() {
 					}
 
 					await agents[0].onlineNetwork?.save(`file://${savePath}`);
-					console.log(`Saved DQN to ${savePath}`);
+					if (agents[0].onlineNetwork) {
+						console.log(`Saved DQN to ${savePath}`);
+					}
 				}
 				await sendDataToTelegram(
 					rewardAveragerBuffer.buffer.filter(v => v !== null),
