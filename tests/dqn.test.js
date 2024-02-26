@@ -1,7 +1,7 @@
 import tf from '@tensorflow/tfjs-node';
 import { getStateTensor } from '../static/utils/get-state-tensor.js';
 import { createDeepQNetwork } from '../dqn/dqn.js';
-import { Channel1 } from '../environment/player-environment.js';
+import { Channel1 } from '../static/environment/nn-input.js';
 
 describe('dqn', () => {
 	it('getAction', () => {

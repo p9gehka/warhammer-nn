@@ -2,7 +2,6 @@ import tf from '@tensorflow/tfjs-node';
 import { Warhammer } from '../static/environment/warhammer.js';
 import { PlayerEnvironment } from '../environment/player-environment.js';
 import { GameAgent } from '../agents/game-agent0.1.js';
-import { ReplayMemoryByAction } from '../environment/replay-memory-by-action.js';
 import { fillReplayMemory } from '../environment/fill-replay-memory.js';
 import { ReplayMemory } from '../replay-memory/replay-memory.js';
 import { ControlledAgent } from '../agents/controlled-agent.js';

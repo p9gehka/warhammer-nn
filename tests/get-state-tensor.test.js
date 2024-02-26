@@ -1,4 +1,4 @@
-import { emptyInput } from '../environment/player-environment.js';
+import { emptyInput } from '../static/environment/nn-input.js';
 import { getStateTensor } from '../static/utils/get-state-tensor.js';
 import { Warhammer } from '../static/environment/warhammer.js';
 import { PlayerEnvironment } from '../environment/player-environment.js';

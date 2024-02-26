@@ -69,9 +69,9 @@ async function updatePredictions(state) {
 	predictionsList.innerHTML = '';
 	const orders = new Orders().getOrders().all;
 
-	const nnShape = [22, 15];
+	const [_, height, width] = model.input.shape;
 	tf.tidy(() => {
-		const predictions = model.predict(getStateTensor([getInput(state)], ...nnShape, channels)).dataSync();
+		const predictions = model.predict(getStateTensor([getInput(state)], height, width, channels)).dataSync();
 		predictions.forEach((value, i) => {
 			const li = document.createElement("LI");
 			li.innerHTML = [JSON.stringify(orders[i]), value.toFixed(3)].join();
