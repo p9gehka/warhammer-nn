@@ -1,4 +1,4 @@
-import { Warhammer, BaseAction, Phase } from '../environment/warhammer.js';
+import { Warhammer, BaseAction, Phase } from '../static/environment/warhammer.js';
 import battlefields from './mock/battlefields.json' assert { type: 'json' };
 import gameSettings from './mock/game-settings.json' assert { type: 'json' };
 

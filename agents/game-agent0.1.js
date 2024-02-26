@@ -1,9 +1,9 @@
 import * as tf from '@tensorflow/tfjs-node';
 
 import { createDeepQNetwork } from '../dqn/dqn.js';
-import { getRandomInteger } from '../static/utils//index.js';
-import { getStateTensor } from './utils.js';
-import { Action } from '../environment/player-environment.js';
+import { getRandomInteger } from '../static/utils/index.js';
+import { getStateTensor } from '../static/utils/get-state-tensor.js';
+import { Action } from '../static/environment/orders.js';
 
 export class GameAgent {
 	orders = {};
@@ -71,5 +71,13 @@ export class GameAgent {
 	reset() {
 		this.prevState = null;
 		this.game.reset();
+		this.checkSize();
+	}
+	checkSize() {
+		const [_, height, width] = this.onlineNetwork.inputs[0].shape;
+		const [fieldHeight, fieldWidth] = this.game.env.battlefield.size;
+		if (fieldHeight !== height || fieldWidth !== width) {
+			console.warn(`!!!!Map size and Network input are inconsistent: ${[fieldHeight, fieldWidth]} !== ${[height, width]}!!!`)
+		}
 	}
 }

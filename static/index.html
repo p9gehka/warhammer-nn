@@ -1,31 +1,17 @@
 <head>
 	<script type="module" src="index.js"></script>
-	<style>
-		body {
-			display: grid;
-			grid-template-columns: min-content auto;
-			grid-gap: 20px;
-			height: 100vh;
-			overflow: hidden;
-		}
-		.action-list {
-			height: 90vh;
-			overflow: scroll;
-			border: 1px solid grey;
-		}
-		.player-0 {
-			background: rgba(255, 0, 0, 0.2);
-		}
-		.player-1 {
-			background: rgba(0, 0, 255, 0.2);
-		}
-	</style>
+	<link rel="stylesheet" href="index.css">
+	<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
 </head>
 <body>
-	<canvas width="660" height="450" id="canvas"></canvas>
 	<div>
-		<button id="start">Start</button>
+			<canvas width="660" height="450" id="canvas"></canvas>
+			<button id="start">Start</button>
+	</div>
+	<div class="left-panel">
 		<ul id="actions-list" class="action-list">
+		</ul>
+		<ul id="predictions-list" class="predictions-list">
 		</ul>
 	</div>
 </body>

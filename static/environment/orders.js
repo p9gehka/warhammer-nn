@@ -1,24 +1,18 @@
-import { angleToVec2, scaleToLen, round } from '../static/utils/vec2.js';
-import { Action } from './player-environment.js';
-import { getTF } from '../dqn/utils.js';
+import { angleToVec2, round } from '../utils/vec2.js';
+import { BaseAction } from './warhammer.js';
+export const Action = { ...BaseAction }
 
 /* `←``↑``→``↓``↖``↗``↘``↙`*/
 const distances = [1, 2, 3, 6];
 const angles = [0, 90, 180, 270];
-const tf = await getTF();
 
 export class Orders {
 	orders = null;
-	constructor(models, targets) {
-		this.models = Array(models).fill(0).map((v, i) => i);
-		this.targets = Array(targets).fill(0).map((v, i) => i);
-	}
+	constructor() {}
 	getOrders() {
 		if (this.orders !== null) {
 			return this.orders;
 		}
-		const models = this.models;
-		const targets = this.targets;
 		this.orders = {
 			nextPhaseIndex: 0,
 			[Action.NextPhase]: [{ action: Action.NextPhase }],

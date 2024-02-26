@@ -14,7 +14,7 @@
  * limitations under the License.
  * =============================================================================
  */
-import { getTF } from './utils.js';
+import { getTF } from '../static/utils/get-tf.js';
 const tf = await getTF();
 
 export function createDeepQNetwork(numActions, h, w, c) {
