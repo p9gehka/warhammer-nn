@@ -1,12 +1,12 @@
 import tf from '@tensorflow/tfjs-node';
-import { Warhammer } from '../environment/warhammer.js';
+import { Warhammer } from '../static/environment/warhammer.js';
 import { PlayerEnvironment } from '../environment/player-environment.js';
 import { GameAgent } from '../agents/game-agent0.1.js';
 import { ReplayMemoryByAction } from '../environment/replay-memory-by-action.js';
 import { fillReplayMemory } from '../environment/fill-replay-memory.js';
 import { ReplayMemory } from '../replay-memory/replay-memory.js';
 import { ControlledAgent } from '../agents/controlled-agent.js';
-import { getStateTensor } from '../agents/utils.js';
+import { getStateTensor } from '../static/utils/get-state-tensor.js';
 import { copyWeights } from '../dqn/dqn.js';
 
 import battlefields from './mock/battlefields.json' assert { type: 'json' };

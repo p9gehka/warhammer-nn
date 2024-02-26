@@ -1,4 +1,4 @@
-import { Channel1Name  } from '../environment/player-environment.js';
+import { Channel1Name } from '../static/environment/nn-input.js';
 import { getRandomInteger } from '../static/utils/index.js';
 
 export class RandomAgent {

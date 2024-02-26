@@ -1,10 +1,10 @@
-import gameSettings from '../static/settings/game-settings0.1.json' assert { type: 'json' };
-import tauUnits from '../static/settings/tau-units.json' assert { type: 'json' };
-import tauWeapons from '../static/settings/tau-weapons.json' assert { type: 'json' };
-import battlefields from '../static/settings/battlefields-small.json' assert { type: 'json' };
+import gameSettings from '../settings/game-settings0.1.json' assert { type: 'json' };
+import tauUnits from '../settings/tau-units.json' assert { type: 'json' };
+import tauWeapons from '../settings/tau-weapons.json' assert { type: 'json' };
+import battlefields from '../settings/battlefields-small.json' assert { type: 'json' };
 
-import { mul, len, sub, add, eq } from '../static/utils/vec2.js'
-import { getRandomInteger } from '../static/utils/index.js';
+import { mul, len, sub, add, eq } from '../utils/vec2.js'
+import { getRandomInteger } from '../utils/index.js';
 
 export const Phase = {
 	Movement: 0,

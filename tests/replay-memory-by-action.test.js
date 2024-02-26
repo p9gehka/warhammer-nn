@@ -1,5 +1,5 @@
 import { fillReplayMemory } from '../environment/fill-replay-memory.js';
-import { Warhammer } from '../environment/warhammer.js';
+import { Warhammer } from '../static/environment/warhammer.js';
 import { PlayerEnvironment } from '../environment/player-environment.js';
 import { ReplayMemoryByAction } from '../environment/replay-memory-by-action.js';
 

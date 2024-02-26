@@ -1,4 +1,4 @@
-import { Warhammer } from '../environment/warhammer.js';
+import { Warhammer } from '../static/environment/warhammer.js';
 import { PlayerEnvironment, Action } from '../environment/player-environment.js';
 
 describe('getInput', () => {

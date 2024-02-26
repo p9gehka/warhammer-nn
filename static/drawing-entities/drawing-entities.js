@@ -1,4 +1,5 @@
 import tauUnits from '../settings/tau-units.json' assert { type: 'json' };
+import { Orders } from '../environment/orders.js';
 
 const mmToInch = mm => mm / 25.4;
 
@@ -153,7 +154,7 @@ export class Scene extends Drawing {
 	updateState(state) {
 		state.models.forEach((position, id) => {
 			this.models[id].update(position);
-		})
+		});
 
 		this.draw();
 	}

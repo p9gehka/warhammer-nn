@@ -1,0 +1,25 @@
+body {
+	display: grid;
+	grid-template-columns: min-content auto;
+	grid-gap: 20px;
+	height: 100vh;
+	overflow: hidden;
+}
+.action-list, .predictions-list {
+	overflow: scroll;
+	border: 1px solid #cccccc;
+	list-style: none;
+	padding: 8px;
+	margin: 0;
+}
+
+.left-panel {
+	display: grid;
+	height: 100vh;
+}
+.player-0 {
+	background: rgba(255, 0, 0, 0.2);
+}
+.player-1 {
+	background: rgba(0, 0, 255, 0.2);
+}

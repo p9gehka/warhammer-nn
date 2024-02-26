@@ -1,33 +1,13 @@
-import { BaseAction, Phase } from './warhammer.js';
+import { getStateTensor } from '../static/utils/get-state-tensor.js';
+
+import { Orders, Action } from '../static/environment/orders.js';
 import { eq } from '../static/utils/vec2.js';
-import { getStateTensor } from '../agents/utils.js';
-import {  Orders } from './orders.js';
-
-export const Action = {
-	...BaseAction,
-}
-
-//{ Empty: 0 }
-export const Channel0 = { 0: 1 }
-export const Channel1 = { Stamina: 1 }
-
-export const Channel0Name = {}, Channel1Name = {};
-
-Object.keys(Channel0).forEach(name => Channel0Name[name] = name);
-Object.keys(Channel1).forEach(name => Channel1Name[name] = name);
-
-export function emptyInput() {
-	const input = {};
-	[...Object.keys(Channel0Name), ...Object.keys(Channel1Name)].forEach(name => {
-		input[name] = [];
-	});
-	return input;
-}
+import { channels, getInput } from '../static/environment/nn-input.js';
 
 export class PlayerEnvironment {
 	height = 22;
 	width = 15;
-	channels = [Channel0, Channel1];
+	channels = channels;
 	vp = 0;
 	_selectedModel = null;
 	cumulativeReward = 0;
@@ -39,7 +19,7 @@ export class PlayerEnvironment {
 		this.playerId = playerId;
 		this.enemyId = (playerId+1) % 2;
 		this.reset();
-		this.orders = (new Orders(env.players[playerId].models.length, env.players[this.enemyId].models.length)).getOrders()
+		this.orders = new Orders().getOrders();
 		this._selectedModel = this.env.players[this.playerId].models[0];
 	}
 
@@ -98,7 +78,7 @@ export class PlayerEnvironment {
 		let reward = 0;
 
 		if (this.loose()) {
-			reward -= 5 * this.env.objectiveControlReward * this.env.battlefield.objective_marker.length;
+			reward -= 5 * this.env.objectiveControlReward * 3;
 		}
 
 		this.cumulativeReward += reward;
@@ -107,32 +87,7 @@ export class PlayerEnvironment {
 
 	getInput() {
 		const state = this.env.getState();
-		const battlefield = this.env.battlefield;
-		const input = emptyInput();
-
-		state.players.forEach((player, playerId) => {
-			player.models.forEach((gameModelId, playerModelId) => {
-				const xy = state.models[gameModelId]
-				if (xy === null) { return; }
-
-				let entity = null;
-
-				if (playerId === this.playerId) {
-					input[playerModelId] = [xy];
-					if (state.phase === Phase.Movement && state.availableToMove.includes(gameModelId)) {
-						entity = Channel1Name.Stamina;
-					}
-				}
-
-				if (entity !== null) {
-					if (input[entity] === undefined) {
-						input[entity] = [];
-					}
-					input[entity].push(xy)
-				}
-			});
-		});
-		return input;
+		return getInput(state);
 	}
 
 	printStateTensor() {

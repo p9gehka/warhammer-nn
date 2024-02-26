@@ -1,4 +1,4 @@
-import { Action } from '../environment/player-environment.js';
+import { Action } from '../static/environment/orders.js';
 
 export class DumbAgent {
 	constructor(game, config) {

@@ -1,8 +1,12 @@
 import { Battlefield, Scene } from './drawing-entities/drawing-entities.js';
+import { Orders } from './environment/orders.js';
+import { getInput, channels } from '../environment/nn-input.js';
+import { getStateTensor } from '../utils/get-state-tensor.js';
 
 const startBtn = document.getElementById('start');
 const canvas = document.getElementById("canvas")
 const actionsList = document.getElementById("actions-list");
+const predictionsList = document.getElementById("predictions-list");
 
 const ctx = canvas.getContext("2d");
 const vpPlayer1Element = document.getElementById('player-1-vp');
@@ -10,12 +14,14 @@ const vpPlayer2Element = document.getElementById('player-2-vp');
 
 ctx.scale(canvas.width / 44, canvas.height / 30);
 
+const model = await tf.loadLayersModel(`/models/dqn/model.json`)
 const battlefield = new Battlefield(ctx, { size: [0, 0], objective_marker: [], ruins: [] });
 await battlefield.init()
 battlefield.draw()
 
 let actionAndStates = [];
 let scene = null
+
 async function start () {
 	actionsList.innerHTML = '';
 	const response = await fetch('/play', {
@@ -55,8 +61,39 @@ function setState(e) {
 		const [order, state] = actionAndStates[e.target.dataset.indexNumber];
 		scene.updateState(state);
 		scene.drawOrder(order);
+		updatePredictions(state);
 	}
 }
+
+async function updatePredictions(state) {
+	predictionsList.innerHTML = '';
+	const orders = new Orders().getOrders().all;
+
+	const nnShape = [22, 15];
+	tf.tidy(() => {
+		const predictions = model.predict(getStateTensor([getInput(state)], ...nnShape, channels)).dataSync();
+		predictions.forEach((value, i) => {
+			const li = document.createElement("LI");
+			li.innerHTML = [JSON.stringify(orders[i]), value.toFixed(3)].join();
+			predictionsList.appendChild(li);
+		});
+	});
+}
+
 startBtn.addEventListener('click', start);
 actionsList.addEventListener('click', setState);
 actionsList.addEventListener('focus', setState, true);
+actionsList.addEventListener('keydown', (e) => {
+	if (e.key === 'Tab') {
+		const focusableItems = actionsList.querySelectorAll('li[tabindex="0"]');
+		const firstFocusable = focusableItems[0];
+		const lastFocusable = focusableItems[focusableItems.length - 1];
+		if (e.shiftKey && e.target === firstFocusable) {
+			e.preventDefault();
+			lastFocusable.focus();
+		} else if (!e.shiftKey && e.target === lastFocusable) {
+			e.preventDefault();
+			firstFocusable.focus();
+		}
+	}
+});
