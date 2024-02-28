@@ -31,14 +31,14 @@ async function start () {
 	});
 
 	actionAndStates = await response.json();
-	const [,initState] = actionAndStates[0];
+	const [initState] = actionAndStates[0];
 
 	scene = new Scene(ctx, initState);
 	await scene.init();
 
 	let lastRound = 1;
 	let prevPlayer = 'player-0';
-	actionAndStates.forEach(([order, state, reward, nnInfo], i) => {
+	actionAndStates.forEach(([prevState, order, state, reward, nnInfo], i) => {
 		const li = document.createElement("LI");
 		li.classList.add(prevPlayer);
 		prevPlayer = state.player === 0 ? 'player-0': 'player-1';
@@ -58,10 +58,10 @@ async function start () {
 
 function setState(e) {
 	if (e.target.dataset.indexNumber) {
-		const [order, state] = actionAndStates[e.target.dataset.indexNumber];
+		const [prevState, order, state] = actionAndStates[e.target.dataset.indexNumber];
 		scene.updateState(state);
 		scene.drawOrder(order);
-		updatePredictions(state);
+		updatePredictions(prevState);
 	}
 }
 
