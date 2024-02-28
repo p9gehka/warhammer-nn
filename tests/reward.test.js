@@ -1,6 +1,7 @@
 import { Warhammer } from '../static/environment/warhammer.js';
-import { PlayerEnvironment } from '../environment/player-environment.js';
-import { ControlledAgent } from '../agents/controlled-agent.js';
+import { PlayerEnvironment } from '../static/environment/player-environment.js';
+import { ControlledAgent } from '../static/agents/controlled-agent.js';
+
 import battlefields from './mock/battlefields.json' assert { type: 'json' };
 import gameSettings from './mock/game-settings.json' assert { type: 'json' };
 

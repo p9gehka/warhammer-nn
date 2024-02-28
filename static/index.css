@@ -1,25 +1,41 @@
 body {
-	display: grid;
-	grid-template-columns: min-content auto;
-	grid-gap: 20px;
-	height: 100vh;
-	overflow: hidden;
+	margin: 0;
 }
-.action-list, .predictions-list {
+.main {
+	display: grid;
+	grid-template-columns:auto min-content;
+	grid-gap: 20px;
+	overflow: hidden;
+	margin: 0;
+}
+.orders-list, .history-list {
 	overflow: scroll;
 	border: 1px solid #cccccc;
 	list-style: none;
 	padding: 8px;
 	margin: 0;
 }
-
+.orders-list li:hover, .history-list li:hover {
+	cursor: pointer;
+	background-color: #eeeeee;
+}
 .left-panel {
 	display: grid;
 	height: 100vh;
+	grid-template-rows: min-content;
 }
 .player-0 {
 	background: rgba(255, 0, 0, 0.2);
 }
 .player-1 {
 	background: rgba(0, 0, 255, 0.2);
+}
+
+.header {
+	display: grid;
+	grid-template-columns: auto min-content;
+	height: 40px;
+	border-bottom: 1px solid #eeeeee;
+	align-items: center;
+	padding-left: 8px;
 }

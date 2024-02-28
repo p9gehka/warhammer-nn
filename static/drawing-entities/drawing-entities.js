@@ -49,7 +49,7 @@ class Model extends Drawing {
 	}
 }
 
-const sceneSize = [44, 30];
+const sceneSize = [60, 44];
 export class Battlefield extends Drawing {
 	constructor(ctx, battlefield) {
 		super();
