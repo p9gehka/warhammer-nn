@@ -1,6 +1,6 @@
 import { Warhammer } from '../static/environment/warhammer.js';
 import { Action } from '../static/environment/orders.js';
-import { PlayerEnvironment } from '../environment/player-environment.js';
+import { PlayerEnvironment } from '../static/environment/player-environment.js';
 
 describe('getInput', () => {
 	it('getInput', () => {

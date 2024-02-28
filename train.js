@@ -2,10 +2,10 @@ import * as fs from 'fs';
 import shelljs from 'shelljs';
 
 import { Warhammer } from './static/environment/warhammer.js';
-import { PlayerEnvironment } from './environment/player-environment.js';
+import { PlayerEnvironment } from './static/environment/player-environment.js';
 import { getTF } from './static/utils/get-tf.js';
 import { copyWeights } from './dqn/dqn.js';
-import { fillReplayMemory } from './environment/fill-replay-memory.js';
+import { fillReplayMemory } from './replay-memory/fill-replay-memory.js';
 import { ReplayMemoryClient } from './replay-memory/replay-memory-client.js';
 import { isLocked } from './replay-memory/lock-api.js';
 import { Trainer } from './dqn/trainer.js';

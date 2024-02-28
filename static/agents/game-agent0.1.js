@@ -1,21 +1,19 @@
-import * as tf from '@tensorflow/tfjs-node';
+import { getTF } from '../utils/get-tf.js';
 
-import { createDeepQNetwork } from '../dqn/dqn.js';
-import { getRandomInteger } from '../static/utils/index.js';
-import { getStateTensor } from '../static/utils/get-state-tensor.js';
-import { Action } from '../static/environment/orders.js';
+import { getRandomInteger } from '../utils/index.js';
+import { getStateTensor } from '../utils/get-state-tensor.js';
+import { Action } from '../environment/orders.js';
+
+const tf = await getTF();
 
 export class GameAgent {
 	orders = {};
 	prevState = null;
 	constructor(game, config = {}) {
-		const { replayMemory, nn = [], epsilonInit, epsilonFinal, epsilonDecayFrames } = config
+		const { replayMemory, nn, epsilonInit, epsilonFinal, epsilonDecayFrames } = config
 		this.game = game;
 
-		this.onlineNetwork = nn[0] ?? createDeepQNetwork(game.orders.all.length, game.height, game.width, game.channels.length);
-		this.targetNetwork = nn[1] ?? createDeepQNetwork(game.orders.all.length, game.height, game.width, game.channels.length);
-
-		this.targetNetwork.trainable = false;
+		this.onlineNetwork = nn;
 		this.replayMemory = replayMemory ?? null;
 		this.frameCount = 0;
 		this.epsilonInit = epsilonInit ?? 0.5;

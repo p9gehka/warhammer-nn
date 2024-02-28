@@ -1,8 +1,8 @@
-import { getStateTensor } from '../static/utils/get-state-tensor.js';
+import { Orders, Action } from './orders.js';
+import { channels, getInput } from './nn-input.js';
 
-import { Orders, Action } from '../static/environment/orders.js';
-import { eq } from '../static/utils/vec2.js';
-import { channels, getInput } from '../static/environment/nn-input.js';
+import { getStateTensor } from '../utils/get-state-tensor.js';
+import { eq } from '../utils/vec2.js';
 
 export class PlayerEnvironment {
 	height = 22;

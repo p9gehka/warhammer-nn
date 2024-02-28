@@ -1,5 +1,5 @@
-import { getStateTensor } from '../static/utils/get-state-tensor.js';
-import { getTF } from '../static/utils/get-tf.js';
+import { getStateTensor } from '../utils/get-state-tensor.js';
+import { getTF } from '../utils/get-tf.js';
 import { GameAgent } from './game-agent0.1.js';
 const tf = await getTF();
 
@@ -8,7 +8,7 @@ export class TestAgent {
 		const { nn } = config;
 		this.game = game;
 		this.gameAgent = new GameAgent(game);
-		this.onlineNetwork = nn[0];
+		this.onlineNetwork = nn;
 	}
 
 	playStep() {

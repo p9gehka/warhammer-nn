@@ -1,5 +1,4 @@
-import { Channel1Name } from '../static/environment/nn-input.js';
-import { getRandomInteger } from '../static/utils/index.js';
+import { getRandomInteger } from '../utils/index.js';
 
 export class RandomAgent {
 	orders = []
@@ -9,26 +8,18 @@ export class RandomAgent {
 		this.game = game;
 		this.replayMemory = replayMemory;
 	}
-	getOrderIndex() {
-		const { orders } = this.game;
-		const input = this.game.getInput();
-
-
-		if (input[Channel1Name.Stamina].length === 0) {
-			return orders.nextPhaseIndex;
-		}
-
-		return orders.moveIndexes[getRandomInteger(0, orders.moveIndexes.length)];
+	getOrderRandomIndex() {
+		return getRandomInteger(0, this.game.orders.all.length);
 	}
 	playStep() {
-		const orderIndex = this.getOrderIndex();
+		const orderIndex = this.getOrderRandomIndex();
 		const order = this.game.orders.all[orderIndex];
 		const input = this.game.getInput();
 		if (this.prevState !== null) {
 			this.replayMemory?.append([...this.prevState, false, input]);
 		}
 		const [order_, state, reward] = this.game.step(order);
-		this.prevState = [input, orderIndex, reward];
+		this.prevState = [input, orderIndex, reward]
 		return [order_, state, reward];
 	}
 	awarding() {

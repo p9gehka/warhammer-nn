@@ -1,10 +1,9 @@
 import tf from '@tensorflow/tfjs-node';
 import { Warhammer } from '../static/environment/warhammer.js';
-import { PlayerEnvironment } from '../environment/player-environment.js';
-import { TestAgent } from '../agents/test-agent.js';
-import { fillReplayMemory } from '../environment/fill-replay-memory.js';
+import { PlayerEnvironment } from '../static/environment/player-environment.js';
+import { TestAgent } from '../static/agents/test-agent.js';
+import { fillReplayMemory } from '../replay-memory/fill-replay-memory.js';
 import { ReplayMemory } from '../replay-memory/replay-memory.js';
-import { ControlledAgent } from '../agents/controlled-agent.js';
 import { getStateTensor } from '../static/utils/get-state-tensor.js';
 import { copyWeights } from '../dqn/dqn.js';
 
@@ -12,14 +11,14 @@ import battlefields from './mock/battlefields.json' assert { type: 'json' };
 import gameSettings from './mock/game-settings.json' assert { type: 'json' };
 
 describe('test agent', () => {
-	const nn = [];
+	let nn = null;
 	let env = null;
 	let env2 = null
 	let player = null;
 	let optimizer = null;
 	beforeAll(async () => {
-		nn[0] = await tf.loadLayersModel(`file://tests/mock/dqn-test22x15/model.json`);
-		nn[1] = await tf.loadLayersModel(`file://tests/mock/dqn-test22x15/model.json`);
+		nn = await tf.loadLayersModel(`file://tests/mock/dqn-test22x15/model.json`);
+
 		env = new Warhammer({ gameSettings, battlefields });
 		const env2Models = [...gameSettings.models];
 		env2Models[0] = [4, 15]
