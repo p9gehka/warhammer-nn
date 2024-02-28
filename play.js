@@ -4,11 +4,11 @@ import shelljs from 'shelljs';
 
 import { Warhammer } from './static/environment/warhammer.js';
 import { Action } from './static/environment/orders.js';
-import { PlayerEnvironment } from './environment/player-environment.js';
-import { RandomAgent } from './agents/random-agent0.1.js';
-import { DumbAgent } from './agents/dumb-agent.js';
-import { GameAgent } from './agents/game-agent0.1.js';
-import { TestAgent } from './agents/test-agent.js';
+import { PlayerEnvironment } from './static/environment/player-environment.js';
+import { RandomAgent } from './static/agents/random-agent0.1.js';
+import { DumbAgent } from './static/agents/dumb-agent.js';
+import { GameAgent } from './static/agents/game-agent0.1.js';
+import { TestAgent } from './static/agents/test-agent.js';
 import { ReplayMemoryClient } from './replay-memory/replay-memory-client.js';
 import { sendDataToTelegram } from './visualization/utils.js';
 import { MovingAverager } from './moving-averager.js';
@@ -23,7 +23,6 @@ const { cumulativeRewardThreshold } = config;
 const sendMessageEveryFrames = 3e4;
 const rewardAverager100Len = 100;
 
-
 async function play() {
 	const env = new Warhammer();
 	let players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
@@ -33,15 +32,15 @@ async function play() {
 
 	async function tryUpdateModel() {
 		try {
-			const nn = [];
-			nn[0] = await tf.loadLayersModel(config.loadPath);
+			const nn = await tf.loadLayersModel(config.loadPath)
+
 			console.log(`Load model from ${config.loadPath} success`);
 			if (agents[0].onlineNetwork === undefined) {
 				agents[0] = new GameAgent(players[0], { nn, replayMemory, epsilonDecayFrames: config.epsilonDecayFrames });
 				agents[1] = new GameAgent(players[1], { nn, replayMemory, epsilonDecayFrames: config.epsilonDecayFrames });
 			} else {
-				agents[0].onlineNetwork = nn[0];
-				agents[1].onlineNetwork = nn[0];
+				agents[0].onlineNetwork = nn;
+				agents[1].onlineNetwork = nn;
 			}
 		} catch(e) {
 			console.log(e.message)
@@ -131,7 +130,7 @@ async function play() {
 
 		if (agents[0].onlineNetwork !== undefined && frameCount !== null && frameCount % sendMessageEveryFrames === 0 && rewardAveragerBuffer !== null) {
 			const testActions = [];
-			const testAgents = [new TestAgent(players[0], { nn: [agents[0].onlineNetwork] }), new DumbAgent(players[1])]
+			const testAgents = [new TestAgent(players[0], { nn: agents[0].onlineNetwork }), new DumbAgent(players[1])]
 			let testAttempst = 0;
 			let testState = env.reset();
 			agents.forEach(agent => agent.reset());

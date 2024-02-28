@@ -1,6 +1,6 @@
 export async function getTF() {
 	if (typeof window !== 'undefined') {
-		return window.tf;
+		return Promise.resolve(window.tf);
 	}
 	const process = import('node:process');
 	if (process.argv?.includes('-gpu')) {

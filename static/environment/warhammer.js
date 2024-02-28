@@ -178,10 +178,10 @@ export class Warhammer {
 
 		this.models.forEach((model) => {
 			this.battlefield.objective_marker.forEach((markerPosition, i) => {
-				if (len(sub(model.position, markerPosition)) < this.gameSettings.objective_marker_control_distance) {
-					const ocSign = model.playerId === this.getPlayer() ? 1 : -1;
+				if (len(sub(model.position, markerPosition)) <= this.gameSettings.objective_marker_control_distance) {
+					const ocSign = model.playerId === this.getPlayer() ? 1 : 0;
 					const oc = model.unitProfile.oc * ocSign;
-					objectiveControl[i] =+ oc;
+					objectiveControl[i] += oc;
 				}
 			});
 		});

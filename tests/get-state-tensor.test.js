@@ -1,7 +1,7 @@
 import { emptyInput } from '../static/environment/nn-input.js';
 import { getStateTensor } from '../static/utils/get-state-tensor.js';
 import { Warhammer } from '../static/environment/warhammer.js';
-import { PlayerEnvironment } from '../environment/player-environment.js';
+import { PlayerEnvironment } from '../static/environment/player-environment.js';
 
 describe('get state tensor', () => {
 	it('state tensor test', () => {
