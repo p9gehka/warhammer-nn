@@ -71,7 +71,7 @@ async function updatePredictions(state) {
 
 	const [_, height, width] = model.input.shape;
 	window.tf.tidy(() => {
-		const predictions = model.predict(getStateTensor([getInput(state)], height, width, channels)).dataSync();
+		const predictions = model.predict(getStateTensor([getInput(state)], ...state.battlefield.size, channels)).dataSync();
 		orders.forEach((order, i) => {
 			const li = document.createElement("LI");
 			li.innerHTML = [JSON.stringify(order), predictions[i].toFixed(3)].join();

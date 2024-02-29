@@ -39,3 +39,14 @@ body {
 	align-items: center;
 	padding-left: 8px;
 }
+.header-controls {
+	display: grid;
+	grid-auto-flow: column;
+}
+.hidden {
+	display: none;
+}
+
+.table {
+	width: 900px;
+}
