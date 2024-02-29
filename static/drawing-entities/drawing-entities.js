@@ -152,6 +152,7 @@ export class Scene extends Drawing {
 	}
 
 	updateState(state) {
+		this.battlefield.update(state.battlefield);
 		state.models.forEach((position, id) => {
 			this.models[id].update(position);
 		});
