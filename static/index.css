@@ -39,10 +39,13 @@ body {
 	align-items: center;
 	padding-left: 8px;
 }
+
 .header-controls {
 	display: grid;
 	grid-auto-flow: column;
+	grid-gap: 12px;
 }
+
 .hidden {
 	display: none;
 }

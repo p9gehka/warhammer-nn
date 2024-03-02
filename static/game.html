@@ -7,14 +7,18 @@
 	<main class="main">
 		<div class="left-panel">
 			<header class="header">
-				<div id="header"></div>
+				<div id="header-info"></div>
 				<div class="header-controls">
+					<input type="checkbox" id="order-view-checkbox"/>
 					<input type="checkbox" id="view-checkbox"/>
 					<button id="restart">Restart</button>
 				</div>
 			</header>
 			<ul id="history-list" class="history-list"></ul>
-			<ul id="orders-list" class="orders-list"></ul>
+			<div id="orders-section" class="orders-section">
+				<button id="next-phase-button">Next phase</button>
+			</div>
+			<ul id="full-orders-list" class="full-orders-list hidden"></ul>
 		</div>
 		<div>
 			<canvas width="900" height="660" id="canvas" class="canvas"></canvas>

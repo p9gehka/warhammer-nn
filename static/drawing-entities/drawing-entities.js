@@ -150,7 +150,17 @@ export class Scene extends Drawing {
 			});
 		}
 	}
-
+	drawOrders(orders) {
+		this.ctx.translate(0.5, 0.5);
+		this.fillPath(() => {
+			this.ctx.fillStyle = '#00000050';
+			orders.forEach(([x1, y1]) => {
+				this.ctx.rect(x1 - 0.5, y1 - 0.5, 1, 1);
+			});
+		});
+		this.ctx.translate(-0.5, -0.5);
+		console.log(orders)
+	}
 	updateState(state) {
 		this.battlefield.update(state.battlefield);
 		state.models.forEach((position, id) => {

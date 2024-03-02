@@ -84,7 +84,9 @@ export class PlayerEnvironment {
 		this.cumulativeReward += reward;
 		return reward;
 	}
-
+	getState() {
+		return { selected: this._selectedModel };
+	}
 	getInput() {
 		const state = this.env.getState();
 		return getInput(state);
