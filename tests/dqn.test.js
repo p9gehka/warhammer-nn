@@ -11,7 +11,6 @@ describe('dqn', () => {
 		 const state = {
 				Empty: [],
 				SelfModel: [],
-				SelfModelAvailableToMove: [ [ 10, 6 ], [ 12, 6 ] ],
 				SelfModelAvailableToShoot: [],
 				Selected: [],
 				Marker: [ [ 12, 11 ], [ 22, 9 ], [ 22, 21 ], [ 32, 19 ] ],

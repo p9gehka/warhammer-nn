@@ -3,7 +3,7 @@ import { Warhammer } from '../environment/warhammer.js'
 import { PlayerEnvironment } from '../environment/player-environment.js'
 import { ControlledAgent } from '../agents/controlled-agent.js';
 import { Orders } from '../environment/orders.js';
-import { add, eq } from '../utils/vec2.js'
+import { add, eq, len } from '../utils/vec2.js'
 
 import gameSettings from '../settings/game-settings0.1.json' assert { type: 'json' };
 
@@ -73,14 +73,19 @@ export class Game {
 			} else {
 				const { selected } = this.players[state.player].getState();
 
-				if (state.availableToMove.includes(selected)) {
+				if (state.modelsStamina[selected] > 0) {
 					const selectedPosition = state.models[selected];
 					this.orderHandlers = this.orders.map((order, i) => {
 						return (clickPosition) => {
-							if (order.action ==="MOVE" && eq(clickPosition, add(selectedPosition, order.vector))) { this.orderResolve(i); }
+							if (order.action ==="MOVE" &&
+								eq(clickPosition, add(selectedPosition, order.vector)) &&
+								state.modelsStamina[selected] >= len(order.vector)
+							) {
+								this.orderResolve(i);
+							}
 						}
 					});
-					this.scene.drawOrders(this.orders.filter(order=> order.action==="MOVE").map(order=> add(selectedPosition, order.vector)));
+					this.scene.drawOrders(this.orders.filter(order=> order.action==="MOVE" && state.modelsStamina[selected] >= len(order.vector)).map(order=> add(selectedPosition, order.vector)));
 				}
 
 				const order = await this.orderPromise;

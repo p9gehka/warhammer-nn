@@ -21,7 +21,8 @@ class Model {
 	position = [NaN, NaN];
 	wound = 0;
 	dead = true;
-	availableToMove = false;
+	stamina = 0;
+
 	constructor(id, unit, position) {
 		this.id = id;
 		this.name = unit.name;
@@ -42,7 +43,7 @@ class Model {
 
 	updateAvailableToMove(value) {
 		if (!this.dead) {
-			this.availableToMove = value
+			this.stamina = value ? this.unitProfile.m : 0;
 		}
 	}
 
@@ -51,8 +52,13 @@ class Model {
 			return;
 		}
 		this.wound = 0;
+		this.stamina = 0;
 		this.dead = true;
 		this.position = [NaN, NaN];
+	}
+
+	decreaseStamina(value) {
+		this.stamina = Math.max(0, this.stamina - value);
 	}
 }
 
@@ -144,10 +150,11 @@ export class Warhammer {
 		const model = this.models[order.id];
 
 		if (order.action === BaseAction.Move) {
-			if (!model.availableToMove) {
+			if (len(order.vector) > model.stamina) {
 				return this.getState();
 			}
-			model.updateAvailableToMove(false);
+
+			model.decreaseStamina(order.expense)
 
 			const newPosition = add(model.position, order.vector);
 			model.update(newPosition);
@@ -197,7 +204,7 @@ export class Warhammer {
 			phase: this.phase,
 			player: this.getPlayer(),
 			done: this.done(),
-			availableToMove: this.models.filter(model => model.availableToMove).map(model=> model.id),
+			modelsStamina: this.models.map(model => model.stamina),
 			misc: misc ?? {},
 			battlefield: this.battlefield,
 			turn: this.turn,

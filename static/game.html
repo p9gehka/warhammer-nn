@@ -11,18 +11,25 @@
 				<div class="header-controls">
 					<input type="checkbox" id="order-view-checkbox"/>
 					<input type="checkbox" id="view-checkbox"/>
-					<button id="restart">Restart</button>
 				</div>
 			</header>
-			<ul id="history-list" class="history-list"></ul>
 			<div id="orders-section" class="orders-section">
+				<button id="restart">Restart</button>
+				<button id="settings-restart">Settings & Restart</button>
 				<button id="next-phase-button">Next phase</button>
 			</div>
-			<ul id="full-orders-list" class="full-orders-list hidden"></ul>
+			<ul id="full-orders-list" class="full-orders-list hidden"></ul>			
 		</div>
 		<div>
-			<canvas width="900" height="660" id="canvas" class="canvas"></canvas>
+			<div>
+				<canvas width="900" height="660" id="canvas" class="canvas"></canvas>
+				<div class="units-strip" id="units-strip"></div>
+			</div>
 			<table id="table" class="table hidden"></table>
 		</div>
 	</main>
+	<dialog id="settings-dialog">
+	  <p>This modal dialog has a groovy backdrop!</p>
+	  <button autofocus id="close-settings-dialog">Cancel</button>
+	</dialog>
 </body>

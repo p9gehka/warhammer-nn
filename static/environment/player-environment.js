@@ -37,7 +37,7 @@ export class PlayerEnvironment {
 		const prevState = this.env.getState();
 
 		if (action === Action.Move) {
-			playerOrder = {action, id: this._selectedModel, vector: order.vector };
+			playerOrder = {action, id: this._selectedModel, vector: order.vector, expense: order.expense };
 		} else {
 			playerOrder = order;
 		}

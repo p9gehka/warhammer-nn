@@ -4,6 +4,7 @@ import { getStateTensor } from '../utils/get-state-tensor.js';
 import { Game } from './game-controller/game-controller.js';
 
 const restartBtn = document.getElementById('restart');
+const settingsRestartBtn = document.getElementById('settings-restart');
 const canvas = document.getElementById("canvas")
 const viewCheckbox = document.getElementById("view-checkbox");
 const orderViewCheckbox = document.getElementById("order-view-checkbox");
@@ -13,8 +14,9 @@ const ordersSection = document.getElementById("orders-section");
 const fullOrdersList = document.getElementById("full-orders-list");
 const headerInfo = document.getElementById("header-info");
 const nextPhaseBtn = document.getElementById("next-phase-button");
-
-
+const settingsDialog = document.getElementById("settings-dialog");
+const closeSettingsDialog = document.getElementById("close-settings-dialog");
+const unitsStrip = document.getElementById("units-strip");
 
 viewCheckbox.addEventListener('change', (e) => {
 	table.classList.toggle('hidden', !e.target.checked);
@@ -47,10 +49,16 @@ function updateTable(state) {
 	table.appendChild(fragment);
 }
 
+function updateUnitsStrip(state) {
+	unitsStrip.innerHTML = '';
+	unitsStrip.innerHTML = state.modelsStamina.join();
+}
+
 const game = new Game(canvas);
 game.onUpdate = (state) => {
 	updateTable(state);
-	updateHeader(state)
+	updateHeader(state);
+	updateUnitsStrip(state);
 }
 
 drawOrders();
@@ -61,7 +69,7 @@ function drawOrders() {
 	orders.forEach((order, i) => {
 		const li = document.createElement("LI");
 		li.innerHTML = JSON.stringify(order);
-		li.addEventListener('click', () => game.orderResolve(i))
+		li.addEventListener('click', () => game.orderResolve(i));
 		fullOrdersList.appendChild(li);
 	});
 }
@@ -69,3 +77,11 @@ function drawOrders() {
 nextPhaseBtn.addEventListener('click', () => {
 	game.orderResolve(new Orders().getOrders().nextPhaseIndex);
 });
+
+settingsRestartBtn.addEventListener('click', () => {
+	settingsDialog.showModal();
+});
+
+closeSettingsDialog.addEventListener('click', () => {
+	settingsDialog.close();
+})
