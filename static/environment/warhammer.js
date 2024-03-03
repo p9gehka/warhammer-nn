@@ -50,7 +50,7 @@ class Model {
 		if (this.dead) {
 			return;
 		}
-		this.wound === 0;
+		this.wound = 0;
 		this.dead = true;
 		this.position = [NaN, NaN];
 	}
