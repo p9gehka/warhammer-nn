@@ -55,12 +55,12 @@ export class PlayerEnvironment {
 		if (
 			state.models[this._selectedModel] === null || (playerOrder.action === Action.Move && eq(prevState.models[this._selectedModel], state.models[this._selectedModel]))
 		) {
-			reward--;
+			reward = reward - 1 * 1;
 		} else {
 			if (playerOrder.action !== Action.NextPhase) {
-				reward++;
+				reward = reward + 1 * 1;
 			} else {
-				reward -= 0.1;
+				reward = reward - 0.1 * 1;
 			}
 		}
 
