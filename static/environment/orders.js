@@ -30,7 +30,7 @@ export class Orders {
 				const vector1 = angleToVec2(distance, angle);
 				const vector2 = angleToVec2(distance, angles[(i+1) % angles.length]);
 				const vector = round(add(vector1, vector2));
-				this.orders[Action.Move].push({ action: Action.Move, vector, expense: distance });
+				this.orders[Action.Move].push({ action: Action.Move, vector, expense: distances[distance] });
 			}
 		});
 		this.orders.moveIndexes.push(this.orders.nextPhaseIndex);

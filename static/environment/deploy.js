@@ -5,21 +5,23 @@ export function getDeployOrders() {
 	const all = []
 	all.push({ action: 'NEXT_PHASE' });
 	all.push({ action: 'DEPLOY_MODEL'});
+	all.push({ action: 'DONE' });
 	const setX = Array(60).fill().map((_, value) => ({ action: 'SET_X', value }));
 	const setY = Array(44).fill().map((_, value) => ({ action: 'SET_Y', value }));
 	all.push(...setX)
 	all.push(...setY)
 
 	return {
-		setXIndexes: setX.map((_, i) => i + 2),
-		setYIndexes: setY.map((_, i) => i + 2 + setX.length),
+		setXIndexes: setX.map((_, i) => i + 3),
+		setYIndexes: setY.map((_, i) => i + 3 + setX.length),
 		all
 	}
 }
 
 export const DeployAction = {
 	DeployModel: 'DEPLOY_MODEL',
-	NextPhase: 'NEXT_PHASE'
+	NextPhase: 'NEXT_PHASE',
+	Done: 'DONE',
 }
 
 class Model {
@@ -50,6 +52,7 @@ export class Deploy {
 		this.battlefields = config?.battlefields ?? battlefields;
 		this.reset();
 		this.currentPlayer = 0;
+		this._done = false;
 	}
 	reset() {
 		const battlefieldsNames = Object.keys(this.battlefields);
@@ -68,7 +71,7 @@ export class Deploy {
 		return this.getState();
 	}
 	step(order) {
-		if (this.done()) {
+		if (this._done) {
 			return this.getState();
 		}
 
@@ -79,14 +82,14 @@ export class Deploy {
 		if (order.action === DeployAction.NextPhase) {
 			this.currentPlayer = (this.currentPlayer + 1) % 2
 		}
-
+		if (order.action === DeployAction.Done) {
+			this._done = true;
+		}
 		return this.getState();
-	}
-	done() {
-		return false;
 	}
 	getState(misc) {
 		return {
+			done: this._done,
 			players: this.players,
 			units: this.units,
 			models: this.models.map(model => !model.dead ? model.position : null),
@@ -94,6 +97,9 @@ export class Deploy {
 			player: this.currentPlayer,
 			battlefield: this.battlefield
 		};
+	}
+	getSettings() {
+		return { ...this.gameSettings, models: this.models.map(model => model.position) }
 	}
 }
 

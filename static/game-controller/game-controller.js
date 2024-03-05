@@ -44,31 +44,33 @@ export class Game {
 	}
 
 	async deploy() {
-		const deploy = new Deploy({ gameSettings, battlefields });
-		let state = deploy.getState();
+		this.deploy = new Deploy({ gameSettings, battlefields });
+		let state = this.deploy.getState();
 		const battlefield = new Battlefield(this.ctx, state.battlefield);
 		await battlefield.init()
 		battlefield.draw();
 		this.scene = new Scene(this.ctx, state);
 		this.scene.init();
 		this.onUpdate(state);
-		const players = [new DeployEnvironment(0, deploy), new DeployEnvironment(1, deploy)];
+		const players = [new DeployEnvironment(0, this.deploy), new DeployEnvironment(1, this.deploy)];
 		const deployOrders = getDeployOrders();
 		while(true) {
-			const state = deploy.getState();
-			this.scene.updateState(state);
-			this.onUpdate(state);
+			state = this.deploy.getState();
 			if (state.done) {
 				break;
 			} else {
+				this.scene.updateState(state);
+				this.onUpdate(state);
 				this.orderHandlers = [
 					([x, y]) => this.orderResolve([deployOrders.setXIndexes[x], deployOrders.setYIndexes[y], 1])
 				];
 				const orders = await this.orderPromise;
-				this.orderPromise = new Promise((resolve) => { this.orderResolve = resolve });
 				orders.forEach((order) => {
-					players[state.player].step(deployOrders.all[order]);
+					state = players[state.player].step(deployOrders.all[order]);
 				});
+				if(!state.done) {
+					this.orderPromise = new Promise((resolve) => { this.orderResolve = resolve });
+				}
 			}
 		}
 	}
@@ -77,9 +79,11 @@ export class Game {
 		if (this.started) {
 			return;
 		}
+		this.orderResolve([2]);
+		this.orderPromise = new Promise((resolve) => { this.orderResolve = resolve });
 		this.started = true;
 
-		this.env = new Warhammer({ gameSettings, battlefields });
+		this.env = new Warhammer({ gameSettings: this.deploy.getSettings(), battlefields });
 
 		this.players = [new PlayerEnvironment(0, this.env), new PlayerEnvironment(1, this.env)];
 		this.agents = [new ControlledAgent(this.players[0]), new ControlledAgent(this.players[1])];
@@ -100,7 +104,6 @@ export class Game {
 			this.onUpdate(state);
 
 			if (state.done) {
-
 				this.agents.forEach(agent => agent.awarding());
 				break;
 			} else {
@@ -123,7 +126,9 @@ export class Game {
 
 				const orders = await this.orderPromise;
 				this.orderPromise = new Promise((resolve) => { this.orderResolve = resolve });
-				this.agents[state.player].playStep(order)
+				orders.forEach(order => {
+					this.agents[state.player].playStep(order)
+				});
 			}
 		}
 	}
