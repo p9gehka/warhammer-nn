@@ -1,19 +1,24 @@
 import { Battlefield, Scene } from '../drawing-entities/drawing-entities.js';
 import { Warhammer } from '../environment/warhammer.js'
+import { Deploy, DeployAction, DeployEnvironment, getDeployOrders } from '../environment/deploy.js'
 import { PlayerEnvironment } from '../environment/player-environment.js'
 import { ControlledAgent } from '../agents/controlled-agent.js';
 import { Orders } from '../environment/orders.js';
 import { add, eq, len } from '../utils/vec2.js'
 
 import gameSettings from '../settings/game-settings0.1.json' assert { type: 'json' };
+import battlefields from '../settings/battlefields-small.json' assert { type: 'json' };
 
 export class Game {
 	constructor(canvas) {
+		canvas.addEventListener('mousedown', (e) => {
+			e.preventDefault();
+		})
 		canvas.addEventListener('click', (e) => {
+
 			const rect = canvas.getBoundingClientRect()
 			const x = Math.round((((event.clientX - rect.left) * 60) / canvas.width) - 0.5);
 			const y = Math.round((((event.clientY - rect.top) * 44) / canvas.height) - 0.5);
-			console.log("x: " + x + " y: " + y)
 			this.orderHandlers.forEach((orderHandler) => {
 				orderHandler([x, y]);
 			})
@@ -32,27 +37,57 @@ export class Game {
 
 		this.onUpdate = () => {};
 
-		const battlefield = new Battlefield(this.ctx, { size: [0, 0], objective_marker: [], ruins: [] });
+		this.started = false;
 		this.orders = new Orders().getOrders().all;
-		battlefield.init().then(() => {
-			battlefield.draw()
-			this.start();
-		});
-		this.orderHandlers = []
+		this.orderHandlers = [];
+		this.deploy();
 	}
 
+	async deploy() {
+		const deploy = new Deploy({ gameSettings, battlefields });
+		let state = deploy.getState();
+		const battlefield = new Battlefield(this.ctx, state.battlefield);
+		await battlefield.init()
+		battlefield.draw();
+		this.scene = new Scene(this.ctx, state);
+		this.scene.init();
+		this.onUpdate(state);
+		const players = [new DeployEnvironment(0, deploy), new DeployEnvironment(1, deploy)];
+		const deployOrders = getDeployOrders();
+		while(true) {
+			const state = deploy.getState();
+			this.scene.updateState(state);
+			this.onUpdate(state);
+			if (state.done) {
+				break;
+			} else {
+				this.orderHandlers = [
+					([x, y]) => this.orderResolve([deployOrders.setXIndexes[x], deployOrders.setYIndexes[y], 1])
+				];
+				const orders = await this.orderPromise;
+				this.orderPromise = new Promise((resolve) => { this.orderResolve = resolve });
+				orders.forEach((order) => {
+					players[state.player].step(deployOrders.all[order]);
+				});
+			}
+		}
+	}
 
 	async start() {
-		this.env = new Warhammer({ gameSettings });
+		if (this.started) {
+			return;
+		}
+		this.started = true;
 
-		this.scene = new Scene(this.ctx, this.env.getState());
-		await this.scene.init();
+		this.env = new Warhammer({ gameSettings, battlefields });
+
 		this.players = [new PlayerEnvironment(0, this.env), new PlayerEnvironment(1, this.env)];
 		this.agents = [new ControlledAgent(this.players[0]), new ControlledAgent(this.players[1])];
 		this.play();
 	}
 
 	restart() {
+		this.players.forEach(player => player.reset());
 		this.agents.forEach(agent => agent.reset());
 		this.env.reset();
 		this.play();
@@ -64,11 +99,9 @@ export class Game {
 			this.scene.updateState(state);
 			this.onUpdate(state);
 
-			console.log('CumulativeReward', this.players.map(p => p.cumulativeReward))
 			if (state.done) {
 
 				this.agents.forEach(agent => agent.awarding());
-				console.log('CumulativeReward awarding', this.players.map(p => p.cumulativeReward));
 				break;
 			} else {
 				const { selected } = this.players[state.player].getState();
@@ -81,14 +114,14 @@ export class Game {
 								eq(clickPosition, add(selectedPosition, order.vector)) &&
 								state.modelsStamina[selected] >= len(order.vector)
 							) {
-								this.orderResolve(i);
+								this.orderResolve([i]);
 							}
 						}
 					});
 					this.scene.drawOrders(this.orders.filter(order=> order.action==="MOVE" && state.modelsStamina[selected] >= len(order.vector)).map(order=> add(selectedPosition, order.vector)));
 				}
 
-				const order = await this.orderPromise;
+				const orders = await this.orderPromise;
 				this.orderPromise = new Promise((resolve) => { this.orderResolve = resolve });
 				this.agents[state.player].playStep(order)
 			}

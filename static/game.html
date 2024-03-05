@@ -1,6 +1,9 @@
 <head>
 	<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
 	<script type="module" src="game.js"></script>
+	<script src="
+	https://cdn.jsdelivr.net/npm/xml-js@1.6.11/dist/xml-js.min.js
+	"></script>
 	<link rel="stylesheet" href="index.css">
 </head>
 <body>
@@ -14,22 +17,25 @@
 				</div>
 			</header>
 			<div id="orders-section" class="orders-section">
+				<button id="start">Start</button>
 				<button id="restart">Restart</button>
 				<button id="settings-restart">Settings & Restart</button>
 				<button id="next-phase-button">Next phase</button>
+				<input type="file" id="load-roster"></input>
+
 			</div>
 			<ul id="full-orders-list" class="full-orders-list hidden"></ul>			
 		</div>
 		<div>
 			<div>
 				<canvas width="900" height="660" id="canvas" class="canvas"></canvas>
-				<div class="units-strip" id="units-strip"></div>
+				<ul class="units-strip" id="units-strip"></ul>
 			</div>
 			<table id="table" class="table hidden"></table>
 		</div>
 	</main>
 	<dialog id="settings-dialog">
-	  <p>This modal dialog has a groovy backdrop!</p>
-	  <button autofocus id="close-settings-dialog">Cancel</button>
+		<p>This modal dialog has a groovy backdrop!</p>
+		<button autofocus id="close-settings-dialog">Cancel</button>
 	</dialog>
 </body>

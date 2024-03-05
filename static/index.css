@@ -53,3 +53,10 @@ body {
 .table {
 	width: 900px;
 }
+.units-strip {
+	display: flex;
+	list-style: none;
+}
+.units-strip li:focus {
+	background: #cccccc;
+}

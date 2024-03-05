@@ -2,7 +2,9 @@ import { Orders } from './environment/orders.js';
 import { getInput, channels } from './environment/nn-input.js';
 import { getStateTensor } from '../utils/get-state-tensor.js';
 import { Game } from './game-controller/game-controller.js';
+import * as zip from "https://deno.land/x/zipjs/index.js";
 
+const startBtn = document.getElementById('start');
 const restartBtn = document.getElementById('restart');
 const settingsRestartBtn = document.getElementById('settings-restart');
 const canvas = document.getElementById("canvas")
@@ -17,6 +19,7 @@ const nextPhaseBtn = document.getElementById("next-phase-button");
 const settingsDialog = document.getElementById("settings-dialog");
 const closeSettingsDialog = document.getElementById("close-settings-dialog");
 const unitsStrip = document.getElementById("units-strip");
+const loadRosterInput = document.getElementById("load-roster");
 
 viewCheckbox.addEventListener('change', (e) => {
 	table.classList.toggle('hidden', !e.target.checked);
@@ -51,7 +54,12 @@ function updateTable(state) {
 
 function updateUnitsStrip(state) {
 	unitsStrip.innerHTML = '';
-	unitsStrip.innerHTML = state.modelsStamina.join();
+	state.units.forEach((unit) => {
+		const li = document.createElement("LI");
+		li.tabIndex = 0;
+		li.innerHTML =`${unit.playerId} ${unit.name} ${state.modelsStamina[unit.models[0]]}`;
+		unitsStrip.appendChild(li);
+	});
 }
 
 const game = new Game(canvas);
@@ -63,19 +71,20 @@ game.onUpdate = (state) => {
 
 drawOrders();
 
+startBtn.addEventListener('click', () => game.start());
 restartBtn.addEventListener('click', () => game.restart());
 function drawOrders() {
 	const orders = new Orders().getOrders().all;
 	orders.forEach((order, i) => {
 		const li = document.createElement("LI");
 		li.innerHTML = JSON.stringify(order);
-		li.addEventListener('click', () => game.orderResolve(i));
+		li.addEventListener('click', () => game.orderResolve([i]));
 		fullOrdersList.appendChild(li);
 	});
 }
 
 nextPhaseBtn.addEventListener('click', () => {
-	game.orderResolve(new Orders().getOrders().nextPhaseIndex);
+	game.orderResolve([new Orders().getOrders().nextPhaseIndex]);
 });
 
 settingsRestartBtn.addEventListener('click', () => {
@@ -85,3 +94,20 @@ settingsRestartBtn.addEventListener('click', () => {
 closeSettingsDialog.addEventListener('click', () => {
 	settingsDialog.close();
 })
+
+function getEntries(file, options) {
+	return (new zip.ZipReader(new zip.BlobReader(file))).getEntries(options);
+}
+
+loadRosterInput.addEventListener('change', async (e) => {
+	var file = e.target.files[0];
+	if (!file) {
+	  return;
+	}
+
+	const entries = await getEntries(file);
+	const data = await entries[0].getData(new zip.TextWriter())
+
+	const name = xml2js(data, {compact: true}).roster.forces.force.selections.selection.filter(v=>v._attributes.type === "unit")[0]._attributes.name
+	console.log(name)
+});
