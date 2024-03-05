@@ -57,6 +57,13 @@ body {
 	display: flex;
 	list-style: none;
 }
+.units-strip li {
+	cursor: pointer;
+}
+.units-strip li.disabled {
+	cursor: unset;
+	opacity: 0.8;
+}
 .units-strip li:focus {
 	background: #cccccc;
 }

@@ -2,6 +2,7 @@ import { Orders } from './environment/orders.js';
 import { getInput, channels } from './environment/nn-input.js';
 import { getStateTensor } from '../utils/get-state-tensor.js';
 import { Game } from './game-controller/game-controller.js';
+import { getDeployOrders } from './environment/deploy.js'
 import * as zip from "https://deno.land/x/zipjs/index.js";
 
 const startBtn = document.getElementById('start');
@@ -54,12 +55,24 @@ function updateTable(state) {
 
 function updateUnitsStrip(state) {
 	unitsStrip.innerHTML = '';
-	state.units.forEach((unit) => {
-		const li = document.createElement("LI");
-		li.tabIndex = 0;
-		li.innerHTML =`${unit.playerId} ${unit.name} ${state.modelsStamina[unit.models[0]]}`;
-		unitsStrip.appendChild(li);
-	});
+	const deployOrders = getDeployOrders();
+	state.players.forEach((player) => {
+		let modelCounter = 0;
+		player.units.forEach((unit) => {
+			const li = document.createElement("LI");
+			li.tabIndex = 0;
+			li.innerHTML =`${unit.playerId} ${unit.name} ${state.modelsStamina[unit.models[0]]}`;
+			li.classList.add(`player-${unit.playerId}`)
+			unitsStrip.appendChild(li);
+			if (state.player === unit.playerId) {
+				const playerModelId = modelCounter;
+				li.addEventListener('click', () => game.orderResolve([deployOrders.selectIndexes[playerModelId]]));
+			} else {
+				li.classList.add(`disabled`);
+			}
+			modelCounter++;
+		});
+	})
 }
 
 const game = new Game(canvas);
