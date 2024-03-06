@@ -36,6 +36,11 @@ export class PlayerEnvironment {
 		const { action } = order;
 		const prevState = this.env.getState();
 
+		if (order.action === Action.Select) {
+			this._selectedModel = this.env.players[this.playerId].models[order.id];
+			playerOrder = {...order.action, id: this._selectedModel }
+		}
+
 		if (action === Action.Move) {
 			playerOrder = {action, id: this._selectedModel, vector: order.vector, expense: order.expense };
 		} else {

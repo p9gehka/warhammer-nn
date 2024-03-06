@@ -1,6 +1,9 @@
 import { angleToVec2, scaleToLen, round, add } from '../utils/vec2.js';
 import { BaseAction } from './warhammer.js';
-export const Action = { ...BaseAction }
+export const Action = {
+	Select: 'SELECT',
+	...BaseAction
+}
 
 /* `←``↑``→``↓``↖``↗``↘``↙`*/
 const distances = [1, 2, 3, 6];
@@ -18,7 +21,9 @@ export class Orders {
 			nextPhaseIndex: 0,
 			[Action.NextPhase]: [{ action: Action.NextPhase }],
 			[Action.Move]: [],
+			[Action.Select]: [],
 			moveIndexes: [],
+			selectIndexes: [],
 			all: []
 		}
 
@@ -33,13 +38,21 @@ export class Orders {
 				this.orders[Action.Move].push({ action: Action.Move, vector, expense: distances[distance] });
 			}
 		});
-		this.orders.moveIndexes.push(this.orders.nextPhaseIndex);
+
 		this.orders.all.push(...this.orders[Action.NextPhase]);
 
 		this.orders[Action.Move].forEach((order) => {
 			this.orders.moveIndexes.push(this.orders.all.length);
 			this.orders.all.push(order);
 		});
+
+		this.orders[Action.Select] = Array(30).fill().map((_, id) => ({ action: 'SELECT', id }));
+
+		this.orders[Action.Select].forEach((order) => {
+			this.orders.selectIndexes.push(this.orders.all.length);
+			this.orders.all.push(order);
+		});
+
 		return this.orders;
 	}
 }

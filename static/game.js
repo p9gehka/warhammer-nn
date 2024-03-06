@@ -55,7 +55,7 @@ function updateTable(state) {
 
 function updateUnitsStrip(state) {
 	unitsStrip.innerHTML = '';
-	const deployOrders = getDeployOrders();
+	const deployOrders = state.round === -1 ? getDeployOrders() : new Orders().getOrders();
 	state.players.forEach((player) => {
 		let modelCounter = 0;
 		player.units.forEach((unit) => {

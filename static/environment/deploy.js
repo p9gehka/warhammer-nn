@@ -97,6 +97,7 @@ export class Deploy {
 		return {
 			done: this._done,
 			players: this.players,
+			round: -1,
 			units: this.units,
 			models: this.models.map(model => !model.dead ? model.position : null),
 			modelsStamina: this.models.map(model => 0),
