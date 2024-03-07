@@ -43,30 +43,12 @@ export class PlayerEnvironment {
 		}
 		let state;
 		let reward = 0;
-		if (this.phaseStepCounter > 15) {
-			this.env.end();
-		}
 
 		state = this.env.step(playerOrder);
+		state = this.env.step({ action: Action.NextPhase });
 		const { vp } = state.players[this.playerId];
 		reward = (vp - this.vp) * 10;
 		this.vp = vp;
-
-		if (
-			state.models[this._selectedModel] === null || (playerOrder.action === Action.Move && eq(prevState.models[this._selectedModel], state.models[this._selectedModel]))
-		) {
-			reward = reward - 1 * 1;
-		} else {
-			if (playerOrder.action !== Action.NextPhase) {
-				reward = reward + 1 * 1;
-			} else {
-				reward = reward - 0.1 * 1;
-			}
-		}
-
-		if (action === Action.NextPhase) {
-			this.phaseStepCounter = 0;
-		}
 
 		this.cumulativeReward += reward;
 		this.prevOrderAction = action;

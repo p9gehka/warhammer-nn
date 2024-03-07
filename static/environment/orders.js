@@ -14,8 +14,6 @@ export class Orders {
 			return this.orders;
 		}
 		this.orders = {
-			nextPhaseIndex: 0,
-			[Action.NextPhase]: [{ action: Action.NextPhase }],
 			[Action.Move]: [],
 			moveIndexes: [],
 			all: []
@@ -26,8 +24,6 @@ export class Orders {
 				this.orders[Action.Move].push({ action:Action.Move, vector: round(angleToVec2(distance, angle)) });
 			}
 		}
-		this.orders.moveIndexes.push(this.orders.nextPhaseIndex);
-		this.orders.all.push(...this.orders[Action.NextPhase]);
 
 		this.orders[Action.Move].forEach((order) => {
 			this.orders.moveIndexes.push(this.orders.all.length);
