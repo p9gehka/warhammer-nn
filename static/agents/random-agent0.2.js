@@ -1,4 +1,5 @@
 import { getRandomInteger } from '../utils/index.js';
+import { Action } from '../environment/orders.js';
 
 export class RandomAgent {
 	orders = []
@@ -19,6 +20,7 @@ export class RandomAgent {
 			this.replayMemory?.append([...this.prevState, false, input]);
 		}
 		const [order_, state, reward] = this.game.step(order);
+		this.game.step({ action: Action.NextPhase })
 		this.prevState = [input, orderIndex, reward]
 		return [order_, state, reward];
 	}

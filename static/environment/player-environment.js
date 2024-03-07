@@ -45,9 +45,10 @@ export class PlayerEnvironment {
 		let reward = 0;
 
 		state = this.env.step(playerOrder);
-		state = this.env.step({ action: Action.NextPhase });
 		const { vp } = state.players[this.playerId];
-		reward = (vp - this.vp) * 10;
+		reward = (vp - this.vp) * 5;
+		reward--;
+
 		this.vp = vp;
 
 		this.cumulativeReward += reward;
