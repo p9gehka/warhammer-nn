@@ -70,12 +70,23 @@ export class Battlefield extends Drawing {
 
 	draw() {
 		this.ctx.drawImage(this.bg, 0, 0, ...sceneSize);
+
+		/*border*/
 		this.ctx.lineWidth = 0.1;
 		this.ctx.strokeStyle = "red";
 		this.strokePath(() => {
 			this.ctx.rect(0, 0, ...this.battlefield.size);
 		});
 
+		/*deployment*/
+		this.ctx.lineWidth = 0.1;
+		const playerColors = ["red", "blue"];
+		this.battlefield.deployment_zone.forEach((deployment, i) => {
+			this.ctx.strokeStyle = playerColors[i];
+			this.strokePath(() => { this.ctx.rect(...deployment); });
+		});
+
+		/*dots*/
 		this.ctx.translate(0.5, 0.5);
 		this.ctx.fillStyle = '#b4dfb4';
 		this.fillPath(() => {
@@ -86,6 +97,7 @@ export class Battlefield extends Drawing {
 			}
 		});
 
+		/*objective*/
 		this.ctx.strokeStyle = "burlywood";
 		this.battlefield.objective_marker.forEach((pos) => {
 			this.strokePath(() => {
@@ -98,6 +110,7 @@ export class Battlefield extends Drawing {
 			});
 		});
 
+		/*runis*/
 		this.ctx.strokeStyle = "black";
 		this.battlefield.ruins.forEach((ruin) => {
 			const [x1, y1] = ruin.at(0);

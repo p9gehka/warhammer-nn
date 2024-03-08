@@ -61,11 +61,12 @@ body {
 	width: 900px;
 	box-sizing: border-box;
 	overflow: scroll;
+	margin-bottom: 0;
 }
 
 .units-strip li {
 	cursor: pointer;
-	heigt: 50px;
+	height: 40px;
 	width: 50px;
 	overflow: hidden;
 }

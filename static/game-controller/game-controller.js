@@ -44,7 +44,7 @@ export class Game {
 		const battlefieldSettings = battlefields[battlefieldName];
 		const gameSettings = localStorage.getItem('game-settings');
 		if (gameSettings && battlefieldSettings) {
-			this.deploy(JSON.parse(gameSettings), { battlefieldName: battlefieldSettings });
+			this.deploy(JSON.parse(gameSettings), { [battlefieldName]: battlefieldSettings });
 		}
 	}
 
@@ -87,7 +87,7 @@ export class Game {
 		this.orderPromise = new Promise((resolve) => { this.orderResolve = resolve });
 		this.started = true;
 
-		this.env = new Warhammer({ gameSettings: this.deploy.getSettings(), battlefields });
+		this.env = new Warhammer({ gameSettings: this.deploy.getSettings(), battlefields: this.deploy.getBattlefields() });
 
 		this.players = [new PlayerEnvironment(0, this.env), new PlayerEnvironment(1, this.env)];
 		this.agents = [new ControlledAgent(this.players[0]), new ControlledAgent(this.players[1])];

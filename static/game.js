@@ -66,7 +66,7 @@ function updateUnitsStrip(state) {
 		player.units.forEach((unit) => {
 			const li = document.createElement("LI");
 			li.tabIndex = 0;
-			li.innerHTML =`${unit.playerId} ${unit.name} ${state.modelsStamina[unit.models[0]]}`;
+			li.innerHTML =`${unit.name} ${state.modelsStamina[unit.models[0]]}`;
 			li.classList.add(`player-${unit.playerId}`)
 			unitsStrip.appendChild(li);
 			if (state.player === unit.playerId) {

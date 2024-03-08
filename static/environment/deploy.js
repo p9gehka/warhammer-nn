@@ -1,4 +1,4 @@
-
+import { sub } from '../utils/vec2.js'
 export function getDeployOrders() {
 	const all = [];
 	all.push({ action: 'NEXT_PHASE' });
@@ -17,7 +17,7 @@ export function getDeployOrders() {
 		setYIndexes: setY.map((_, i) => i + 3 + select.length + setX.length),
 		doneIndex: 2,
 		all
-	}
+	};
 }
 
 export const DeployAction = {
@@ -47,8 +47,8 @@ class Model {
 
 export class Deploy {
 	constructor(config) {
-		this.gameSettings = config?.gameSettings ?? gameSettings;
-		this.battlefields = config?.battlefields ?? battlefields;
+		this.gameSettings = config?.gameSettings;
+		this.battlefields = config?.battlefields;
 		this.reset();
 		this.currentPlayer = 0;
 		this._done = false;
@@ -75,14 +75,26 @@ export class Deploy {
 		}
 
 		if (order.action === DeployAction.DeployModel) {
-			this.models[order.id].update(order.position);
+			const deploymentZone = this.battlefield.deployment_zone[this.currentPlayer];
+			const [shiftedX, shifedY]= sub(order.position, [deploymentZone[0], deploymentZone[1]]);
+			if (
+				0 < shiftedX && shiftedX < deploymentZone[2] &&
+				0 < shifedY && shifedY < deploymentZone[3]
+			) {
+				this.models[order.id].update(order.position);
+				this.models.forEach(model => {
+					if (!model.deployed && model.id !== order.id) {
+						model.update([NaN, NaN]);
+					}
+				});
+			}
 		}
 
-		if (order.action === DeployAction.NextPhase) {
+		if (order.action === DeployAction.NextPhase || order.action === DeployAction.Done) {
 			this.models.forEach(model => {
 				model.deployed = !isNaN(model.position[0] + model.position[1]);
 			})
-			this.currentPlayer = (this.currentPlayer + 1) % 2
+			this.currentPlayer = (this.currentPlayer + 1) % 2;
 		}
 		if (order.action === DeployAction.Done) {
 			this._done = true;
@@ -103,6 +115,9 @@ export class Deploy {
 	}
 	getSettings() {
 		return { ...this.gameSettings, models: this.models.map(model => model.position) }
+	}
+	getBattlefields() {
+		return this.battlefields;
 	}
 }
 
