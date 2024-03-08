@@ -1,7 +1,7 @@
 import config from '../config.json' assert { type: 'json' };
 
 export async function lock() {
-	const locked = false;
+	let locked = false;
 
 	while(!locked) {
 		try {
