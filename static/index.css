@@ -56,10 +56,16 @@ body {
 .units-strip {
 	display: flex;
 	list-style: none;
+	gap: 4px;
 }
+
 .units-strip li {
 	cursor: pointer;
+	heigt: 50px;
+	width: 50px;
+	overflow: hidden;
 }
+
 .units-strip li.disabled {
 	cursor: unset;
 	opacity: 0.8;

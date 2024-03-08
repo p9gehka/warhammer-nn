@@ -1,6 +1,4 @@
 import gameSettings from '../settings/game-settings0.1.json' assert { type: 'json' };
-import tauUnits from '../settings/tau-units.json' assert { type: 'json' };
-import tauWeapons from '../settings/tau-weapons.json' assert { type: 'json' };
 import battlefields from '../settings/battlefields-small.json' assert { type: 'json' };
 
 import { mul, len, sub, add, eq } from '../utils/vec2.js'
@@ -23,11 +21,21 @@ class Model {
 	dead = true;
 	stamina = 0;
 
-	constructor(id, unit, position) {
+	constructor(id, unit, position, profile) {
 		this.id = id;
 		this.name = unit.name;
 		this.playerId = unit.playerId;
-		this.unitProfile = tauUnits[unit.name];
+		this.unitProfile = {
+			"m": parseInt(profile.M),
+			"t": parseInt(profile.T),
+			"sv": parseInt(profile.SV),
+			"w": parseInt(profile.W),
+			"ld": parseInt(profile.LD),
+			"oc": parseInt(profile.OC),
+			"ranged_weapons": ["pulse_rifle"],
+			"melee_weapons": ["close_combat_weapon_2"]
+		};
+		console.log(profile)
 		if (position !== null) {
 			this.position = position;
 			this.dead = false;
@@ -95,10 +103,10 @@ export class Warhammer {
 		this.models = this.units.map(unit => {
 			return unit.models.map(id => {
 				if (this.gameSettings.models.length !== 0 && this.gameSettings.models[id] !== undefined) {
-					return new Model(id, unit, this.gameSettings.models[id]);
+					return new Model(id, unit, this.gameSettings.models[id], this.gameSettings.profiles[id]);
 				}
 				usedPosition.push(this.getRandomStartPosition(usedPosition));
-				return new Model(id, unit, usedPosition.at(-1));
+				return new Model(id, unit, usedPosition.at(-1), this.gameSettings.profile[id]);
 			});
 		}).flat();
 

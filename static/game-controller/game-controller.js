@@ -40,10 +40,14 @@ export class Game {
 		this.started = false;
 		this.orders = new Orders().getOrders().all;
 		this.orderHandlers = [];
-		this.deploy();
+		this.deployOrders = getDeployOrders();
+		const settings = localStorage.getItem('game-settings');
+		if (settings) {
+			this.deploy(JSON.parse(settings));
+		}
 	}
 
-	async deploy() {
+	async deploy(gameSettings) {
 		this.deploy = new Deploy({ gameSettings, battlefields });
 		let state = this.deploy.getState();
 		const battlefield = new Battlefield(this.ctx, state.battlefield);
@@ -53,7 +57,6 @@ export class Game {
 		this.scene.init();
 		this.onUpdate(state);
 		const players = [new DeployEnvironment(0, this.deploy), new DeployEnvironment(1, this.deploy)];
-		const deployOrders = getDeployOrders();
 		while(true) {
 			state = this.deploy.getState();
 			if (state.done) {
@@ -62,11 +65,11 @@ export class Game {
 				this.scene.updateState(state);
 				this.onUpdate(state);
 				this.orderHandlers = [
-					([x, y]) => this.orderResolve([deployOrders.setXIndexes[x], deployOrders.setYIndexes[y], 1])
+					([x, y]) => this.orderResolve([this.deployOrders.setXIndexes[x], this.deployOrders.setYIndexes[y], 1])
 				];
 				const orders = await this.orderPromise;
 				orders.forEach((order) => {
-					state = players[state.player].step(deployOrders.all[order]);
+					state = players[state.player].step(this.deployOrders.all[order]);
 				});
 				if(!state.done) {
 					this.orderPromise = new Promise((resolve) => { this.orderResolve = resolve });
@@ -79,7 +82,7 @@ export class Game {
 		if (this.started) {
 			return;
 		}
-		this.orderResolve([2]);
+		this.orderResolve([this.deployOrders.doneIndex]);
 		this.orderPromise = new Promise((resolve) => { this.orderResolve = resolve });
 		this.started = true;
 

@@ -1,5 +1,3 @@
-import tauUnits from '../settings/tau-units.json' assert { type: 'json' };
-import tauWeapons from '../settings/tau-weapons.json' assert { type: 'json' };
 
 export function getDeployOrders() {
 	const all = [];
@@ -17,6 +15,7 @@ export function getDeployOrders() {
 		selectIndexes: setX.map((_, i) => i + 3),
 		setXIndexes: setX.map((_, i) => i + 3 + select.length),
 		setYIndexes: setY.map((_, i) => i + 3 + select.length + setX.length),
+		doneIndex: 2,
 		all
 	}
 }
@@ -36,11 +35,8 @@ class Model {
 		this.id = id;
 		this.name = unit.name;
 		this.playerId = unit.playerId;
-		this.unitProfile = tauUnits[unit.name];
 		if (position !== null) {
 			this.position = position;
-			this.dead = false;
-			this.wound = this.unitProfile.w;
 		}
 	}
 

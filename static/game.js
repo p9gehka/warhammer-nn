@@ -3,6 +3,7 @@ import { getInput, channels } from './environment/nn-input.js';
 import { getStateTensor } from '../utils/get-state-tensor.js';
 import { Game } from './game-controller/game-controller.js';
 import { getDeployOrders } from './environment/deploy.js'
+import { roster2settings } from './utils/roster2settings.js';
 import * as zip from "https://deno.land/x/zipjs/index.js";
 
 const startBtn = document.getElementById('start');
@@ -120,7 +121,6 @@ loadRosterInput.addEventListener('change', async (e) => {
 
 	const entries = await getEntries(file);
 	const data = await entries[0].getData(new zip.TextWriter())
-
-	const name = xml2js(data, {compact: true}).roster.forces.force.selections.selection.filter(v=>v._attributes.type === "unit")[0]._attributes.name
-	console.log(name)
+	const settings = roster2settings(xml2js(data, {compact: true}))
+	localStorage.setItem('game-settings', JSON.stringify(settings));
 });

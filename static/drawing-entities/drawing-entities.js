@@ -1,4 +1,4 @@
-import tauUnits from '../settings/tau-units.json' assert { type: 'json' };
+import tauBase from '../settings/tau-base.json' assert { type: 'json' };
 import { Orders } from '../environment/orders.js';
 
 const mmToInch = mm => mm / 25.4;
@@ -27,14 +27,14 @@ class Model extends Drawing {
 		this.name = unit.name;
 		this.playerId = unit.playerId;
 		this.position = position;
-		this.unitProfile = tauUnits[unit.name];
+		this.unitBase = tauBase[unit.name];
 	}
 
 	draw() {
 		if (this.position === null) {
 			return;
 		}
-		const { base } = this.unitProfile;
+		const base = this.unitBase;
 		const radius = 1
 		this.ctx.fillStyle = this.playerId === 1 ? 'blue' : 'red';
 		this.ctx.translate(0.5, 0.5);
