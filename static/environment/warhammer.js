@@ -1,6 +1,3 @@
-import gameSettings from '../settings/game-settings0.1.json' assert { type: 'json' };
-import battlefields from '../settings/battlefields-small.json' assert { type: 'json' };
-
 import { mul, len, sub, add, eq } from '../utils/vec2.js'
 import { getRandomInteger } from '../utils/index.js';
 
@@ -79,8 +76,8 @@ export class Warhammer {
 	objectiveControlReward = 5;
 	totalRounds = 5;
 	constructor(config) {
-		this.gameSettings = config?.gameSettings ?? gameSettings;
-		this.battlefields = config?.battlefields ?? battlefields;
+		this.gameSettings = config?.gameSettings;
+		this.battlefields = config?.battlefields;
 		this.reset();
 	}
 	reset() {

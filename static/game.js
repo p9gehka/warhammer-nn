@@ -4,7 +4,10 @@ import { getStateTensor } from '../utils/get-state-tensor.js';
 import { Game } from './game-controller/game-controller.js';
 import { getDeployOrders } from './environment/deploy.js'
 import { roster2settings } from './utils/roster2settings.js';
+
 import * as zip from "https://deno.land/x/zipjs/index.js";
+
+import battlefields from '../settings/battlefields.json' assert { type: 'json' };
 
 const startBtn = document.getElementById('start');
 const restartBtn = document.getElementById('restart');
@@ -22,11 +25,12 @@ const settingsDialog = document.getElementById("settings-dialog");
 const closeSettingsDialog = document.getElementById("close-settings-dialog");
 const unitsStrip = document.getElementById("units-strip");
 const loadRosterInput = document.getElementById("load-roster");
+const battlefieldSelect = document.getElementById("battlefield-select");
 
 viewCheckbox.addEventListener('change', (e) => {
 	table.classList.toggle('hidden', !e.target.checked);
 	canvas.classList.toggle('hidden', e.target.checked);
-})
+});
 
 orderViewCheckbox.addEventListener('change', (e) => {
 	fullOrdersList.classList.toggle('hidden', !e.target.checked);
@@ -83,6 +87,7 @@ game.onUpdate = (state) => {
 	updateUnitsStrip(state);
 }
 
+drawBattlefieldOptions();
 drawOrders();
 
 startBtn.addEventListener('click', () => game.start());
@@ -97,6 +102,20 @@ function drawOrders() {
 	});
 }
 
+function drawBattlefieldOptions() {
+	Object.keys(battlefields).forEach((name) => {
+		const option = document.createElement('OPTION');
+		option.innerHTML = name;
+		option.value = name;
+		battlefieldSelect.appendChild(option);
+	});
+}
+
+
+battlefieldSelect.addEventListener('change', (e) => {
+	localStorage.setItem('battlefield-name', battlefieldSelect.selectedOptions[0].value);
+	console.log(battlefieldSelect);
+})
 nextPhaseBtn.addEventListener('click', () => {
 	game.orderResolve([new Orders().getOrders().nextPhaseIndex]);
 });

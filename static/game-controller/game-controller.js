@@ -6,8 +6,7 @@ import { ControlledAgent } from '../agents/controlled-agent.js';
 import { Orders } from '../environment/orders.js';
 import { add, eq, len } from '../utils/vec2.js'
 
-import gameSettings from '../settings/game-settings0.1.json' assert { type: 'json' };
-import battlefields from '../settings/battlefields-small.json' assert { type: 'json' };
+import battlefields from '../settings/battlefields.json' assert { type: 'json' };
 
 export class Game {
 	constructor(canvas) {
@@ -41,14 +40,16 @@ export class Game {
 		this.orders = new Orders().getOrders().all;
 		this.orderHandlers = [];
 		this.deployOrders = getDeployOrders();
-		const settings = localStorage.getItem('game-settings');
-		if (settings) {
-			this.deploy(JSON.parse(settings));
+		const battlefieldName = localStorage.getItem('battlefield-name');
+		const battlefieldSettings = battlefields[battlefieldName];
+		const gameSettings = localStorage.getItem('game-settings');
+		if (gameSettings && battlefieldSettings) {
+			this.deploy(JSON.parse(gameSettings), { battlefieldName: battlefieldSettings });
 		}
 	}
 
-	async deploy(gameSettings) {
-		this.deploy = new Deploy({ gameSettings, battlefields });
+	async deploy(gameSettings, battelfieldSettings) {
+		this.deploy = new Deploy({ gameSettings, battlefields: battelfieldSettings });
 		let state = this.deploy.getState();
 		const battlefield = new Battlefield(this.ctx, state.battlefield);
 		await battlefield.init()

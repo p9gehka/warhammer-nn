@@ -29,6 +29,19 @@
 		"deploment": [],
 		"objective_marker": [[8, 15], [22, 7], [22, 23], [36, 15]],
 		"objective_marker_control_distance": 3
+	},
+	"1": {
+		"size": [22, 15],
+		"ruins": [],
+		"deploment": [],
+		"objective_marker": [],
+		"objective_marker_control_distance": 3
+	},
+	"leviathan tournament A": {
+		"size": [60, 44],
+		"objective_marker": [[14, 9], [14, 33], [30, 22], [46, 9], [46, 33]],
+		"objective_marker_control_distance": 3,
+		"ruins": [[[5, 7], [5, 17]], [[28, 15], [38, 15]], [[22, 10], [22, 20]], [[39, 13], [39, 23]], [[6, 15], [16, 15]]],
+		"deploment": []
 	}
-
 }

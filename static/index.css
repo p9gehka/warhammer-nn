@@ -57,6 +57,10 @@ body {
 	display: flex;
 	list-style: none;
 	gap: 4px;
+	padding: 0;
+	width: 900px;
+	box-sizing: border-box;
+	overflow: scroll;
 }
 
 .units-strip li {
