@@ -27,7 +27,7 @@ class Model extends Drawing {
 		this.name = unit.name;
 		this.playerId = unit.playerId;
 		this.position = position;
-		this.unitBase = tauBase[unit.name];
+		this.unitBase = tauBase[unit.name] ?? [15];
 	}
 
 	draw() {

@@ -1,6 +1,11 @@
 {
 	"aun shar": [25],
 	"shas nel d tano": [30],
+	"commander shadowsun":[50],
+	"longstrike": [150],
+	"commander in crisis battlesuit": [50],
+	"commander in coldstar battlesuit": [60],
+
 	"strike team": [25],
 	"stealth battlesuits": [30],
 	"ghostkeel battlesuit": [75],
@@ -10,7 +15,6 @@
 	"tetras": [60],
 	"barracuda":[92],
 	"hammerhead gunship": [150],
-	"commander shadowsun":[50],
-	"commander in coldstar battlesuit": [60],
+	
 	"riptide battlesuit": [92]
 }
