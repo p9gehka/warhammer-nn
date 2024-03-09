@@ -2,8 +2,9 @@ import { sub } from '../utils/vec2.js'
 export function getDeployOrders() {
 	const all = [];
 	all.push({ action: 'NEXT_PHASE' });
-	all.push({ action: 'DEPLOY_MODEL'});
 	all.push({ action: 'DONE' });
+	all.push({ action: 'DEPLOY_MODEL'});
+	
 	const select = Array(30).fill().map((_, id) => ({ action: 'SELECT', id }));
 	const setX = Array(60).fill().map((_, value) => ({ action: 'SET_X', value }));
 	const setY = Array(44).fill().map((_, value) => ({ action: 'SET_Y', value }));
@@ -15,7 +16,8 @@ export function getDeployOrders() {
 		selectIndexes: setX.map((_, i) => i + 3),
 		setXIndexes: setX.map((_, i) => i + 3 + select.length),
 		setYIndexes: setY.map((_, i) => i + 3 + select.length + setX.length),
-		doneIndex: 2,
+		doneIndex: 1,
+		deployIndex: 2,
 		all
 	};
 }
@@ -129,7 +131,6 @@ export class DeployEnvironment {
 		this.env = env;
 		this.playerId = playerId;
 		this.enemyId = (playerId+1) % 2;
-		this._selectedModel = null;
 	}
 
 	step(order) {
@@ -162,4 +163,9 @@ export class DeployEnvironment {
 		return currentState;
 	}
 	getState() { return { selected: this._selectedModel }; }
+	reset() {
+		this._x = null;
+		this._y = null;
+		this._selectedModel = null;
+	}
 }

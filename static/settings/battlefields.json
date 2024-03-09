@@ -42,6 +42,8 @@
 		"objective_marker": [[14, 9], [14, 33], [30, 22], [46, 9], [46, 33]],
 		"objective_marker_control_distance": 3,
 		"ruins": [],
-		"deployment_zone": [[0, 22, 30, 44], [30, 0, 60, 22]]
+		"deployment_zone": [[0, 22, 30, 44], [30, 0, 60, 22]],
+		"primary_mission": "take_and_hold",
+		"secondary_mission": "chilling_rain"
 	}
 }

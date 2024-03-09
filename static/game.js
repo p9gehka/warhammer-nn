@@ -26,6 +26,7 @@ const closeSettingsDialog = document.getElementById("close-settings-dialog");
 const unitsStrip = document.getElementById("units-strip");
 const loadRosterInput = document.getElementById("load-roster");
 const battlefieldSelect = document.getElementById("battlefield-select");
+const reloadBtn = document.getElementById("game-reload");
 
 viewCheckbox.addEventListener('change', (e) => {
 	table.classList.toggle('hidden', !e.target.checked);
@@ -38,7 +39,8 @@ orderViewCheckbox.addEventListener('change', (e) => {
 })
 
 function updateHeader(state) {
-	headerInfo.innerHTML = `Round: ${state.round}, Player turn: ${state.player}, Player0: ${state.players[0].vp}, Player1: ${state.players[1].vp}`;
+	const phaseName = ['Command', 'Movement'][state.phase];
+	headerInfo.innerHTML = `Phase: ${phaseName}, Round: ${state.round}, Player turn: ${state.player}, Player0: ${state.players[0].vp}, Player1: ${state.players[1].vp}`;
 }
 
 function updateTable(state) {
@@ -92,6 +94,11 @@ drawOrders();
 
 startBtn.addEventListener('click', () => game.start());
 restartBtn.addEventListener('click', () => game.restart());
+reloadBtn.addEventListener('click', () => {
+	game.reload();
+	settingsDialog.close();
+});
+
 function drawOrders() {
 	const orders = new Orders().getOrders().all;
 	orders.forEach((order, i) => {
@@ -120,13 +127,19 @@ nextPhaseBtn.addEventListener('click', () => {
 	game.orderResolve([new Orders().getOrders().nextPhaseIndex]);
 });
 
+document.addEventListener('keydown', (e) => {
+	if(e.code === 'Space') {
+		game.orderResolve([new Orders().getOrders().nextPhaseIndex]);
+	}
+});
+
 settingsRestartBtn.addEventListener('click', () => {
 	settingsDialog.showModal();
 });
 
 closeSettingsDialog.addEventListener('click', () => {
 	settingsDialog.close();
-})
+});
 
 function getEntries(file, options) {
 	return (new zip.ZipReader(new zip.BlobReader(file))).getEntries(options);

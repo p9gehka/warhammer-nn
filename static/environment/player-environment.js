@@ -27,6 +27,7 @@ export class PlayerEnvironment {
 		this.vp = 0;
 		this.cumulativeReward = 0;
 		this.phaseStepCounter = 0;
+		this._selectedModel = 0;
 	}
 
 	step(order) {

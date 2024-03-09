@@ -1,15 +1,18 @@
 import { mul, len, sub, add, eq } from '../utils/vec2.js'
 import { getRandomInteger } from '../utils/index.js';
+import { MissionController, Mission } from './mission.js';
 
 export const Phase = {
-	Movement: 0,
+	Command: 0,
+	Movement: 1,
 }
 
-const phaseOrd = [Phase.Movement];
+const phaseOrd = [Phase.Command, Phase.Movement];
 
 export const BaseAction = {
 	NextPhase: 'NEXT_PHASE',
 	Move: 'MOVE',
+	Done: 'DONE',
 }
 
 class Model {
@@ -32,7 +35,7 @@ class Model {
 			"ranged_weapons": ["pulse_rifle"],
 			"melee_weapons": ["close_combat_weapon_2"]
 		};
-		console.log(profile)
+
 		if (position !== null) {
 			this.position = position;
 			this.dead = false;
@@ -71,20 +74,21 @@ export class Warhammer {
 	players = [];
 	units = [];
 	models = [];
-	phase = Phase.Movement;
+	phase = Phase.Command;
 	turn = 0;
 	objectiveControlReward = 5;
 	totalRounds = 5;
 	constructor(config) {
-		this.gameSettings = config?.gameSettings;
-		this.battlefields = config?.battlefields;
+		this.gameSettings = config.gameSettings;
+		this.battlefields = config.battlefields;
+		this.mission = new MissionController('TakeAndHold', 'ChillingRain', [Mission.BehindEnemyLines]);
 		this.reset();
 	}
 	reset() {
 		const battlefieldsNames = Object.keys(this.battlefields);
 		this.battlefield = this.battlefields[battlefieldsNames[getRandomInteger(0, battlefieldsNames.length)]];
 
-		this.phase = Phase.Movement;
+		this.phase = Phase.Command;
 		this.turn = 0
 
 		const units = this.gameSettings.units.map(
@@ -125,25 +129,33 @@ export class Warhammer {
 	}
 
 	step(order) {
+		if (order.action === BaseAction.Done) {
+			this._done = true;
+		}
 		if (this.done()) {
 			return this.getState();
 		}
-
+		const currentPlayerId = this.getPlayer();
 		if (order.action === BaseAction.NextPhase) {
+			if (this.phase === Phase.Command) {
+				this.players[currentPlayerId].vp += this.mission.scorePrimaryVP(this.turn, this.models, this.battlefield.objective_marker, this.battlefield.objective_marker_control_distance);
+			}
+
 			this.models.forEach(model => model.updateAvailableToMove(false));
 
 			if (this.phase === phaseOrd.at(-1)) {
 				this.turn++;
+				this.players[currentPlayerId].vp += this.mission.scoreSecondaryVP();
 			}
 			this.phase = phaseOrd[(this.phase + 1) % phaseOrd.length];
 		}
 
-		const currentPlayerId = this.getPlayer();
+		
 		if (order.action === BaseAction.NextPhase) {
+			let nextPlayerId = this.getPlayer();
 			if (this.phase === Phase.Movement) {
-				this.players[currentPlayerId].vp += this.scoreVP();
 				this.models.forEach((model) => {
-					if (model.playerId === currentPlayerId) {
+					if (model.playerId === nextPlayerId) {
 						model.updateAvailableToMove(true);
 					}
 				});
@@ -182,26 +194,13 @@ export class Warhammer {
 
 		return this.turn > (this.totalRounds * 2) - 1 || new Set(ids).size === 1;
 	}
+
 	end() {
 		this.turn = (this.totalRounds * 2);
 	}
-	scoreVP() {
-		const objectiveControl = Array(this.battlefield.objective_marker.length).fill(0);
-
-		this.models.forEach((model) => {
-			this.battlefield.objective_marker.forEach((markerPosition, i) => {
-				if (len(sub(model.position, markerPosition)) <= this.gameSettings.objective_marker_control_distance) {
-					const ocSign = model.playerId === this.getPlayer() ? 1 : 0;
-					const oc = model.unitProfile.oc * ocSign;
-					objectiveControl[i] += oc;
-				}
-			});
-		});
-
-		return Math.min(objectiveControl.filter(oc => oc > 0).length * this.objectiveControlReward, 15);
-	}
 
 	getState(misc) {
+		console.log(this.players)
 		return {
 			players: this.players,
 			units: this.units,

@@ -20,6 +20,7 @@ export class Orders {
 		}
 		this.orders = {
 			nextPhaseIndex: 0,
+			doneIndex: 1,
 			[Action.NextPhase]: [{ action: Action.NextPhase }],
 			[Action.Move]: [],
 			[Action.Select]: [],
@@ -27,6 +28,8 @@ export class Orders {
 			selectIndexes: [],
 			all: []
 		}
+		this.orders.all.push({ action: Action.NextPhase });
+		this.orders.all.push({ action: Action.Done });
 
 		angles.forEach((angle, i) => {
 			for (let distance of distances) {
@@ -41,7 +44,6 @@ export class Orders {
 			});
 		});
 
-		this.orders.all.push(...this.orders[Action.NextPhase]);
 
 		this.orders[Action.Move].forEach((order) => {
 			this.orders.moveIndexes.push(this.orders.all.length);
