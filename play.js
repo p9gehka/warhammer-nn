@@ -99,7 +99,7 @@ async function play() {
 
 					await agents[0].onlineNetwork?.save(`file://${savePath}`);
 					if (agents[0].onlineNetwork) {
-						console.log(`Saved DQN to ${savePath}`);
+						console.log(`Saved DQN to ${savePath} final`);
 					}
 				}
 				await sendDataToTelegram(
