@@ -20,7 +20,8 @@ const replayBufferSize = 1e4;
 const savePath = './static/models/dqn/';
 
 const { cumulativeRewardThreshold } = config;
-const sendMessageEveryFrames = 3e4;
+const sendMessageEveryFrames = 1e6;
+
 const rewardAverager100Len = 100;
 
 async function play() {
@@ -33,7 +34,7 @@ async function play() {
 	async function tryUpdateModel() {
 		try {
 			const nn = await tf.loadLayersModel(config.loadPath)
-
+			await nn?.save(`file://${savePath}/temp`);
 			console.log(`Load model from ${config.loadPath} success`);
 			if (agents[0].onlineNetwork === undefined) {
 				agents[0] = new GameAgent(players[0], { nn, replayMemory, epsilonDecayFrames: config.epsilonDecayFrames });
@@ -72,25 +73,20 @@ async function play() {
 			const currentFrameCount = frameCount - frameCountPrev; 
 			const currentT = new Date().getTime();
 			const framesPerSecond = currentFrameCount / (currentT - t) * 1e3;
-			const cumulativeReward = players[0].cumulativeReward;
 
 			if (Number.isFinite(framesPerSecond)) {
 				frameTimeAverager100.append(framesPerSecond);
 			}
-			rewardAverager100.append(cumulativeReward);
+			rewardAverager100.append(state.players[0].vp + players[0].cumulativeReward/1000);
 
 			t = currentT;
 			frameCountPrev = frameCount;
 
 			const averageReward100 = rewardAverager100.average();
-			if (rewardAveragerBuffer === null) {
-				rewardAveragerBuffer = new MovingAverager(config.rewardAveragerBufferLength);
-			}
 
-			rewardAveragerBuffer.append({ frame: frameCount, averageReward: averageReward100});
 			console.log(
 				`Frame #${frameCount}: ` +
-				`cumulativeReward100=${averageReward100.toFixed(1)}; ` +
+				`cumulativeVP100=${averageReward100.toFixed(1)}; ` +
 				`(epsilon=${agents[0].epsilon?.toFixed(3)}) ` +
 				`(${framesPerSecond.toFixed(1)} frames/s)`);
 
@@ -159,13 +155,22 @@ async function play() {
 			*/
 			await sendDataToTelegram(
 				rewardAveragerBuffer.buffer.filter(v => v !== null),
-				`Frame #${frameCount}::Epsilon ${agents[0].epsilon?.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
+				`Frame #${frameCount}::Epsilon ${agents[0].epsilon?.toFixed(3)}::averageReward100Best ${averageReward100Best}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
 				`:${JSON.stringify(testActions)}:`
 			);
 		}
 
+		if (frameCount % 1000 === 0) {
+			if (rewardAveragerBuffer === null) {
+				rewardAveragerBuffer = new MovingAverager(config.rewardAveragerBufferLength);
+			}
+
+			rewardAveragerBuffer.append({ frame: frameCount, averageReward: rewardAverager100.average()});
+		}
+
 		if(replayMemory.length === replayBufferSize) {
 			console.log('Update server buffer');
+			console.log(`averageReward100Best: ${averageReward100Best}`)
 			await replayMemory.updateServer();
 			replayMemory.clean();
 			await tryUpdateModel();

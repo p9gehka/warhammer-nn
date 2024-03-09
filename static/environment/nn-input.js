@@ -1,25 +1,49 @@
 import { Phase } from './warhammer.js';
+import { len } from '../utils/vec2.js';
 
 //{ Empty: 0 }
 export const Channel0 = { 0: 1 }
 export const Channel1 = { Stamina: 1 }
+export const Channel2 = { ObjectiveMarker: 1 };
 
-export const Channel0Name = {}, Channel1Name = {};
+export const Channel0Name = {}, Channel1Name = {}, Channel2Name = {};
 
 Object.keys(Channel0).forEach(name => Channel0Name[name] = name);
 Object.keys(Channel1).forEach(name => Channel1Name[name] = name);
+Object.keys(Channel2).forEach(name => Channel2Name[name] = name);
 
-export const channels = [Channel0, Channel1];
+export const channels = [Channel0, Channel1, Channel2];
 export function emptyInput() {
 	const input = {};
-	[...Object.keys(Channel0Name), ...Object.keys(Channel1Name)].forEach(name => {
+	[...Object.keys(Channel0Name), ...Object.keys(Channel1Name), ...Object.keys(Channel2Name)].forEach(name => {
 		input[name] = [];
 	});
 	return input;
 }
 
+const objectiveMemoized = {};
+
 export function getInput(state) {
+	const memoKey = state.battlefield.objective_marker.join();
+
+	if (objectiveMemoized[memoKey] === undefined) {
+		objectiveMemoized[memoKey] = []
+		state.battlefield.objective_marker.forEach(([x, y]) => {
+			const delta = state.battlefield.objective_marker_control_distance;
+			for(let i = -delta; i <= delta; i++) {
+				for(let ii = -delta; ii <= delta; ii++) {
+					if (len([i, ii]) <= delta) {
+						 objectiveMemoized[memoKey].push([x + i, y + ii]);
+					}
+				}
+			}
+		});
+	}
+
+	let objectiveMarkerInput = objectiveMemoized[memoKey];
+
 	const input = emptyInput();
+	input[Channel2Name.ObjectiveMarker] = objectiveMarkerInput;
 
 	state.players.forEach((player, playerId) => {
 		player.models.forEach((gameModelId, playerModelId) => {

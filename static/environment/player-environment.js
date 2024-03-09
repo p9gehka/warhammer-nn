@@ -5,8 +5,8 @@ import { getStateTensor } from '../utils/get-state-tensor.js';
 import { eq } from '../utils/vec2.js';
 
 export class PlayerEnvironment {
+	width = 22;
 	height = 22;
-	width = 15;
 	channels = channels;
 	vp = 0;
 	_selectedModel = null;
@@ -43,30 +43,13 @@ export class PlayerEnvironment {
 		}
 		let state;
 		let reward = 0;
-		if (this.phaseStepCounter > 15) {
-			this.env.end();
-		}
 
 		state = this.env.step(playerOrder);
 		const { vp } = state.players[this.playerId];
-		reward = vp - this.vp;
+		reward = (vp - this.vp) * 5;
+		reward--;
+
 		this.vp = vp;
-
-		if (
-			state.models[this._selectedModel] === null || (playerOrder.action === Action.Move && eq(prevState.models[this._selectedModel], state.models[this._selectedModel]))
-		) {
-			reward--;
-		} else {
-			if (playerOrder.action !== Action.NextPhase) {
-				reward++;
-			} else {
-				reward -= 0.1;
-			}
-		}
-
-		if (action === Action.NextPhase) {
-			this.phaseStepCounter = 0;
-		}
 
 		this.cumulativeReward += reward;
 		this.prevOrderAction = action;
@@ -78,7 +61,7 @@ export class PlayerEnvironment {
 		let reward = 0;
 
 		if (this.loose()) {
-			reward -= 5 * this.env.objectiveControlReward * 3;
+			reward -= this.env.objectiveControlReward * 10;/*(5 * 3)*/
 		}
 
 		this.cumulativeReward += reward;

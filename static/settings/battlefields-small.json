@@ -1,6 +1,35 @@
 {
 	"1": {
-		"size": [22, 15],
+		"size": [22, 22],
+		"ruins": [],
+		"deploment": [],
+		"objective_marker": [[11, 11]],
+		"objective_marker_control_distance": 3
+	},
+	"2": {
+		"size": [22, 22],
+		"ruins": [],
+		"deploment": [],
+		"objective_marker": [[3, 3]],
+		"objective_marker_control_distance": 3
+	},
+	"3": {
+		"size": [22, 22],
+		"ruins": [],
+		"deploment": [],
+		"objective_marker": [[18, 3]],
+		"objective_marker_control_distance": 3
+	},
+
+	"5": {
+		"size": [22, 22],
+		"ruins": [],
+		"deploment": [],
+		"objective_marker": [[3, 18]],
+		"objective_marker_control_distance": 3
+	},
+	"6": {
+		"size": [22, 22],
 		"ruins": [],
 		"deploment": [],
 		"objective_marker": [],

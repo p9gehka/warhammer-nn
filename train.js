@@ -14,7 +14,7 @@ import config from './config.json' assert { type: 'json' };
 
 const tf = await getTF();
 
-const { replayBufferSize, gamma } = config;
+const { replayBufferSize, gamma, repeatBatchTraining } = config;
 
 const learningRate = 1e-3;
 
@@ -35,8 +35,11 @@ async function train(nn) {
 	let epoch = 0;
 
 	while (true) {
-		trainer.trainOnReplayBatch(config.batchSize, gamma, optimizer);
-		console.log(`epoch: ${epoch}`);
+		for (let i = 0; i < repeatBatchTraining ; i++) {
+			trainer.trainOnReplayBatch(config.batchSize, gamma, optimizer);
+			console.log(`epoch: ${epoch} replay ${i + 1}`);
+		}
+
 		if (epoch % config.syncEveryEpoch === 0) { /* sync не произойдет */
 			copyWeights(trainer.targetNetwork, trainer.onlineNetwork);
 			console.log('Sync\'ed weights from online network to target network');
