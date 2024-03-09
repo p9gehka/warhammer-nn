@@ -1,3 +1,5 @@
+import { Action } from '../environment/orders.js';
+
 export class ControlledAgent {
 	prevState = null;
 	constructor(game, config = {}) {
@@ -11,7 +13,8 @@ export class ControlledAgent {
 		if (this.replayMemory !== null && this.prevState !== null) {
 			this.replayMemory?.append([...this.prevState, false, input]);
 		}
-		const [order_, state, reward] = this.game.step(this.game.orders.all[orderIndex]);
+		const [order_, , reward] = this.game.step(this.game.orders.all[orderIndex]);
+		const [,state,] = this.game.step({ action: Action.NextPhase });
 		this.prevState = [input, orderIndex, reward];
 		return [order_, state, reward];
 	}
