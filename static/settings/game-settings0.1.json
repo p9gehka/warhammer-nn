@@ -1,10 +1,10 @@
 {
 	"units": [
 		[
-			{ "name": "strike_team", "models": [0] }
+			{ "name": "stealth_battlesuits", "models": [0] }
 		],
 		[
-			{ "name": "strike_team", "models": [1] }
+			{ "name": "stealth_battlesuits", "models": [1] }
 		]
 	],
 	"models": [],
