@@ -54,7 +54,7 @@ export function getInput(state) {
 
 			if (playerId === state.player) {
 				input[playerModelId] = [xy];
-				if (state.phase === Phase.Movement && state.availableToMove.includes(gameModelId)) {
+				if (state.phase === Phase.Movement && state.modelsStamina[gameModelId] > 0) {
 					entity = Channel1Name.Stamina;
 				}
 			}

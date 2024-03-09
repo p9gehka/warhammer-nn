@@ -7,7 +7,7 @@ const startBtn = document.getElementById('start');
 const canvas = document.getElementById("canvas")
 const historyList = document.getElementById("history-list");
 const ordersList = document.getElementById("orders-list");
-
+const unitsStrip = document.getElementById("units-strip");
 const ctx = canvas.getContext("2d");
 const vpPlayer1Element = document.getElementById('player-1-vp');
 const vpPlayer2Element = document.getElementById('player-2-vp');
@@ -62,6 +62,7 @@ function setState(e) {
 		scene.updateState(state);
 		scene.drawOrder(order);
 		updatePredictions(prevState);
+		updateUnitsStrip(state);
 	}
 }
 
@@ -97,3 +98,17 @@ historyList.addEventListener('keydown', (e) => {
 		}
 	}
 });
+
+function updateUnitsStrip(state) {
+	unitsStrip.innerHTML = '';
+	state.players.forEach((player) => {
+		let modelCounter = 0;
+		player.units.forEach((unit) => {
+			const li = document.createElement("LI");
+			li.tabIndex = 0;
+			li.innerHTML =`${unit.name} ${state.modelsStamina[unit.models[0]]}`;
+			li.classList.add(`player-${unit.playerId}`);
+			unitsStrip.appendChild(li);
+		});
+	})
+}

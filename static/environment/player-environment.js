@@ -46,7 +46,7 @@ export class PlayerEnvironment {
 
 		state = this.env.step(playerOrder);
 		const { vp } = state.players[this.playerId];
-		reward = (vp - this.vp) * 5;
+		reward = (vp - this.vp) * 4;
 		reward--;
 
 		this.vp = vp;
