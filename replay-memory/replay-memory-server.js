@@ -49,9 +49,10 @@ app.get('/weight', (req,res) => res.sendFile('static/dqn/weight.bin', { root: __
 
 const port = 3000;
 
-app.post('/lock', () => {
+app.post('/lock', (req, res) => {
 	console.log('memory locked');
 	locked = true;
+	res.sendStatus(200);
 });
 app.listen(port, () => {
 	console.log(`Replay Memory Server running`);
