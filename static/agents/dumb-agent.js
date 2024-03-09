@@ -5,7 +5,7 @@ export class DumbAgent {
 		this.game = game;
 	}
 	playStep() {
-		return this.game.step(this.game.orders[Action.NextPhase][0]);
+		return this.game.step({ action: Action.NextPhase });
 	}
 	awarding() {}
 	reset() {

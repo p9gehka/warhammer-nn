@@ -39,9 +39,7 @@ export class GameAgent {
 			this.replayMemory?.append([...this.prevState, false, input]);
 		}
 		let epsilon = this.epsilon;
-		let order = orders[Action.NextPhase][0];
 		let orderIndex;
-
 		if (Math.random() < this.epsilon) {
 			orderIndex = this.getOrderRandomIndex();
 		} else {
@@ -52,10 +50,10 @@ export class GameAgent {
 			});
 		}
 
-		order = orders.all[orderIndex];
-		const [order_, state, reward] = this.game.step(order);
+		const order = orders.all[orderIndex];
+		const [order_, , reward] = this.game.step(order);
+		const [,state,] = this.game.step({ action: Action.NextPhase });
 		this.prevState = [input, orderIndex, reward];
-
 		return [order_, state, reward];
 	}
 	awarding() {

@@ -1,4 +1,4 @@
-import { angleToVec2, scaleToLen, round, add } from '../utils/vec2.js';
+import { angleToVec2, round, add } from '../utils/vec2.js';
 import { BaseAction } from './warhammer.js';
 export const Action = {
 	Select: 'SELECT',
@@ -43,7 +43,6 @@ export class Orders {
 				this.orders[Action.Move].push({ action: Action.Move, vector, expense: distancesDiagonalExpense[ii] });
 			});
 		});
-
 
 		this.orders[Action.Move].forEach((order) => {
 			this.orders.moveIndexes.push(this.orders.all.length);

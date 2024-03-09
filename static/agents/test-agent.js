@@ -1,6 +1,8 @@
 import { getStateTensor } from '../utils/get-state-tensor.js';
 import { getTF } from '../utils/get-tf.js';
 import { GameAgent } from './game-agent0.1.js';
+import { Action } from '../environment/orders.js';
+
 const tf = await getTF();
 
 export class TestAgent {
@@ -21,8 +23,10 @@ export class TestAgent {
 			estimate = prediction.max(-1).dataSync()[0];
 			index = prediction.argMax(-1).dataSync()[0];
 		});
-		const stepResult = this.game.step(this.game.orders.all[index]);
-		return [...stepResult, { index, estimate: estimate.toFixed(3) }];
+		const [order_, , reward] = this.game.step(this.game.orders.all[index]);
+		const [,state,] = this.game.step({ action: Action.NextPhase })
+
+		return [order_, state, reward, { index, estimate: estimate.toFixed(3) }];
 	}
 	reset() {
 		this.game.reset();
