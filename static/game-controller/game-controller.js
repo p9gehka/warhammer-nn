@@ -113,7 +113,7 @@ export class Game {
 		this.agents.forEach(agent => agent.reset());
 		this.env?.reset();
 		this.deploy?.reset();
-		this.deployPlayers.forEach(player => player.reset());
+		this.deployPlayers?.forEach(player => player.reset());
 		this.started = false;
 		this.runDeploy();
 	}

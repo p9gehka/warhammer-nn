@@ -1,6 +1,6 @@
 import { Phase } from './warhammer.js';
 import { len } from '../utils/vec2.js';
-
+import { deployments } from  '../deployments/deployments.js';
 //{ Empty: 0 }
 export const Channel0 = { 0: 1 }
 export const Channel1 = { Stamina: 1 }
@@ -24,11 +24,11 @@ export function emptyInput() {
 const objectiveMemoized = {};
 
 export function getInput(state) {
-	const memoKey = state.battlefield.objective_marker.join();
+	const memoKey = state.battlefield.deployment;
 
-	if (objectiveMemoized[memoKey] === undefined) {
+	if (deployments[memoKey] !== undefined && objectiveMemoized[memoKey] === undefined) {
 		objectiveMemoized[memoKey] = []
-		state.battlefield.objective_marker.forEach(([x, y]) => {
+		new deployments[memoKey]().objective_markers.forEach(([x, y]) => {
 			const delta = state.battlefield.objective_marker_control_distance;
 			for(let i = -delta; i <= delta; i++) {
 				for(let ii = -delta; ii <= delta; ii++) {

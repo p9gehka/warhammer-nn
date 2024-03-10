@@ -1,4 +1,6 @@
 import { sub } from '../utils/vec2.js'
+import { deployments } from '../deployments/deployments.js';
+
 export function getDeployOrders() {
 	const all = [];
 	all.push({ action: 'NEXT_PHASE' });
@@ -76,13 +78,10 @@ export class Deploy {
 			return this.getState();
 		}
 
-		if (order.action === DeployAction.DeployModel) {
-			const deploymentZone = this.battlefield.deployment_zone[this.currentPlayer];
-			const [shiftedX, shifedY]= sub(order.position, [deploymentZone[0], deploymentZone[1]]);
-			if (
-				0 < shiftedX && shiftedX < deploymentZone[2] &&
-				0 < shifedY && shifedY < deploymentZone[3]
-			) {
+		if (order.action === DeployAction.DeployModel && deployments[this.battlefield.deployment]) {
+			const deployment = new deployments[this.battlefield.deployment];
+
+			if (deployment.include(this.currentPlayer, order.position)) {
 				this.models[order.id].update(order.position);
 				this.models.forEach(model => {
 					if (!model.deployed && model.id !== order.id) {

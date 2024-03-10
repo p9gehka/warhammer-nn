@@ -1,23 +1,9 @@
 import tauBase from '../settings/tau-base.json' assert { type: 'json' };
 import { Orders } from '../environment/orders.js';
+import { Drawing } from './drawing.js';
+import { deployments } from '../deployments/deployments.js';
 
 const mmToInch = mm => mm / 25.4;
-
-class Drawing {
-	fillPath(cb) {
-		this.ctx.beginPath()
-		cb();
-		this.ctx.closePath()
-		this.ctx.fill();
-	}
-
-	strokePath(cb) {
-		this.ctx.beginPath()
-		cb();
-		this.ctx.closePath()
-		this.ctx.stroke();
-	}
-}
 
 class Model extends Drawing {
 	position = [0, 0];
@@ -80,11 +66,18 @@ export class Battlefield extends Drawing {
 
 		/*deployment*/
 		this.ctx.lineWidth = 0.1;
-		const playerColors = ["red", "blue"];
-		this.battlefield.deployment_zone.forEach((deployment, i) => {
-			this.ctx.strokeStyle = playerColors[i];
-			this.strokePath(() => { this.ctx.rect(...deployment); });
-		});
+
+		if (this.battlefield.deployment) {
+			const deployment = new deployments[this.battlefield.deployment];
+			deployment.getDrawings().forEach(({ methods, args, strokeStyle }) => {
+				this.ctx.strokeStyle = strokeStyle;
+				this.strokePath(() => { 
+					 methods.forEach((method, i) => {
+					 	this.ctx[method](...args[i]);
+					 });
+				});
+			});
+		}
 
 		/*dots*/
 		this.ctx.translate(0.5, 0.5);
@@ -95,19 +88,6 @@ export class Battlefield extends Drawing {
 					this.ctx.rect(i - 0.05, ii - 0.05, 0.1, 0.1);
 				}
 			}
-		});
-
-		/*objective*/
-		this.ctx.strokeStyle = "burlywood";
-		this.battlefield.objective_marker.forEach((pos) => {
-			this.strokePath(() => {
-				this.ctx.ellipse(
-					...pos,
-					this.battlefield.objective_marker_control_distance,
-					this.battlefield.objective_marker_control_distance,
-					0, 0, 2 * Math.PI
-				);
-			});
 		});
 
 		/*runis*/
