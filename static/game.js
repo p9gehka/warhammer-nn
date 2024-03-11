@@ -129,6 +129,7 @@ nextPhaseBtn.addEventListener('click', () => {
 
 document.addEventListener('keydown', (e) => {
 	if(e.code === 'Space') {
+		e.preventDefault();
 		game.orderResolve([new Orders().getOrders().nextPhaseIndex]);
 	}
 });

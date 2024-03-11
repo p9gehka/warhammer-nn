@@ -2,7 +2,6 @@ import { Rect } from '../utils/planimatrics/rect.js';
 import { Circle } from '../utils/planimatrics/circle.js';
 import { Triangle } from '../utils/planimatrics/triangle.js';
 
-
 function getObjectDrawing(position, radius) {
 	const args = [[ ...position, radius, radius, 0, 0, 2 * Math.PI]];
 	return { strokeStyle: "burlywood", methods: ['ellipse'],  args };
