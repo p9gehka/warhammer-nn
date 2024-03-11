@@ -13,7 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const savePath = './static/models/dqn/temp';
+const savePath = './static/models/dqn';
 
 app.use(express.json())
 app.use(express.static(__dirname + '/static'));

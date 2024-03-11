@@ -81,7 +81,7 @@ export class Warhammer {
 	constructor(config) {
 		this.gameSettings = config.gameSettings;
 		this.battlefields = config.battlefields;
-		this.mission = new MissionController('TakeAndHold', 'ChillingRain', [Mission.BehindEnemyLines, Mission.EngageOnAllFronts]);
+		this.mission = new MissionController('TakeAndHold', 'ChillingRain', [Mission.Cleanse, Mission.EngageOnAllFronts]);
 		this.reset();
 	}
 	reset() {
@@ -138,13 +138,13 @@ export class Warhammer {
 		const currentPlayerId = this.getPlayer();
 		if (order.action === BaseAction.NextPhase) {
 			if (this.phase === Phase.Command) {
-				this.players[currentPlayerId].vp += this.mission.scorePrimaryVP(this.getState(), this.battlefield, this.gameSettings.profiles);
+				this.players[currentPlayerId].vp += this.mission.scorePrimaryVP(this.getState(), this.models.map(m => m.unitProfile));
 			}
 
 			this.models.forEach(model => model.updateAvailableToMove(false));
 
 			if (this.phase === phaseOrd.at(-1)) {
-				this.players[currentPlayerId].vp += this.mission.scoreSecondaryVP(this.getState(), this.battlefield);
+				this.players[currentPlayerId].vp += this.mission.scoreSecondaryVP(this.getState());
 			}
 		}
 		/*Before*/
@@ -205,7 +205,6 @@ export class Warhammer {
 	}
 
 	getState(misc) {
-		console.log(this.players)
 		return {
 			players: this.players,
 			units: this.units,

@@ -62,7 +62,7 @@ function updateTable(state) {
 
 function updateUnitsStrip(state) {
 	unitsStrip.innerHTML = '';
-	const deployOrders = state.round === -1 ? getDeployOrders() : new Orders().getOrders();
+	const orders = state.round === -1 ? getDeployOrders() : new Orders().getOrders();
 	state.players.forEach((player) => {
 		let modelCounter = 0;
 		player.units.forEach((unit) => {
@@ -73,7 +73,7 @@ function updateUnitsStrip(state) {
 			unitsStrip.appendChild(li);
 			if (state.player === unit.playerId) {
 				const playerModelId = modelCounter;
-				li.addEventListener('click', () => game.orderResolve([deployOrders.selectIndexes[playerModelId]]));
+				li.addEventListener('click', () => game.orderResolve([orders.selectIndexes[playerModelId]]));
 			} else {
 				li.classList.add(`disabled`);
 			}

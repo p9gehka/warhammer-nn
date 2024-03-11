@@ -14,13 +14,13 @@ export class Game {
 			e.preventDefault();
 		})
 		canvas.addEventListener('click', (e) => {
-
 			const rect = canvas.getBoundingClientRect()
 			const x = Math.round((((event.clientX - rect.left) * 60) / canvas.width) - 0.5);
 			const y = Math.round((((event.clientY - rect.top) * 44) / canvas.height) - 0.5);
 			this.orderHandlers.forEach((orderHandler) => {
 				orderHandler([x, y]);
 			})
+			this.selectHandler([x, y]);
 		});
 
 		this.ctx = canvas.getContext("2d");
@@ -42,7 +42,15 @@ export class Game {
 		this.deployOrders = getDeployOrders();
 		this.runDeploy();
 	}
-
+	selectHandler(clickPosition) {
+		const state = this.started ? this.env.getState() : this.deploy.getState();
+		const orders = this.started ? this.orders : this.deployOrders;
+		state.players[state.player].models.forEach((modelId, playerModelId) => {
+			if(eq(state.models[modelId], clickPosition)) {
+				this.orderResolve([orders.selectIndexes[playerModelId]]);
+			}
+		})
+	}
 	async runDeploy() {
 		const battlefieldName = localStorage.getItem('battlefield-name');
 		const battlefieldSettingsLS = battlefields[battlefieldName];
@@ -103,7 +111,7 @@ export class Game {
 		this.orderPromise = new Promise((resolve) => this.orderResolve = resolve);
 		this.players.forEach(player => player.reset());
 		this.agents.forEach(agent => agent.reset());
-		this.env.reset();
+		this.env?.reset();
 		this.play();
 	}
 	reload() {

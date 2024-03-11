@@ -5,7 +5,7 @@ import { Rect } from '../utils/planimatrics/rect.js';
 export const Mission = {
 	BehindEnemyLines: 'BehindEnemyLines',
 	EngageOnAllFronts: 'EngageOnAllFronts',
-	ExtendBattleLines: 'ExtendBattleLines',
+	Cleanse: 'Cleanse',
 }
 
 export class MissionController {
@@ -22,10 +22,11 @@ export class MissionController {
 		this.isFixed = false;
 	}
 
-	scorePrimaryVP(state, battlefield, profiles) {
+	scorePrimaryVP(state, profiles) {
 		const turn = state.turn;
 		const models = state.models;
-		const player = turn % 2;
+		const activePlayerId = turn % 2;
+		const battlefield = state.battlefield;
 		const round = Math.floor(turn / 2);
 		const objectiveControlReward = 5;
 
@@ -40,7 +41,7 @@ export class MissionController {
 				objectiveMarkers.forEach((markerPosition, i) => {
 					const modelPosition = state.models[modelId];
 					if (len(sub(modelPosition, markerPosition)) <= deployment.objective_marker_control_distance) {
-						const ocSign = modelPlayerId === player ? 1 : -1;
+						const ocSign = modelPlayerId === activePlayerId ? 1 : -1;
 						const oc = profiles[modelId].oc * ocSign;
 						objectiveControl[i] += oc;
 					}
@@ -50,8 +51,9 @@ export class MissionController {
 
 		return Math.min(objectiveControl.filter(oc => oc > 0).length * objectiveControlReward, 15);
 	}
-	scoreSecondaryVP(state, battlefield, profiles) {
+	scoreSecondaryVP(state, profiles) {
 		let secondaryVP = 0;
+		const battlefield = state.battlefield;
 		const isTactical = false;
 		const enemyPlayer = (state.player + 1) % 2
 		if (this.secondaryMissions.includes(Mission.BehindEnemyLines)) {
@@ -83,6 +85,10 @@ export class MissionController {
 			if(totalQuatres >= 3) {
 				secondaryVP += isTactical ? 3 : 2;
 			}
+		}
+
+		if (this.secondaryMissions.includes(Mission.Cleanse)) {
+
 		}
 		return secondaryVP;
 	}
