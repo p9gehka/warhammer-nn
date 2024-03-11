@@ -25,7 +25,7 @@ export class MissionController {
 	scorePrimaryVP(state, profiles) {
 		const turn = state.turn;
 		const models = state.models;
-		const activePlayerId = turn % 2;
+		const activePlayerId = state.player
 		const battlefield = state.battlefield;
 		const round = Math.floor(turn / 2);
 		const objectiveControlReward = 5;
@@ -55,9 +55,10 @@ export class MissionController {
 		let secondaryVP = 0;
 		const battlefield = state.battlefield;
 		const isTactical = false;
+		const activePlayerId = state.player
 		const enemyPlayer = (state.player + 1) % 2
-		if (this.secondaryMissions.includes(Mission.BehindEnemyLines)) {
-			const deployment = new deployments[battlefield.deployment];
+		const deployment = new deployments[battlefield.deployment];
+		if (this.secondaryMissions.includes(Mission.BehindEnemyLines)) {	
 			const hollyWithinCounter = state.players[state.player].models
 				.filter((modelId) => deployment.include(enemyPlayer, state.models[modelId])).length;
 
@@ -88,7 +89,27 @@ export class MissionController {
 		}
 
 		if (this.secondaryMissions.includes(Mission.Cleanse)) {
-
+			const cleanseMarkers = [deployment.deploy_markers[enemyPlayer], ...deployment.nomansland_markers];
+			const objectiveControl = Array(cleanseMarkers.length).fill(0);
+			state.players.forEach((player, modelPlayerId) => {
+				player.models.forEach(modelId => {
+					cleanseMarkers.forEach((markerPosition, i) => {
+						const modelPosition = state.models[modelId];
+						if (len(sub(modelPosition, markerPosition)) <= deployment.objective_marker_control_distance) {
+							const ocSign = modelPlayerId === activePlayerId ? 1 : -1;
+							const oc = profiles[modelId].oc * ocSign;
+							objectiveControl[i] += oc;
+						}
+					});
+				})
+			});
+			const cleanedMarkersCount = objectiveControl.filter(oc => oc > 0).length;
+			if (cleanedMarkersCount >= 2) {
+				secondaryVP += 2;
+			}
+			if(cleanedMarkersCount >= 1) {
+				secondaryVP += isTactical ? 3 : 2;
+			}
 		}
 		return secondaryVP;
 	}

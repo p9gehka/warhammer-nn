@@ -9,7 +9,9 @@ function getObjectDrawing(position, radius) {
 
 class CrucibleOfBattle {
 	constructor() {
-		this.objective_markers = [[14, 34], [20, 8], [30, 22], [40, 36], [46, 10]];
+		this.deploy_markers = [[14, 34], [46, 10]];
+		this.nomansland_markers = [[20, 8], [30, 22], [40, 36]];
+		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 		this.objective_marker_control_distance = 3;
 		this.include_triangle = [[[0, 0], [0, 44], [30, 44]], [[30, 0], [60, 0], [60, 44]]];
 
@@ -25,18 +27,21 @@ class CrucibleOfBattle {
 
 
 		const objectiveMarkers = this.objective_markers.map(
-			(position) => getObjectDrawing(position, this.objective_marker_control_distance)
+			(position, i) => getObjectDrawing(position, this.objective_marker_control_distance)
 		);
 		return [...deployments, ...objectiveMarkers];
 	}
 	include(id, position) {
 		return this.deployment_zone[id].include.include(...position);
 	}
+
 }
 
 class DawnOfWar {
 	constructor() {
-		this.objective_markers = [[10, 22], [30, 6], [30, 22], [30, 38], [50, 22]];
+		this.deploy_markers = [[30, 6], [30, 38]];
+		this.nomansland_markers = [[10, 22], [30, 22], [50, 22]];
+		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 		this.objective_marker_control_distance = 3;
 
 		this.include_rect = [[0, 34, 60, 10], [0, 0, 60, 10]];
@@ -52,7 +57,7 @@ class DawnOfWar {
 			});
 
 			const objectiveMarkers = this.objective_markers.map(
-				(position) => getObjectDrawing(position, this.objective_marker_control_distance)
+				(position, i) => getObjectDrawing(position, this.objective_marker_control_distance)
 			);
 			return [...deployments, ...objectiveMarkers];
 		}
@@ -63,7 +68,9 @@ class DawnOfWar {
 
 class HammerAndAnvil {
 	constructor() {
-		this.objective_markers = [[10, 22], [30, 6], [30, 22], [30, 38], [50, 22]];
+		this.deploy_markers = [[10, 22], [50, 22]];
+		this.nomansland_markers = [[30, 6], [30, 22], [30, 38]];
+		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 		this.objective_marker_control_distance = 3;
 		this.include_rect = [[0, 0, 18, 44], [42, 0, 18, 44]];
 		this.deployment_zone = [0, 1].map(i => {
@@ -77,7 +84,7 @@ class HammerAndAnvil {
 		});
 
 		const objectiveMarkers = this.objective_markers.map(
-			(position) => getObjectDrawing(position, this.objective_marker_control_distance)
+			(position, i) => getObjectDrawing(position, this.objective_marker_control_distance)
 		);
 		return [...deployments, ...objectiveMarkers];
 	}
@@ -88,7 +95,9 @@ class HammerAndAnvil {
 
 class SearchAndDestroy  {
 	constructor() {
-		this.objective_markers = [[14, 9], [14, 33], [30, 22], [46, 9], [46, 33]];
+		this.deploy_markers = [[14, 33], [46, 9]];
+		this.nomansland_markers = [[14, 9], [30, 22], [46, 33]];
+		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 		this.objective_marker_control_distance = 3;
 
 		this.include_rect = [[0, 22, 30, 44], [30, 0, 60, 22]];
@@ -113,7 +122,7 @@ class SearchAndDestroy  {
 		});
 
 		const objectiveMarkers = this.objective_markers.map(
-			(position) => getObjectDrawing(position, this.objective_marker_control_distance)
+			(position, i) => getObjectDrawing(position, this.objective_marker_control_distance)
 		);
 
 		return [...deployments, ...objectiveMarkers];
@@ -126,7 +135,9 @@ class SearchAndDestroy  {
 
 class SweepingEngagement {
 	constructor() {
-		this.objective_markers = [[10, 14], [18, 38], [30, 22], [42, 6], [50, 30]];
+		this.deploy_markers = [[18, 38], [42, 6]];
+		this.nomansland_markers = [[10, 14], [30, 22], [50, 30]];
+		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 		this.objective_marker_control_distance = 3;
 		this.include_triangle = [[[0, 22], [60, 44], [0, 44]], [[0, 0], [60, 0], [60, 22]]];
 
@@ -140,10 +151,10 @@ class SweepingEngagement {
 			return { strokeStyle: playerColors[i], methods: ['moveTo', 'lineTo', 'lineTo'], args: points };
 		});
 
-
 		const objectiveMarkers = this.objective_markers.map(
-			(position) => getObjectDrawing(position, this.objective_marker_control_distance)
+			(position, i) => getObjectDrawing(position, this.objective_marker_control_distance)
 		);
+
 		return [...deployments, ...objectiveMarkers];
 	}
 	include(id, position) {

@@ -144,7 +144,7 @@ export class Warhammer {
 			this.models.forEach(model => model.updateAvailableToMove(false));
 
 			if (this.phase === phaseOrd.at(-1)) {
-				this.players[currentPlayerId].vp += this.mission.scoreSecondaryVP(this.getState());
+				this.players[currentPlayerId].vp += this.mission.scoreSecondaryVP(this.getState(), this.models.map(m => m.unitProfile));
 			}
 		}
 		/*Before*/
