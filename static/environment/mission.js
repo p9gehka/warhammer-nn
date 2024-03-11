@@ -1,12 +1,17 @@
 import { len, sub } from '../utils/vec2.js';
 import { deployments } from '../deployments/deployments.js';
 import { Rect } from '../utils/planimatrics/rect.js';
+import { Circle } from '../utils/planimatrics/circle.js';
 
 export const Mission = {
 	BehindEnemyLines: 'BehindEnemyLines',
 	EngageOnAllFronts: 'EngageOnAllFronts',
 	Cleanse: 'Cleanse',
+	DeployTeleportHomer: 'DeployTeleportHomer',
 }
+
+const size = [60, 44];
+const center = [30, 22];
 
 export class MissionController {
 	secondaryMission = [
@@ -56,11 +61,11 @@ export class MissionController {
 		const battlefield = state.battlefield;
 		const isTactical = false;
 		const activePlayerId = state.player
-		const enemyPlayer = (state.player + 1) % 2
+		const opponentPlayer = (state.player + 1) % 2
 		const deployment = new deployments[battlefield.deployment];
 		if (this.secondaryMissions.includes(Mission.BehindEnemyLines)) {	
 			const hollyWithinCounter = state.players[state.player].models
-				.filter((modelId) => deployment.include(enemyPlayer, state.models[modelId])).length;
+				.filter((modelId) => deployment.include(opponentPlayer, state.models[modelId])).length;
 
 			if (hollyWithinCounter >= 2) {
 				secondaryVP += 2;
@@ -89,7 +94,7 @@ export class MissionController {
 		}
 
 		if (this.secondaryMissions.includes(Mission.Cleanse)) {
-			const cleanseMarkers = [deployment.deploy_markers[enemyPlayer], ...deployment.nomansland_markers];
+			const cleanseMarkers = [deployment.deploy_markers[opponentPlayer], ...deployment.nomansland_markers];
 			const objectiveControl = Array(cleanseMarkers.length).fill(0);
 			state.players.forEach((player, modelPlayerId) => {
 				player.models.forEach(modelId => {
@@ -108,6 +113,27 @@ export class MissionController {
 				secondaryVP += 2;
 			}
 			if(cleanedMarkersCount >= 1) {
+				secondaryVP += isTactical ? 3 : 2;
+			}
+		}
+
+		if (this.secondaryMissions.includes(Mission.DeployTeleportHomer)) {
+			let center6Circle = new Circle(...center, 6);
+			let inOpponentDeploy = false;
+			let inCenter = false;
+
+			for (let modelId of state.players[state.player].models) {
+				if (deployment.include(opponentPlayer, state.models[modelId])) {
+					inOpponentDeploy = true;
+					continue;
+				} else if (center6Circle.include(...state.models[modelId])) {
+					inCenter = true;
+				}
+			}
+
+			if (inOpponentDeploy) {
+				secondaryVP += isTactical ? 5 : 4;
+			} else if (inCenter) {
 				secondaryVP += isTactical ? 3 : 2;
 			}
 		}
