@@ -10,7 +10,9 @@ export const Mission = {
 	DeployTeleportHomer: 'DeployTeleportHomer',
 	InvestigateSignals: 'InvestigateSignals',
 	DefendStronhold: 'DefendStronhold',
-	SecureNoMansLand: 'SecureNoMansLand'
+	SecureNoMansLand: 'SecureNoMansLand',
+	AreaDenial: 'AreaDenial',
+	CaptureEnemyOutpost: 'CaptureEnemyOutpost',
 }
 
 const size = [60, 44];
@@ -194,6 +196,40 @@ export class MissionController {
 			}
 			if(securedNoMansCount >= 1) {
 				secondaryVP += 2;
+			}
+		}
+
+		if (this.secondaryMissions.includes(Mission.AreaDenial)) {
+			let center6Circle = new Circle(...center, 6);
+			let inCenter = false;
+
+			for (let modelId of state.players[state.player].models) {
+				if (center6Circle.include(...state.models[modelId])) {
+					inCenter = true;
+					continue;
+				}
+			}
+
+			if (inCenter) {
+				secondaryVP += 5;
+			}
+		}
+		if (this.secondaryMissions.includes(Mission.CaptureEnemyOutpost)) {
+			const opponentMarker = deployment.deploy_markers[opponentPlayer];
+			let markerControl = 0;
+			state.players.forEach((player, modelPlayerId) => {
+				player.models.forEach(modelId => {
+					const modelPosition = state.models[modelId];
+					if (len(sub(modelPosition, opponentMarker)) <= deployment.objective_marker_control_distance) {
+						const ocSign = modelPlayerId === activePlayerId ? 1 : -1;
+						const oc = profiles[modelId].oc * ocSign;
+						markerControl += oc;
+					}
+				})
+			});
+
+			if (markerControl > 0) {
+				secondaryVP += 8;
 			}
 		}
 		return secondaryVP;
