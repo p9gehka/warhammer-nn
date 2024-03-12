@@ -9,6 +9,7 @@ export const Mission = {
 	Cleanse: 'Cleanse',
 	DeployTeleportHomer: 'DeployTeleportHomer',
 	InvestigateSignals: 'InvestigateSignals',
+	DefendStronhold: 'DefendStronhold'
 }
 
 const size = [60, 44];
@@ -151,6 +152,25 @@ export class MissionController {
 			}
 			let totalAngles = angleCounters.filter(counter => counter > 0).length;
 			secondaryVP += totalAngles * 2;
+		}
+
+		if (this.secondaryMissions.includes(Mission.DefendStronhold)) {
+			const ownDelploymentMarker = deployment.deploy_markers[activePlayerId];
+			let deploymentMarkerControl = 0;
+			state.players.forEach((player, modelPlayerId) => {
+				player.models.forEach(modelId => {
+					const modelPosition = state.models[modelId];
+					if (len(sub(modelPosition, ownDelploymentMarker)) <= deployment.objective_marker_control_distance) {
+						const ocSign = modelPlayerId === activePlayerId ? 1 : -1;
+						const oc = profiles[modelId].oc * ocSign;
+						deploymentMarkerControl += oc;
+					}
+				})
+			});
+
+			if (deploymentMarkerControl > 0) {
+				secondaryVP += 3;
+			}
 		}
 		return secondaryVP;
 	}
