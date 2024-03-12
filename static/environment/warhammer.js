@@ -81,7 +81,7 @@ export class Warhammer {
 	constructor(config) {
 		this.gameSettings = config.gameSettings;
 		this.battlefields = config.battlefields;
-		this.mission = new MissionController('TakeAndHold', 'ChillingRain', [Mission.DefendStronhold, Mission.DeployTeleportHomer]);
+		this.mission = new MissionController('TakeAndHold', 'ChillingRain', [Mission.SecureNoMansLand, Mission.DeployTeleportHomer]);
 		this.reset();
 	}
 	reset() {

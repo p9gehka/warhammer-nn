@@ -9,7 +9,8 @@ export const Mission = {
 	Cleanse: 'Cleanse',
 	DeployTeleportHomer: 'DeployTeleportHomer',
 	InvestigateSignals: 'InvestigateSignals',
-	DefendStronhold: 'DefendStronhold'
+	DefendStronhold: 'DefendStronhold',
+	SecureNoMansLand: 'SecureNoMansLand'
 }
 
 const size = [60, 44];
@@ -170,6 +171,29 @@ export class MissionController {
 
 			if (deploymentMarkerControl > 0) {
 				secondaryVP += 3;
+			}
+		}
+
+		if (this.secondaryMissions.includes(Mission.SecureNoMansLand)) {
+			const objectiveControl = Array(deployment.nomansland_markers.length).fill(0);
+			state.players.forEach((player, modelPlayerId) => {
+				player.models.forEach(modelId => {
+					deployment.nomansland_markers.forEach((markerPosition, i) => {
+						const modelPosition = state.models[modelId];
+						if (len(sub(modelPosition, markerPosition)) <= deployment.objective_marker_control_distance) {
+							const ocSign = modelPlayerId === activePlayerId ? 1 : -1;
+							const oc = profiles[modelId].oc * ocSign;
+							objectiveControl[i] += oc;
+						}
+					});
+				})
+			});
+			const securedNoMansCount = objectiveControl.filter(oc => oc > 0).length;
+			if (securedNoMansCount >= 2) {
+				secondaryVP += 3;
+			}
+			if(securedNoMansCount >= 1) {
+				secondaryVP += 2;
 			}
 		}
 		return secondaryVP;
