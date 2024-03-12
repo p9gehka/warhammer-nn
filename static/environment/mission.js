@@ -2,6 +2,7 @@ import { len, sub } from '../utils/vec2.js';
 import { deployments } from '../deployments/deployments.js';
 import { Rect } from '../utils/planimatrics/rect.js';
 import { Circle } from '../utils/planimatrics/circle.js';
+import { getRandomInteger } from '../utils/index.js';
 
 export const Mission = {
 	BehindEnemyLines: 'BehindEnemyLines',
@@ -13,6 +14,7 @@ export const Mission = {
 	SecureNoMansLand: 'SecureNoMansLand',
 	AreaDenial: 'AreaDenial',
 	CaptureEnemyOutpost: 'CaptureEnemyOutpost',
+	ATamptingTarget: 'ATamptingTarget',
 }
 
 const size = [60, 44];
@@ -30,6 +32,7 @@ export class MissionController {
 		this.missionRule = missionRule;
 		this.secondaryMissions = secondaryMissions;
 		this.isFixed = false;
+		this.tamptingTarget = getRandomInteger(0, 2);
 	}
 
 	scorePrimaryVP(state, profiles) {
@@ -157,25 +160,6 @@ export class MissionController {
 			secondaryVP += totalAngles * 2;
 		}
 
-		if (this.secondaryMissions.includes(Mission.DefendStronhold)) {
-			const ownDelploymentMarker = deployment.deploy_markers[activePlayerId];
-			let deploymentMarkerControl = 0;
-			state.players.forEach((player, modelPlayerId) => {
-				player.models.forEach(modelId => {
-					const modelPosition = state.models[modelId];
-					if (len(sub(modelPosition, ownDelploymentMarker)) <= deployment.objective_marker_control_distance) {
-						const ocSign = modelPlayerId === activePlayerId ? 1 : -1;
-						const oc = profiles[modelId].oc * ocSign;
-						deploymentMarkerControl += oc;
-					}
-				})
-			});
-
-			if (deploymentMarkerControl > 0) {
-				secondaryVP += 3;
-			}
-		}
-
 		if (this.secondaryMissions.includes(Mission.SecureNoMansLand)) {
 			const objectiveControl = Array(deployment.nomansland_markers.length).fill(0);
 			state.players.forEach((player, modelPlayerId) => {
@@ -214,6 +198,26 @@ export class MissionController {
 				secondaryVP += 5;
 			}
 		}
+
+		if (this.secondaryMissions.includes(Mission.DefendStronhold)) {
+			const ownDelploymentMarker = deployment.deploy_markers[activePlayerId];
+			let markerControl = 0;
+			state.players.forEach((player, modelPlayerId) => {
+				player.models.forEach(modelId => {
+					const modelPosition = state.models[modelId];
+					if (len(sub(modelPosition, ownDelploymentMarker)) <= deployment.objective_marker_control_distance) {
+						const ocSign = modelPlayerId === activePlayerId ? 1 : -1;
+						const oc = profiles[modelId].oc * ocSign;
+						markerControl += oc;
+					}
+				})
+			});
+
+			if (markerControl > 0) {
+				secondaryVP += 3;
+			}
+		}
+
 		if (this.secondaryMissions.includes(Mission.CaptureEnemyOutpost)) {
 			const opponentMarker = deployment.deploy_markers[opponentPlayer];
 			let markerControl = 0;
@@ -230,6 +234,25 @@ export class MissionController {
 
 			if (markerControl > 0) {
 				secondaryVP += 8;
+			}
+		}
+
+		if (this.secondaryMissions.includes(Mission.ATamptingTarget)) {
+			const targetMarker = deployment.nomansland_markers[this.tamptingTarget];
+			let markerControl = 0;
+			state.players.forEach((player, modelPlayerId) => {
+				player.models.forEach(modelId => {
+					const modelPosition = state.models[modelId];
+					if (len(sub(modelPosition, targetMarker)) <= deployment.objective_marker_control_distance) {
+						const ocSign = modelPlayerId === activePlayerId ? 1 : -1;
+						const oc = profiles[modelId].oc * ocSign;
+						markerControl += oc;
+					}
+				})
+			});
+
+			if (markerControl > 0) {
+				secondaryVP += 5;
 			}
 		}
 		return secondaryVP;

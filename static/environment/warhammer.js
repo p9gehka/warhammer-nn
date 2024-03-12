@@ -81,7 +81,7 @@ export class Warhammer {
 	constructor(config) {
 		this.gameSettings = config.gameSettings;
 		this.battlefields = config.battlefields;
-		this.mission = new MissionController('TakeAndHold', 'ChillingRain', [Mission.CaptureEnemyOutpost]);
+		this.mission = new MissionController('TakeAndHold', 'ChillingRain', [Mission.ATamptingTarget]);
 		this.reset();
 	}
 	reset() {
