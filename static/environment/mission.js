@@ -8,6 +8,7 @@ export const Mission = {
 	EngageOnAllFronts: 'EngageOnAllFronts',
 	Cleanse: 'Cleanse',
 	DeployTeleportHomer: 'DeployTeleportHomer',
+	InvestigateSignals: 'InvestigateSignals',
 }
 
 const size = [60, 44];
@@ -136,6 +137,20 @@ export class MissionController {
 			} else if (inCenter) {
 				secondaryVP += isTactical ? 3 : 2;
 			}
+		}
+
+		if (this.secondaryMissions.includes(Mission.InvestigateSignals)) {
+			const angle9Circles = [[0, 0], [60, 0], [60, 40], [0, 40]].map(angle => new Circle(...angle, 9));
+			let angleCounters = [0, 0, 0, 0];
+			for (let modelId of state.players[state.player].models) {
+				 angle9Circles.forEach((circle, i)=> {
+				 	if (circle.include(...state.models[modelId])) {
+				 		angleCounters[i]++;
+				 	}
+				 })
+			}
+			let totalAngles = angleCounters.filter(counter => counter > 0).length;
+			secondaryVP += totalAngles * 2;
 		}
 		return secondaryVP;
 	}
