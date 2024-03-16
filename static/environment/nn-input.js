@@ -1,9 +1,9 @@
 import { Phase } from './warhammer.js';
 import { len } from '../utils/vec2.js';
-import { deployments } from  '../deployments/deployments.js';
+import { deployment } from  '../battlefield/deployment.js';
 //{ Empty: 0 }
-export const Channel0 = { 0: 1 }
-export const Channel1 = { Stamina: 1 }
+export const Channel0 = { 0: 1 };
+export const Channel1 = { Stamina: 1 };
 export const Channel2 = { ObjectiveMarker: 1 };
 
 export const Channel0Name = {}, Channel1Name = {}, Channel2Name = {};
@@ -26,9 +26,9 @@ const objectiveMemoized = {};
 export function getInput(state) {
 	const memoKey = state.battlefield.deployment;
 
-	if (deployments[memoKey] !== undefined && objectiveMemoized[memoKey] === undefined) {
-		objectiveMemoized[memoKey] = []
-		new deployments[memoKey]().objective_markers.forEach(([x, y]) => {
+	if (deployment[memoKey] !== undefined && objectiveMemoized[memoKey] === undefined) {
+		objectiveMemoized[memoKey] = [];
+		new deployment[memoKey]().objective_markers.forEach(([x, y]) => {
 			const delta = state.battlefield.objective_marker_control_distance;
 			for(let i = -delta; i <= delta; i++) {
 				for(let ii = -delta; ii <= delta; ii++) {
@@ -47,7 +47,7 @@ export function getInput(state) {
 
 	state.players.forEach((player, playerId) => {
 		player.models.forEach((gameModelId, playerModelId) => {
-			const xy = state.models[gameModelId]
+			const xy = state.models[gameModelId];
 			if (xy === null) { return; }
 
 			let entity = null;
@@ -63,7 +63,7 @@ export function getInput(state) {
 				if (input[entity] === undefined) {
 					input[entity] = [];
 				}
-				input[entity].push(xy)
+				input[entity].push(xy);
 			}
 		});
 	});

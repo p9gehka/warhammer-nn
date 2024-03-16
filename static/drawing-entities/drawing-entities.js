@@ -1,7 +1,8 @@
 import tauBase from '../settings/tau-base.json' assert { type: 'json' };
 import { Orders } from '../environment/orders.js';
 import { Drawing } from './drawing.js';
-import { deployments } from '../deployments/deployments.js';
+import { deployment } from '../battlefield/deployment.js';
+import { terrain } from '../battlefield/terrain.js';
 
 const mmToInch = mm => mm / 25.4;
 
@@ -45,7 +46,7 @@ export class Battlefield extends Drawing {
 	async init() {
 		return new Promise((resolve) => {
 			this.bg = new Image(...sceneSize);
-			this.bg.addEventListener('load', resolve)
+			this.bg.addEventListener('load', resolve);
 			this.bg.src = "image/map.jpg";
 		});
 	}
@@ -68,8 +69,7 @@ export class Battlefield extends Drawing {
 		this.ctx.lineWidth = 0.1;
 
 		if (this.battlefield.deployment) {
-			const deployment = new deployments[this.battlefield.deployment];
-			deployment.getDrawings().forEach(({ methods, args, strokeStyle }) => {
+			(new deployment[this.battlefield.deployment]).getDrawings().forEach(({ methods, args, strokeStyle }) => {
 				this.ctx.strokeStyle = strokeStyle;
 				this.strokePath(() => { 
 					 methods.forEach((method, i) => {
@@ -78,6 +78,21 @@ export class Battlefield extends Drawing {
 				});
 			});
 		}
+
+
+		/*runis*/
+
+		if (this.battlefield.terrain) {
+			(new terrain[this.battlefield.terrain]).getDrawings().forEach(({ methods, args, fillStyle }) => {
+				this.ctx.fillStyle = fillStyle;
+				this.fillPath(() => { 
+					 methods.forEach((method, i) => {
+					 	this.ctx[method](...args[i]);
+					 });
+				});
+			});
+		}
+
 
 		/*dots*/
 		this.ctx.translate(0.5, 0.5);
@@ -90,15 +105,6 @@ export class Battlefield extends Drawing {
 			}
 		});
 
-		/*runis*/
-		this.ctx.strokeStyle = "black";
-		this.battlefield.ruins.forEach((ruin) => {
-			const [x1, y1] = ruin.at(0);
-			const [x2, y2] = ruin.at(-1);
-			this.strokePath(() => {
-				this.ctx.rect(x1, y1, Math.max(Math.abs(x1 - x2), 0.5), Math.max(Math.abs(y1 - y2), 0.5));
-			});
-		});
 		this.ctx.translate(-0.5, -0.5);
 	}
 }
@@ -152,7 +158,6 @@ export class Scene extends Drawing {
 			});
 		});
 		this.ctx.translate(-0.5, -0.5);
-		console.log(orders)
 	}
 	updateState(state) {
 		this.battlefield.update(state.battlefield);

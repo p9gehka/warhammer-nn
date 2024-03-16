@@ -1,5 +1,5 @@
 import { sub } from '../utils/vec2.js'
-import { deployments } from '../deployments/deployments.js';
+import { deployment } from '../battlefield/deployment.js';
 
 export function getDeployOrders() {
 	const all = [];
@@ -61,13 +61,12 @@ export class Deploy {
 		const battlefieldsNames = Object.keys(this.battlefields);
 		this.battlefield = this.battlefields[battlefieldsNames[0]];
 
-
 		const units = this.gameSettings.units.map(
 			(playerUnits, playerId) => playerUnits.map(unit => ({...unit, playerId }))
 		);
 		this.players = [
-			{ units: units[0], models: units[0].map(unit => unit.models).flat(), vp: 0 },
-			{ units: units[1], models: units[1].map(unit => unit.models).flat(), vp: 0 }
+			{ units: units[0], models: units[0].map(unit => unit.models).flat(), primaryVP: 0, secondaryVP: 0 },
+			{ units: units[1], models: units[1].map(unit => unit.models).flat(), primaryVP: 0, secondaryVP: 0 }
 		];
 		this.units = units.flat();
 		this.models = this.units.map(unit => unit.models.map(id => new Model(id, unit, null))).flat();
@@ -78,10 +77,10 @@ export class Deploy {
 			return this.getState();
 		}
 
-		if (order.action === DeployAction.DeployModel && deployments[this.battlefield.deployment]) {
-			const deployment = new deployments[this.battlefield.deployment];
+		if (order.action === DeployAction.DeployModel && deployment[this.battlefield.deployment]) {
+			const deploy = new deployment[this.battlefield.deployment];
 
-			if (deployment.include(this.currentPlayer, order.position)) {
+			if (deploy.include(this.currentPlayer, order.position)) {
 				this.models[order.id].update(order.position);
 				this.models.forEach(model => {
 					if (!model.deployed && model.id !== order.id) {
@@ -111,7 +110,8 @@ export class Deploy {
 			models: this.models.map(model => !model.dead ? model.position : null),
 			modelsStamina: this.models.map(model => 0),
 			player: this.currentPlayer,
-			battlefield: this.battlefield
+			battlefield: this.battlefield,
+			secondaryMissions: []
 		};
 	}
 	getSettings() {

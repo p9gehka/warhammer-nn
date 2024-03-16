@@ -27,6 +27,7 @@ const unitsStrip = document.getElementById("units-strip");
 const loadRosterInput = document.getElementById("load-roster");
 const battlefieldSelect = document.getElementById("battlefield-select");
 const reloadBtn = document.getElementById("game-reload");
+const missionSection = document.getElementById("mission-section");
 
 viewCheckbox.addEventListener('change', (e) => {
 	table.classList.toggle('hidden', !e.target.checked);
@@ -40,7 +41,7 @@ orderViewCheckbox.addEventListener('change', (e) => {
 
 function updateHeader(state) {
 	const phaseName = ['Command', 'Movement'][state.phase];
-	headerInfo.innerHTML = `Phase: ${phaseName}, Round: ${state.round}, Player turn: ${state.player}, Player0: ${state.players[0].vp}, Player1: ${state.players[1].vp}`;
+	headerInfo.innerHTML = `Phase: ${phaseName}, Round: ${state.round}, Player turn: ${state.player}, Player0: ${state.players[0].primaryVP}/${state.players[0].secondaryVP}, Player1: ${state.players[1].primaryVP}/${state.players[1].secondaryVP}`;
 }
 
 function updateTable(state) {
@@ -54,7 +55,7 @@ function updateTable(state) {
 			cellEl.innerHTML = cell;
 			rowEl.appendChild(cellEl);
 		}
-		fragment.appendChild(rowEl)
+		fragment.appendChild(rowEl);
 	}
 	table.innerHTML = '';
 	table.appendChild(fragment);
@@ -69,7 +70,7 @@ function updateUnitsStrip(state) {
 			const li = document.createElement("LI");
 			li.tabIndex = 0;
 			li.innerHTML =`${unit.name} ${state.modelsStamina[unit.models[0]]}`;
-			li.classList.add(`player-${unit.playerId}`)
+			li.classList.add(`player-${unit.playerId}`);
 			unitsStrip.appendChild(li);
 			if (state.player === unit.playerId) {
 				const playerModelId = modelCounter;
@@ -79,7 +80,11 @@ function updateUnitsStrip(state) {
 			}
 			modelCounter++;
 		});
-	})
+	});
+}
+
+function updateSecondaryMission(state) {
+	missionSection.innerHTML = state.secondaryMissions.join() + (state.tamptingTarget ?? '');
 }
 
 const game = new Game(canvas);
@@ -87,6 +92,7 @@ game.onUpdate = (state) => {
 	updateTable(state);
 	updateHeader(state);
 	updateUnitsStrip(state);
+	updateSecondaryMission(state);
 }
 
 drawBattlefieldOptions();
@@ -118,11 +124,10 @@ function drawBattlefieldOptions() {
 	});
 }
 
-
 battlefieldSelect.addEventListener('change', (e) => {
 	localStorage.setItem('battlefield-name', battlefieldSelect.selectedOptions[0].value);
-	console.log(battlefieldSelect);
-})
+});
+
 nextPhaseBtn.addEventListener('click', () => {
 	game.orderResolve([new Orders().getOrders().nextPhaseIndex]);
 });
@@ -149,11 +154,11 @@ function getEntries(file, options) {
 loadRosterInput.addEventListener('change', async (e) => {
 	var file = e.target.files[0];
 	if (!file) {
-	  return;
+		return;
 	}
 
 	const entries = await getEntries(file);
-	const data = await entries[0].getData(new zip.TextWriter())
-	const settings = roster2settings(xml2js(data, {compact: true}))
+	const data = await entries[0].getData(new zip.TextWriter());
+	const settings = roster2settings(xml2js(data, { compact: true }));
 	localStorage.setItem('game-settings', JSON.stringify(settings));
 });

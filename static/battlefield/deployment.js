@@ -25,7 +25,6 @@ class CrucibleOfBattle {
 			return { strokeStyle: playerColors[i], methods: ['moveTo', 'lineTo', 'lineTo'], args: points };
 		});
 
-
 		const objectiveMarkers = this.objective_markers.map(
 			(position, i) => getObjectDrawing(position, this.objective_marker_control_distance)
 		);
@@ -162,7 +161,7 @@ class SweepingEngagement {
 	}
 }
 
-export const deployments = {
+export const deployment = {
 	"crucibleOfBattle": CrucibleOfBattle,
 	"dawnOfWar": DawnOfWar,
 	"hammerAndAnvil": HammerAndAnvil,

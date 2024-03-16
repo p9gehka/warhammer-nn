@@ -81,7 +81,7 @@ export class Warhammer {
 	constructor(config) {
 		this.gameSettings = config.gameSettings;
 		this.battlefields = config.battlefields;
-		this.mission = new MissionController('TakeAndHold', 'ChillingRain', [Mission.ATamptingTarget]);
+		this.mission = new MissionController('TakeAndHold', 'ChillingRain', [Mission.DefendStronhold, Mission.ExtendBattleLines]);
 		this.reset();
 	}
 	reset() {
@@ -95,8 +95,8 @@ export class Warhammer {
 			(playerUnits, playerId) => playerUnits.map(unit => ({...unit, playerId }))
 		);
 		this.players = [
-			{ units: units[0], models: units[0].map(unit => unit.models).flat(), vp: 0 },
-			{ units: units[1], models: units[1].map(unit => unit.models).flat(), vp: 0 }
+			{ units: units[0], models: units[0].map(unit => unit.models).flat(), primaryVP: 0, secondaryVP: 0 },
+			{ units: units[1], models: units[1].map(unit => unit.models).flat(), primaryVP: 0, secondaryVP: 0 }
 		];
 		this.units = units.flat();
 
@@ -116,6 +116,10 @@ export class Warhammer {
 				model.updateAvailableToMove(true);
 			}
 		});
+
+		this.mission.reset();
+		this.mission.updateSecondary(this.getRound())
+
 		return this.getState();
 	}
 	getRandomStartPosition(exclude) {
@@ -138,13 +142,15 @@ export class Warhammer {
 		const currentPlayerId = this.getPlayer();
 		if (order.action === BaseAction.NextPhase) {
 			if (this.phase === Phase.Command) {
-				this.players[currentPlayerId].vp += this.mission.scorePrimaryVP(this.getState(), this.models.map(m => m.unitProfile));
+				this.players[currentPlayerId].primaryVP += this.mission.scorePrimaryVP(this.getState(), this.models.map(m => m.unitProfile));
+				this.players[currentPlayerId].primaryVP = Math.min(this.players[currentPlayerId].primaryVP, 50);
 			}
 
 			this.models.forEach(model => model.updateAvailableToMove(false));
 
 			if (this.phase === phaseOrd.at(-1)) {
-				this.players[currentPlayerId].vp += this.mission.scoreSecondaryVP(this.getState(), this.models.map(m => m.unitProfile));
+				this.players[currentPlayerId].secondaryVP += this.mission.scoreSecondaryVP(this.getState(), this.models.map(m => m.unitProfile));
+				this.players[currentPlayerId].secondaryVP = Math.min(this.players[currentPlayerId].secondaryVP, 40);
 			}
 		}
 		/*Before*/
@@ -156,6 +162,7 @@ export class Warhammer {
 			this.phase = phaseOrd[(this.phase + 1) % phaseOrd.length];
 		}
 		/*After*/
+
 		if (order.action === BaseAction.NextPhase) {
 			let nextPlayerId = this.getPlayer();
 			if (this.phase === Phase.Movement) {
@@ -166,6 +173,9 @@ export class Warhammer {
 				});
 			}
 
+			if (this.phase === Phase.Command) {
+				this.mission.updateSecondary(this.getRound());
+			}
 			return this.getState();
 		}
 
@@ -203,7 +213,9 @@ export class Warhammer {
 	end() {
 		this.turn = (this.totalRounds * 2);
 	}
-
+	getRound() {
+		return Math.floor(this.turn / 2)
+	}
 	getState(misc) {
 		return {
 			players: this.players,
@@ -217,6 +229,8 @@ export class Warhammer {
 			battlefield: this.battlefield,
 			turn: this.turn,
 			round: Math.floor(this.turn / 2),
+			secondaryMissions: this.mission.getSecondary(),
+			tamptingTarget: this.mission.tamptingTarget
 		};
 	}
 }
