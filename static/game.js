@@ -6,8 +6,6 @@ import { getDeployOrders } from './environment/deploy.js'
 import { roster2settings } from './utils/roster2settings.js';
 import { Mission } from './environment/mission.js';
 
-import * as zip from "https://deno.land/x/zipjs/index.js";
-
 import battlefields from '../settings/battlefields.json' assert { type: 'json' };
 
 const startBtn = document.getElementById('start');
