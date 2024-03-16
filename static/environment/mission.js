@@ -16,27 +16,25 @@ export const Mission = {
 	CaptureEnemyOutpost: 'CaptureEnemyOutpost',
 	ATamptingTarget: 'ATamptingTarget',
 	ExtendBattleLines: 'ExtendBattleLines',
+	Assasination: 'Assasination',
+	NoPrisoners: 'NoPrisoners',
+	BringItDown: 'BringItDown',
+	OverwhelmingForce: 'OverwhelmingForce',
+	StormHostileObjective: 'StormHostileObjective',
 }
 
 const size = [60, 44];
 const center = [30, 22];
 
 export class MissionController {
-	/*
-	'ExtendBattleLines', 'DefendStronhold', 'OverhelmingForce', 'SecureNoMansLand', 'AreaDenial',
-	'ATamptingTarget', 'CaptureEnemyOutpost', 'NoPrisoners', 'InvestigateSignals',
-	'BehindEnemyLines', 'Assasination', 'Cleanse', 'DeployTeleportHomer', 'BringItDown', 
-	'EngageOnAllFronts', 'StormHostileObjective' 
-	*/
-
 	fixedMission = [
 		Mission.BehindEnemyLines, Mission.Cleanse, Mission.DeployTeleportHomer, Mission.EngageOnAllFronts,
-		Mission.InvestigateSignals
+		Mission.InvestigateSignals, Mission.Assasination, Mission.BringItDown, Mission.StormHostileObjective,
 	]
 
 	tacticalMissions = [
 		Mission.DefendStronhold, Mission.SecureNoMansLand, Mission.AreaDenial, Mission.ATamptingTarget,
-		Mission.CaptureEnemyOutpost
+		Mission.CaptureEnemyOutpost, Mission.NoPrisoners, Mission.OverwhelmingForce,
 	]
 	allSecondary = [...this.fixedMission, ...this.tacticalMissions];
 	_deck = [];
@@ -44,30 +42,27 @@ export class MissionController {
 	constructor(primary, missionRule, secondary) {
 		this.primary = primary;
 		this.missionRule = missionRule;
-
 		this.secondary = secondary;
 		this.tamptingTarget = getRandomInteger(0, 2);
 		this.isTactical = this.tacticalMissions.includes(secondary[0]);
 	}
 	reset() {
 		this.tamptingTarget = getRandomInteger(0, 2);
+		this.secondary = [];
+		this._deck = [];
+		this._deck.push(...this.allSecondary);
+		console.log('reset')
+		console.log({ deck: [...this._deck], secondary: [...this.secondary] });
 	}
 	updateSecondary(round) {
 		if(!this.isTactical) {
 			return;
 		}
 
-		if (round === 0) {
-			this.secondary = [];
-			this._deck = [];
-			this._deck.push(...this.allSecondary);
-			console.log({ round, deck: [...this._deck], secondary: [...this.secondary] })
-		}
-
 		while(this.secondary.length < 2 && this._deck.length > 0) {
 			const card = getRandomInteger(0, this._deck.length);
 			const mission = this._deck[card];
-			if (round === 0 && mission === Mission.DefendStronhold) {
+			if (round === 0 && (mission === Mission.DefendStronhold || mission === Mission.StormHostileObjective)) {
 				continue;
 			} 
 			this.secondary.push(mission);
@@ -337,8 +332,6 @@ export class MissionController {
 			}
 		}
 
-		
-
 		this.secondary = this.secondary.filter(mission => !completed.includes(mission));
 		console.log('completed', completed);
 		console.log({ deck: [...this._deck], secondary: [...this.secondary] });
@@ -346,5 +339,10 @@ export class MissionController {
 	}
 	getSecondary() {
 		return this.secondary;
+	}
+
+	discardSecondary(id) {
+		console.log('discard', this.secondary[id]);
+		this.secondary.splice(id, 1);
 	}
 }

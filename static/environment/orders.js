@@ -24,8 +24,10 @@ export class Orders {
 			[Action.NextPhase]: [{ action: Action.NextPhase }],
 			[Action.Move]: [],
 			[Action.Select]: [],
+			[Action.DiscardSecondary]: [{ action: Action.DiscardSecondary, id: 0 }, { action: Action.DiscardSecondary, id: 1 }],
 			moveIndexes: [],
 			selectIndexes: [],
+			discardSecondaryIndex: [],
 			all: []
 		}
 		this.orders.all.push({ action: Action.NextPhase });
@@ -55,7 +57,10 @@ export class Orders {
 			this.orders.selectIndexes.push(this.orders.all.length);
 			this.orders.all.push(order);
 		});
-
+		this.orders[Action.DiscardSecondary].forEach((order) => {
+			this.orders.discardSecondaryIndex.push(this.orders.all.length);
+			this.orders.all.push(order);
+		});
 		return this.orders;
 	}
 }

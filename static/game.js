@@ -4,6 +4,7 @@ import { getStateTensor } from '../utils/get-state-tensor.js';
 import { Game } from './game-controller/game-controller.js';
 import { getDeployOrders } from './environment/deploy.js'
 import { roster2settings } from './utils/roster2settings.js';
+import { Mission } from './environment/mission.js';
 
 import * as zip from "https://deno.land/x/zipjs/index.js";
 
@@ -84,7 +85,17 @@ function updateUnitsStrip(state) {
 }
 
 function updateSecondaryMission(state) {
-	missionSection.innerHTML = state.secondaryMissions.join() + (state.tamptingTarget ?? '');
+	const orders = new Orders().getOrders();
+	missionSection.innerHTML = '';
+	state.secondaryMissions.forEach((mission, missionIndex) => {
+	 	const li = document.createElement("LI");
+	 	const button = document.createElement("BUTTON");
+	 	li.innerHTML = mission + (mission === Mission.ATamptingTarget ? state.tamptingTarget : '');
+	 	button.innerHTML = 'X';
+	 	li.appendChild(button);
+	 	button.addEventListener('click', () => game.orderResolve([orders.discardSecondaryIndex[missionIndex]]))
+	 	missionSection.appendChild(li);
+	 });
 }
 
 const game = new Game(canvas);

@@ -13,6 +13,7 @@ export const BaseAction = {
 	NextPhase: 'NEXT_PHASE',
 	Move: 'MOVE',
 	Done: 'DONE',
+	DiscardSecondary: 'DISCARD_SECONDARY',
 }
 
 class Model {
@@ -198,7 +199,10 @@ export class Warhammer {
 				}
 			});
 		}
-
+		if (order.action === BaseAction.DiscardSecondary) {
+			this.mission.discardSecondary(order.id);
+			this.mission.updateSecondary(this.getRound());
+		}
 		return this.getState();
 	}
 
