@@ -2,18 +2,25 @@ import { mul, len, sub, add, eq } from '../utils/vec2.js'
 import { getRandomInteger } from '../utils/index.js';
 import { MissionController, Mission } from './mission.js';
 
+const GameSequense = [
+	'DeployArmies',
+	'BeginTheBattle',
+	'EndTheBattle',
+]
 export const Phase = {
 	Command: 0,
 	Movement: 1,
+	Reinforcements: 2,
 }
 
-const phaseOrd = [Phase.Command, Phase.Movement];
+const phaseOrd = [Phase.Command, Phase.Movement, Phase.Reinforcements];
 
 export const BaseAction = {
 	NextPhase: 'NEXT_PHASE',
 	Move: 'MOVE',
 	Done: 'DONE',
 	DiscardSecondary: 'DISCARD_SECONDARY',
+	DeployModel: 'DEPLOY_MODEL'
 }
 
 class Model {
@@ -21,7 +28,7 @@ class Model {
 	wound = 0;
 	dead = true;
 	stamina = 0;
-
+	deployed = false;
 	constructor(id, unit, position, profile) {
 		this.id = id;
 		this.name = unit.name;
@@ -41,6 +48,9 @@ class Model {
 			this.position = position;
 			this.dead = false;
 			this.wound = this.unitProfile.w;
+			if(!isNaN(position[0])) {
+				this.deployed = true;
+			}
 		}
 	}
 
@@ -70,6 +80,7 @@ class Model {
 		this.stamina = Math.max(0, this.stamina - value);
 	}
 }
+
 
 export class Warhammer {
 	players = [];
@@ -134,6 +145,7 @@ export class Warhammer {
 	}
 
 	step(order) {
+		const round = this.getRound();
 		if (order.action === BaseAction.Done) {
 			this._done = true;
 		}
@@ -201,8 +213,14 @@ export class Warhammer {
 		}
 		if (order.action === BaseAction.DiscardSecondary) {
 			this.mission.discardSecondary(order.id);
-			this.mission.updateSecondary(this.getRound());
+			this.mission.updateSecondary(round);
 		}
+
+		if (order.action === BaseAction.DeployModel && (round === 1 || round === 2)) {
+			this.models[order.id].update(order.position);
+			this.models[order.id].deployed = true;
+		}
+
 		return this.getState();
 	}
 

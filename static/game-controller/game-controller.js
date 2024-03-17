@@ -1,5 +1,5 @@
 import { Battlefield, Scene } from '../drawing-entities/drawing-entities.js';
-import { Warhammer } from '../environment/warhammer.js'
+import { Warhammer, Phase } from '../environment/warhammer.js'
 import { Deploy, DeployAction, DeployEnvironment, getDeployOrders } from '../environment/deploy.js'
 import { PlayerEnvironment } from '../environment/player-environment.js'
 import { ControlledAgent } from '../agents/controlled-agent.js';
@@ -102,6 +102,7 @@ export class Game {
 		this.env = new Warhammer({ gameSettings: this.deploy.getSettings(), battlefields: this.deploy.getBattlefields() });
 
 		this.players = [new PlayerEnvironment(0, this.env), new PlayerEnvironment(1, this.env)];
+		this.reinforcementsPlayers = [new DeployEnvironment(0, this.env), new DeployEnvironment(1, this.env)];
 		this.agents = [new ControlledAgent(this.players[0]), new ControlledAgent(this.players[1])];
 		this.play();
 	}
@@ -122,6 +123,7 @@ export class Game {
 		this.env?.reset();
 		this.deploy?.reset();
 		this.deployPlayers?.forEach(player => player.reset());
+		this.reinforcementsPlayers?.forEach(player => player.reset());
 		this.started = false;
 		this.runDeploy();
 	}
@@ -130,6 +132,7 @@ export class Game {
 			const state = this.env.getState();
 			this.scene.updateState(state);
 			this.onUpdate(state);
+			this.orderHandlers = [];
 
 			if (state.done) {
 				this.agents.forEach(agent => agent.awarding());
@@ -152,8 +155,18 @@ export class Game {
 					this.scene.drawOrders(this.orders.all.filter(order=> order.action==="MOVE" && state.modelsStamina[selected] >= len(order.vector)).map(order=> add(selectedPosition, order.vector)));
 				}
 
+				if (state.phase === Phase.Reinforcements) {
+					this.orderHandlers = [
+						([x, y]) => this.orderResolve([this.deployOrders.setXIndexes[x], this.deployOrders.setYIndexes[y], this.deployOrders.deployIndex])
+					];
+				}
+
 				const orders = await this.orderPromise;
 				orders.forEach(order => {
+					if (state.phase === Phase.Reinforcements) {
+						this.reinforcementsPlayers[state.player].step(this.deployOrders.all[order]);
+						return;
+					}
 					this.agents[state.player].playStep(order)
 				});
 

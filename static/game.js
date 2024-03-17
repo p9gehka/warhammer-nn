@@ -1,5 +1,6 @@
 import { Orders } from './environment/orders.js';
 import { getInput, channels } from './environment/nn-input.js';
+import { Phase } from './environment/warhammer.js';
 import { getStateTensor } from '../utils/get-state-tensor.js';
 import { Game } from './game-controller/game-controller.js';
 import { getDeployOrders } from './environment/deploy.js'
@@ -39,7 +40,7 @@ orderViewCheckbox.addEventListener('change', (e) => {
 })
 
 function updateHeader(state) {
-	const phaseName = ['Command', 'Movement'][state.phase];
+	const phaseName = ['Command', 'Movement', 'Reinforcements'][state.phase];
 	headerInfo.innerHTML = `Phase: ${phaseName}, Round: ${state.round}, Player turn: ${state.player}, Player0: ${state.players[0].primaryVP}/${state.players[0].secondaryVP}, Player1: ${state.players[1].primaryVP}/${state.players[1].secondaryVP}`;
 }
 
@@ -62,7 +63,7 @@ function updateTable(state) {
 
 function updateUnitsStrip(state) {
 	unitsStrip.innerHTML = '';
-	const orders = state.round === -1 ? getDeployOrders() : new Orders().getOrders();
+	const orders = (state.round === -1 || state.phase === Phase.Reinforcements) ? getDeployOrders() : new Orders().getOrders();
 	state.players.forEach((player) => {
 		let modelCounter = 0;
 		player.units.forEach((unit) => {
@@ -86,14 +87,16 @@ function updateSecondaryMission(state) {
 	const orders = new Orders().getOrders();
 	missionSection.innerHTML = '';
 	state.secondaryMissions.forEach((mission, missionIndex) => {
-	 	const li = document.createElement("LI");
-	 	const button = document.createElement("BUTTON");
-	 	li.innerHTML = mission + (mission === Mission.ATamptingTarget ? state.tamptingTarget : '');
-	 	button.innerHTML = 'X';
-	 	li.appendChild(button);
-	 	button.addEventListener('click', () => game.orderResolve([orders.discardSecondaryIndex[missionIndex]]))
-	 	missionSection.appendChild(li);
-	 });
+		const li = document.createElement("LI");
+		const button = document.createElement("BUTTON");
+		li.innerHTML = mission + (mission === Mission.ATamptingTarget ? state.tamptingTarget : '');
+		if(state.phase === Phase.Command) {
+			button.innerHTML = 'X';
+			li.appendChild(button);
+			button.addEventListener('click', () => game.orderResolve([orders.discardSecondaryIndex[missionIndex]]));
+		}
+		missionSection.appendChild(li);
+	});
 }
 
 const game = new Game(canvas);

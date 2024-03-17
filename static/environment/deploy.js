@@ -5,21 +5,37 @@ export function getDeployOrders() {
 	const all = [];
 	all.push({ action: 'NEXT_PHASE' });
 	all.push({ action: 'DONE' });
-	all.push({ action: 'DEPLOY_MODEL'});
-	
+
 	const select = Array(30).fill().map((_, id) => ({ action: 'SELECT', id }));
 	const setX = Array(60).fill().map((_, value) => ({ action: 'SET_X', value }));
 	const setY = Array(44).fill().map((_, value) => ({ action: 'SET_Y', value }));
-	all.push(...select);
-	all.push(...setX);
-	all.push(...setY);
 
+	const selectIndexes = [];
+	select.forEach((order) => {
+		selectIndexes.push(all.length);
+		all.push(order);
+	});
+
+	const setXIndexes = [];
+	setX.forEach((order) => {
+		setXIndexes.push(all.length);
+		all.push(order);
+	});
+
+	const setYIndexes = [];
+	setY.forEach((order) => {
+		setYIndexes.push(all.length);
+		all.push(order);
+	});
+	const deployIndex = all.length;
+	all.push({ action: 'DEPLOY_MODEL'});
+	
 	return {
-		selectIndexes: setX.map((_, i) => i + 3),
-		setXIndexes: setX.map((_, i) => i + 3 + select.length),
-		setYIndexes: setY.map((_, i) => i + 3 + select.length + setX.length),
+		selectIndexes,
+		setXIndexes,
+		setYIndexes,
 		doneIndex: 1,
-		deployIndex: 2,
+		deployIndex,
 		all
 	};
 }
@@ -137,7 +153,7 @@ export class DeployEnvironment {
 		if (order.action === 'SELECT') {
 
 			const selectedModel = this.env.players[this.playerId].models[order.id];
-			if (!this.env.models[selectedModel].deployed) {
+			if (selectedModel !== undefined && !this.env.models[selectedModel].deployed) {
 				this._selectedModel = selectedModel;
 			}
 			return currentState;

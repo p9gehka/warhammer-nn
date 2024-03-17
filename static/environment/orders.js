@@ -33,6 +33,13 @@ export class Orders {
 		this.orders.all.push({ action: Action.NextPhase });
 		this.orders.all.push({ action: Action.Done });
 
+		this.orders[Action.Select] = Array(30).fill().map((_, id) => ({ action: 'SELECT', id }));
+
+		this.orders[Action.Select].forEach((order) => {
+			this.orders.selectIndexes.push(this.orders.all.length);
+			this.orders.all.push(order);
+		});
+
 		angles.forEach((angle, i) => {
 			for (let distance of distances) {
 				this.orders[Action.Move].push({ action: Action.Move, vector: round(angleToVec2(distance, angle)), expense: distance });
@@ -51,12 +58,6 @@ export class Orders {
 			this.orders.all.push(order);
 		});
 
-		this.orders[Action.Select] = Array(30).fill().map((_, id) => ({ action: 'SELECT', id }));
-
-		this.orders[Action.Select].forEach((order) => {
-			this.orders.selectIndexes.push(this.orders.all.length);
-			this.orders.all.push(order);
-		});
 		this.orders[Action.DiscardSecondary].forEach((order) => {
 			this.orders.discardSecondaryIndex.push(this.orders.all.length);
 			this.orders.all.push(order);
