@@ -51,10 +51,11 @@ class Model {
 	wound = 0;
 	stamina = 0;
 	deployed = false;
-	constructor(id, unit, position, profile, categories = [], rules = []) {
+	constructor(id, unit, unitId, position, profile, categories = [], rules = []) {
 		this.id = id;
 		this.name = unit.name;
 		this.playerId = unit.playerId;
+		this.unitId = unitId;
 		if (position !== null) {
 			this.position = position;
 		}
@@ -87,7 +88,7 @@ export class Deploy {
 			{ units: units[1], models: units[1].map(unit => unit.models).flat(), primaryVP: 0, secondaryVP: 0 }
 		];
 		this.units = units.flat();
-		this.models = this.units.map(unit => unit.models.map(id => new Model(id, unit, null, this.gameSettings.profiles[id], this.gameSettings.categories[id], this.gameSettings.rules[id]))).flat();
+		this.models = this.units.map((unit, unitId) => unit.models.map(id => new Model(id, unit, unitId, null, this.gameSettings.profiles[id], this.gameSettings.categories[id], this.gameSettings.rules[id]))).flat();
 		return this.getState();
 	}
 	step(order) {
@@ -98,12 +99,13 @@ export class Deploy {
 		if (order.action === DeployAction.DeployModel && deployment[this.battlefield.deployment]) {
 			const deploy = new deployment[this.battlefield.deployment];
 			const opponent = (this.currentPlayer + 1) % 2;
+			const orderModel = this.models[order.id];
 			if (deploy.include(this.currentPlayer, order.position)
-				|| (this.models[order.id].rules.includes('infiltrators') && !deploy.include(opponent, order.position))
+				|| (orderModel.rules.includes('infiltrators') && !deploy.include(opponent, order.position))
 			) {
-				this.models[order.id].update(order.position);
+				orderModel.update(order.position);
 				this.models.forEach(model => {
-					if (!model.deployed && model.id !== order.id) {
+					if (!model.deployed && orderModel.unitId !== model.unitId) {
 						model.update([NaN, NaN]);
 					}
 				});

@@ -28,6 +28,7 @@ const loadRosterInput = document.getElementById("load-roster");
 const battlefieldSelect = document.getElementById("battlefield-select");
 const reloadBtn = document.getElementById("game-reload");
 const missionSection = document.getElementById("mission-section");
+const unitSection = document.getElementById("unit-section");
 
 viewCheckbox.addEventListener('change', (e) => {
 	table.classList.toggle('hidden', !e.target.checked);
@@ -63,22 +64,21 @@ function updateTable(state) {
 
 function updateUnitsStrip(state) {
 	unitsStrip.innerHTML = '';
-	const orders = (state.round === -1 || state.phase === Phase.Reinforcements) ? getDeployOrders() : new Orders().getOrders();
 	state.players.forEach((player) => {
-		let modelCounter = 0;
-		player.units.forEach((unit) => {
+		player.units.forEach((unit, unitId) => {
 			const li = document.createElement("LI");
 			li.tabIndex = 0;
-			li.innerHTML =`${unit.name} ${state.modelsStamina[unit.models[0]]}`;
+			li.innerHTML =`${unit.name}`;
 			li.classList.add(`player-${unit.playerId}`);
 			unitsStrip.appendChild(li);
 			if (state.player === unit.playerId) {
-				const playerModelId = modelCounter;
-				li.addEventListener('click', () => game.orderResolve([orders.selectIndexes[playerModelId]]));
+				li.addEventListener('click', () => {
+					game.selectUnit(unitId);
+					updateUnitSection(unitId);
+				});
 			} else {
 				li.classList.add(`disabled`);
 			}
-			modelCounter++;
 		});
 	});
 }
@@ -100,7 +100,34 @@ function updateSecondaryMission(state) {
 }
 
 const game = new Game(canvas);
-game.onUpdate = (state) => {
+
+function updateUnitSection(selectedUnit) {
+	unitSection.innerHTML = '';
+	if (selectedUnit === null || selectedUnit === undefined) {
+		return;
+	}
+
+	unitSection.append(game.gameSettings.units.flat()[selectedUnit].name);
+	
+	unitSection.append(JSON.stringify(game.gameSettings.profiles[selectedUnit]));
+	unitSection.append(game.gameSettings.categories[selectedUnit].join());
+	unitSection.append(game.gameSettings.rules[selectedUnit].join());
+	const state = game.env?.getState() ?? game.deploy?.getState();
+	const orders = (state.round === -1 || state.phase === Phase.Reinforcements) ? getDeployOrders() : new Orders().getOrders();
+	game.gameSettings.units.flat()[selectedUnit].models.forEach((modelId) => {
+		const li = document.createElement("LI");
+		li.innerHTML =`${modelId} ${state.modelsStamina[modelId]}`;
+		unitSection.append(li);
+
+		li.addEventListener('click', () => {
+			game.orderResolve([orders.selectIndexes[modelId]])
+		});
+
+	});
+
+}
+
+game.onUpdate = (state, playerState) => {
 	updateTable(state);
 	updateHeader(state);
 	updateUnitsStrip(state);

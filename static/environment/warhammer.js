@@ -117,10 +117,10 @@ export class Warhammer {
 		this.units = units.flat();
 
 		const usedPosition = [];
-		this.models = this.units.map(unit => {
+		this.models = this.units.map((unit, unitId) => {
 			return unit.models.map(id => {
 				if (this.gameSettings.models.length !== 0 && this.gameSettings.models[id] !== undefined) {
-					return new Model(id, unit, this.gameSettings.models[id], this.gameSettings.profiles[id], this.gameSettings.categories[id]);
+					return new Model(id, unit, this.gameSettings.models[id], this.gameSettings.profiles[unitId], this.gameSettings.categories[unitId]);
 				}
 				usedPosition.push(this.getRandomStartPosition(usedPosition));
 				return new Model(id, unit, usedPosition.at(-1), this.gameSettings.profile[id]);

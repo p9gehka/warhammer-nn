@@ -41,6 +41,7 @@ export class Game {
 		this.orderHandlers = [];
 		this.deployOrders = getDeployOrders();
 		this.runDeploy();
+		this.selectedUnit = null;
 	}
 	selectHandler(clickPosition) {
 		const state = this.started ? this.env.getState() : this.deploy.getState();
@@ -58,25 +59,25 @@ export class Game {
 		if (!gameSettingsLS || !battlefieldSettingsLS) {
 			return;
 		}
-		const gameSettings = JSON.parse(gameSettingsLS);
+		this.gameSettings = JSON.parse(gameSettingsLS);
 		const battlefieldSettings = { [battlefieldName]: battlefieldSettingsLS };
 
-		this.deploy = new Deploy({ gameSettings, battlefields: battlefieldSettings });
+		this.deploy = new Deploy({ gameSettings: this.gameSettings, battlefields: battlefieldSettings });
 		let state = this.deploy.getState();
 		const battlefield = new Battlefield(this.ctx, state.battlefield);
 		await battlefield.init();
 		battlefield.draw();
 		this.scene = new Scene(this.ctx, state);
 		this.scene.init();
-		this.onUpdate(state);
 		this.deployPlayers = [new DeployEnvironment(0, this.deploy), new DeployEnvironment(1, this.deploy)];
+		this.onUpdate(state, this.deployPlayers[state.player].getState());
 		while(true) {
 			state = this.deploy.getState();
 			if (state.done) {
 				break;
 			} else {
 				this.scene.updateState(state);
-				this.onUpdate(state);
+				this.onUpdate(state, this.deployPlayers[state.player].getState());
 				this.orderHandlers = [
 					([x, y]) => this.orderResolve([this.deployOrders.setXIndexes[x], this.deployOrders.setYIndexes[y], this.deployOrders.deployIndex])
 				];
@@ -131,7 +132,7 @@ export class Game {
 		while(true) {
 			const state = this.env.getState();
 			this.scene.updateState(state);
-			this.onUpdate(state);
+			this.onUpdate(state, (state.phase === Phase.Reinforcements ? this.reinforcementsPlayers : this.players)[state.player].getState());
 			this.orderHandlers = [];
 
 			if (state.done) {
@@ -175,5 +176,9 @@ export class Game {
 				}
 			}
 		}
+	}
+	selectUnit(unitId) {
+		console.log('select', unitId);
+		this.selectedUnit = unitId;
 	}
 }
