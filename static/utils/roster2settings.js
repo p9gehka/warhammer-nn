@@ -1,6 +1,7 @@
 export function roster2settings(roster) {
-	const name = roster.roster.forces.force.selections.selection.filter(v=>v._attributes.type === "unit")[0];
 	const profiles = [];
+	const categories = [];
+	const rules = [];
 	const units = [[], []].map(() => {
 		const unit = []
 
@@ -12,10 +13,22 @@ export function roster2settings(roster) {
 				rosterUnit.profiles.profile.filter(p => p._attributes.typeName === 'Unit')[0].characteristics.characteristic.forEach(ch => {
 					profile[ch._attributes.name] = ch._text;
 				});
+
+				const category = rosterUnit.categories.category.map(r => r._attributes.name.toLowerCase());
+
+				let rosterRule = rosterUnit.rules.rule;
+				if (!Array.isArray(rosterRule)) {
+					rosterRule = [rosterUnit.rules.rule];
+				}
+				const rule = rosterRule.map(r => r._attributes.name.toLowerCase());
+				rules.push(rule);
+				categories.push(category);
 				profiles.push(profile);
 				unit.push(result);
+
 			});
 		return unit;
-	})
-	return { units, profiles};
+	});
+
+	return { units, profiles, categories, rules };
 }

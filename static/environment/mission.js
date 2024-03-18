@@ -101,7 +101,7 @@ export class MissionController {
 
 		return Math.min(objectiveControl.filter(oc => oc > 0).length * objectiveControlReward, 15);
 	}
-	scoreSecondaryVP(state, profiles) {
+	scoreSecondaryVP(state, profiles, categories) {
 		let secondaryVP = 0;
 		const battlefield = state.battlefield;
 		const activePlayerId = state.player
@@ -110,7 +110,7 @@ export class MissionController {
 		const completed = [];
 		if (this.secondary.includes(Mission.BehindEnemyLines)) {
 			const hollyWithinCounter = state.players[state.player].models
-				.filter((modelId) => playerDeployment.include(opponentPlayer, state.models[modelId])).length;
+				.filter((modelId) => playerDeployment.include(opponentPlayer, state.models[modelId]) && !categories[modelId].includes('aircraft')).length;
 
 			if (hollyWithinCounter >= 2) {
 				secondaryVP += this.isTactical ? 2 : 1;

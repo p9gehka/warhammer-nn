@@ -29,7 +29,7 @@ class Model {
 	dead = true;
 	stamina = 0;
 	deployed = false;
-	constructor(id, unit, position, profile) {
+	constructor(id, unit, position, profile, category = []) {
 		this.id = id;
 		this.name = unit.name;
 		this.playerId = unit.playerId;
@@ -43,6 +43,7 @@ class Model {
 			"ranged_weapons": ["pulse_rifle"],
 			"melee_weapons": ["close_combat_weapon_2"]
 		};
+		this.category = category;
 
 		if (position !== null) {
 			this.position = position;
@@ -77,6 +78,9 @@ class Model {
 	}
 
 	decreaseStamina(value) {
+		if (this.category.includes('aircraft')) {
+			return;
+		}
 		this.stamina = Math.max(0, this.stamina - value);
 	}
 }
@@ -116,7 +120,7 @@ export class Warhammer {
 		this.models = this.units.map(unit => {
 			return unit.models.map(id => {
 				if (this.gameSettings.models.length !== 0 && this.gameSettings.models[id] !== undefined) {
-					return new Model(id, unit, this.gameSettings.models[id], this.gameSettings.profiles[id]);
+					return new Model(id, unit, this.gameSettings.models[id], this.gameSettings.profiles[id], this.gameSettings.categories[id]);
 				}
 				usedPosition.push(this.getRandomStartPosition(usedPosition));
 				return new Model(id, unit, usedPosition.at(-1), this.gameSettings.profile[id]);
@@ -162,7 +166,7 @@ export class Warhammer {
 			this.models.forEach(model => model.updateAvailableToMove(false));
 
 			if (this.phase === phaseOrd.at(-1)) {
-				this.players[currentPlayerId].secondaryVP += this.mission.scoreSecondaryVP(this.getState(), this.models.map(m => m.unitProfile));
+				this.players[currentPlayerId].secondaryVP += this.mission.scoreSecondaryVP(this.getState(), this.models.map(m => m.unitProfile), this.models.map(m => m.category));
 				this.players[currentPlayerId].secondaryVP = Math.min(this.players[currentPlayerId].secondaryVP, 40);
 			}
 		}
