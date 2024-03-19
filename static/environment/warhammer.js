@@ -11,9 +11,10 @@ export const Phase = {
 	Command: 0,
 	Movement: 1,
 	Reinforcements: 2,
+	Shooting: 3,
 }
 
-const phaseOrd = [Phase.Command, Phase.Movement, Phase.Reinforcements];
+const phaseOrd = [Phase.Command, Phase.Movement, Phase.Reinforcements, Phase.Shooting];
 
 export const BaseAction = {
 	NextPhase: 'NEXT_PHASE',

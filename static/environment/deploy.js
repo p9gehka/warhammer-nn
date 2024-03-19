@@ -69,9 +69,26 @@ class Model {
 }
 
 export class Deploy {
+	models = [];
 	constructor(config) {
-		this.gameSettings = config?.gameSettings;
 		this.battlefields = config?.battlefields;
+
+		if (config?.gameSettings !== undefined) {
+			let modelCounter = 0;
+			const resultUnits = [[], []];
+			config?.gameSettings.units.forEach((units, i) => {
+				units.forEach(unit => {
+					resultUnits[i].push({...unit, models: unit.models.map((id) => modelCounter + id) });
+					modelCounter += unit.models.length;
+				});
+			});
+
+			this.gameSettings = {
+				...config.gameSettings,
+				units: resultUnits,
+			}
+		}
+
 		this.reset();
 		this.currentPlayer = 0;
 		this._done = false;
@@ -88,9 +105,10 @@ export class Deploy {
 			{ units: units[1], models: units[1].map(unit => unit.models).flat(), primaryVP: 0, secondaryVP: 0 }
 		];
 		this.units = units.flat();
-		this.models = this.units.map((unit, unitId) => unit.models.map(id => new Model(id, unit, unitId, null, this.gameSettings.profiles[id], this.gameSettings.categories[id], this.gameSettings.rules[id]))).flat();
+		this.models = this.units.map((unit, unitId) => unit.models.map(id => new Model(id, unit, unitId, null, this.gameSettings.profiles[unitId], this.gameSettings.categories[unitId], this.gameSettings.rules[unitId]))).flat();
 		return this.getState();
 	}
+
 	step(order) {
 		if (this._done) {
 			return this.getState();

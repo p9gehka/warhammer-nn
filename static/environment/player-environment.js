@@ -20,7 +20,7 @@ export class PlayerEnvironment {
 		this.enemyId = (playerId+1) % 2;
 		this.reset();
 		this.orders = new Orders().getOrders();
-		this._selectedModel = 0;
+		this._selectedModel = this.env.players[this.playerId].models[0];
 	}
 
 	reset() {
@@ -38,8 +38,8 @@ export class PlayerEnvironment {
 		const prevState = this.env.getState();
 
 		if (order.action === Action.Select) {
-			this._selectedModel = order.id;
-			playerOrder = {...order.action, id: this._selectedModel }
+			this._selectedModel = this.env.players[this.playerId].models[order.id];
+			playerOrder = {...order.action, id: this._selectedModel };
 		}
 
 		if (action === Action.Move) {

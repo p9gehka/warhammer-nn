@@ -24,7 +24,9 @@ const nextPhaseBtn = document.getElementById("next-phase-button");
 const settingsDialog = document.getElementById("settings-dialog");
 const closeSettingsDialog = document.getElementById("close-settings-dialog");
 const unitsStrip = document.getElementById("units-strip");
-const loadRosterInput = document.getElementById("load-roster");
+const loadRosterInputPlayer1 = document.getElementById("load-roster-player1");
+const loadRosterInputPlayer2 = document.getElementById("load-roster-player2");
+
 const battlefieldSelect = document.getElementById("battlefield-select");
 const reloadBtn = document.getElementById("game-reload");
 const missionSection = document.getElementById("mission-section");
@@ -41,7 +43,8 @@ orderViewCheckbox.addEventListener('change', (e) => {
 })
 
 function updateHeader(state) {
-	const phaseName = ['Command', 'Movement', 'Reinforcements'][state.phase];
+
+	const phaseName = ['Command', 'Movement', 'Reinforcements', 'Shooting'][state.phase] ?? 'Deploy';
 	headerInfo.innerHTML = `Phase: ${phaseName}, Round: ${state.round}, Player turn: ${state.player}, Player0: ${state.players[0].primaryVP}/${state.players[0].secondaryVP}, Player1: ${state.players[1].primaryVP}/${state.players[1].secondaryVP}`;
 }
 
@@ -64,14 +67,16 @@ function updateTable(state) {
 
 function updateUnitsStrip(state) {
 	unitsStrip.innerHTML = '';
+	let unitCounter = 0;
 	state.players.forEach((player) => {
-		player.units.forEach((unit, unitId) => {
+		player.units.forEach((unit) => {
 			const li = document.createElement("LI");
 			li.tabIndex = 0;
 			li.innerHTML =`${unit.name}`;
 			li.classList.add(`player-${unit.playerId}`);
 			unitsStrip.appendChild(li);
 			if (state.player === unit.playerId) {
+				const unitId = unitCounter;
 				li.addEventListener('click', () => {
 					game.selectUnit(unitId);
 					updateUnitSection(unitId);
@@ -79,6 +84,7 @@ function updateUnitsStrip(state) {
 			} else {
 				li.classList.add(`disabled`);
 			}
+			unitCounter++;
 		});
 	});
 }
@@ -107,11 +113,11 @@ function updateUnitSection(selectedUnit) {
 		return;
 	}
 
-	unitSection.append(game.gameSettings.units.flat()[selectedUnit].name);
+	unitSection.append(game.gameSettings.units.flat()[selectedUnit].name + '; ');
 	
-	unitSection.append(JSON.stringify(game.gameSettings.profiles[selectedUnit]));
-	unitSection.append(game.gameSettings.categories[selectedUnit].join());
-	unitSection.append(game.gameSettings.rules[selectedUnit].join());
+	unitSection.append(JSON.stringify(game.gameSettings.profiles[selectedUnit]) + '; ');
+	unitSection.append(game.gameSettings.categories[selectedUnit].join(', ') + '; ');
+	unitSection.append(game.gameSettings.rules[selectedUnit].join(', ') + '; ');
 	const state = game.env?.getState() ?? game.deploy?.getState();
 	const orders = (state.round === -1 || state.phase === Phase.Reinforcements) ? getDeployOrders() : new Orders().getOrders();
 	game.gameSettings.units.flat()[selectedUnit].models.forEach((modelId) => {
@@ -190,7 +196,7 @@ function getEntries(file, options) {
 	return (new zip.ZipReader(new zip.BlobReader(file))).getEntries(options);
 }
 
-loadRosterInput.addEventListener('change', async (e) => {
+loadRosterInputPlayer1.addEventListener('change', async (e) => {
 	var file = e.target.files[0];
 	if (!file) {
 		return;
@@ -199,5 +205,17 @@ loadRosterInput.addEventListener('change', async (e) => {
 	const entries = await getEntries(file);
 	const data = await entries[0].getData(new zip.TextWriter());
 	const settings = roster2settings(xml2js(data, { compact: true }));
-	localStorage.setItem('game-settings', JSON.stringify(settings));
+	localStorage.setItem('game-settings-player1', JSON.stringify(settings));
+});
+
+loadRosterInputPlayer2.addEventListener('change', async (e) => {
+	var file = e.target.files[0];
+	if (!file) {
+		return;
+	}
+
+	const entries = await getEntries(file);
+	const data = await entries[0].getData(new zip.TextWriter());
+	const settings = roster2settings(xml2js(data, { compact: true }));
+	localStorage.setItem('game-settings-player2', JSON.stringify(settings));
 });

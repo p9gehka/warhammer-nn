@@ -55,11 +55,20 @@ export class Game {
 	async runDeploy() {
 		const battlefieldName = localStorage.getItem('battlefield-name');
 		const battlefieldSettingsLS = battlefields[battlefieldName];
-		const gameSettingsLS = localStorage.getItem('game-settings');
-		if (!gameSettingsLS || !battlefieldSettingsLS) {
+		const settingsLSPlayer1 = localStorage.getItem('game-settings-player1');
+		const settingsLSPlayer2 = localStorage.getItem('game-settings-player2');
+		if (!settingsLSPlayer1 || !battlefieldSettingsLS || !settingsLSPlayer2) {
 			return;
 		}
-		this.gameSettings = JSON.parse(gameSettingsLS);
+
+		const player0Settings = JSON.parse(settingsLSPlayer1);
+		const player1Settings = JSON.parse(settingsLSPlayer2);
+		this.gameSettings = {
+			units: [player0Settings.units, player0Settings.units],
+			profiles: [...player0Settings.profiles, ...player1Settings.profiles],
+			categories: [...player0Settings.categories, ...player1Settings.categories],
+			rules: [...player0Settings.rules, ...player1Settings.rules],
+		};
 		const battlefieldSettings = { [battlefieldName]: battlefieldSettingsLS };
 
 		this.deploy = new Deploy({ gameSettings: this.gameSettings, battlefields: battlefieldSettings });
