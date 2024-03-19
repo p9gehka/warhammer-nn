@@ -10,17 +10,20 @@ import battlefields from '../settings/battlefields.json' assert { type: 'json' }
 
 export class Game {
 	constructor(canvas) {
-		canvas.addEventListener('mousedown', (e) => {
-			e.preventDefault();
-		})
-		canvas.addEventListener('click', (e) => {
+		canvas.addEventListener('mousedown', (e) => { event.preventDefault(); })
+		canvas.addEventListener('click', (event) => {
 			const rect = canvas.getBoundingClientRect()
 			const x = Math.round((((event.clientX - rect.left) * 60) / canvas.width) - 0.5);
 			const y = Math.round((((event.clientY - rect.top) * 44) / canvas.height) - 0.5);
-			this.orderHandlers.forEach((orderHandler) => {
-				orderHandler([x, y]);
-			})
 			this.selectHandler([x, y]);
+		});
+
+		canvas.addEventListener('contextmenu', (event) => {
+			event.preventDefault();
+			const rect = canvas.getBoundingClientRect()
+			const x = Math.round((((event.clientX - rect.left) * 60) / canvas.width) - 0.5);
+			const y = Math.round((((event.clientY - rect.top) * 44) / canvas.height) - 0.5);
+			this.orderHandlers?.forEach((orderHandler) => { orderHandler([x, y]) });
 		});
 
 		this.ctx = canvas.getContext("2d");
@@ -71,7 +74,24 @@ export class Game {
 		};
 		const battlefieldSettings = { [battlefieldName]: battlefieldSettingsLS };
 
-		this.deploy = new Deploy({ gameSettings: this.gameSettings, battlefields: battlefieldSettings });
+		let envGameSetting = {}
+		if (this.gameSettings !== undefined) {
+			let modelCounter = 0;
+			const resultUnits = [[], []];
+			this.gameSettings.units.forEach((units, i) => {
+				units.forEach(unit => {
+					resultUnits[i].push({...unit, models: unit.models.map((id) => modelCounter + id) });
+					modelCounter += unit.models.length;
+				});
+			});
+
+			envGameSetting = {
+				...this.gameSettings,
+				units: resultUnits,
+			}
+		}
+
+		this.deploy = new Deploy({ gameSettings: envGameSetting, battlefields: battlefieldSettings });
 		let state = this.deploy.getState();
 		const battlefield = new Battlefield(this.ctx, state.battlefield);
 		await battlefield.init();
@@ -149,8 +169,8 @@ export class Game {
 				break;
 			} else {
 				const { selected } = this.players[state.player].getState();
-
-				if (state.modelsStamina[selected] > 0) {
+				const opponentId = (state.player + 1) % 2
+				if (state.phase === Phase.Movement && state.modelsStamina[selected] > 0) {
 					const selectedPosition = state.models[selected];
 					this.orderHandlers = this.orders.all.map((order, i) => {
 						return (clickPosition) => {
@@ -171,6 +191,16 @@ export class Game {
 					];
 				}
 
+				if (state.phase === Phase.Shooting && selected !== null) {
+					this.orderHandlers = state.players[opponentId].models.map((modelId, playerModelId) => {
+						return (clickPosition) => {
+							if(eq(state.models[modelId], clickPosition)) {
+								console.log('shoot', selected, playerModelId);
+							}
+						}
+					});
+				}
+
 				const orders = await this.orderPromise;
 				orders.forEach(order => {
 					if (state.phase === Phase.Reinforcements) {
@@ -189,5 +219,7 @@ export class Game {
 	selectUnit(unitId) {
 		console.log('select', unitId);
 		this.selectedUnit = unitId;
+		const orders = this.started ? this.orders : this.deployOrders;
+		this.orderResolve([orders.selectIndexes[this.gameSettings.units.flat()[unitId].models[0]]])
 	}
 }

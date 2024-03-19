@@ -2,8 +2,8 @@ export function roster2settings(roster) {
 	const profiles = [];
 	const categories = [];
 	const rules = [];
-	let modelsCounter = 0;
 	const units = [];
+	let modelsCounter = 0;
 
 	roster.roster.forces.force.selections.selection
 		.filter( v =>v._attributes.type === "unit" || v._attributes.type === "model")

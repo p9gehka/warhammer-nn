@@ -72,22 +72,7 @@ export class Deploy {
 	models = [];
 	constructor(config) {
 		this.battlefields = config?.battlefields;
-
-		if (config?.gameSettings !== undefined) {
-			let modelCounter = 0;
-			const resultUnits = [[], []];
-			config?.gameSettings.units.forEach((units, i) => {
-				units.forEach(unit => {
-					resultUnits[i].push({...unit, models: unit.models.map((id) => modelCounter + id) });
-					modelCounter += unit.models.length;
-				});
-			});
-
-			this.gameSettings = {
-				...config.gameSettings,
-				units: resultUnits,
-			}
-		}
+		this.gameSettings = config?.gameSettings;
 
 		this.reset();
 		this.currentPlayer = 0;
