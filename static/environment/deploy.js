@@ -85,12 +85,15 @@ export class Deploy {
 		const units = this.gameSettings.units.map(
 			(playerUnits, playerId) => playerUnits.map(unit => ({...unit, playerId }))
 		);
+
 		this.players = [
 			{ units: units[0], models: units[0].map(unit => unit.models).flat(), primaryVP: 0, secondaryVP: 0 },
 			{ units: units[1], models: units[1].map(unit => unit.models).flat(), primaryVP: 0, secondaryVP: 0 }
 		];
+
 		this.units = units.flat();
 		this.models = this.units.map((unit, unitId) => unit.models.map(id => new Model(id, unit, unitId, null, this.gameSettings.profiles[unitId], this.gameSettings.categories[unitId], this.gameSettings.rules[unitId]))).flat();
+
 		return this.getState();
 	}
 
@@ -132,7 +135,7 @@ export class Deploy {
 			players: this.players,
 			round: -1,
 			units: this.units,
-			models: this.models.map(model => !model.dead ? model.position : null),
+			models: this.models.map(model => model.position ),
 			modelsStamina: this.models.map(model => 0),
 			player: this.currentPlayer,
 			battlefield: this.battlefield,

@@ -31,6 +31,7 @@ const battlefieldSelect = document.getElementById("battlefield-select");
 const reloadBtn = document.getElementById("game-reload");
 const missionSection = document.getElementById("mission-section");
 const unitSection = document.getElementById("unit-section");
+const diceSection = document.getElementById("dice-section");
 
 viewCheckbox.addEventListener('change', (e) => {
 	table.classList.toggle('hidden', !e.target.checked);
@@ -133,11 +134,16 @@ function updateUnitSection(selectedUnit) {
 
 }
 
+game.onUpdateDice = (diceInfo) => {
+	diceSection.innerHTML = JSON.stringify(diceInfo);
+}
+
 game.onUpdate = (state, playerState) => {
 	updateTable(state);
 	updateHeader(state);
 	updateUnitsStrip(state);
 	updateSecondaryMission(state);
+	console.log(playerState);
 }
 
 drawBattlefieldOptions();

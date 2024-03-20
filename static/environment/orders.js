@@ -2,6 +2,7 @@ import { angleToVec2, round, add } from '../utils/vec2.js';
 import { BaseAction } from './warhammer.js';
 export const Action = {
 	Select: 'SELECT',
+	SetTarget: 'SET_TARGET',
 	...BaseAction
 }
 
@@ -28,6 +29,7 @@ export class Orders {
 			moveIndexes: [],
 			selectIndexes: [],
 			discardSecondaryIndex: [],
+			setTargetIndex: [],
 			all: []
 		}
 		this.orders.all.push({ action: Action.NextPhase });
@@ -60,6 +62,13 @@ export class Orders {
 
 		this.orders[Action.DiscardSecondary].forEach((order) => {
 			this.orders.discardSecondaryIndex.push(this.orders.all.length);
+			this.orders.all.push(order);
+		});
+
+		this.orders[Action.SetTarget] = Array(30).fill().map((_, id) => ({ action: 'SET_TARGET', id }));
+
+		this.orders[Action.SetTarget].forEach((order) => {
+			this.orders.setTargetIndex.push(this.orders.all.length);
 			this.orders.all.push(order);
 		});
 		return this.orders;

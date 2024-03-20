@@ -38,6 +38,7 @@ export class Game {
 		this.agents = [];
 
 		this.onUpdate = () => {};
+		this.onUpdateDice = () => {};
 
 		this.started = false;
 		this.orders = new Orders().getOrders();
@@ -67,10 +68,11 @@ export class Game {
 		const player0Settings = JSON.parse(settingsLSPlayer1);
 		const player1Settings = JSON.parse(settingsLSPlayer2);
 		this.gameSettings = {
-			units: [player0Settings.units, player0Settings.units],
+			units: [player0Settings.units, player1Settings.units],
 			profiles: [...player0Settings.profiles, ...player1Settings.profiles],
 			categories: [...player0Settings.categories, ...player1Settings.categories],
 			rules: [...player0Settings.rules, ...player1Settings.rules],
+			rangedWeapons: [...player0Settings.rangedWeapons, ...player1Settings.rangedWeapons],
 		};
 		const battlefieldSettings = { [battlefieldName]: battlefieldSettingsLS };
 
@@ -80,8 +82,7 @@ export class Game {
 			const resultUnits = [[], []];
 			this.gameSettings.units.forEach((units, i) => {
 				units.forEach(unit => {
-					resultUnits[i].push({...unit, models: unit.models.map((id) => modelCounter + id) });
-					modelCounter += unit.models.length;
+					resultUnits[i].push({...unit, models: unit.models.map((id) => modelCounter++) });
 				});
 			});
 
@@ -192,13 +193,16 @@ export class Game {
 				}
 
 				if (state.phase === Phase.Shooting && selected !== null) {
-					this.orderHandlers = state.players[opponentId].models.map((modelId, playerModelId) => {
-						return (clickPosition) => {
-							if(eq(state.models[modelId], clickPosition)) {
-								console.log('shoot', selected, playerModelId);
-							}
-						}
-					});
+					this.orderHandlers = []
+					 state.players[opponentId].units.forEach((unit, opponentUnitId) => {
+						unit.models.map((modelId) => {
+							this.orderHandlers.push((clickPosition) => {
+								if(eq(state.models[modelId], clickPosition)) {
+									this.orderResolve([this.orders.setTargetIndex[opponentUnitId]])
+								}
+							})
+						});
+					})
 				}
 
 				const orders = await this.orderPromise;
@@ -207,7 +211,10 @@ export class Game {
 						this.reinforcementsPlayers[state.player].step(this.deployOrders.all[order]);
 						return;
 					}
-					this.agents[state.player].playStep(order)
+					const [lastAction] = this.agents[state.player].playStep(order)
+					if (lastAction.misc && Object.keys(lastAction.misc).length > 0) {
+						this.onUpdateDice(lastAction.misc);
+					}
 				});
 
 				if(!state.done) {

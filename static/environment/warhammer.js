@@ -16,12 +16,33 @@ export const Phase = {
 
 const phaseOrd = [Phase.Command, Phase.Movement, Phase.Reinforcements, Phase.Shooting];
 
+function d6() {
+	const edge = [1,2,3,4,5,6].map(() => Math.random());
+	return edge.findIndex((v) => v ===Math.max(...edge)) + 1;
+}
+
 export const BaseAction = {
 	NextPhase: 'NEXT_PHASE',
 	Move: 'MOVE',
 	Done: 'DONE',
 	DiscardSecondary: 'DISCARD_SECONDARY',
-	DeployModel: 'DEPLOY_MODEL'
+	DeployModel: 'DEPLOY_MODEL',
+	Shoot: 'SHOOT',
+}
+
+function parseProfile(value) {
+	let damage = parseInt(value);
+	if (!isNaN(damage)) {
+		return damage;
+	}
+	const [diceCondition, tail] = value.split('+');
+	return (diceResult) => {
+		if(diceCondition === 'd3') {
+			diceResult = Math.ceil(d6Result/3);
+		}
+		return diceResult + parseInt(tail);
+
+	}
 }
 
 class Model {
@@ -30,7 +51,7 @@ class Model {
 	dead = true;
 	stamina = 0;
 	deployed = false;
-	constructor(id, unit, position, profile, category = []) {
+	constructor(id, unit, position, profile, category = [], rangedWeapons) {
 		this.id = id;
 		this.name = unit.name;
 		this.playerId = unit.playerId;
@@ -44,6 +65,18 @@ class Model {
 			"ranged_weapons": ["pulse_rifle"],
 			"melee_weapons": ["close_combat_weapon_2"]
 		};
+
+		this.rangedWeapons = rangedWeapons.map((weaponProfile) => {
+			return {
+				"a": parseProfile(weaponProfile.A),
+				"ap": parseInt(weaponProfile.AP),
+				"bs": parseInt(weaponProfile.BS),
+				"d": parseProfile(weaponProfile.D),
+				"range": parseInt(weaponProfile.Range),
+				"s": parseInt(weaponProfile.S),
+				name: weaponProfile.name
+			}
+		});
 		this.category = category;
 
 		if (position !== null) {
@@ -84,6 +117,16 @@ class Model {
 		}
 		this.stamina = Math.max(0, this.stamina - value);
 	}
+
+	inflictDamage(value) {
+		if (this.dead) {
+			return;
+		}
+		this.wound -= value;
+		if (this.wound <= 0) {
+			this.kill();
+		}
+	}
 }
 
 
@@ -108,8 +151,13 @@ export class Warhammer {
 		this.phase = Phase.Command;
 		this.turn = 0
 
+		let unitCounter = 0;
 		const units = this.gameSettings.units.map(
-			(playerUnits, playerId) => playerUnits.map(unit => ({...unit, playerId }))
+			(playerUnits, playerId) => playerUnits.map(unit => {
+				const result = ({...unit, playerId, id: unitCounter });
+				unitCounter++;
+				return result;
+			})
 		);
 		this.players = [
 			{ units: units[0], models: units[0].map(unit => unit.models).flat(), primaryVP: 0, secondaryVP: 0 },
@@ -121,10 +169,10 @@ export class Warhammer {
 		this.models = this.units.map((unit, unitId) => {
 			return unit.models.map(id => {
 				if (this.gameSettings.models.length !== 0 && this.gameSettings.models[id] !== undefined) {
-					return new Model(id, unit, this.gameSettings.models[id], this.gameSettings.profiles[unitId], this.gameSettings.categories[unitId]);
+					return new Model(id, unit, this.gameSettings.models[id], this.gameSettings.profiles[unitId], this.gameSettings.categories[unitId], this.gameSettings.rangedWeapons[id]);
 				}
 				usedPosition.push(this.getRandomStartPosition(usedPosition));
-				return new Model(id, unit, usedPosition.at(-1), this.gameSettings.profile[id]);
+				return new Model(id, unit, usedPosition.at(-1), this.gameSettings.profiles[unitId], this.gameSettings.categories[unitId], this.gameSettings.rangedWeapons[id]);
 			});
 		}).flat();
 
@@ -198,7 +246,32 @@ export class Warhammer {
 		}
 
 		const model = this.models[order.id];
+		if (order.action === BaseAction.Shoot) {
+			const targetModelId = this.units[order.target].models.filter(modelId => !this.models[modelId].dead)[0];
+			const targetModel = this.models[targetModelId];
+			const weapon = this.models[order.id].rangedWeapons[order.weaponId];
+			if (targetModel !== undefined && weapon !== undefined) {
+				const targetToughness = targetModel.unitProfile.t;
+				const targetSave = targetModel.unitProfile.sv;
+				const hits = Array(weapon.a).fill(0).map(d6);
+				const wounds = hits.filter(v => v >= weapon.bs).map(d6);
+				const saves = wounds.filter(v => v >= this.strenghtVsToughness(weapon.s, targetToughness)).map(d6);
+				const saveFails = saves.filter(v => v < (targetSave + -weapon.ap)).length;
 
+				let damage = [];
+				if(Number.isInteger(weapon.d)) {
+					targetModel.inflictDamage(saveFails * weapon.d);
+				} else {
+					Array(saveFails).fill(0).forEach(() => {
+						const dice = d6();
+						targetModel.inflictDamage(weapon.d(dice));
+						damage.push(dice)
+					});
+				}
+				return this.getState({ hits, wounds, saves, damage, targetPosition: targetModel.position });
+			}
+			console.log(order);
+		}
 		if (order.action === BaseAction.Move) {
 			if (len(order.vector) > model.stamina) {
 				return this.getState();
@@ -243,11 +316,16 @@ export class Warhammer {
 	getRound() {
 		return Math.floor(this.turn / 2)
 	}
+
+	strenghtVsToughness(s, t) {
+		return [s >= t * 2, s > t, s === t, s < t && t < s * 2, s * 2 <= t].findIndex(v=> v) + 2;
+	}
+
 	getState(misc) {
 		return {
 			players: this.players,
 			units: this.units,
-			models: this.models.map(model => !model.dead ? model.position : null),
+			models: this.models.map(model => model.position),
 			phase: this.phase,
 			player: this.getPlayer(),
 			done: this.done(),

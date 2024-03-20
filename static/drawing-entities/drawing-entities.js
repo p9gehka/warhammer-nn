@@ -18,7 +18,7 @@ class Model extends Drawing {
 	}
 
 	draw() {
-		if (this.position === null) {
+		if (isNaN(this.position[0])) {
 			return;
 		}
 		const base = this.unitBase;
