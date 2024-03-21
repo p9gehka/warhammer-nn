@@ -50,16 +50,16 @@ export class Game {
 	selectHandler(clickPosition) {
 		const state = this.started ? this.env.getState() : this.deploy.getState();
 		const orders = this.started ? this.orders : this.deployOrders;
+
 		state.units.forEach((unit, unitId) => {
-			let playerModelId = 0;
 			unit.models.forEach(modelId => {
 				if(eq(state.models[modelId], clickPosition)) {
 					this.selectUnit(unitId);
 					if (unit.playerId === state.player) {
+						const playerModelId = state.players[state.player].models.indexOf(modelId);
 						this.orderResolve([orders.selectIndexes[playerModelId]]);
 					}
 				}
-				playerModelId++;
 			})
 		});
 	}
