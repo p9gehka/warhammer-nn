@@ -48,6 +48,9 @@ export class MissionController {
 	}
 	reset() {
 		this.tamptingTarget = getRandomInteger(0, 2);
+		if (!this.isTactical) {
+			return;
+		}
 		this.secondary = [];
 		this._deck = [];
 		this._deck.push(...this.allSecondary);
@@ -109,8 +112,10 @@ export class MissionController {
 		const playerDeployment = new deployment[battlefield.deployment];
 		const completed = [];
 		if (this.secondary.includes(Mission.BehindEnemyLines)) {
-			const hollyWithinCounter = state.players[state.player].models
-				.filter((modelId) => playerDeployment.include(opponentPlayer, state.models[modelId]) && !categories[modelId].includes('aircraft')).length;
+			const hollyWithinCounter = state.players[state.player].units.filter(unit => {
+				const modelsOnBattlefield = unit.models.filter(modelId => !isNaN(state.models[modelId][0]))
+				return modelsOnBattlefield.length > 0 && modelsOnBattlefield.every(modelId => playerDeployment.include(opponentPlayer, state.models[modelId]) && !categories[modelId].includes('aircraft'));
+			}).length;
 
 			if (hollyWithinCounter >= 2) {
 				secondaryVP += this.isTactical ? 2 : 1;
@@ -331,8 +336,9 @@ export class MissionController {
 				completed.push(Mission.ExtendBattleLines);
 			}
 		}
-
-		this.secondary = this.secondary.filter(mission => !completed.includes(mission));
+		if (this.isTactical) {
+			this.secondary = this.secondary.filter(mission => !completed.includes(mission));
+		}
 		console.log('completed', completed);
 		console.log({ deck: [...this._deck], secondary: [...this.secondary] });
 		return secondaryVP;
