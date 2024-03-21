@@ -178,7 +178,7 @@ export class Game {
 			} else {
 				const { selected } = this.players[state.player].getState();
 				const opponentId = (state.player + 1) % 2
-				if (state.phase === Phase.Movement && state.modelsStamina[selected] > 0) {
+				if ((state.phase === Phase.Movement || state.phase === Phase.PreBattle) && state.modelsStamina[selected] > 0) {
 					const selectedPosition = state.models[selected];
 					this.orderHandlers = this.orders.all.map((order, i) => {
 						return (clickPosition) => {

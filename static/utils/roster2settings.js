@@ -72,9 +72,7 @@ export function roster2settings(roster) {
 					return new Array(number).fill(profile);
 				}).flat();
 				const number =  parseInt(unitSelectionArg._attributes.number);
-				if (profiles.length > 0) {
-					unitRangedWeapons.push(...(new Array(number).fill(profiles)));
-				}
+				unitRangedWeapons.push(...(new Array(number).fill(profiles)));
 			})
 
 			let unitModelsNumber = 1;

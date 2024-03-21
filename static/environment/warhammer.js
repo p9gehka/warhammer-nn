@@ -8,6 +8,7 @@ const GameSequense = [
 	'EndTheBattle',
 ]
 export const Phase = {
+	PreBattle: -1,
 	Command: 0,
 	Movement: 1,
 	Reinforcements: 2,
@@ -45,13 +46,17 @@ function parseProfile(value) {
 	}
 }
 
+function onBattlefield(position) {
+	return !isNaN(position[0]);
+}
+
 class Model {
 	position = [NaN, NaN];
 	wound = 0;
 	dead = true;
 	stamina = 0;
 	deployed = false;
-	constructor(id, unit, position, profile, category = [], rangedWeapons) {
+	constructor(id, unit, position, profile, category = [], rules = [], rangedWeapons) {
 		this.id = id;
 		this.name = unit.name;
 		this.playerId = unit.playerId;
@@ -78,7 +83,15 @@ class Model {
 			}
 		});
 		this.category = category;
+		this.rules = rules;
+		this.scout = 0;
 
+		this.rules.forEach(rule => {
+			if (rule.startsWith('scouts')) {
+				this.scout = parseInt('scouts 9"'.split(' ')[1]);
+				console.log(id);
+			}
+		})
 		if (position !== null) {
 			this.position = position;
 			this.dead = false;
@@ -94,9 +107,13 @@ class Model {
 			this.position = position;
 		}
 	}
-
+	updateAvailableToScoutMove() {
+		if (onBattlefield(this.position)) {
+			this.stamina = this.scout;
+		} 
+	}
 	updateAvailableToMove(value) {
-		if (!this.dead) {
+		if (onBattlefield(this.position)) {
 			this.stamina = value ? this.unitProfile.m : 0;
 		}
 	}
@@ -134,15 +151,16 @@ export class Warhammer {
 	players = [];
 	units = [];
 	models = [];
-	phase = Phase.Command;
+	phase = Phase.PreBattle;
 	turn = 0;
 	objectiveControlReward = 5;
 	totalRounds = 5;
+	phaseSequence = 0;
 	constructor(config) {
 		this.gameSettings = config.gameSettings;
 		this.battlefields = config.battlefields;
 		this.missions = [
-			new MissionController('TakeAndHold', 'ChillingRain', [Mission.DefendStronhold, Mission.ExtendBattleLines]),
+			new MissionController('TakeAndHold', 'ChillingRain', [Mission.DefendStronhold, Mission.AreaDenial]),
 			new MissionController('TakeAndHold', 'ChillingRain', [Mission.DefendStronhold, Mission.ExtendBattleLines])
 		]
 		this.reset();
@@ -151,9 +169,9 @@ export class Warhammer {
 		const battlefieldsNames = Object.keys(this.battlefields);
 		this.battlefield = this.battlefields[battlefieldsNames[getRandomInteger(0, battlefieldsNames.length)]];
 
-		this.phase = Phase.Command;
+		this.phase = Phase.PreBattle;
 		this.turn = 0
-
+		this.phaseSequence = 0;
 		let unitCounter = 0;
 		const units = this.gameSettings.units.map(
 			(playerUnits, playerId) => playerUnits.map(unit => {
@@ -172,10 +190,10 @@ export class Warhammer {
 		this.models = this.units.map((unit, unitId) => {
 			return unit.models.map(id => {
 				if (this.gameSettings.models.length !== 0 && this.gameSettings.models[id] !== undefined) {
-					return new Model(id, unit, this.gameSettings.models[id], this.gameSettings.profiles[unitId], this.gameSettings.categories[unitId], this.gameSettings.rangedWeapons[id]);
+					return new Model(id, unit, this.gameSettings.models[id], this.gameSettings.profiles[unitId], this.gameSettings.categories[unitId], this.gameSettings.rules[unitId], this.gameSettings.rangedWeapons[id]);
 				}
 				usedPosition.push(this.getRandomStartPosition(usedPosition));
-				return new Model(id, unit, usedPosition.at(-1), this.gameSettings.profiles[unitId], this.gameSettings.categories[unitId], this.gameSettings.rangedWeapons[id]);
+				return new Model(id, unit, usedPosition.at(-1), this.gameSettings.profiles[unitId], this.gameSettings.categories[unitId], this.gameSettings.rules[unitId], this.gameSettings.rangedWeapons[id]);
 			});
 		}).flat();
 
@@ -222,6 +240,7 @@ export class Warhammer {
 				this.players[currentPlayerId].secondaryVP += this.missions[currentPlayerId].scoreSecondaryVP(this.getState(), this.models.map(m => m.unitProfile), this.models.map(m => m.category));
 				this.players[currentPlayerId].secondaryVP = Math.min(this.players[currentPlayerId].secondaryVP, 40);
 			}
+
 		}
 		/*Before*/
 		if (order.action === BaseAction.NextPhase) {
@@ -229,7 +248,18 @@ export class Warhammer {
 				this.turn++;
 			}
 
-			this.phase = phaseOrd[(this.phase + 1) % phaseOrd.length];
+			if (this.phase !== Phase.PreBattle){
+				this.phase = phaseOrd[(this.phase + 1) % phaseOrd.length];
+			}
+
+			if (this.phase === Phase.PreBattle) {
+				this.phaseSequence++;
+
+				if (this.phaseSequence === 2) {
+					this.phase = Phase.Command;
+					this.phaseSequence = 0;
+				}
+			}
 		}
 		/*After*/
 
@@ -242,7 +272,13 @@ export class Warhammer {
 					}
 				});
 			}
-
+			if (this.phase === Phase.PreBattle) {
+				this.models.forEach((model) => {
+					if (model.playerId === nextPlayerId) {
+						model.updateAvailableToScoutMove(true);
+					}
+				});
+			}
 			if (this.phase === Phase.Command) {
 				this.missions[currentPlayerId].updateSecondary(this.getRound());
 			}
@@ -306,7 +342,12 @@ export class Warhammer {
 		return this.getState();
 	}
 
-	getPlayer() { return this.turn % 2; }
+	getPlayer() {
+		if (this.phase === Phase.PreBattle) {
+			return this.phaseSequence % 2;
+		}
+		return this.turn % 2;
+	}
 
 	done() {
 		const ids = this.models.filter(model => !model.dead).map(model => model.playerId);

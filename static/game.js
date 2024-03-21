@@ -47,7 +47,10 @@ orderViewCheckbox.addEventListener('change', (e) => {
 
 function updateHeader(state) {
 
-	const phaseName = ['Command', 'Movement', 'Reinforcements', 'Shooting'][state.phase] ?? 'Deploy';
+	let phaseName = ['Command', 'Movement', 'Reinforcements', 'Shooting'][state.phase] ?? 'Deploy';
+	if (state.phase === Phase.PreBattle) {
+		phaseName = 'PreBattle';
+	}
 	headerInfo.innerHTML = `Phase: ${phaseName}, Round: ${state.round}, Player turn: ${state.player}, Player0: ${state.players[0].primaryVP}/${state.players[0].secondaryVP}, Player1: ${state.players[1].primaryVP}/${state.players[1].secondaryVP}`;
 }
 
