@@ -231,10 +231,7 @@ export class Game {
 		}
 	}
 	selectUnit(unitId) {
-		console.log('select', unitId);
 		this.selectedUnit = unitId;
-		const orders = this.started ? this.orders : this.deployOrders;
-		this.orderResolve([orders.selectIndexes[this.gameSettings.units.flat()[unitId].models[0]]])
 	}
 	getSelectedModel() {
 		const state = this.started ? this.env.getState() : this.deploy.getState();

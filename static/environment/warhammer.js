@@ -141,7 +141,10 @@ export class Warhammer {
 	constructor(config) {
 		this.gameSettings = config.gameSettings;
 		this.battlefields = config.battlefields;
-		this.mission = new MissionController('TakeAndHold', 'ChillingRain', [Mission.DefendStronhold, Mission.ExtendBattleLines]);
+		this.missions = [
+			new MissionController('TakeAndHold', 'ChillingRain', [Mission.DefendStronhold, Mission.ExtendBattleLines]),
+			new MissionController('TakeAndHold', 'ChillingRain', [Mission.DefendStronhold, Mission.ExtendBattleLines])
+		]
 		this.reset();
 	}
 	reset() {
@@ -181,9 +184,10 @@ export class Warhammer {
 				model.updateAvailableToMove(true);
 			}
 		});
-
-		this.mission.reset();
-		this.mission.updateSecondary(this.getRound())
+		this.missions.forEach(mission => {
+			mission.reset();
+			mission.updateSecondary(this.getRound())
+		});
 
 		return this.getState();
 	}
@@ -208,14 +212,14 @@ export class Warhammer {
 		const currentPlayerId = this.getPlayer();
 		if (order.action === BaseAction.NextPhase) {
 			if (this.phase === Phase.Command) {
-				this.players[currentPlayerId].primaryVP += this.mission.scorePrimaryVP(this.getState(), this.models.map(m => m.unitProfile));
+				this.players[currentPlayerId].primaryVP += this.missions[currentPlayerId].scorePrimaryVP(this.getState(), this.models.map(m => m.unitProfile));
 				this.players[currentPlayerId].primaryVP = Math.min(this.players[currentPlayerId].primaryVP, 50);
 			}
 
 			this.models.forEach(model => model.updateAvailableToMove(false));
 
 			if (this.phase === phaseOrd.at(-1)) {
-				this.players[currentPlayerId].secondaryVP += this.mission.scoreSecondaryVP(this.getState(), this.models.map(m => m.unitProfile), this.models.map(m => m.category));
+				this.players[currentPlayerId].secondaryVP += this.missions[currentPlayerId].scoreSecondaryVP(this.getState(), this.models.map(m => m.unitProfile), this.models.map(m => m.category));
 				this.players[currentPlayerId].secondaryVP = Math.min(this.players[currentPlayerId].secondaryVP, 40);
 			}
 		}
@@ -240,7 +244,7 @@ export class Warhammer {
 			}
 
 			if (this.phase === Phase.Command) {
-				this.mission.updateSecondary(this.getRound());
+				this.missions[currentPlayerId].updateSecondary(this.getRound());
 			}
 			return this.getState();
 		}
@@ -290,8 +294,8 @@ export class Warhammer {
 			});
 		}
 		if (order.action === BaseAction.DiscardSecondary) {
-			this.mission.discardSecondary(order.id);
-			this.mission.updateSecondary(round);
+			this.missions[currentPlayerId].discardSecondary(order.id);
+			this.missions[currentPlayerId].updateSecondary(round);
 		}
 
 		if (order.action === BaseAction.DeployModel && (round === 1 || round === 2)) {
@@ -334,8 +338,8 @@ export class Warhammer {
 			battlefield: this.battlefield,
 			turn: this.turn,
 			round: Math.floor(this.turn / 2),
-			secondaryMissions: this.mission.getSecondary(),
-			tamptingTarget: this.mission.tamptingTarget
+			secondaryMissions: this.missions.map(mission => mission.getSecondary()),
+			tamptingTarget: this.missions.map(mission => mission.tamptingTarget)
 		};
 	}
 }

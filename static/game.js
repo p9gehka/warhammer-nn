@@ -71,6 +71,8 @@ function updateTable(state) {
 function updateUnitsStrip(state, playerState) {
 	unitsStrip.innerHTML = '';
 	let unitCounter = 0;
+
+	const orders = game.started ? game.orders : game.deployOrders;
 	state.units.forEach((unit, unitId) => {
 		const li = document.createElement("LI");
 		li.tabIndex = 0;
@@ -84,6 +86,7 @@ function updateUnitsStrip(state, playerState) {
 			const unitId = unitCounter;
 			li.addEventListener('click', () => {
 				game.selectUnit(unitId);
+				this.orderResolve([orders.selectIndexes[game.gameSettings.units.flat()[unitId].models[0]]])
 			});
 		} else {
 			li.classList.add(`disabled`);

@@ -35,6 +35,10 @@ export function roster2settings(roster) {
 					return;
 				}
 				let unitSelection = unitSelectionArg.selections.selection;
+
+				if (!Array.isArray(unitSelection)) {
+					unitSelection = [unitSelection];
+				}
 				unitSelection = unitSelection.map(s => {
 
 					if (s.profiles.profile === undefined) {
