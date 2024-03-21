@@ -233,6 +233,14 @@ export class Game {
 	selectUnit(unitId) {
 		this.selectedUnit = unitId;
 	}
+
+	selectNextModel() {
+		const state = this.started ? this.env.getState() : this.deploy.getState();
+		const orders = this.started ? this.orders : this.deployOrders;
+		const totalLength = state.players[state.player].models.length;
+		const selectedModel = state.players[state.player].models.indexOf(this.getSelectedModel());
+		this.orderResolve([orders.selectIndexes[(selectedModel + 1) % totalLength]]);
+	}
 	getSelectedModel() {
 		const state = this.started ? this.env.getState() : this.deploy.getState();
 		const player = state.player;

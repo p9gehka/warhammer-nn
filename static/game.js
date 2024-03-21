@@ -82,11 +82,13 @@ function updateUnitsStrip(state, playerState) {
 			li.classList.add(`selected`);
 		}
 		unitsStrip.appendChild(li);
-		if (state.player === unit.playerId) {
+		if (state.player === unit.playerId) {	
 			const unitId = unitCounter;
 			li.addEventListener('click', () => {
-				game.selectUnit(unitId);
-				this.orderResolve([orders.selectIndexes[game.gameSettings.units.flat()[unitId].models[0]]])
+				if (unitId !== game.selectedUnit) {
+					game.selectUnit(unitId);
+					game.orderResolve([orders.selectIndexes[game.gameSettings.units.flat()[unitId].models[0]]]);
+				}
 			});
 		} else {
 			li.classList.add(`disabled`);
@@ -221,6 +223,11 @@ document.addEventListener('keydown', (e) => {
 	if(e.code === 'Space') {
 		e.preventDefault();
 		game.orderResolve([new Orders().getOrders().nextPhaseIndex]);
+	}
+
+	if(e.code === 'Tab') {
+		e.preventDefault();
+		game.selectNextModel();
 	}
 });
 
