@@ -4,11 +4,13 @@ export function roster2settings(roster) {
 	const rules = [];
 	const units = [];
 	const rangedWeapons = [];
+	const meleeWeapons = [];
 	let modelsCounter = 0;
 
 	roster.roster.forces.force.selections.selection
-		.filter( v =>v._attributes.type === "unit" || v._attributes.type === "model")
+		.filter( v => v._attributes.type === "unit" || v._attributes.type === "model")
 		.forEach(rosterUnit => {
+			console.dir(JSON.stringify(rosterUnit))
 			if (rosterUnit._attributes.type === "model") {
 				rosterUnit = {
 					_attributes: {
@@ -29,6 +31,7 @@ export function roster2settings(roster) {
 				rosterSelection = [rosterSelection];
 			}
 			const unitRangedWeapons = [];
+			const unitMeleeWeapons = [];
 
 			rosterSelection.forEach(unitSelectionArg => {
 				if (unitSelectionArg._attributes.type !== 'model') {
@@ -40,39 +43,46 @@ export function roster2settings(roster) {
 					unitSelection = [unitSelection];
 				}
 				unitSelection = unitSelection.map(s => {
-
-					if (s.profiles.profile === undefined) {
+					if (s.profiles.profile === undefined && s.selections.selection !== undefined) {
 						s = {
-								...s,
-								_attributes: s.selections.selection._attributes,
-								profiles: s.selections.selection.profiles
+							...s,
+							_attributes: s.selections.selection._attributes,
+							profiles: s.selections.selection.profiles
 						};
 					}
 
 					if(Array.isArray(s.profiles.profile)) {
 						return s.profiles.profile.map((profile) => {
 							return {
-									...s,
-									_attributes: profile._attributes,
-									profiles: { profile }
+								...s,
+								_attributes: {
+									...profile._attributes,
+									number: s._attributes.number,
+								},
+								profiles: { profile }
 							}
 						})
 					}
 					return [s]
 				}).flat();
 
-				const profiles = unitSelection.filter(s => s.profiles.profile._attributes.typeName === 'Ranged Weapons').map(s => {
-					const number =  parseInt(s._attributes.number ?? 1);
+				const modelNumber =  parseInt(unitSelectionArg._attributes.number);
+
+				const fillProfile = (s) => {
+					const weaponNumberTotal = parseInt(s._attributes.number ?? 1);
+					const weaponNumber = weaponNumberTotal === modelNumber ? 1 : weaponNumberTotal;
 					const profile = {
 						name: s.profiles.profile._attributes.name
 					};
 					s.profiles.profile.characteristics.characteristic.forEach(ch => {
 						profile[ch._attributes.name] = ch._text;
 					});
-					return new Array(number).fill(profile);
-				}).flat();
-				const number =  parseInt(unitSelectionArg._attributes.number);
-				unitRangedWeapons.push(...(new Array(number).fill(profiles)));
+					return new Array(weaponNumber).fill(profile);
+				}
+				const rangedProfiles = unitSelection.filter(s => s.profiles?.profile?._attributes?.typeName === 'Ranged Weapons').map(fillProfile).flat();
+				const meleeProfiles = unitSelection.filter(s => s.profiles?.profile?._attributes?.typeName === 'Melee Weapons').map(fillProfile).flat();
+				unitRangedWeapons.push(...(new Array(modelNumber).fill(rangedProfiles)));
+				unitMeleeWeapons.push(...(new Array(modelNumber).fill(meleeProfiles)));
 			})
 
 			let unitModelsNumber = 1;
@@ -99,7 +109,8 @@ export function roster2settings(roster) {
 			profiles.push(profile);
 			units.push(result);
 			rangedWeapons.push(...unitRangedWeapons)
+			meleeWeapons.push(...unitMeleeWeapons)
 		});
 
-	return { units, profiles, categories, rules, rangedWeapons };
+	return { units, profiles, categories, rules, rangedWeapons, meleeWeapons };
 }

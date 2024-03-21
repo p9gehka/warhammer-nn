@@ -168,6 +168,15 @@ function updateWeaponSection(state) {
 			});
 		}
 	});
+
+	game.gameSettings.meleeWeapons[selectedModel].forEach((weapon) => {
+		const li = document.createElement("LI");
+		for(let key in weapon) {
+			li.append(`${key}: ${weapon[key]}; `);
+		}
+
+		weaponSection.append(li);
+	});
 };
 
 game.onUpdateDice = (diceInfo) => {

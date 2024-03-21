@@ -80,6 +80,7 @@ export class Game {
 			categories: [...player0Settings.categories, ...player1Settings.categories],
 			rules: [...player0Settings.rules, ...player1Settings.rules],
 			rangedWeapons: [...player0Settings.rangedWeapons, ...player1Settings.rangedWeapons],
+			meleeWeapons: [...player0Settings.meleeWeapons, ...player1Settings.meleeWeapons],
 		};
 		const battlefieldSettings = { [battlefieldName]: battlefieldSettingsLS };
 
