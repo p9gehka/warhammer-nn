@@ -246,18 +246,36 @@ export class MissionController {
 
 		if (this.secondary.includes(Mission.AreaDenial)) {
 			let center6Circle = new Circle(...center, 6);
-			let inCenter = false;
+			let center3Circle = new Circle(...center, 3);
+			let in6Center = false;
+			let opponent6Center = false;
+			let opponent3Center = false;
 
-			for (let modelId of state.players[state.player].models) {
-				if (center6Circle.include(...state.models[modelId])) {
-					inCenter = true;
-					continue;
+			for(let unit of state.players[state.player].units) {
+				const modelsOnBattlefield = unit.models.filter(modelId => onBattlefield(state.models[modelId]));
+				in6Center = modelsOnBattlefield.length > 0 && modelsOnBattlefield.every(modelId => center6Circle.include(...state.models[modelId]));
+				if (in6Center) {
+					break;
 				}
 			}
 
-			if (inCenter) {
+			for(let unit of state.players[opponentPlayer].units) {
+				const modelsOnBattlefield = unit.models.filter(modelId => onBattlefield(state.models[modelId]));
+				if (!opponent6Center) {
+					opponent6Center = modelsOnBattlefield.length > 0 && modelsOnBattlefield.every(modelId => center6Circle.include(...state.models[modelId]));
+				}
+				opponent3Center = modelsOnBattlefield.length > 0 && modelsOnBattlefield.some(modelId => center3Circle.include(...state.models[modelId]));
+				if (opponent3Center)  {
+					break;
+				}
+			}
+
+			if(in6Center && !opponent6Center) {
 				secondaryVP += 5;
 				completed.push(Mission.AreaDenial);
+			} else if (in6Center && !opponent3Center) {
+				secondaryVP += 3;
+				completed.push(Mission.AreaDenial)
 			}
 		}
 
