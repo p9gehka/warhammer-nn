@@ -50,11 +50,18 @@ export class Game {
 	selectHandler(clickPosition) {
 		const state = this.started ? this.env.getState() : this.deploy.getState();
 		const orders = this.started ? this.orders : this.deployOrders;
-		state.players[state.player].models.forEach((modelId, playerModelId) => {
-			if(eq(state.models[modelId], clickPosition)) {
-				this.orderResolve([orders.selectIndexes[playerModelId]]);
-			}
-		})
+		state.units.forEach((unit, unitId) => {
+			let playerModelId = 0;
+			unit.models.forEach(modelId => {
+				if(eq(state.models[modelId], clickPosition)) {
+					this.selectUnit(unitId);
+					if (unit.playerId === state.player) {
+						this.orderResolve([orders.selectIndexes[playerModelId]]);
+					}
+				}
+				playerModelId++;
+			})
+		});
 	}
 	async runDeploy() {
 		const battlefieldName = localStorage.getItem('battlefield-name');
@@ -228,5 +235,16 @@ export class Game {
 		this.selectedUnit = unitId;
 		const orders = this.started ? this.orders : this.deployOrders;
 		this.orderResolve([orders.selectIndexes[this.gameSettings.units.flat()[unitId].models[0]]])
+	}
+	getSelectedModel() {
+		const state = this.started ? this.env.getState() : this.deploy.getState();
+		const player = state.player;
+		if (!this.started) {
+			return this.deployPlayers[player].getState().selected;
+		}
+		if (state.phase === Phase.Reinforcements) {
+			return this.reinforcementsPlayers[state.player].getState().selected;
+		}
+		return this.players[state.player].getState().selected;
 	}
 }

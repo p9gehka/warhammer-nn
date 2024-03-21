@@ -3,6 +3,8 @@ import { BaseAction } from './warhammer.js';
 export const Action = {
 	Select: 'SELECT',
 	SetTarget: 'SET_TARGET',
+	SelectWeapon: 'SELECT_WEAPON',
+
 	...BaseAction
 }
 
@@ -30,12 +32,14 @@ export class Orders {
 			selectIndexes: [],
 			discardSecondaryIndex: [],
 			setTargetIndex: [],
+			selectWeaponIndex: [],
+			shootIndex: NaN,
 			all: []
 		}
 		this.orders.all.push({ action: Action.NextPhase });
 		this.orders.all.push({ action: Action.Done });
 
-		this.orders[Action.Select] = Array(30).fill().map((_, id) => ({ action: 'SELECT', id }));
+		this.orders[Action.Select] = Array(30).fill().map((_, id) => ({ action: Action.Select, id }));
 
 		this.orders[Action.Select].forEach((order) => {
 			this.orders.selectIndexes.push(this.orders.all.length);
@@ -65,12 +69,22 @@ export class Orders {
 			this.orders.all.push(order);
 		});
 
-		this.orders[Action.SetTarget] = Array(30).fill().map((_, id) => ({ action: 'SET_TARGET', id }));
+		this.orders[Action.SetTarget] = Array(30).fill().map((_, id) => ({ action: Action.SetTarget, id }));
 
 		this.orders[Action.SetTarget].forEach((order) => {
 			this.orders.setTargetIndex.push(this.orders.all.length);
 			this.orders.all.push(order);
 		});
+
+		this.orders[Action.SelectWeapon] = Array(10).fill().map((_, id) => ({ action: Action.SelectWeapon, id }));
+
+
+		this.orders[Action.SelectWeapon].forEach((order) => {
+			this.orders.selectWeaponIndex.push(this.orders.all.length);
+			this.orders.all.push(order);
+		});
+		this.orders.shootIndex = this.orders.all.length;
+		this.orders.all.push({ action: Action.Shoot });
 		return this.orders;
 	}
 }

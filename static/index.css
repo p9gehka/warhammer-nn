@@ -75,6 +75,11 @@ body {
 	cursor: unset;
 	opacity: 0.8;
 }
-.units-strip li:focus {
+
+.units-strip li.selected {
+	background: #cccccc;
+}
+
+.unit-section li.selected{
 	background: #cccccc;
 }

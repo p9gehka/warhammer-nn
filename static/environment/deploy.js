@@ -106,8 +106,8 @@ export class Deploy {
 			const deploy = new deployment[this.battlefield.deployment];
 			const opponent = (this.currentPlayer + 1) % 2;
 			const orderModel = this.models[order.id];
-			if (deploy.include(this.currentPlayer, order.position)
-				|| (orderModel.rules.includes('infiltrators') && !deploy.include(opponent, order.position))
+			if (!orderModel.deployed && (deploy.include(this.currentPlayer, order.position)
+				|| (orderModel.rules.includes('infiltrators') && !deploy.include(opponent, order.position)))
 			) {
 				orderModel.update(order.position);
 				this.models.forEach(model => {
@@ -165,7 +165,7 @@ export class DeployEnvironment {
 		if (order.action === 'SELECT') {
 
 			const selectedModel = this.env.players[this.playerId].models[order.id];
-			if (selectedModel !== undefined && !this.env.models[selectedModel].deployed) {
+			if (selectedModel !== undefined) {
 				this._selectedModel = selectedModel;
 			}
 			return currentState;

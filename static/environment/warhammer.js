@@ -246,7 +246,7 @@ export class Warhammer {
 		}
 
 		const model = this.models[order.id];
-		if (order.action === BaseAction.Shoot) {
+		if (order.action === BaseAction.Shoot && this.units[order.target] !== undefined) {
 			const targetModelId = this.units[order.target].models.filter(modelId => !this.models[modelId].dead)[0];
 			const targetModel = this.models[targetModelId];
 			const weapon = this.models[order.id].rangedWeapons[order.weaponId];

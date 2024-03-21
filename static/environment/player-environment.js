@@ -14,6 +14,10 @@ export class PlayerEnvironment {
 	frameCount = 0;
 	prevOrderAction = 0;
 	phaseStepCounter = 0;
+
+	_shootingQueue = [];
+	_shootingTargeting = {};
+	_selectedWeapon = null;
 	constructor(playerId, env) {
 		this.env = env;
 		this.playerId = playerId;
@@ -37,13 +41,29 @@ export class PlayerEnvironment {
 		const { action } = order;
 		const prevState = this.env.getState();
 
-		if (order.action === Action.Select) {
+		if (action === Action.Select) {
 			this._selectedModel = this.env.players[this.playerId].models[order.id];
 			playerOrder = { ...order, id: this._selectedModel };
-		} else if (order.action === Action.SetTarget) {
-			playerOrder = { action: Action.Shoot, id: this._selectedModel, weaponId: 0, target: this.env.players[this.opponentId].units[order.id].id };
+		} else if (action === Action.SetTarget) {
+			const selectedWeapon = this._shootingQueue.at(-1);
+			this._shootingTargeting[selectedWeapon] = this.env.players[this.opponentId].units[order.id].id;
+			playerOrder = order;
+		} else if (action === Action.Shoot && this._shootingQueue.length > 0) {
+			const selectedWeapon = this._shootingQueue.shift();
+			playerOrder = {
+				action: Action.Shoot,
+				id: this._selectedModel,
+				weaponId: selectedWeapon,
+				target: this._shootingTargeting[selectedWeapon],
+			};
+			delete this._shootingTargeting[selectedWeapon];
 		} else if (action === Action.Move) {
 			playerOrder = {action, id: this._selectedModel, vector: order.vector, expense: order.expense };
+		} else if (action === Action.SelectWeapon) {
+			delete this._shootingTargeting[order.id];
+			this._shootingQueue = this._shootingQueue.filter(v => v !== order.id);
+			this._shootingQueue.push(order.id)
+			playerOrder = order;
 		} else {
 			playerOrder = order;
 		}
