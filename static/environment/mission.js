@@ -26,6 +26,9 @@ export const Mission = {
 const size = [60, 44];
 const center = [30, 22];
 
+function onBattlefield(position) {
+	return !isNaN(position[0]);
+}
 export class MissionController {
 	fixedMission = [
 		Mission.BehindEnemyLines, Mission.Cleanse, Mission.DeployTeleportHomer, Mission.EngageOnAllFronts,
@@ -113,7 +116,7 @@ export class MissionController {
 		const completed = [];
 		if (this.secondary.includes(Mission.BehindEnemyLines)) {
 			const hollyWithinCounter = state.players[state.player].units.filter(unit => {
-				const modelsOnBattlefield = unit.models.filter(modelId => !isNaN(state.models[modelId][0]))
+				const modelsOnBattlefield = unit.models.filter(modelId => onBattlefield(state.models[modelId]));
 				return modelsOnBattlefield.length > 0 && modelsOnBattlefield.every(modelId => playerDeployment.include(opponentPlayer, state.models[modelId]) && !categories[modelId].includes('aircraft'));
 			}).length;
 
@@ -128,13 +131,19 @@ export class MissionController {
 		if (this.secondary.includes(Mission.EngageOnAllFronts)) {
 			const quatres = [new Rect(0, 0, 27, 19), new Rect(0, 25, 27, 19), new Rect(33, 0, 27, 19), new Rect(33, 25, 27, 19)];
 			let quatrCounters = [0, 0, 0, 0];
-			state.players[state.player].models.forEach((modelId) =>{
+
+			state.players[state.player].units.forEach(unit => {
+				const modelsOnBattlefield = unit.models.filter(modelId => onBattlefield(state.models[modelId]));
+				if(modelsOnBattlefield.length === 0) {
+					return;
+				}
 				quatres.forEach((quatr, i) => {
-					if(quatr.include(...state.models[modelId])) {
+					if(modelsOnBattlefield.every(modelId => quatr.include(...state.models[modelId]))) {
 						quatrCounters[i]++;
 					}
 				});
 			});
+
 			const totalQuatres = quatrCounters.filter(v => v !== 0).length;
 			if (totalQuatres === 4) {
 				secondaryVP += 2;
