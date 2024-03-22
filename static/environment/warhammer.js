@@ -294,11 +294,12 @@ export class Warhammer {
 				let damage = [];
 				if(Number.isInteger(weapon.d)) {
 					targetModel.inflictDamage(saveFails * weapon.d);
+					damage.push(weapon.d);
 				} else {
 					Array(saveFails).fill(0).forEach(() => {
 						const dice = d6();
 						targetModel.inflictDamage(weapon.d(dice));
-						damage.push(dice)
+						damage.push(weapon.d(dice));
 					});
 				}
 				return this.getState({ hits, wounds, saves, damage, targetPosition: targetModel.position });

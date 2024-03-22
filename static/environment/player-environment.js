@@ -89,14 +89,17 @@ export class PlayerEnvironment {
 		} else if (action === Action.SelectWeapon && this._selectedModel !== null) {
 			const weaponName = this.env.gameSettings.rangedWeapons[this._selectedModel][order.id].name;
 			this._shootingQueue = this._shootingQueue.filter(v => v !== weaponName);
-			this._shootingQueue.push(weaponName);
+			if (weaponName !== undefined) {
+				this._shootingQueue.push(weaponName);
 
-			if (this._shootingTargeting[weaponName] === undefined) {
-				this._shootingTargeting[weaponName] = {};
+				if (this._shootingTargeting[weaponName] === undefined) {
+					this._shootingTargeting[weaponName] = {};
+				}
+				if (this._shootingTargeting[weaponName][this._selectedModel]) {
+					this._shootingTargeting[weaponName][this._selectedModel] = [];
+				}
 			}
-			if (this._shootingTargeting[weaponName][this._selectedModel]) {
-				this._shootingTargeting[weaponName][this._selectedModel] = [];
-			}
+
 			playerOrder = order;
 		} else {
 			playerOrder = order;
@@ -128,7 +131,7 @@ export class PlayerEnvironment {
 		return reward;
 	}
 	getState() {
-		return { selected: this._selectedModel };
+		return { selected: this._selectedModel, shootingQueue: this._shootingQueue, shootingTargeting: this._shootingTargeting };
 	}
 	getInput() {
 		const state = this.env.getState();

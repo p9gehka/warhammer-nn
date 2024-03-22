@@ -83,3 +83,10 @@ body {
 .unit-section li.selected{
 	background: #cccccc;
 }
+
+.weapon-section li {
+	cursor: pointer;
+}
+.weapon-section li:hover {
+	background: #cccccc;
+}

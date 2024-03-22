@@ -6,6 +6,22 @@ import { terrain } from '../battlefield/terrain.js';
 
 const mmToInch = mm => mm / 25.4;
 
+class Binding extends Drawing {
+	constructor(ctx, fromArg, to) {
+		super();
+		this.ctx = ctx;
+		this.from = [fromArg[0] + Math.random(), fromArg[1] + Math.random()];
+		this.to = to;
+	}
+
+	draw() {
+		this.ctx.strokeStyle = 'pink';
+		this.strokePath(() => {
+			this.ctx.moveTo(...this.from);
+			this.ctx.lineTo(...this.to);
+		});
+	}
+}
 class Model extends Drawing {
 	position = [0, 0];
 	constructor(ctx, unit, position) {
@@ -115,9 +131,10 @@ export class Battlefield extends Drawing {
 }
 
 export class Scene extends Drawing {
-	players = []
-	units = []
-	models = []
+	players = [];
+	units = [];
+	models = [];
+	bindings = [];
 	constructor(ctx, state) {
 		super();
 		this.ctx = ctx;
@@ -137,6 +154,7 @@ export class Scene extends Drawing {
 	draw() {
 		this.battlefield.draw();
 		this.models.forEach(model => model.draw());
+		this.bindings.forEach(binding => binding.draw());
 	}
 
 	drawOrder(order) {
@@ -164,12 +182,28 @@ export class Scene extends Drawing {
 		});
 		this.ctx.translate(-0.5, -0.5);
 	}
-	updateState(state) {
+	updateState(state, playerState) {
+		console.log(playerState)
 		this.battlefield.update(state.battlefield);
 		state.models.forEach((position, id) => {
 			this.models[id].update(position);
 		});
-
+		this.bindings = [];
+		if (playerState?.shootingTargeting !== undefined) {
+			for (let weaponName in playerState.shootingTargeting) {
+				for (let shooterId in playerState.shootingTargeting[weaponName]) {
+					for (let targetId of playerState.shootingTargeting[weaponName][shooterId]) {
+						this.bindings.push(
+							new Binding(
+								this.ctx,
+								state.models[shooterId],
+								state.models[state.units[targetId].models[0]]
+							)
+						);
+					}
+				}
+			}
+		}
 		this.draw();
 	}
 }

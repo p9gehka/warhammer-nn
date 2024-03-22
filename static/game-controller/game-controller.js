@@ -170,7 +170,8 @@ export class Game {
 	async play() {
 		while(true) {
 			const state = this.env.getState();
-			this.scene.updateState(state);
+			const playerState = this.players[state.player].getState();
+			this.scene.updateState(state, playerState);
 			this.onUpdate(state, (state.phase === Phase.Reinforcements ? this.reinforcementsPlayers : this.players)[state.player].getState());
 			this.orderHandlers = [];
 
@@ -178,7 +179,7 @@ export class Game {
 				this.agents.forEach(agent => agent.awarding());
 				break;
 			} else {
-				const { selected } = this.players[state.player].getState();
+				const { selected } = playerState;
 				const opponentId = (state.player + 1) % 2
 				if ((state.phase === Phase.Movement || state.phase === Phase.PreBattle) && state.modelsStamina[selected] > 0) {
 					const selectedPosition = state.models[selected];
