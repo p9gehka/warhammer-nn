@@ -1,4 +1,5 @@
 {
+	"TAU": "TAU",
 	"aun shar": [25],
 	"shas nel d tano": [30],
 	"commander shadowsun":[50],
@@ -20,5 +21,9 @@
 	"krootox riders": [40],
 	"piranha": [70],
 	"kroot carnivores": [25],
-	"kroot hound": [25]
+	"kroot hound": [25],
+	"commander farsight": [60],
+
+	"KNIGHTS": "KNIGHTS",
+	"cerastus knight lancer": [170]
 }

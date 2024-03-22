@@ -52,9 +52,10 @@ function onBattlefield(position) {
 
 class Model {
 	position = [NaN, NaN];
-	wound = 0;
+	wounds = 0;
 	dead = true;
 	stamina = 0;
+	scoutMove = 0;
 	deployed = false;
 	constructor(id, unit, position, profile, category = [], rules = [], rangedWeapons) {
 		this.id = id;
@@ -84,21 +85,18 @@ class Model {
 		});
 		this.category = category;
 		this.rules = rules;
-		this.scout = 0;
 
 		this.rules.forEach(rule => {
 			if (rule.startsWith('scouts')) {
-				this.scout = parseInt('scouts 9"'.split(' ')[1]);
-				console.log(id);
+				this.scoutMove = parseInt('scouts 9"'.split(' ')[1]);
 			}
 		})
-		if (position !== null) {
-			this.position = position;
-			this.dead = false;
-			this.wound = this.unitProfile.w;
-			if(!isNaN(position[0])) {
-				this.deployed = true;
-			}
+		this.stamina = this.scoutMove;
+		this.position = position;
+		this.dead = false;
+		this.wounds = this.unitProfile.w;
+		if(!isNaN(position[0])) {
+			this.deployed = true;
 		}
 	}
 
@@ -109,7 +107,7 @@ class Model {
 	}
 	updateAvailableToScoutMove() {
 		if (onBattlefield(this.position)) {
-			this.stamina = this.scout;
+			this.stamina = this.scoutMove;
 		} 
 	}
 	updateAvailableToMove(value) {
@@ -122,7 +120,7 @@ class Model {
 		if (this.dead) {
 			return;
 		}
-		this.wound = 0;
+		this.wounds = 0;
 		this.stamina = 0;
 		this.dead = true;
 		this.position = [NaN, NaN];
@@ -139,8 +137,8 @@ class Model {
 		if (this.dead) {
 			return;
 		}
-		this.wound -= value;
-		if (this.wound <= 0) {
+		this.wounds -= value;
+		if (this.wounds <= 0) {
 			this.kill();
 		}
 	}
@@ -197,11 +195,6 @@ export class Warhammer {
 			});
 		}).flat();
 
-		this.models.forEach(model => {
-			if (model.playerId === this.getPlayer()) {
-				model.updateAvailableToMove(true);
-			}
-		});
 		this.missions.forEach(mission => {
 			mission.reset();
 			mission.updateSecondary(this.getRound())
@@ -275,7 +268,7 @@ export class Warhammer {
 			if (this.phase === Phase.PreBattle) {
 				this.models.forEach((model) => {
 					if (model.playerId === nextPlayerId) {
-						model.updateAvailableToScoutMove(true);
+						model.updateAvailableToScoutMove();
 					}
 				});
 			}
@@ -371,6 +364,7 @@ export class Warhammer {
 			players: this.players,
 			units: this.units,
 			models: this.models.map(model => model.position),
+			modelsWounds: this.models.map(model => model.wounds),
 			phase: this.phase,
 			player: this.getPlayer(),
 			done: this.done(),

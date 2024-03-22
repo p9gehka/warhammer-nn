@@ -34,6 +34,7 @@ const missionSection = document.getElementById("mission-section");
 const unitSection = document.getElementById("unit-section");
 const diceSection = document.getElementById("dice-section");
 const weaponSection = document.getElementById("weapon-section");
+const shootingQueue = document.getElementById("shooting-queue");
 
 viewCheckbox.addEventListener('change', (e) => {
 	table.classList.toggle('hidden', !e.target.checked);
@@ -103,16 +104,19 @@ function updateUnitsStrip(state, playerState) {
 function updateSecondaryMission(state) {
 	const orders = new Orders().getOrders();
 	missionSection.innerHTML = '';
-	state.secondaryMissions.forEach((mission, missionIndex) => {
-		const li = document.createElement("LI");
-		const button = document.createElement("BUTTON");
-		li.innerHTML = mission + (mission === Mission.ATamptingTarget ? state.tamptingTarget : '');
-		if(state.phase === Phase.Command) {
-			button.innerHTML = 'X';
-			li.appendChild(button);
-			button.addEventListener('click', () => game.orderResolve([orders.discardSecondaryIndex[missionIndex]]));
-		}
-		missionSection.appendChild(li);
+	state.secondaryMissions.forEach((missions, playerId) => {
+		missionSection.append(`Player: ${playerId}`);
+		missions.forEach((mission, missionIndex) => {
+			const li = document.createElement("LI");
+			const button = document.createElement("BUTTON");
+			li.innerHTML = mission + (mission === Mission.ATamptingTarget ? state.tamptingTarget : '');
+			if(state.phase === Phase.Command && state.player === playerId) {
+				button.innerHTML = 'X';
+				li.appendChild(button);
+				button.addEventListener('click', () => game.orderResolve([orders.discardSecondaryIndex[missionIndex]]));
+			}
+			missionSection.appendChild(li);
+		});
 	});
 }
 
@@ -134,7 +138,7 @@ function updateUnitSection(selectedUnit) {
 	const selected = game.getSelectedModel();
 	state.units[selectedUnit].models.forEach((modelId) => {
 		const li = document.createElement("LI");
-		li.innerHTML =`${modelId} ${state.modelsStamina[modelId]}`;
+		li.innerHTML =`${modelId} ${game.gameSettings.modelNames[modelId]} ${state.modelsWounds[modelId]} ${state.modelsStamina[modelId]}`;
 
 		if (modelId === selected) {
 			li.classList.add(`selected`);
@@ -190,7 +194,15 @@ game.onUpdate = (state, playerState) => {
 	updateSecondaryMission(state);
 	updateUnitSection(game.selectedUnit);
 	updateWeaponSection(state);
-	console.log(playerState);
+	updateShootingQueue(state);
+}
+
+function updateShootingQueue(state) {
+	shootingQueue.innerHTML = '';
+	if (game.started) {
+		shootingQueue.append(JSON.stringify(game.players[state.player]._shootingQueue));
+		shootingQueue.append(JSON.stringify(game.players[state.player]._shootingTargeting));
+	}
 }
 
 drawBattlefieldOptions();

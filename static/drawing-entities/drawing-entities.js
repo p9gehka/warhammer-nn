@@ -1,4 +1,4 @@
-import tauBase from '../settings/tau-base.json' assert { type: 'json' };
+import base from '../settings/base.json' assert { type: 'json' };
 import { Orders } from '../environment/orders.js';
 import { Drawing } from './drawing.js';
 import { deployment } from '../battlefield/deployment.js';
@@ -14,7 +14,7 @@ class Model extends Drawing {
 		this.name = unit.name;
 		this.playerId = unit.playerId;
 		this.position = position;
-		this.unitBase = tauBase[unit.name] ?? [15];
+		this.unitBase = base[unit.name] ?? [15];
 	}
 
 	draw() {

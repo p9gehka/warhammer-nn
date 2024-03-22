@@ -56,6 +56,7 @@ class Model {
 		this.name = unit.name;
 		this.playerId = unit.playerId;
 		this.unitId = unitId;
+		this.wounds = parseInt(profile.W);
 		if (position !== null) {
 			this.position = position;
 		}
@@ -137,6 +138,7 @@ export class Deploy {
 			units: this.units,
 			models: this.models.map(model => model.position ),
 			modelsStamina: this.models.map(model => 0),
+			modelsWounds: this.models.map(model => model.wounds),
 			player: this.currentPlayer,
 			battlefield: this.battlefield,
 			secondaryMissions: []

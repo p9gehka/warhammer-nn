@@ -3,6 +3,7 @@ export function roster2settings(roster) {
 	const categories = [];
 	const rules = [];
 	const units = [];
+	const modelNames = []
 	const rangedWeapons = [];
 	const meleeWeapons = [];
 	let modelsCounter = 0;
@@ -30,6 +31,7 @@ export function roster2settings(roster) {
 			if (!Array.isArray(rosterSelection)) {
 				rosterSelection = [rosterSelection];
 			}
+			const unitModelsNames = [];
 			const unitRangedWeapons = [];
 			const unitMeleeWeapons = [];
 
@@ -81,6 +83,7 @@ export function roster2settings(roster) {
 				}
 				const rangedProfiles = unitSelection.filter(s => s.profiles?.profile?._attributes?.typeName === 'Ranged Weapons').map(fillProfile).flat();
 				const meleeProfiles = unitSelection.filter(s => s.profiles?.profile?._attributes?.typeName === 'Melee Weapons').map(fillProfile).flat();
+				unitModelsNames.push(...(new Array(modelNumber).fill(unitSelectionArg._attributes.name)));
 				unitRangedWeapons.push(...(new Array(modelNumber).fill(rangedProfiles)));
 				unitMeleeWeapons.push(...(new Array(modelNumber).fill(meleeProfiles)));
 			})
@@ -108,9 +111,10 @@ export function roster2settings(roster) {
 			categories.push(category);
 			profiles.push(profile);
 			units.push(result);
+			modelNames.push(...unitModelsNames);
 			rangedWeapons.push(...unitRangedWeapons)
 			meleeWeapons.push(...unitMeleeWeapons)
 		});
 
-	return { units, profiles, categories, rules, rangedWeapons, meleeWeapons };
+	return { units, profiles, categories, rules, modelNames, rangedWeapons, meleeWeapons };
 }

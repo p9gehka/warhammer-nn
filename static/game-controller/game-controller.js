@@ -79,6 +79,7 @@ export class Game {
 			profiles: [...player0Settings.profiles, ...player1Settings.profiles],
 			categories: [...player0Settings.categories, ...player1Settings.categories],
 			rules: [...player0Settings.rules, ...player1Settings.rules],
+			modelNames: [...player0Settings.modelNames, ...player1Settings.modelNames],
 			rangedWeapons: [...player0Settings.rangedWeapons, ...player1Settings.rangedWeapons],
 			meleeWeapons: [...player0Settings.meleeWeapons, ...player1Settings.meleeWeapons],
 		};
