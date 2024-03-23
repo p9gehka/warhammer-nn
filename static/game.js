@@ -129,8 +129,8 @@ function updateUnitSection(selectedUnit) {
 	}
 
 	unitSection.append(game.gameSettings.units.flat()[selectedUnit].name + '; ');
-	
-	unitSection.append(JSON.stringify(game.gameSettings.profiles[selectedUnit]) + '; ');
+
+	unitSection.append(JSON.stringify(game.gameSettings.unitProfiles[selectedUnit]) + '; ');
 	unitSection.append(game.gameSettings.categories[selectedUnit].join(', ') + '; ');
 	unitSection.append(game.gameSettings.rules[selectedUnit].join(', ') + '; ');
 	const state = game.env?.getState() ?? game.deploy?.getState();
@@ -138,8 +138,10 @@ function updateUnitSection(selectedUnit) {
 	const selected = game.getSelectedModel();
 	state.units[selectedUnit].models.forEach((modelId) => {
 		const li = document.createElement("LI");
-		li.innerHTML =`${modelId} ${game.gameSettings.modelNames[modelId]} ${state.modelsWounds[modelId]} ${state.modelsStamina[modelId]}`;
-
+		li.append(`${modelId} ${game.gameSettings.modelNames[modelId]} ${state.modelsWounds[modelId]} ${state.modelsStamina[modelId]} `);
+		if (Object.keys(game.gameSettings.unitProfiles[selectedUnit]).length === 0) {
+			li.append(JSON.stringify(game.gameSettings.modelProfiles[modelId]) + '; ')
+		}
 		if (modelId === selected) {
 			li.classList.add(`selected`);
 		}

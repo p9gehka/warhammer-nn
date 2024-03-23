@@ -76,7 +76,8 @@ export class Game {
 		const player1Settings = JSON.parse(settingsLSPlayer2);
 		this.gameSettings = {
 			units: [player0Settings.units, player1Settings.units],
-			profiles: [...player0Settings.profiles, ...player1Settings.profiles],
+			unitProfiles: [...player0Settings.unitProfiles, ...player1Settings.unitProfiles],
+			modelProfiles: [...player0Settings.modelProfiles, ...player1Settings.modelProfiles],
 			categories: [...player0Settings.categories, ...player1Settings.categories],
 			rules: [...player0Settings.rules, ...player1Settings.rules],
 			modelNames: [...player0Settings.modelNames, ...player1Settings.modelNames],

@@ -93,7 +93,7 @@ export class Deploy {
 		];
 
 		this.units = units.flat();
-		this.models = this.units.map((unit, unitId) => unit.models.map(id => new Model(id, unit, unitId, null, this.gameSettings.profiles[unitId], this.gameSettings.categories[unitId], this.gameSettings.rules[unitId]))).flat();
+		this.models = this.units.map((unit, unitId) => unit.models.map(id => new Model(id, unit, unitId, null, this.gameSettings.modelProfiles[id], this.gameSettings.categories[unitId], this.gameSettings.rules[unitId]))).flat();
 
 		return this.getState();
 	}

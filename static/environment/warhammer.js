@@ -188,10 +188,10 @@ export class Warhammer {
 		this.models = this.units.map((unit, unitId) => {
 			return unit.models.map(id => {
 				if (this.gameSettings.models.length !== 0 && this.gameSettings.models[id] !== undefined) {
-					return new Model(id, unit, this.gameSettings.models[id], this.gameSettings.profiles[unitId], this.gameSettings.categories[unitId], this.gameSettings.rules[unitId], this.gameSettings.rangedWeapons[id]);
+					return new Model(id, unit, this.gameSettings.models[id], this.gameSettings.modelProfiles[id], this.gameSettings.categories[unitId], this.gameSettings.rules[unitId], this.gameSettings.rangedWeapons[id]);
 				}
 				usedPosition.push(this.getRandomStartPosition(usedPosition));
-				return new Model(id, unit, usedPosition.at(-1), this.gameSettings.profiles[unitId], this.gameSettings.categories[unitId], this.gameSettings.rules[unitId], this.gameSettings.rangedWeapons[id]);
+				return new Model(id, unit, usedPosition.at(-1), this.gameSettings.modelProfiles[id], this.gameSettings.categories[unitId], this.gameSettings.rules[unitId], this.gameSettings.rangedWeapons[id]);
 			});
 		}).flat();
 
@@ -280,31 +280,45 @@ export class Warhammer {
 
 		const model = this.models[order.id];
 		if (order.action === BaseAction.Shoot && this.units[order.target] !== undefined) {
-			const targetModelId = this.units[order.target].models.filter(modelId => !this.models[modelId].dead)[0];
-			const targetModel = this.models[targetModelId];
 			const weapon = this.models[order.id].rangedWeapons[order.weaponId];
-			if (targetModel !== undefined && weapon !== undefined) {
-				const targetToughness = targetModel.unitProfile.t;
-				const targetSave = targetModel.unitProfile.sv;
+			if (weapon !== undefined) {
 				const hits = Array(weapon.a).fill(0).map(d6);
-				const wounds = hits.filter(v => v >= weapon.bs).map(d6);
-				const saves = wounds.filter(v => v >= this.strenghtVsToughness(weapon.s, targetToughness)).map(d6);
-				const saveFails = saves.filter(v => v < (targetSave + -weapon.ap)).length;
+				const wounds = [];
+				const saves = [];
+				const damage = [];
+				for (let hit of hits) {
+					if (hit < weapon.bs) {
+						continue;
+					}
 
-				let damage = [];
-				if(Number.isInteger(weapon.d)) {
-					targetModel.inflictDamage(saveFails * weapon.d);
-					damage.push(weapon.d);
-				} else {
-					Array(saveFails).fill(0).forEach(() => {
-						const dice = d6();
-						targetModel.inflictDamage(weapon.d(dice));
-						damage.push(weapon.d(dice));
-					});
+					const aliveTargetModel = this.units[order.target].models.filter(modelId => !this.models[modelId].dead);
+					const targetModelId = aliveTargetModel[aliveTargetModel.length - 1];
+					const targetModel = this.models[targetModelId];
+
+					if (targetModel === undefined) {
+						break;
+					}
+
+					const targetToughness = targetModel.unitProfile.t;
+					const targetSave = targetModel.unitProfile.sv;
+					const woundDice = d6();
+					wounds.push(woundDice);
+
+					if (woundDice < this.strenghtVsToughness(weapon.s, targetToughness)) {
+						continue;
+					}
+
+					const saveDice = d6();
+					saves.push(saveDice);
+					if (saveDice >= (targetSave - weapon.ap)) {
+						continue
+					}
+					const damageValue = Number.isInteger(weapon.d) ? weapon.d : weapon.d(d6());
+					targetModel.inflictDamage(damageValue);
+					damage.push(damageValue);
 				}
-				return this.getState({ hits, wounds, saves, damage, targetPosition: targetModel.position });
+				return this.getState({ hits, wounds, saves, damage });
 			}
-			console.log(order);
 		}
 		if (order.action === BaseAction.Move) {
 			if (len(order.vector) > model.stamina) {
