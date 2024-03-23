@@ -32,12 +32,12 @@ function onBattlefield(position) {
 export class MissionController {
 	fixedMission = [
 		Mission.BehindEnemyLines, Mission.Cleanse, Mission.DeployTeleportHomer, Mission.EngageOnAllFronts,
-		Mission.InvestigateSignals, Mission.Assasination, Mission.BringItDown, Mission.StormHostileObjective,
+		Mission.Assasination, Mission.BringItDown, Mission.StormHostileObjective,
 	]
 
 	tacticalMissions = [
 		Mission.DefendStronhold, Mission.SecureNoMansLand, Mission.AreaDenial, Mission.ATamptingTarget,
-		Mission.CaptureEnemyOutpost, Mission.NoPrisoners, Mission.OverwhelmingForce,
+		Mission.CaptureEnemyOutpost, Mission.NoPrisoners, Mission.OverwhelmingForce, Mission.InvestigateSignals,
 	]
 	allSecondary = [...this.fixedMission, ...this.tacticalMissions];
 	_deck = [];
@@ -204,15 +204,21 @@ export class MissionController {
 		}
 
 		if (this.secondary.includes(Mission.InvestigateSignals)) {
-			const angle9Circles = [[0, 0], [60, 0], [60, 40], [0, 40]].map(angle => new Circle(...angle, 9));
+			const angle9Circles = [[0, 0], [60, 0], [60, 44], [0, 44]].map(angle => new Circle(...angle, 9));
 			let angleCounters = [0, 0, 0, 0];
-			for (let modelId of state.players[state.player].models) {
-				 angle9Circles.forEach((circle, i)=> {
-				 	if (circle.include(...state.models[modelId])) {
-				 		angleCounters[i]++;
-				 	}
-				 })
-			}
+
+			state.players[state.player].units.forEach(unit => {
+				const modelsOnBattlefield = unit.models.filter(modelId => onBattlefield(state.models[modelId]));
+				if(modelsOnBattlefield.length === 0) {
+					return;
+				}
+				angle9Circles.forEach((circle, i) => {
+					if(modelsOnBattlefield.every(modelId => circle.include(...state.models[modelId]))) {
+						angleCounters[i]++;
+					}
+				});
+			});
+
 			let totalAngles = angleCounters.filter(counter => counter > 0).length;
 			secondaryVP += totalAngles * 2;
 			if (totalAngles > 0) {

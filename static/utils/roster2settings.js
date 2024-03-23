@@ -128,9 +128,9 @@ export function roster2settings(roster) {
 			const rule = rosterRule.map(r => r._attributes.name.toLowerCase());
 			rules.push(rule);
 			categories.push(category);
+			units.push(result);
 			unitProfiles.push(unitProfile);
 			modelProfiles.push(...unitModelsProfiles);
-			units.push(result);
 			modelNames.push(...unitModelsNames);
 			rangedWeapons.push(...unitRangedWeapons)
 			meleeWeapons.push(...unitMeleeWeapons)

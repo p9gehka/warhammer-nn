@@ -144,7 +144,6 @@ class Model {
 	}
 }
 
-
 export class Warhammer {
 	players = [];
 	units = [];
@@ -158,7 +157,7 @@ export class Warhammer {
 		this.gameSettings = config.gameSettings;
 		this.battlefields = config.battlefields;
 		this.missions = [
-			new MissionController('TakeAndHold', 'ChillingRain', [Mission.DefendStronhold, Mission.AreaDenial]),
+			new MissionController('TakeAndHold', 'ChillingRain', [Mission.Cleanse, Mission.InvestigateSignals]),
 			new MissionController('TakeAndHold', 'ChillingRain', [Mission.DefendStronhold, Mission.ExtendBattleLines])
 		]
 		this.reset();

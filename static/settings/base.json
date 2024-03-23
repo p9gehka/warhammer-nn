@@ -25,5 +25,12 @@
 	"commander farsight": [60],
 
 	"IMPERIAL KNIGHTS": "IMPERIAL KNIGHTS",
-	"cerastus knight lancer": [170]
+	"cerastus knight lancer": [170],
+
+
+	"ADEPTUS CUSTODES": "ADEPTUS CUSTODES",
+	"allarus custodians": [40],
+	"custodian guard": [40],
+	"trajann valoris": [40],
+	"custodian wardens": [40]
 }
