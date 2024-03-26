@@ -32,5 +32,15 @@
 	"allarus custodians": [40],
 	"custodian guard": [40],
 	"trajann valoris": [40],
-	"custodian wardens": [40]
+	"custodian wardens": [40],
+
+	"MECH": "MECH",
+	"tech-priest dominus": [50],
+	"tech-priest enginseer": [32],
+	"skitarii rangers": [25],
+	"skitarii vanguard": [25],
+	"ironstrider ballistarii": [105],
+	"kataphron breachers": [60],
+	"onager dunecrawler": [130],
+	"serberys raiders": [60]
 }

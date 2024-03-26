@@ -60,7 +60,7 @@ export function roster2settings(roster) {
 						};
 					}
 
-					if(Array.isArray(s.profiles.profile)) {
+					if(Array.isArray(s.profiles?.profile)) {
 						return s.profiles.profile.map((profile) => {
 							return {
 								...s,

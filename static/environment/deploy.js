@@ -6,7 +6,7 @@ export function getDeployOrders() {
 	all.push({ action: 'NEXT_PHASE' });
 	all.push({ action: 'DONE' });
 
-	const select = Array(30).fill().map((_, id) => ({ action: 'SELECT', id }));
+	const select = Array(50).fill().map((_, id) => ({ action: 'SELECT', id }));
 	const setX = Array(60).fill().map((_, value) => ({ action: 'SET_X', value }));
 	const setY = Array(44).fill().map((_, value) => ({ action: 'SET_Y', value }));
 

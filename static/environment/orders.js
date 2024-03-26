@@ -39,7 +39,7 @@ export class Orders {
 		this.orders.all.push({ action: Action.NextPhase });
 		this.orders.all.push({ action: Action.Done });
 
-		this.orders[Action.Select] = Array(30).fill().map((_, id) => ({ action: Action.Select, id }));
+		this.orders[Action.Select] = Array(50).fill().map((_, id) => ({ action: Action.Select, id }));
 
 		this.orders[Action.Select].forEach((order) => {
 			this.orders.selectIndexes.push(this.orders.all.length);
