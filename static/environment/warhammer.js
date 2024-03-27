@@ -157,8 +157,8 @@ export class Warhammer {
 		this.gameSettings = config.gameSettings;
 		this.battlefields = config.battlefields;
 		this.missions = [
-			new MissionController('TakeAndHold', 'ChillingRain', [Mission.Cleanse, Mission.InvestigateSignals]),
-			new MissionController('TakeAndHold', 'ChillingRain', [Mission.DefendStronhold, Mission.ExtendBattleLines])
+			new MissionController('TakeAndHold', 'ChillingRain', [Mission.DefendStronhold, Mission.NoPrisoners]),
+			new MissionController('TakeAndHold', 'ChillingRain', [Mission.DeployTeleportHomer, Mission.Cleanse])
 		]
 		this.reset();
 	}
@@ -229,14 +229,13 @@ export class Warhammer {
 			this.models.forEach(model => model.updateAvailableToMove(false));
 
 			if (this.phase === phaseOrd.at(-1)) {
-				this.players[currentPlayerId].secondaryVP += this.missions[currentPlayerId].scoreSecondaryVP(this.getState(), this.models.map(m => m.unitProfile), this.models.map(m => m.category));
-				this.players[currentPlayerId].secondaryVP = Math.min(this.players[currentPlayerId].secondaryVP, 40);
+				this.scoreSecondary('scoreSecondaryVP');
 			}
-
 		}
 		/*Before*/
 		if (order.action === BaseAction.NextPhase) {
 			if (this.phase === phaseOrd.at(-1)) {
+				this.scoreSecondary('scoreEndTurnSecondary');
 				this.turn++;
 			}
 
@@ -274,6 +273,7 @@ export class Warhammer {
 			if (this.phase === Phase.Command) {
 				this.missions[currentPlayerId].updateSecondary(this.getRound());
 			}
+
 			return this.getState();
 		}
 
@@ -316,6 +316,9 @@ export class Warhammer {
 					targetModel.inflictDamage(damageValue);
 					damage.push(damageValue);
 				}
+
+				this.scoreSecondary('scoreShootingSecondary');
+
 				return this.getState({ hits, wounds, saves, damage });
 			}
 		}
@@ -348,7 +351,11 @@ export class Warhammer {
 
 		return this.getState();
 	}
-
+	scoreSecondary(type) {
+		const currentPlayerId = this.getPlayer();
+		this.players[currentPlayerId].secondaryVP += this.missions[currentPlayerId][type](this.getState(), this.models.map(m => m.unitProfile), this.models.map(m => m.category));
+		this.players[currentPlayerId].secondaryVP = Math.min(this.players[currentPlayerId].secondaryVP, 40);
+	}
 	getPlayer() {
 		if (this.phase === Phase.PreBattle) {
 			return this.phaseSequence % 2;
@@ -357,9 +364,7 @@ export class Warhammer {
 	}
 
 	done() {
-		const ids = this.models.filter(model => !model.dead).map(model => model.playerId);
-
-		return this.turn > (this.totalRounds * 2) - 1 || new Set(ids).size === 1;
+		return this.turn > (this.totalRounds * 2) - 1;
 	}
 
 	end() {
@@ -378,6 +383,7 @@ export class Warhammer {
 			players: this.players,
 			units: this.units,
 			models: this.models.map(model => model.position),
+			dead: this.models.filter(model => model.dead).map(model => model.id),
 			modelsWounds: this.models.map(model => model.wounds),
 			phase: this.phase,
 			player: this.getPlayer(),

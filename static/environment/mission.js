@@ -16,7 +16,7 @@ export const Mission = {
 	CaptureEnemyOutpost: 'CaptureEnemyOutpost',
 	ATamptingTarget: 'ATamptingTarget',
 	ExtendBattleLines: 'ExtendBattleLines',
-	Assasination: 'Assasination',
+	Assassination: 'Assassination',
 	NoPrisoners: 'NoPrisoners',
 	BringItDown: 'BringItDown',
 	OverwhelmingForce: 'OverwhelmingForce',
@@ -32,7 +32,7 @@ function onBattlefield(position) {
 export class MissionController {
 	fixedMission = [
 		Mission.BehindEnemyLines, Mission.Cleanse, Mission.DeployTeleportHomer, Mission.EngageOnAllFronts,
-		Mission.Assasination, Mission.BringItDown, Mission.StormHostileObjective,
+		Mission.Assassination, Mission.BringItDown, Mission.StormHostileObjective,
 	]
 
 	tacticalMissions = [
@@ -40,8 +40,9 @@ export class MissionController {
 		Mission.CaptureEnemyOutpost, Mission.NoPrisoners, Mission.OverwhelmingForce, Mission.InvestigateSignals,
 	]
 	allSecondary = [...this.fixedMission, ...this.tacticalMissions];
+	deadModels = [];
 	_deck = [];
-
+	totalOpponentUnitDeathAtRound = [0, 0, 0, 0, 0];
 	constructor(primary, missionRule, secondary) {
 		this.primary = primary;
 		this.missionRule = missionRule;
@@ -57,6 +58,8 @@ export class MissionController {
 		this.secondary = [];
 		this._deck = [];
 		this._deck.push(...this.allSecondary);
+		this.deadModels = [];
+		this.totalOpponentUnitDeathAtRound = [0, 0, 0, 0, 0];
 		console.log('reset')
 		console.log({ deck: [...this._deck], secondary: [...this.secondary] });
 	}
@@ -110,8 +113,8 @@ export class MissionController {
 	scoreSecondaryVP(state, profiles, categories) {
 		let secondaryVP = 0;
 		const battlefield = state.battlefield;
-		const activePlayerId = state.player
-		const opponentPlayer = (state.player + 1) % 2
+		const activePlayerId = state.player;
+		const opponentPlayer = (state.player + 1) % 2;
 		const playerDeployment = new deployment[battlefield.deployment];
 		const completed = [];
 		if (this.secondary.includes(Mission.BehindEnemyLines)) {
@@ -376,6 +379,65 @@ export class MissionController {
 		console.log({ deck: [...this._deck], secondary: [...this.secondary] });
 		return secondaryVP;
 	}
+	scoreShootingSecondary(state, profiles, categories) {
+		const killedModels = state.dead.filter(id => !this.deadModels.includes(id));
+		const round = Math.floor(state.turn / 2);
+
+		const opponentPlayer = (state.player + 1) % 2
+		let secondaryVP = 0
+		const completed = [];
+
+		if (this.secondary.includes(Mission.Assassination)) {
+			const killedCharacter = killedModels.filter(id => categories[id].includes('character'));
+			if (!this.isTactical) {
+				secondaryVP += killedCharacter.length * 4
+			} else if(killedCharacter.length > 0) {
+				secondaryVP += 5;
+				completed.push(Mission.Assassination);
+			}
+		}
+
+		if (this.secondary.includes(Mission.NoPrisoners)) {
+			this.totalOpponentUnitDeathAtRound[round] += state.players[opponentPlayer].units.filter(unit => {
+				return unit.models.every(modelId => this.deadModels.includes(modelId) || killedModels.includes(modelId))
+					&& unit.models.some(modelId => killedModels.includes(modelId))
+			}).length;
+		}
+		this.deadModels = [...state.dead];
+		if (this.isTactical) {
+			this.secondary = this.secondary.filter(mission => !completed.includes(mission));
+		}
+		return secondaryVP;
+	}
+
+	scoreEndTurnSecondary(state, profiles, categories) {
+		const opponentPlayer = (state.player + 1) % 2
+		let secondaryVP = 0
+		const completed = [];
+		const round = Math.floor(state.turn / 2);
+		if (this.secondary.includes(Mission.Assassination)) {
+			if (this.isTactical &&
+				state.players[opponentPlayer].models
+					.filter(id => categories[id].includes('character'))
+					.every(id => state.dead.includes(id))
+			) {
+				secondaryVP += 5;
+				completed.push(Mission.Assassination);
+			}
+		}
+
+		if (this.secondary.includes(Mission.NoPrisoners) && this.totalOpponentUnitDeathAtRound[round] > 0) {
+			secondaryVP += Math.min(5, this.totalOpponentUnitDeathAtRound[round] * 2);
+			completed.push(Mission.NoPrisoners);
+		}
+
+		if (this.isTactical) {
+			this.secondary = this.secondary.filter(mission => !completed.includes(mission));
+		}
+
+		return secondaryVP;
+	}
+
 	getSecondary() {
 		return this.secondary;
 	}
