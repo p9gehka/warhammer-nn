@@ -157,7 +157,7 @@ export class Warhammer {
 		this.gameSettings = config.gameSettings;
 		this.battlefields = config.battlefields;
 		this.missions = [
-			new MissionController('TakeAndHold', 'ChillingRain', [Mission.DefendStronhold, Mission.NoPrisoners]),
+			new MissionController('TakeAndHold', 'ChillingRain', [Mission.ATamptingTarget, Mission.Cleanse]),
 			new MissionController('TakeAndHold', 'ChillingRain', [Mission.DeployTeleportHomer, Mission.Cleanse])
 		]
 		this.reset();
@@ -196,7 +196,7 @@ export class Warhammer {
 
 		this.missions.forEach(mission => {
 			mission.reset();
-			mission.updateSecondary(this.getRound())
+			mission.updateSecondary(this.getRound());
 		});
 
 		return this.getState();

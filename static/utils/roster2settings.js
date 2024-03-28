@@ -34,7 +34,12 @@ export function roster2settings(roster) {
 			}
 
 			const unitProfile = {};
-			rosterUnit.profiles.profile.filter(p => p._attributes.typeName === 'Unit')[0]?.characteristics?.characteristic?.forEach(ch => {
+			let rosterUnitProfiles = rosterUnit.profiles.profile;
+			if (!Array.isArray(rosterUnitProfiles)) {
+				rosterUnitProfiles = [rosterUnitProfiles];
+			}
+
+			rosterUnitProfiles.filter(p => p._attributes.typeName === 'Unit')[0]?.characteristics?.characteristic?.forEach(ch => {
 				unitProfile[ch._attributes.name] = ch._text;
 			});
 

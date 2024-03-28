@@ -43,6 +43,7 @@ export class MissionController {
 	deadModels = [];
 	_deck = [];
 	totalOpponentUnitDeathAtRound = [0, 0, 0, 0, 0];
+	secondariesVPByRound = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]];
 	constructor(primary, missionRule, secondary) {
 		this.primary = primary;
 		this.missionRule = missionRule;
@@ -50,16 +51,20 @@ export class MissionController {
 		this.tamptingTarget = getRandomInteger(0, 2);
 		this.isTactical = this.tacticalMissions.includes(secondary[0]);
 	}
+
 	reset() {
-		this.tamptingTarget = getRandomInteger(0, 2);
-		if (!this.isTactical) {
-			return;
+		if (this.isTactical) {
+			this.secondary = [];
+			this._deck = [];
+			this._deck.push(...this.allSecondary);
 		}
-		this.secondary = [];
-		this._deck = [];
-		this._deck.push(...this.allSecondary);
-		this.deadModels = [];
+	
+		this.tamptingTarget = getRandomInteger(0, 2);
+		this.secondariesVPByRound = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]];
 		this.totalOpponentUnitDeathAtRound = [0, 0, 0, 0, 0];
+		this.deadModels = [];
+		
+		
 		console.log('reset')
 		console.log({ deck: [...this._deck], secondary: [...this.secondary] });
 	}
@@ -388,7 +393,7 @@ export class MissionController {
 		const completed = [];
 
 		if (this.secondary.includes(Mission.Assassination)) {
-			const killedCharacter = killedModels.filter(id => categories[id].includes('character'));
+			const killedCharacter = killedModels.filter(modelId => categories[modelId].includes('character'));
 			if (!this.isTactical) {
 				secondaryVP += killedCharacter.length * 4
 			} else if(killedCharacter.length > 0) {
@@ -402,6 +407,33 @@ export class MissionController {
 				return unit.models.every(modelId => this.deadModels.includes(modelId) || killedModels.includes(modelId))
 					&& unit.models.some(modelId => killedModels.includes(modelId))
 			}).length;
+		}
+
+		if (this.secondary.includes(Mission.BringItDown)) {
+			let points = 0;
+			const indexOfMission = this.secondary.indexOf(Mission.BringItDown);
+			killedModels.forEach(modelId => {
+				if(categories[modelId].includes('monster') || categories[modelId].includes('vehicle')) {
+					points += 2;
+					if (this.isTactical) {
+						points++;
+					}
+					if (profiles[modelId].w >= 10) {
+						points++;
+					}
+					if (profiles[modelId].w >= 15) {
+						points++;
+					}
+					if (profiles[modelId].w >= 20) {
+						points++;
+					}
+				}
+			});
+			const totalVPByRound = this.secondariesVPByRound[round][indexOfMission];
+			const vpByThisIteration = this.isTactical ? Math.min((8 - totalVPByRound), points) : points;
+			this.secondariesVPByRound[round][indexOfMission] += vpByThisIteration;
+
+			secondaryVP += vpByThisIteration;
 		}
 		this.deadModels = [...state.dead];
 		if (this.isTactical) {
@@ -429,6 +461,10 @@ export class MissionController {
 		if (this.secondary.includes(Mission.NoPrisoners) && this.totalOpponentUnitDeathAtRound[round] > 0) {
 			secondaryVP += Math.min(5, this.totalOpponentUnitDeathAtRound[round] * 2);
 			completed.push(Mission.NoPrisoners);
+		}
+
+		if (this.secondary.includes(Mission.BringItDown) && this.secondariesVPByRound[round][this.secondary.indexOf(Mission.BringItDown)] > 0) {
+			completed.push(Mission.BringItDown);
 		}
 
 		if (this.isTactical) {

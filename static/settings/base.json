@@ -17,7 +17,7 @@
 	"barracuda":[92],
 	"hammerhead gunship": [150],
 	
-	"riptide battlesuit": [92],
+	"riptide battlesuit": [120],
 	"krootox riders": [40],
 	"piranha": [70],
 	"kroot carnivores": [25],
@@ -42,5 +42,13 @@
 	"ironstrider ballistarii": [105],
 	"kataphron breachers": [60],
 	"onager dunecrawler": [130],
-	"serberys raiders": [60]
+	"serberys raiders": [60],
+
+	"TYRANIDS": "TYRANIDS",
+	"hive tyrant": [60],
+	"neurotyrant": [50],
+	"neurogaunts": [25],
+	"haruspex": [120],
+	"norn emissary": [100],
+	"tyrannofex": [120]
 }
