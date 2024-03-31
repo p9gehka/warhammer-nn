@@ -52,6 +52,7 @@ function onBattlefield(position) {
 
 class Model {
 	position = [NaN, NaN];
+	deathPosition = [NaN, NaN];
 	wounds = 0;
 	dead = true;
 	stamina = 0;
@@ -123,6 +124,7 @@ class Model {
 		this.wounds = 0;
 		this.stamina = 0;
 		this.dead = true;
+		this.deathPosition = [...this.position]
 		this.position = [NaN, NaN];
 	}
 
@@ -157,7 +159,7 @@ export class Warhammer {
 		this.gameSettings = config.gameSettings;
 		this.battlefields = config.battlefields;
 		this.missions = [
-			new MissionController('TakeAndHold', 'ChillingRain', [Mission.ATamptingTarget, Mission.Cleanse]),
+			new MissionController('TakeAndHold', 'ChillingRain', [Mission.StormHostileObjective, Mission.ATamptingTarget]),
 			new MissionController('TakeAndHold', 'ChillingRain', [Mission.DeployTeleportHomer, Mission.Cleanse])
 		]
 		this.reset();
@@ -222,7 +224,7 @@ export class Warhammer {
 		const currentPlayerId = this.getPlayer();
 		if (order.action === BaseAction.NextPhase) {
 			if (this.phase === Phase.Command) {
-				this.players[currentPlayerId].primaryVP += this.missions[currentPlayerId].scorePrimaryVP(this.getState(), this.models.map(m => m.unitProfile));
+				this.players[currentPlayerId].primaryVP += this.missions[currentPlayerId].scorePrimaryVP(this.getState());
 				this.players[currentPlayerId].primaryVP = Math.min(this.players[currentPlayerId].primaryVP, 50);
 			}
 
@@ -237,6 +239,7 @@ export class Warhammer {
 			if (this.phase === phaseOrd.at(-1)) {
 				this.scoreSecondary('scoreEndTurnSecondary');
 				this.turn++;
+				this.missions[this.getPlayer()].startTurn(this.getState(), this.models.map(m => m.unitProfile));
 			}
 
 			if (this.phase !== Phase.PreBattle){
@@ -249,6 +252,7 @@ export class Warhammer {
 				if (this.phaseSequence === 2) {
 					this.phase = Phase.Command;
 					this.phaseSequence = 0;
+					this.missions[this.getPlayer()].startTurn(this.getState(), this.models.map(m => m.unitProfile));
 				}
 			}
 		}
@@ -383,6 +387,7 @@ export class Warhammer {
 			players: this.players,
 			units: this.units,
 			models: this.models.map(model => model.position),
+			deadModels: this.models.map(model => model.deathPosition),
 			dead: this.models.filter(model => model.dead).map(model => model.id),
 			modelsWounds: this.models.map(model => model.wounds),
 			phase: this.phase,

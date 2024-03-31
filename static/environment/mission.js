@@ -44,6 +44,7 @@ export class MissionController {
 	_deck = [];
 	opponentUnitDeathAtRound = [[],[],[],[],[]];
 	secondariesVPByRound = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]];
+	startTurnObjectiveControl = [];
 	constructor(primary, missionRule, secondary) {
 		this.primary = primary;
 		this.missionRule = missionRule;
@@ -63,7 +64,7 @@ export class MissionController {
 		this.secondariesVPByRound = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]];
 		this.opponentUnitDeathAtRound = [[],[],[],[],[]];
 		this.deadModels = [];
-		
+		this.startTurnObjectiveControl = [];
 		
 		console.log('reset')
 		console.log({ deck: [...this._deck], secondary: [...this.secondary] });
@@ -85,18 +86,10 @@ export class MissionController {
 			console.log({ round, deck: [...this._deck], secondary: [...this.secondary], card });
 		}
 	}
-
-	scorePrimaryVP(state, profiles) {
-		const turn = state.turn;
-		const models = state.models;
+	startTurn(state, profiles) {
 		const activePlayerId = state.player;
 		const battlefield = state.battlefield;
-		const round = Math.floor(turn / 2);
-		const objectiveControlReward = 5;
 
-		if (round < 1) {
-			return 0;
-		}
 		const deploy = new deployment[battlefield.deployment];
 		const objectiveMarkers = deploy.objective_markers;
 		const objectiveControl = Array(objectiveMarkers.length).fill(0);
@@ -110,10 +103,20 @@ export class MissionController {
 						objectiveControl[i] += oc;
 					}
 				});
-			})
+			});
 		});
 
-		return Math.min(objectiveControl.filter(oc => oc > 0).length * objectiveControlReward, 15);
+		this.startTurnObjectiveControl = objectiveControl
+	}
+	scorePrimaryVP(state, profiles) {
+		const turn = state.turn;
+		const round = Math.floor(turn / 2);
+		const objectiveControlReward = 5;
+
+		if (round < 1) {
+			return 0;
+		}
+		return Math.min(this.startTurnObjectiveControl.filter(oc => oc > 0).length * objectiveControlReward, 15);
 	}
 	scoreSecondaryVP(state, profiles, categories) {
 		let secondaryVP = 0;
@@ -377,6 +380,11 @@ export class MissionController {
 				completed.push(Mission.ExtendBattleLines);
 			}
 		}
+
+		if (this.secondary.includes(Mission.StormHostileObjective)) {
+
+		}
+
 		if (this.isTactical) {
 			this.secondary = this.secondary.filter(mission => !completed.includes(mission));
 		}
@@ -469,6 +477,10 @@ export class MissionController {
 		let secondaryVP = 0
 		const completed = [];
 		const round = Math.floor(state.turn / 2);
+
+		const activePlayerId = state.player;
+		const battlefield = state.battlefield;
+
 		if (this.secondary.includes(Mission.Assassination)) {
 			if (this.isTactical &&
 				state.players[opponentPlayer].models
@@ -477,6 +489,33 @@ export class MissionController {
 			) {
 				secondaryVP += 5;
 				completed.push(Mission.Assassination);
+			}
+		}
+
+		if (this.secondary.includes(Mission.StormHostileObjective)) {
+			const deploy = new deployment[battlefield.deployment];
+			const objectiveMarkers = deploy.objective_markers;
+			const endTurnObjectiveControl = Array(objectiveMarkers.length).fill(0);
+			state.players.forEach((player, modelPlayerId) => {
+				player.models.forEach(modelId => {
+					objectiveMarkers.forEach((markerPosition, i) => {
+						const modelPosition = state.models[modelId];
+						if (len(sub(modelPosition, markerPosition)) <= deploy.objective_marker_control_distance) {
+							const ocSign = modelPlayerId === activePlayerId ? 1 : -1;
+							const oc = profiles[modelId].oc * ocSign;
+							endTurnObjectiveControl[i] += oc;
+						}
+					});
+				});
+			});
+			const opponentHadObjectiveMarker = this.startTurnObjectiveControl.some(objectControl => objectControl < 0);
+			const missionCompleted = this.startTurnObjectiveControl.some((prevObjectControl, i) => {
+				const currentObjectControl = endTurnObjectiveControl[i];
+				return (opponentHadObjectiveMarker ? prevObjectControl < 0 : prevObjectControl === 0) && 0 < currentObjectControl;
+			});
+			if (missionCompleted) {
+				secondaryVP += (this.isTactical ? 5 : 4);
+				completed.push(Mission.StormHostileObjective);
 			}
 		}
 
@@ -492,6 +531,7 @@ export class MissionController {
 		if (this.secondary.includes(Mission.OverwhelmingForce) && this.secondariesVPByRound[round][this.secondary.indexOf(Mission.OverwhelmingForce)] > 0) {
 			completed.push(Mission.OverwhelmingForce);
 		}
+
 
 		if (this.isTactical) {
 			this.secondary = this.secondary.filter(mission => !completed.includes(mission));

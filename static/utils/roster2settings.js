@@ -57,7 +57,7 @@ export function roster2settings(roster) {
 					unitSelection = [unitSelection];
 				}
 				unitSelection = unitSelection.map(s => {
-					if (s.profiles.profile === undefined && s.selections.selection !== undefined) {
+					if (s.profiles?.profile === undefined && s.selections?.selection !== undefined) {
 						s = {
 							...s,
 							_attributes: s.selections.selection._attributes,
@@ -98,7 +98,7 @@ export function roster2settings(roster) {
 
 				let modelProfile = { ...unitProfile };
 
-				let subUnitProfile = unitSelectionArg.profiles.profile;
+				let subUnitProfile = unitSelectionArg.profiles?.profile;
 				if (!Array.isArray(subUnitProfile)) {
 					subUnitProfile = [subUnitProfile];
 				}

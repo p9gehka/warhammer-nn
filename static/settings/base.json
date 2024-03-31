@@ -50,5 +50,16 @@
 	"neurogaunts": [25],
 	"haruspex": [120],
 	"norn emissary": [100],
-	"tyrannofex": [120]
+	"tyrannofex": [120],
+
+	"Drukhari": "Drukhari",
+
+	"lelith hesperax": [32],
+	"archon": [25],
+	"kabalite warriors": [25],
+	"wyches": [25],
+	"raider": [60],
+	"venom": [60],
+	"ravager": [60],
+	"incubi": [28]
 }
