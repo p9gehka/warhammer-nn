@@ -65,9 +65,6 @@ export class MissionController {
 		this.opponentUnitDeathAtRound = [[],[],[],[],[]];
 		this.deadModels = [];
 		this.startTurnObjectiveControl = [];
-		
-		console.log('reset')
-		console.log({ deck: [...this._deck], secondary: [...this.secondary] });
 	}
 	updateSecondary(round) {
 		if(!this.isTactical) {
@@ -82,8 +79,6 @@ export class MissionController {
 			} 
 			this.secondary.push(mission);
 			this._deck.splice(card, 1);
-			console.log('add', mission);
-			console.log({ round, deck: [...this._deck], secondary: [...this.secondary], card });
 		}
 	}
 	startTurn(state, profiles) {
@@ -292,7 +287,7 @@ export class MissionController {
 				completed.push(Mission.AreaDenial);
 			} else if (in6Center && !opponent3Center) {
 				secondaryVP += 3;
-				completed.push(Mission.AreaDenial)
+				completed.push(Mission.AreaDenial);
 			}
 		}
 
@@ -381,29 +376,23 @@ export class MissionController {
 			}
 		}
 
-		if (this.secondary.includes(Mission.StormHostileObjective)) {
-
-		}
-
 		if (this.isTactical) {
 			this.secondary = this.secondary.filter(mission => !completed.includes(mission));
 		}
-		console.log('completed', completed);
-		console.log({ deck: [...this._deck], secondary: [...this.secondary] });
 		return secondaryVP;
 	}
 	scoreShootingSecondary(state, profiles, categories) {
 		const killedModels = state.dead.filter(id => !this.deadModels.includes(id));
 		const round = Math.floor(state.turn / 2);
 
-		const opponentPlayer = (state.player + 1) % 2
-		let secondaryVP = 0
+		const opponentPlayer = (state.player + 1) % 2;
+		let secondaryVP = 0;
 		const completed = [];
 		let opponentUnitDeathAtRound = [];
 		if (this.secondary.includes(Mission.NoPrisoners) || this.secondary.includes(Mission.OverwhelmingForce)) {
 			opponentUnitDeathAtRound = state.players[opponentPlayer].units.filter(unit => {
 				return unit.models.every(modelId => this.deadModels.includes(modelId) || killedModels.includes(modelId))
-					&& unit.models.some(modelId => killedModels.includes(modelId))
+					&& unit.models.some(modelId => killedModels.includes(modelId));
 			});
 			this.opponentUnitDeathAtRound[round].push(...opponentUnitDeathAtRound);
 		}
@@ -416,9 +405,9 @@ export class MissionController {
 				return unit.models.some(modelId => {
 					return killedModels.includes(modelId)
 						&& objectiveMarkers.some(markerPosition => {
-							return len(sub(state.deadModels[modelId], markerPosition)) <= deploy.objective_marker_control_distance
+							return len(sub(state.deadModels[modelId], markerPosition)) <= deploy.objective_marker_control_distance;
 						});
-				})
+				});
 			}).length * 3;
 
 			const totalVPByRound = this.secondariesVPByRound[round][indexOfMission];
@@ -430,7 +419,7 @@ export class MissionController {
 		if (this.secondary.includes(Mission.Assassination)) {
 			const killedCharacter = killedModels.filter(modelId => categories[modelId].includes('character'));
 			if (!this.isTactical) {
-				secondaryVP += killedCharacter.length * 4
+				secondaryVP += killedCharacter.length * 4;
 			} else if(killedCharacter.length > 0) {
 				secondaryVP += 5;
 				completed.push(Mission.Assassination);
@@ -473,8 +462,8 @@ export class MissionController {
 	}
 
 	scoreEndTurnSecondary(state, profiles, categories) {
-		const opponentPlayer = (state.player + 1) % 2
-		let secondaryVP = 0
+		const opponentPlayer = (state.player + 1) % 2;
+		let secondaryVP = 0;
 		const completed = [];
 		const round = Math.floor(state.turn / 2);
 
@@ -545,7 +534,6 @@ export class MissionController {
 	}
 
 	discardSecondary(id) {
-		console.log('discard', this.secondary[id]);
 		this.secondary.splice(id, 1);
 	}
 }

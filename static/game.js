@@ -3,7 +3,7 @@ import { getInput, channels } from './environment/nn-input.js';
 import { Phase } from './environment/warhammer.js';
 import { getStateTensor } from '../utils/get-state-tensor.js';
 import { Game } from './game-controller/game-controller.js';
-import { getDeployOrders } from './environment/deploy.js'
+import { getDeployOrders } from './environment/deploy.js';
 import { roster2settings } from './utils/roster2settings.js';
 import { Mission } from './environment/mission.js';
 
@@ -17,7 +17,7 @@ const canvas = document.getElementById("canvas")
 const viewCheckbox = document.getElementById("view-checkbox");
 const orderViewCheckbox = document.getElementById("order-view-checkbox");
 
-const table = document.getElementById("table")
+const table = document.getElementById("table");
 const ordersSection = document.getElementById("orders-section");
 const fullOrdersList = document.getElementById("full-orders-list");
 const headerInfo = document.getElementById("header-info");
@@ -140,7 +140,7 @@ function updateUnitSection(selectedUnit) {
 		const li = document.createElement("LI");
 		li.append(`${modelId} ${game.gameSettings.modelNames[modelId]} ${state.modelsWounds[modelId]} ${state.modelsStamina[modelId]} `);
 		if (Object.keys(game.gameSettings.unitProfiles[selectedUnit]).length === 0) {
-			li.append(JSON.stringify(game.gameSettings.modelProfiles[modelId]) + '; ')
+			li.append(JSON.stringify(game.gameSettings.modelProfiles[modelId]) + '; ');
 		}
 		if (modelId === selected) {
 			li.classList.add(`selected`);
@@ -170,7 +170,7 @@ function updateWeaponSection(state) {
 		weaponSection.append(li);
 		if (state.phase === Phase.Shooting) {
 			li.addEventListener('click', () => {
-				game.orderResolve([orders.selectWeaponIndex[weaponIndex]])
+				game.orderResolve([orders.selectWeaponIndex[weaponIndex]]);
 			});
 		}
 	});

@@ -57,18 +57,17 @@ export class PlayerEnvironment {
 			}
 			playerOrder = order;
 		} else if (action === Action.Shoot && this._shootingQueue.length > 0) {
-
 			let weapon;
 			let shooter;
 			while (this._shootingQueue.length > 0) {
-				 weapon = this._shootingQueue[0];
-				 shooter = Object.keys(this._shootingTargeting[weapon])[0];
-				 if (shooter !== undefined) {
-				 	break
-				 }
-				 delete this._shootingTargeting[weapon][shooter];
-				 this._shootingQueue.shift();
-			} 
+				weapon = this._shootingQueue[0];
+				shooter = Object.keys(this._shootingTargeting[weapon])[0];
+				if (shooter !== undefined) {
+					break;
+				}
+				delete this._shootingTargeting[weapon][shooter];
+				this._shootingQueue.shift();
+			}
 			const target = this._shootingTargeting[weapon][shooter].shift();
 			if (this._shootingTargeting[weapon][shooter].length === 0) {
 				delete this._shootingTargeting[weapon][shooter];
@@ -85,7 +84,7 @@ export class PlayerEnvironment {
 				target,
 			};
 		} else if (action === Action.Move) {
-			playerOrder = {action, id: this._selectedModel, vector: order.vector, expense: order.expense };
+			playerOrder = { action, id: this._selectedModel, vector: order.vector, expense: order.expense };
 		} else if (action === Action.SelectWeapon && this._selectedModel !== null) {
 			const weaponName = this.env.gameSettings.rangedWeapons[this._selectedModel][order.id].name;
 			this._shootingQueue = this._shootingQueue.filter(v => v !== weaponName);

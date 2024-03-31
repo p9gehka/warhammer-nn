@@ -20,7 +20,7 @@ export class Game {
 
 		canvas.addEventListener('contextmenu', (event) => {
 			event.preventDefault();
-			const rect = canvas.getBoundingClientRect()
+			const rect = canvas.getBoundingClientRect();
 			const x = Math.round((((event.clientX - rect.left) * 60) / canvas.width) - 0.5);
 			const y = Math.round((((event.clientY - rect.top) * 44) / canvas.height) - 0.5);
 			this.orderHandlers?.forEach((orderHandler) => { orderHandler([x, y]) });
@@ -29,8 +29,8 @@ export class Game {
 		this.ctx = canvas.getContext("2d");
 		this.ctx.scale(canvas.width / 60, canvas.height / 44);
 
-		this.scene = null
-		this.env = null
+		this.scene = null;
+		this.env = null;
 		this.orderResolve;
 		this.orderPromise = new Promise((resolve) => this.orderResolve = resolve);
 
@@ -86,13 +86,13 @@ export class Game {
 		};
 		const battlefieldSettings = { [battlefieldName]: battlefieldSettingsLS };
 
-		let envGameSetting = {}
+		let envGameSetting = {};
 		if (this.gameSettings !== undefined) {
 			let modelCounter = 0;
 			const resultUnits = [[], []];
 			this.gameSettings.units.forEach((units, i) => {
 				units.forEach(unit => {
-					resultUnits[i].push({...unit, models: unit.models.map((id) => modelCounter++) });
+					resultUnits[i].push({ ...unit, models: unit.models.map((id) => modelCounter++) });
 				});
 			});
 
@@ -181,7 +181,7 @@ export class Game {
 				break;
 			} else {
 				const { selected } = playerState;
-				const opponentId = (state.player + 1) % 2
+				const opponentId = (state.player + 1) % 2;
 				if ((state.phase === Phase.Movement || state.phase === Phase.PreBattle) && state.modelsStamina[selected] > 0) {
 					const selectedPosition = state.models[selected];
 					this.orderHandlers = this.orders.all.map((order, i) => {
@@ -194,7 +194,7 @@ export class Game {
 							}
 						}
 					});
-					this.scene.drawOrders(this.orders.all.filter(order=> order.action==="MOVE" && state.modelsStamina[selected] >= len(order.vector)).map(order=> add(selectedPosition, order.vector)));
+					this.scene.drawOrders(this.orders.all.filter(order=> order.action === "MOVE" && state.modelsStamina[selected] >= len(order.vector)).map(order=> add(selectedPosition, order.vector)));
 				}
 
 				if (state.phase === Phase.Reinforcements) {
@@ -204,14 +204,14 @@ export class Game {
 				}
 
 				if (state.phase === Phase.Shooting && selected !== null) {
-					this.orderHandlers = []
-					 state.players[opponentId].units.forEach((unit, opponentUnitId) => {
+					this.orderHandlers = [];
+					state.players[opponentId].units.forEach((unit, opponentUnitId) => {
 						unit.models.map((modelId) => {
 							this.orderHandlers.push((clickPosition) => {
 								if(eq(state.models[modelId], clickPosition)) {
-									this.orderResolve([this.orders.setTargetIndex[opponentUnitId]])
+									this.orderResolve([this.orders.setTargetIndex[opponentUnitId]]);
 								}
-							})
+							});
 						});
 					})
 				}
@@ -222,7 +222,7 @@ export class Game {
 						this.reinforcementsPlayers[state.player].step(this.deployOrders.all[order]);
 						return;
 					}
-					const [lastAction] = this.agents[state.player].playStep(order)
+					const [lastAction] = this.agents[state.player].playStep(order);
 					if (lastAction.misc && Object.keys(lastAction.misc).length > 0) {
 						this.onUpdateDice(lastAction.misc);
 					}

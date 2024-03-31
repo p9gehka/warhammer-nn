@@ -159,7 +159,7 @@ export class Warhammer {
 		this.gameSettings = config.gameSettings;
 		this.battlefields = config.battlefields;
 		this.missions = [
-			new MissionController('TakeAndHold', 'ChillingRain', [Mission.StormHostileObjective, Mission.ATamptingTarget]),
+			new MissionController('TakeAndHold', 'ChillingRain', [Mission.ATamptingTarget, Mission.StormHostileObjective]),
 			new MissionController('TakeAndHold', 'ChillingRain', [Mission.DeployTeleportHomer, Mission.Cleanse])
 		]
 		this.reset();
@@ -314,7 +314,7 @@ export class Warhammer {
 					const saveDice = d6();
 					saves.push(saveDice);
 					if (saveDice >= (targetSave - weapon.ap)) {
-						continue
+						continue;
 					}
 					const damageValue = Number.isInteger(weapon.d) ? weapon.d : weapon.d(d6());
 					targetModel.inflictDamage(damageValue);
@@ -331,7 +331,7 @@ export class Warhammer {
 				return this.getState();
 			}
 
-			model.decreaseStamina(order.expense)
+			model.decreaseStamina(order.expense);
 
 			const newPosition = add(model.position, order.vector);
 			model.update(newPosition);
@@ -375,7 +375,7 @@ export class Warhammer {
 		this.turn = (this.totalRounds * 2);
 	}
 	getRound() {
-		return Math.floor(this.turn / 2)
+		return Math.floor(this.turn / 2);
 	}
 
 	strenghtVsToughness(s, t) {

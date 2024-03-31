@@ -165,7 +165,6 @@ export class DeployEnvironment {
 	step(order) {
 		const currentState = this.env.getState();
 		if (order.action === 'SELECT') {
-
 			const selectedModel = this.env.players[this.playerId].models[order.id];
 			if (selectedModel !== undefined) {
 				this._selectedModel = selectedModel;
@@ -174,7 +173,7 @@ export class DeployEnvironment {
 		}
 
 		if(order.action === 'SET_X') {
-			this._x = order.value
+			this._x = order.value;
 			return currentState;
 		}
 		if(order.action === 'SET_Y') {

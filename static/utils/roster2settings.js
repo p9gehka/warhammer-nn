@@ -12,7 +12,6 @@ export function roster2settings(roster) {
 	roster.roster.forces.force.selections.selection
 		.filter( v => v._attributes.type === "unit" || v._attributes.type === "model")
 		.forEach(rosterUnit => {
-			console.dir(JSON.stringify(rosterUnit))
 			if (rosterUnit._attributes.type === "model") {
 				rosterUnit = {
 					_attributes: {
@@ -46,7 +45,7 @@ export function roster2settings(roster) {
 			const unitModelsNames = [];
 			const unitRangedWeapons = [];
 			const unitMeleeWeapons = [];
-			const unitModelsProfiles = []
+			const unitModelsProfiles = [];
 			rosterSelection.forEach(unitSelectionArg => {
 				if (unitSelectionArg._attributes.type !== 'model') {
 					return;
@@ -113,7 +112,7 @@ export function roster2settings(roster) {
 				unitModelsNames.push(...(new Array(modelNumber).fill(unitSelectionArg._attributes.name)));
 				unitRangedWeapons.push(...(new Array(modelNumber).fill(rangedProfiles)));
 				unitMeleeWeapons.push(...(new Array(modelNumber).fill(meleeProfiles)));
-				unitModelsProfiles.push(...(new Array(modelNumber).fill(modelProfile)))
+				unitModelsProfiles.push(...(new Array(modelNumber).fill(modelProfile)));
 			})
 
 			let unitModelsNumber = 1;
@@ -137,8 +136,8 @@ export function roster2settings(roster) {
 			unitProfiles.push(unitProfile);
 			modelProfiles.push(...unitModelsProfiles);
 			modelNames.push(...unitModelsNames);
-			rangedWeapons.push(...unitRangedWeapons)
-			meleeWeapons.push(...unitMeleeWeapons)
+			rangedWeapons.push(...unitRangedWeapons);
+			meleeWeapons.push(...unitMeleeWeapons);
 		});
 
 	return { units, unitProfiles, modelProfiles, categories, rules, modelNames, rangedWeapons, meleeWeapons };
