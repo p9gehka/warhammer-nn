@@ -216,17 +216,21 @@ export class Game {
 					})
 				}
 
-				const orders = await this.orderPromise;
-				orders.forEach(order => {
-					if (state.phase === Phase.Reinforcements) {
+				
+
+				if (state.phase === Phase.Reinforcements) {
+					const orders = await this.orderPromise;
+					orders.forEach(order => {
 						this.reinforcementsPlayers[state.player].step(this.deployOrders.all[order]);
-						return;
-					}
-					const [lastAction] = this.agents[state.player].playStep(order);
+					});
+				} else {
+					this.agents[state.player].orderPromise = this.orderPromise;
+					const [lastAction] = await this.agents[state.player].playStep();
+
 					if (lastAction.misc && Object.keys(lastAction.misc).length > 0) {
 						this.onUpdateDice(lastAction.misc);
 					}
-				});
+				}
 
 				if(!state.done) {
 					this.orderPromise = new Promise((resolve) => this.orderResolve = resolve);

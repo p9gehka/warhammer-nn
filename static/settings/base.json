@@ -18,6 +18,7 @@
 	"hammerhead gunship": [150],
 	
 	"riptide battlesuit": [120],
+	"r'varna battlesuit": [120],
 	"krootox riders": [40],
 	"piranha": [70],
 	"kroot carnivores": [25],
@@ -61,5 +62,16 @@
 	"raider": [60],
 	"venom": [60],
 	"ravager": [60],
-	"incubi": [28]
+	"incubi": [28],
+
+	"leagues of VOTANN": "leagues of VOTANN",
+	"einhyr champion": [40],
+	"kâhl" :[40],
+	"hearthkyn warriors" :[28],
+	"brôkhyr thunderkyn" :[40],
+	"cthonian beserks" :[28],
+	"einhyr hearthguard" :[32],
+	"hernkyn pioneers" :[90],
+	"hekaton land fortress" :[150],
+	"sagitaur" :[130]
 }

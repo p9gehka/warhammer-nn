@@ -5,8 +5,11 @@ export class ControlledAgent {
 		const { replayMemory } = config;
 		this.replayMemory = replayMemory ?? null;
 	}
-
-	playStep(orderIndex) {
+	async playStep() {
+		const orders = await this.orderPromise;
+		return orders.reduce((_, order) => this._playStep(order), null);
+	}
+	_playStep(orderIndex) {
 		const input = this.game.getInput();
 		if (this.replayMemory !== null && this.prevState !== null) {
 			this.replayMemory?.append([...this.prevState, false, input]);

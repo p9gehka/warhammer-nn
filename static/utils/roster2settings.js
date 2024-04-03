@@ -127,7 +127,7 @@ export function roster2settings(roster) {
 
 			let rosterRule = rosterUnit.rules.rule;
 			if (!Array.isArray(rosterRule)) {
-				rosterRule = [rosterRule];
+				rosterRule = rosterRule !== undefined ? [rosterRule] : [];
 			}
 			const rule = rosterRule.map(r => r._attributes.name.toLowerCase());
 			rules.push(rule);
