@@ -183,7 +183,6 @@ export class Scene extends Drawing {
 		this.ctx.translate(-0.5, -0.5);
 	}
 	updateState(state, playerState) {
-		console.log(playerState)
 		this.battlefield.update(state.battlefield);
 		state.models.forEach((position, id) => {
 			this.models[id].update(position);

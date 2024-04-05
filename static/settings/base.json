@@ -26,14 +26,25 @@
 	"commander farsight": [60],
 
 	"IMPERIAL KNIGHTS": "IMPERIAL KNIGHTS",
+	"canis rex": [170],
 	"cerastus knight lancer": [170],
-
+	"cerastus knight castigator": [170],
+	"knight warden": [170],
+	"armiger helverin": [100],
+	"armiger warglaive": [100],
+	"AGENTS OF THE EMPERIUM": "AGENTS OF THE EMPERIUM",
+	"lord inquisitor kyria draxus": [32],
+	"inquisitor":[25],
 
 	"ADEPTUS CUSTODES": "ADEPTUS CUSTODES",
 	"allarus custodians": [40],
 	"custodian guard": [40],
 	"trajann valoris": [40],
+	"blade champion": [40],
 	"custodian wardens": [40],
+	"prosecutors": [32],
+	"caladius grav-tank": [170],
+	"anathema psykana rhino": [120],
 
 	"MECH": "MECH",
 	"tech-priest dominus": [50],

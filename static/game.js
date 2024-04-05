@@ -52,6 +52,8 @@ function updateHeader(state) {
 	if (state.phase === Phase.PreBattle) {
 		phaseName = 'PreBattle';
 	}
+	headerInfo.classList.toggle('player0', state.player === 0);
+	headerInfo.classList.toggle('player1', state.player === 1);
 	headerInfo.innerHTML = `Phase: ${phaseName}, Round: ${state.round}, Player turn: ${state.player}, Player0: ${state.players[0].primaryVP}/${state.players[0].secondaryVP}, Player1: ${state.players[1].primaryVP}/${state.players[1].secondaryVP}`;
 }
 
@@ -161,7 +163,7 @@ function updateWeaponSection(state) {
 		return;
 	}
 	const orders = new Orders().getOrders();
-	game.gameSettings.rangedWeapons[selectedModel].forEach((weapon, weaponIndex) => {
+	game.gameSettings.rangedWeapons[selectedModel]?.forEach((weapon, weaponIndex) => {
 		const li = document.createElement("LI");
 		for(let key in weapon) {
 			li.append(`${key}: ${weapon[key]}; `);
@@ -175,7 +177,7 @@ function updateWeaponSection(state) {
 		}
 	});
 
-	game.gameSettings.meleeWeapons[selectedModel].forEach((weapon) => {
+	game.gameSettings.meleeWeapons[selectedModel]?.forEach((weapon) => {
 		const li = document.createElement("LI");
 		for(let key in weapon) {
 			li.append(`${key}: ${weapon[key]}; `);

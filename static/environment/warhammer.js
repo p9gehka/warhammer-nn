@@ -326,7 +326,7 @@ export class Warhammer {
 				return this.getState({ hits, wounds, saves, damage });
 			}
 		}
-		if (order.action === BaseAction.Move) {
+		if (order.action === BaseAction.Move && model !== undefined) {
 			if (len(order.vector) > model.stamina) {
 				return this.getState();
 			}

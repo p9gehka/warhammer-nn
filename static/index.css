@@ -40,6 +40,14 @@ body {
 	padding-left: 8px;
 }
 
+.header .player0 {
+	border-bottom: 2px solid red;
+}
+
+.header .player1 {
+	border-bottom: 2px solid blue;
+}
+
 .header-controls {
 	display: grid;
 	grid-auto-flow: column;

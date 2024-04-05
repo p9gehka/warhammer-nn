@@ -3,6 +3,7 @@ import { Warhammer, Phase } from '../environment/warhammer.js'
 import { Deploy, DeployAction, DeployEnvironment, getDeployOrders } from '../environment/deploy.js'
 import { PlayerEnvironment } from '../environment/player-environment.js'
 import { ControlledAgent } from '../agents/controlled-agent.js';
+import { Agent as OpponentAgent } from '../agents/baldiozAgent04.01.js';
 import { Orders } from '../environment/orders.js';
 import { add, eq, len } from '../utils/vec2.js'
 
@@ -144,7 +145,7 @@ export class Game {
 
 		this.players = [new PlayerEnvironment(0, this.env), new PlayerEnvironment(1, this.env)];
 		this.reinforcementsPlayers = [new DeployEnvironment(0, this.env), new DeployEnvironment(1, this.env)];
-		this.agents = [new ControlledAgent(this.players[0]), new ControlledAgent(this.players[1])];
+		this.agents = [new ControlledAgent(this.players[0]), new OpponentAgent(this.players[1])];
 		this.play();
 	}
 
