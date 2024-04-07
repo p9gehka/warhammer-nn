@@ -1,7 +1,7 @@
 import express from 'express';
 import { ReplayMemory } from './replay-memory-by-key.js';
 import hash from 'object-hash';
-import config from './config.json' assert { type: 'json' };
+import config from '../config.json' assert { type: 'json' };
 const { replayMemorySize } = config;
 const replayMemory = new ReplayMemory(replayMemorySize);
 const app = express();
