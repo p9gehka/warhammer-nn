@@ -1,7 +1,7 @@
 {
-	"memoryAddress": "",
-	"loadPath": "",
-	"savePath": "",
+	"memoryAddress": "http://192.168.0.108:3000",
+	"loadPath": "http://192.168.0.108/dqn-share/model.json",
+	"savePath": "./models/dqn",
 
 	"syncEveryEpoch": 1e2,
 	"saveEveryEpoch": 1e2,
@@ -12,6 +12,6 @@
 	"cumulativeRewardThreshold": 4,
 	"epsilonDecayFrames": 5e5,
 	"rewardAveragerBufferLength": 1500,
-	"replayBufferSize": 4e4
-
+	"replayBufferSize": 2e3,
+	"replayMemorySize": 1e4
 }

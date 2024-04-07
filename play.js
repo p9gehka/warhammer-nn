@@ -18,7 +18,7 @@ import { NodeFileSystem } from './static/utils/save.js';
 import config from './config.json' assert { type: 'json' };
 
 const tf = await getTF();
-const replayBufferSize = 1e4;
+const { replayBufferSize } = config;
 const savePath = './static/models/dqn/';
 
 const { cumulativeRewardThreshold } = config;
