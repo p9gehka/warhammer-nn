@@ -1,6 +1,6 @@
 import * as fs from 'fs';
-import * as tf from '@tensorflow/tfjs-node';
 import shelljs from 'shelljs';
+import { getTF } from './static/utils/get-tf.js';
 
 import { Warhammer } from './static/environment/warhammer.js';
 import { Action } from './static/environment/orders.js';
@@ -13,9 +13,11 @@ import { ReplayMemoryClient } from './replay-memory/replay-memory-client.js';
 import { sendDataToTelegram } from './visualization/utils.js';
 import { MovingAverager } from './moving-averager.js';
 import { lock } from './replay-memory/lock-api.js'
+import { NodeFileSystem } from './static/utils/save.js';
 
 import config from './config.json' assert { type: 'json' };
 
+const tf = await getTF();
 const replayBufferSize = 1e4;
 const savePath = './static/models/dqn/';
 
@@ -34,7 +36,7 @@ async function play() {
 	async function tryUpdateModel() {
 		try {
 			const nn = await tf.loadLayersModel(config.loadPath)
-			await nn?.save(`file://${savePath}/temp`);
+			nn?.save(new NodeFileSystem(`${savePath}/temp`));
 			console.log(`Load model from ${config.loadPath} success`);
 			if (agents[0].onlineNetwork === undefined) {
 				agents[0] = new GameAgent(players[0], { nn, replayMemory, epsilonDecayFrames: config.epsilonDecayFrames });
@@ -97,7 +99,7 @@ async function play() {
 						shelljs.mkdir('-p', savePath);
 					}
 
-					await agents[0].onlineNetwork?.save(`file://${savePath}`);
+					await agents[0].onlineNetwork?.save(new NodeFileSystem(savePath));
 					if (agents[0].onlineNetwork) {
 						console.log(`Saved DQN to ${savePath} final`);
 					}
@@ -115,7 +117,7 @@ async function play() {
 					if (!fs.existsSync(savePath)) {
 						shelljs.mkdir('-p', savePath);
 					}
-					await agents[0].onlineNetwork?.save(`file://${savePath}`);
+					await agents[0].onlineNetwork?.save(new NodeFileSystem(savePath));
 					console.log(`Saved DQN to ${savePath}`);
 				}
 			}

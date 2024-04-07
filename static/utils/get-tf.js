@@ -6,7 +6,10 @@ export async function getTF() {
 	if (process.argv?.includes('-gpu')) {
 		console.log("USE TFJS-GPU")
 		return import ('@tensorflow/tfjs-node-gpu');
-	} else {
+	} else if (process.argv?.includes('-tf')) {
+		return import('@tensorflow/tfjs');
+	} 
+	else {
 		return import ('@tensorflow/tfjs-node');
 	}
 }
