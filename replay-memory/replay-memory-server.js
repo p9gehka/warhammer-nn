@@ -34,7 +34,7 @@ app.get('/sample', (req,res) => {
 	}
 	const batchSize = parseInt(req.query.batchSize);
 
-	if (replayMemory.length !== replayBufferSize) {
+	if (replayMemory.length !== replayMemorySize) {
 		res.json({ buffer: replayMemory.sample(batchSize) });
 		return;
 	}
