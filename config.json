@@ -7,11 +7,11 @@
 	"saveEveryEpoch": 1e2,
 	"repeatBatchTraining": 5,
 	"batchSize": 64,
-	"gamma": 0.3,
+	"gamma": 0.99,
 
 	"cumulativeRewardThreshold": 4,
 	"epsilonDecayFrames": 5e5,
 	"rewardAveragerBufferLength": 1500,
-	"replayBufferSize": 4e4
-
+	"replayBufferSize": 2e3,
+	"replayMemorySize": 1e4
 }

@@ -16,7 +16,7 @@ import { lock } from './replay-memory/lock-api.js'
 
 import config from './config.json' assert { type: 'json' };
 
-const replayBufferSize = 1e4;
+const { replayBufferSize } = config;
 const savePath = './static/models/dqn/';
 
 const { cumulativeRewardThreshold } = config;
