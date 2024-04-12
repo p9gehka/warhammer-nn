@@ -13,5 +13,7 @@
 	"epsilonDecayFrames": 5e5,
 	"rewardAveragerBufferLength": 1500,
 	"replayBufferSize": 2e3,
-	"replayMemorySize": 1e4
+	"replayMemorySize": 1e4,
+	"sendMessageEveryFrames": 1e6,
+	"sleepTimer": 5
 }

@@ -19,8 +19,7 @@ import config from './config.json' assert { type: 'json' };
 const { replayBufferSize } = config;
 const savePath = './static/models/dqn/';
 
-const { cumulativeRewardThreshold } = config;
-const sendMessageEveryFrames = 1e6;
+const { cumulativeRewardThreshold, sendMessageEveryFrames, sleepTimer } = config;
 
 const rewardAveragerLen = 100;
 
@@ -176,6 +175,7 @@ async function play() {
 			await tryUpdateModel();
 		}
 		agents[state.player].playStep();
+		await(new Promise((resolve) => { setTimeout(resolve, sleepTimer)}))
 	}
 }
 
