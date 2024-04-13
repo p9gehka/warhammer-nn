@@ -1,16 +1,21 @@
 import { getTF } from '../static/utils/get-tf.js';
 import { getStateTensor } from '../static/utils/get-state-tensor.js';
 import { createDeepQNetwork } from '../dqn/dqn.js';
-
+import { copyWeights } from '../dqn/dqn.js';
 const tf = await getTF();
 
 export class Trainer {
 	constructor(game, config = {}) {
-		const { replayMemory, nn = [] } = config
+		const { replayMemory, nn } = config
 		this.game = game;
 		this.replayMemory = replayMemory;
-		this.onlineNetwork = nn[0] ?? createDeepQNetwork(game.orders.all.length, game.height, game.width, game.channels.length);
-		this.targetNetwork = nn[1] ?? createDeepQNetwork(game.orders.all.length, game.height, game.width, game.channels.length);
+		this.onlineNetwork = nn ?? createDeepQNetwork(game.orders.all.length, game.height, game.width, game.channels.length);
+		this.copyWeights()
+	}
+
+	copyWeights() {
+		this.targetNetwork = createDeepQNetwork(this.game.orders.all.length, this.game.height, this.game.width, this.game.channels.length);
+		copyWeights(this.targetNetwork, this.onlineNetwork);
 		this.targetNetwork.trainable = false;
 	}
 	trainOnReplayBatch(batchSize, gamma, optimizer) {
