@@ -6,17 +6,20 @@ const tf = await getTF();
 
 export class Trainer {
 	constructor(game, config = {}) {
-		const { replayMemory, nn } = config
+		const { replayMemory, nn, targetNN } = config
 		this.game = game;
 		this.replayMemory = replayMemory;
 		this.onlineNetwork = nn ?? createDeepQNetwork(game.orders.all.length, game.height, game.width, game.channels.length);
+		this.targetNetwork = null
+	}
+	async createTargetNetwork() {
+		this.targetNetwork = await tf.models.modelFromJSON({
+			modelTopology: this.onlineNetwork.toJSON(null, false)
+		});
 		this.copyWeights()
 	}
-
 	copyWeights() {
-		this.targetNetwork = createDeepQNetwork(this.game.orders.all.length, this.game.height, this.game.width, this.game.channels.length);
 		copyWeights(this.targetNetwork, this.onlineNetwork);
-		this.targetNetwork.trainable = false;
 	}
 	trainOnReplayBatch(batchSize, gamma, optimizer) {
 		// Get a batch of examples from the replay buffer.

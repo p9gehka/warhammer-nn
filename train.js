@@ -30,7 +30,7 @@ async function train(nn) {
 
 	const trainer = new Trainer(game, { nn, replayMemory });
 	trainer.onlineNetwork.summary();
-
+	await trainer.createTargetNetwork();
 	const optimizer = tf.train.adam(learningRate);
 	let epoch = 0;
 
