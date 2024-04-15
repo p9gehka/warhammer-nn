@@ -10,7 +10,8 @@ export class Trainer {
 		this.game = game;
 		this.replayMemory = replayMemory;
 		this.onlineNetwork = nn ?? createDeepQNetwork(game.orders.all.length, game.height, game.width, game.channels.length);
-		this.targetNetwork = null
+		this.targetNetwork = null;
+		/* this.targetNetwork.trainable = false not work why?? */
 	}
 	async createTargetNetwork() {
 		this.targetNetwork = await tf.models.modelFromJSON({
