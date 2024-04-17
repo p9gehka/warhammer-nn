@@ -17,7 +17,7 @@ export class Trainer {
 		this.targetNetwork = await tf.models.modelFromJSON({
 			modelTopology: this.onlineNetwork.toJSON(null, false)
 		});
-		this.copyWeights()
+		this.copyWeights();
 	}
 	copyWeights() {
 		copyWeights(this.targetNetwork, this.onlineNetwork);
