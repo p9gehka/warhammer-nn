@@ -41,7 +41,7 @@ async function train(nn) {
 		}
 
 		if (epoch % config.syncEveryEpoch === 0) { /* sync не произойдет */
-			trainer.copyWeights(trainer);
+			trainer.copyWeights();
 			console.log('Sync\'ed weights from online network to target network');
 		}
 
