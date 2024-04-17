@@ -33,7 +33,7 @@ export class TestAgent {
 			 [,state,] = this.game.step({ action: Action.NextPhase });
 		}
 
-		return [order_, state, reward, { index, estimate: estimate.toFixed(3) }];
+		return [order_, state, reward, { index: orderIndex, estimate: estimate.toFixed(3) }];
 	}
 	reset() {
 		this.game.reset();
