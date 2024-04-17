@@ -10,26 +10,26 @@ export class RandomAgent {
 		this.game = game;
 		this.replayMemory = replayMemory;
 	}
-	getOrderIndex() {
-		const { orders } = this.game;
-		const input = this.game.getInput();
 
-
-		if (input[Channel1Name.Stamina].length === 0) {
-			return orders.nextPhaseIndex;
-		}
-
-		return orders.moveIndexes[getRandomInteger(0, orders.moveIndexes.length)];
+	getOrderRandomIndex() {
+		return getRandomInteger(0, this.game.orders.all.length);
 	}
+
 	playStep() {
-		const orderIndex = this.getOrderIndex();
-		const order = this.game.orders.all[orderIndex];
+		const initState = this.game.env.getState();
+		const { selected } = this.game.getState();
+		const orderIndex = this.getOrderRandomIndex();
 		const input = this.game.getInput();
 		if (this.prevState !== null) {
 			this.replayMemory?.append([...this.prevState, false, input]);
 		}
-		const [order_, state, reward] = this.game.step(order);
-		this.game.step({ action: Action.NextPhase });
+
+		let [order_, state , reward] = this.game.step(this.game.orders.all[orderIndex]);
+
+		if (initState.modelsStamina[selected] === state.modelsStamina[selected]) {
+			 [,state,] = this.game.step({ action: Action.NextPhase });
+		}
+
 		this.prevState = [input, orderIndex, reward];
 		return [order_, state, reward];
 	}

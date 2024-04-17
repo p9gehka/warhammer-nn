@@ -24,25 +24,14 @@ export class GameAgent {
 		this.epsilon = this.epsilonInit;
 	}
 
-	getAvailableMoveArgMax() {
-		const { selected } = this.game.getState();
-		const state = this.game.env.getState();
-		const allOrders = this.game.orders.all;
-
-		return tf.tensor2d(
-			Array(allOrders.length).fill(-Infinity).map((v, i) => {
-				return allOrders[i].expense <= state.modelsStamina[selected] ? 0 : v;
-			}),
-			[1, allOrders.length]
-		);
-	}
-
 	getOrderRandomIndex() {
 		return getRandomInteger(0, this.game.orders.all.length);
 	}
 
 	playStep() {
 		const { orders, height, width, channels } = this.game;
+		const { selected } = this.game.getState();
+		const initState = this.game.env.getState();
 		this.frameCount++;
 		this.epsilon = this.frameCount >= this.epsilonDecayFrames ?
 			this.epsilonFinal :
@@ -59,18 +48,15 @@ export class GameAgent {
 		} else {
 			tf.tidy(() => {
 				const inputTensor = getStateTensor([input], height, width, channels);
-				const indexesArgMax = this.getAvailableMoveArgMax();
 				const predictions = this.onlineNetwork.predict(inputTensor);
-				orderIndex = tf.add(predictions, indexesArgMax).argMax(-1).dataSync()[0];
+				orderIndex = predictions.argMax(-1).dataSync()[0]
 			});
 		}
 
-		const order = orders.all[orderIndex];
+		let [order_, state , reward] = this.game.step(orders.all[orderIndex]);
 
-		let [order_, state, reward] = this.game.step(order);
-		const { selected } = this.game.getState();
-		if(state.modelsStamina[selected] === 0 || order.expense === 0) {
-			[,state,] = this.game.step({ action: Action.NextPhase });
+		if (initState.modelsStamina[selected] === state.modelsStamina[selected]) {
+			 [,state,] = this.game.step({ action: Action.NextPhase });
 		}
 
 		this.prevState = [input, orderIndex, reward];

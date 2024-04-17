@@ -15,25 +15,25 @@ export class TestAgent {
 
 	playStep() {
 		const input = this.game.getInput();
+		const initState = this.game.env.getState();
+		const { selected } = this.game.getState();
 		let orderIndex = 0;
 		let estimate = 0;
 		const { height, width, channels } = this.game;
 		tf.tidy(() => {
-			const inputTensor = getStateTensor([input], height, width, channels);
-			const indexesArgMax = this.gameAgent.getAvailableMoveArgMax();
-			const predictions = this.onlineNetwork.predict(inputTensor);
-			estimate = predictions.max(-1).dataSync()[0];
-		 	orderIndex = tf.add(predictions, indexesArgMax).argMax(-1).dataSync()[0];
+			const inputTensor = getStateTensor([input], this.game.height, this.game.width, this.game.channels);
+			const prediction = this.onlineNetwork.predict(inputTensor);
+			estimate = prediction.max(-1).dataSync()[0];
+			orderIndex = prediction.argMax(-1).dataSync()[0];
 		});
 
-		const order = this.game.orders.all[orderIndex];
-		let [order_, state , reward] = this.game.step(order);
-		const { selected } = this.game.getState();
-		if(state.modelsStamina[selected] === 0 || order.expense === 0) {
-			[,state,] = this.game.step({ action: Action.NextPhase })
+		let [order_, state , reward] = this.game.step(orders.all[orderIndex]);
+
+		if (initState.modelsStamina[selected] === state.modelsStamina[selected]) {
+			 [,state,] = this.game.step({ action: Action.NextPhase });
 		}
 
-		return [order_, state, reward, { index: orderIndex, estimate: estimate.toFixed(3) }];
+		return [order_, state, reward, { index, estimate: estimate.toFixed(3) }];
 	}
 	reset() {
 		this.game.reset();

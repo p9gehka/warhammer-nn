@@ -2,8 +2,11 @@ import { Phase } from './warhammer.js';
 import { len } from '../utils/vec2.js';
 
 //{ Empty: 0 }
-export const Channel0 = { 0: 1 }
-export const Channel1 = { Stamina: 1 }
+export const Channel0 = { 0: 1 };
+export const Channel1 = { };
+[1,2,3,4,5,6,7,8,9,10].forEach(v => {
+	Channel1[`Stamina${v}`] = v;
+});
 export const Channel2 = { ObjectiveMarker: 1 };
 
 export const Channel0Name = {}, Channel1Name = {}, Channel2Name = {};
@@ -55,7 +58,7 @@ export function getInput(state) {
 			if (playerId === state.player) {
 				input[playerModelId] = [xy];
 				if (state.phase === Phase.Movement && state.modelsStamina[gameModelId] > 0) {
-					entity = Channel1Name.Stamina;
+					entity = Channel1Name[`Stamina${state.modelsStamina[gameModelId]}`];
 				}
 			}
 

@@ -32,7 +32,7 @@ async function play() {
 
 	async function tryUpdateModel() {
 		try {
-			const nn = await tf.loadLayersModel(config.loadPath)
+			const nn = await tf.loadLayersModel(config.loadPath);
 			await nn?.save(`file://${savePath}/temp`);
 			console.log(`Load model from ${config.loadPath} success`);
 			if (agents[0].onlineNetwork === undefined) {
@@ -87,7 +87,8 @@ async function play() {
 				`Frame #${frameCount}: ` +
 				`cumulativeVP${rewardAveragerLen}=${averageReward.toFixed(1)}; ` +
 				`(epsilon=${agents[0].epsilon?.toFixed(3)}) ` +
-				`(${framesPerSecond.toFixed(1)} frames/s)`);
+				`(${framesPerSecond.toFixed(1)} frames/s)`
+			);
 
 			if (averageReward >= cumulativeRewardThreshold) {
 				await lock();

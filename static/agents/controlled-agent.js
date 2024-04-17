@@ -13,8 +13,14 @@ export class ControlledAgent {
 		if (this.replayMemory !== null && this.prevState !== null) {
 			this.replayMemory?.append([...this.prevState, false, input]);
 		}
-		const [order_, , reward] = this.game.step(this.game.orders.all[orderIndex]);
-		const [,state,] = this.game.step({ action: Action.NextPhase });
+		const initState = this.game.env.getState();
+		const { selected } = this.game.getState();
+		let [order_, state , reward] = this.game.step(this.game.orders.all[orderIndex]);
+
+		if (initState.modelsStamina[selected] === state.modelsStamina[selected]) {
+			 [,state,] = this.game.step({ action: Action.NextPhase });
+		}
+
 		this.prevState = [input, orderIndex, reward];
 		return [order_, state, reward];
 	}
