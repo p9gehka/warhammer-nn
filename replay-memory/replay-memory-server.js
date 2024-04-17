@@ -1,8 +1,10 @@
 import express from 'express';
 import { ReplayMemory } from './replay-memory-by-key.js';
 import hash from 'object-hash';
-const replayBufferSize = 4e4;
-const replayMemory = new ReplayMemory(replayBufferSize);
+import config from '../config.json' assert { type: 'json' };
+const { replayMemorySize } = config;
+const replayMemory = new ReplayMemory(replayMemorySize);
+
 const app = express();
 
 let locked = false;
@@ -33,7 +35,7 @@ app.get('/sample', (req,res) => {
 	}
 	const batchSize = parseInt(req.query.batchSize);
 
-	if (replayMemory.length !== replayBufferSize) {
+	if (replayMemory.length !== replayMemorySize) {
 		res.json({ buffer: replayMemory.sample(batchSize) });
 		return;
 	}

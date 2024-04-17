@@ -11,6 +11,7 @@ export class Trainer {
 		this.replayMemory = replayMemory;
 		this.onlineNetwork = nn[0] ?? createDeepQNetwork(game.orders.all.length, game.height, game.width, game.channels.length);
 		this.targetNetwork = nn[1] ?? createDeepQNetwork(game.orders.all.length, game.height, game.width, game.channels.length);
+		this.targetNetwork.trainable = false;
 	}
 	trainOnReplayBatch(batchSize, gamma, optimizer) {
 		// Get a batch of examples from the replay buffer.

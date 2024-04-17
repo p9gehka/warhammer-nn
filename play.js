@@ -16,13 +16,12 @@ import { lock } from './replay-memory/lock-api.js'
 
 import config from './config.json' assert { type: 'json' };
 
-const replayBufferSize = 1e4;
+const { replayBufferSize } = config;
 const savePath = './static/models/dqn/';
 
-const { cumulativeRewardThreshold } = config;
-const sendMessageEveryFrames = 1e6;
+const { cumulativeRewardThreshold, sendMessageEveryFrames, sleepTimer } = config;
 
-const rewardAverager100Len = 100;
+const rewardAveragerLen = 100;
 
 async function play() {
 	const env = new Warhammer();
@@ -55,9 +54,9 @@ async function play() {
 	let state = env.reset();
 	agents.forEach(agent => agent.reset());
 
-	let averageReward100Best = -Infinity;
+	let averageRewardBest = -Infinity;
 	let rewardAveragerBuffer = null;
-	const rewardAverager100 = new MovingAverager(rewardAverager100Len);
+	const rewardAverager = new MovingAverager(rewardAveragerLen);
 	const frameTimeAverager100 = new MovingAverager(100);
 
 	let frameCountPrev = 0;
@@ -77,20 +76,20 @@ async function play() {
 			if (Number.isFinite(framesPerSecond)) {
 				frameTimeAverager100.append(framesPerSecond);
 			}
-			rewardAverager100.append(state.players[0].vp + players[0].cumulativeReward/1000);
+			rewardAverager.append(state.players[0].vp + players[0].cumulativeReward/1000);
 
 			t = currentT;
 			frameCountPrev = frameCount;
 
-			const averageReward100 = rewardAverager100.average();
+			const averageReward = rewardAverager.average();
 
 			console.log(
 				`Frame #${frameCount}: ` +
-				`cumulativeVP100=${averageReward100.toFixed(1)}; ` +
+				`cumulativeVP${rewardAveragerLen}=${averageReward.toFixed(1)}; ` +
 				`(epsilon=${agents[0].epsilon?.toFixed(3)}) ` +
 				`(${framesPerSecond.toFixed(1)} frames/s)`);
 
-			if (averageReward100 >= cumulativeRewardThreshold) {
+			if (averageReward >= cumulativeRewardThreshold) {
 				await lock();
 				if (savePath != null) {
 					if (!fs.existsSync(savePath)) {
@@ -104,13 +103,13 @@ async function play() {
 				}
 				await sendDataToTelegram(
 					rewardAveragerBuffer.buffer.filter(v => v !== null),
-					`Training done - averageReward100:${averageReward100.toFixed(1)} cumulativeRewardThreshold ${cumulativeRewardThreshold}`
+					`Training done - averageReward${rewardAveragerLen}:${averageReward.toFixed(1)} cumulativeRewardThreshold ${cumulativeRewardThreshold}`
 				);
 				break;
 			}
 
-			if (averageReward100 > averageReward100Best && rewardAverager100.isFull()) {
-				averageReward100Best = averageReward100;
+			if (averageReward > averageRewardBest && rewardAverager.isFull()) {
+				averageRewardBest = averageReward;
 				if (savePath != null) {
 					if (!fs.existsSync(savePath)) {
 						shelljs.mkdir('-p', savePath);
@@ -155,7 +154,7 @@ async function play() {
 			*/
 			await sendDataToTelegram(
 				rewardAveragerBuffer.buffer.filter(v => v !== null),
-				`Frame #${frameCount}::Epsilon ${agents[0].epsilon?.toFixed(3)}::averageReward100Best ${averageReward100Best}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
+				`Frame #${frameCount}::Epsilon ${agents[0].epsilon?.toFixed(3)}::averageReward${rewardAveragerLen}Best ${averageRewardBest}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
 				`:${JSON.stringify(testActions)}:`
 			);
 		}
@@ -165,17 +164,18 @@ async function play() {
 				rewardAveragerBuffer = new MovingAverager(config.rewardAveragerBufferLength);
 			}
 
-			rewardAveragerBuffer.append({ frame: frameCount, averageReward: rewardAverager100.average()});
+			rewardAveragerBuffer.append({ frame: frameCount, averageReward: rewardAverager.average()});
 		}
 
 		if(replayMemory.length === replayBufferSize) {
 			console.log('Update server buffer');
-			console.log(`averageReward100Best: ${averageReward100Best}`)
+			console.log(`averageReward${rewardAveragerLen}Best: ${averageRewardBest}`)
 			await replayMemory.updateServer();
 			replayMemory.clean();
 			await tryUpdateModel();
 		}
 		agents[state.player].playStep();
+		await(new Promise((resolve) => { setTimeout(resolve, sleepTimer)}))
 	}
 }
 
