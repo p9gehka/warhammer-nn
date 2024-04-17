@@ -27,7 +27,7 @@ export class TestAgent {
 			orderIndex = prediction.argMax(-1).dataSync()[0];
 		});
 
-		let [order_, state , reward] = this.game.step(this.game.orders.orders.all[orderIndex]);
+		let [order_, state , reward] = this.game.step(this.game.orders.all[orderIndex]);
 
 		if (initState.modelsStamina[selected] === state.modelsStamina[selected]) {
 			 [,state,] = this.game.step({ action: Action.NextPhase });
