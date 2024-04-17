@@ -1,17 +1,26 @@
 import { getTF } from '../static/utils/get-tf.js';
 import { getStateTensor } from '../static/utils/get-state-tensor.js';
 import { createDeepQNetwork } from '../dqn/dqn.js';
-
+import { copyWeights } from '../dqn/dqn.js';
 const tf = await getTF();
 
 export class Trainer {
 	constructor(game, config = {}) {
-		const { replayMemory, nn = [] } = config
+		const { replayMemory, nn, targetNN } = config
 		this.game = game;
 		this.replayMemory = replayMemory;
-		this.onlineNetwork = nn[0] ?? createDeepQNetwork(game.orders.all.length, game.height, game.width, game.channels.length);
-		this.targetNetwork = nn[1] ?? createDeepQNetwork(game.orders.all.length, game.height, game.width, game.channels.length);
-		this.targetNetwork.trainable = false;
+		this.onlineNetwork = nn ?? createDeepQNetwork(game.orders.all.length, game.height, game.width, game.channels.length);
+		this.targetNetwork = null;
+		/* this.targetNetwork.trainable = false not work why?? */
+	}
+	async createTargetNetwork() {
+		this.targetNetwork = await tf.models.modelFromJSON({
+			modelTopology: this.onlineNetwork.toJSON(null, false)
+		});
+		this.copyWeights();
+	}
+	copyWeights() {
+		copyWeights(this.targetNetwork, this.onlineNetwork);
 	}
 	trainOnReplayBatch(batchSize, gamma, optimizer) {
 		// Get a batch of examples from the replay buffer.

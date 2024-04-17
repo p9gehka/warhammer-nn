@@ -28,9 +28,9 @@ async function train(nn) {
 		fillReplayMemory(env, replayMemory);
 	}
 
-	const trainer = new Trainer(game, { nn: nn ?? undefined, replayMemory });
+	const trainer = new Trainer(game, { nn, replayMemory });
 	trainer.onlineNetwork.summary();
-
+	await trainer.createTargetNetwork();
 	const optimizer = tf.train.adam(learningRate);
 	let epoch = 0;
 
@@ -41,7 +41,7 @@ async function train(nn) {
 		}
 
 		if (epoch % config.syncEveryEpoch === 0) { /* sync не произойдет */
-			copyWeights(trainer.targetNetwork, trainer.onlineNetwork);
+			trainer.copyWeights();
 			console.log('Sync\'ed weights from online network to target network');
 		}
 
@@ -63,12 +63,10 @@ async function train(nn) {
 }
 
 async function main() {
-	let nn = null
+	let nn;
 	if (fs.existsSync(`${config.savePath}/model.json`)) {
-		nn = [];
 		try {
-			nn[0] = await tf.loadLayersModel(`file://${config.savePath}/model.json`);
-			nn[1] = await tf.loadLayersModel(`file://${config.savePath}/model.json`);
+			nn = await tf.loadLayersModel(`file://${config.savePath}/model.json`);
 			console.log(`Loaded from ${config.savePath}/model.json`);
 		} catch (e) {
 			console.log(e.message);
