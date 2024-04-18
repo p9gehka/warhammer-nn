@@ -123,7 +123,7 @@ async function play() {
 			agents.forEach(agent => agent.reset());
 		}
 
-		if (agents[0].onlineNetwork !== undefined && frameCount % sendMessageEveryFrames === 0 && rewardAveragerBuffer !== null) {
+		if (state.player === 0 && agents[0].onlineNetwork !== undefined && frameCount % sendMessageEveryFrames === 0 && rewardAveragerBuffer !== null) {
 			const testActions = [];
 			const testAgents = [new TestAgent(players[0], { nn: agents[0].onlineNetwork }), new DumbAgent(players[1])]
 			let testAttempst = 0;
