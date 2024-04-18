@@ -49,8 +49,6 @@ async function play() {
 	}
 	await tryUpdateModel();
 
-	players[0].frameCount = 0;
-
 	let state = env.reset();
 	agents.forEach(agent => agent.reset());
 
@@ -60,11 +58,12 @@ async function play() {
 	const frameTimeAverager100 = new MovingAverager(100);
 
 	let frameCountPrev = 0;
+	let frameCount = 0;
 	let t = new Date().getTime();
 
 	while (true) {
 		state = env.getState();
-		let frameCount = players[0].frameCount;
+		
 
 		if (state.done) {
 			agents.forEach(agent => agent.awarding());
@@ -124,7 +123,7 @@ async function play() {
 			agents.forEach(agent => agent.reset());
 		}
 
-		if (agents[0].onlineNetwork !== undefined && frameCount !== null && frameCount % sendMessageEveryFrames === 0 && rewardAveragerBuffer !== null) {
+		if (agents[0].onlineNetwork !== undefined && frameCount % sendMessageEveryFrames === 0 && rewardAveragerBuffer !== null) {
 			const testActions = [];
 			const testAgents = [new TestAgent(players[0], { nn: agents[0].onlineNetwork }), new DumbAgent(players[1])]
 			let testAttempst = 0;
@@ -176,7 +175,10 @@ async function play() {
 			await tryUpdateModel();
 		}
 		agents[state.player].playStep();
-		await(new Promise((resolve) => { setTimeout(resolve, sleepTimer)}))
+		if(state.player === 0) {
+			frameCount++;
+		}
+		await(new Promise(resolve => setTimeout(resolve, sleepTimer)))
 	}
 }
 
