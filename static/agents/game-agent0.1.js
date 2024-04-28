@@ -22,6 +22,8 @@ export class GameAgent {
 		this.epsilonDecayFrames = epsilonDecayFrames ?? 1e6;
 		this.epsilonIncrement_ = (this.epsilonFinal - this.epsilonInit) / this.epsilonDecayFrames;
 		this.epsilon = this.epsilonInit;
+
+		this.skipPhase = false;
 	}
 
 	getOrderRandomIndex() {
@@ -43,7 +45,9 @@ export class GameAgent {
 		}
 		let epsilon = this.epsilon;
 		let orderIndex;
-		if (Math.random() < this.epsilon) {
+		if (this.skipPhase) {
+			orderIndex = orders.moveIndexes[0];
+		} else if (Math.random() < this.epsilon) {
 			orderIndex = this.getOrderRandomIndex();
 		} else {
 			tf.tidy(() => {
@@ -55,8 +59,11 @@ export class GameAgent {
 
 		let [order_, state , reward] = this.game.step(orders.all[orderIndex]);
 
-		if (initState.modelsStamina[selected] === state.modelsStamina[selected]) {
-			 [,state,] = this.game.step({ action: Action.NextPhase });
+		if (this.skipPhase) {
+			[, state,] = this.game.step({ action: Action.NextPhase });
+			this.skipPhase = false;
+		} else if (initState.modelsStamina[selected] === state.modelsStamina[selected]) {
+			this.skipPhase = true;
 		}
 
 		this.prevState = [input, orderIndex, reward];
@@ -72,6 +79,7 @@ export class GameAgent {
 	}
 	reset() {
 		this.prevState = null;
+		this.skipPhase = false;
 		this.game.reset();
 		this.checkSize();
 	}

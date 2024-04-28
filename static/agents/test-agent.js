@@ -11,6 +11,7 @@ export class TestAgent {
 		this.game = game;
 		this.gameAgent = new GameAgent(game);
 		this.onlineNetwork = nn;
+		this.skipPhase = false;
 	}
 
 	playStep() {
@@ -19,24 +20,33 @@ export class TestAgent {
 		const { selected } = this.game.getState();
 		let orderIndex = 0;
 		let estimate = 0;
-		const { height, width, channels } = this.game;
-		tf.tidy(() => {
-			const inputTensor = getStateTensor([input], this.game.height, this.game.width, this.game.channels);
-			const prediction = this.onlineNetwork.predict(inputTensor);
-			estimate = prediction.max(-1).dataSync()[0];
-			orderIndex = prediction.argMax(-1).dataSync()[0];
-		});
+		const { height, width, channels, orders } = this.game;
 
-		let [order_, state , reward] = this.game.step(this.game.orders.all[orderIndex]);
+		if (this.skipPhase) {
+			orderIndex = orders.moveIndexes[0];
+		} else {
+			tf.tidy(() => {
+				const inputTensor = getStateTensor([input], height, width, channels);
+				const prediction = this.onlineNetwork.predict(inputTensor);
+				estimate = prediction.max(-1).dataSync()[0];
+				orderIndex = prediction.argMax(-1).dataSync()[0];
+			});
+		}
 
-		if (initState.modelsStamina[selected] === state.modelsStamina[selected]) {
-			 [,state,] = this.game.step({ action: Action.NextPhase });
+		let [order_, state , reward] = this.game.step(orders.all[orderIndex]);
+
+		if (this.skipPhase) {
+			[, state,] = this.game.step({ action: Action.NextPhase });
+			this.skipPhase = false;
+		} else if (initState.modelsStamina[selected] === state.modelsStamina[selected]) {
+			this.skipPhase = true;
 		}
 
 		return [order_, state, reward, { index: orderIndex, estimate: estimate.toFixed(3) }];
 	}
 	reset() {
 		this.game.reset();
+		this.skipPhase = false;
 	}
 
 	awarding() {
