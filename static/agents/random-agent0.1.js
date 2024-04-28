@@ -19,7 +19,7 @@ export class RandomAgent {
 	playStep() {
 		const initState = this.game.env.getState();
 		const { selected } = this.game.getState();
-		const orderIndex = this.getOrderRandomIndex();
+		let orderIndex = this.getOrderRandomIndex();
 		const input = this.game.getInput();
 		const { orders } = this.game;
 		if (this.prevState !== null) {
