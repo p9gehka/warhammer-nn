@@ -47,6 +47,7 @@ export class GameAgent {
 		let orderIndex;
 		if (this.skipPhase) {
 			orderIndex = orders.moveIndexes[0];
+			this.skipPhase = false;
 		} else if (Math.random() < this.epsilon) {
 			orderIndex = this.getOrderRandomIndex();
 		} else {
@@ -59,7 +60,7 @@ export class GameAgent {
 
 		let [order_, state , reward] = this.game.step(orders.all[orderIndex]);
 
-		if (this.skipPhase) {
+		if (orderIndex === orders.moveIndexes[0]) {
 			[, state,] = this.game.step({ action: Action.NextPhase });
 			this.skipPhase = false;
 		} else if (initState.modelsStamina[selected] === state.modelsStamina[selected]) {

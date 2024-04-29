@@ -24,6 +24,7 @@ export class TestAgent {
 
 		if (this.skipPhase) {
 			orderIndex = orders.moveIndexes[0];
+			this.skipPhase = false;
 		} else {
 			tf.tidy(() => {
 				const inputTensor = getStateTensor([input], height, width, channels);
@@ -35,7 +36,7 @@ export class TestAgent {
 
 		let [order_, state , reward] = this.game.step(orders.all[orderIndex]);
 
-		if (this.skipPhase) {
+		if (orderIndex === orders.moveIndexes[0]) {
 			[, state,] = this.game.step({ action: Action.NextPhase });
 			this.skipPhase = false;
 		} else if (initState.modelsStamina[selected] === state.modelsStamina[selected]) {
