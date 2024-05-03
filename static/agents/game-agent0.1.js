@@ -91,4 +91,12 @@ export class GameAgent {
 			console.warn(`!!!!Map size and Network input are inconsistent: ${[fieldHeight, fieldWidth]} !== ${[height, width]}!!!`)
 		}
 	}
+	dispose() {
+		this.onlineNetwork.dispose();
+	}
+
+	setOnlineNetwork(nn) {
+		this.onlineNetwork.dispose();
+		this.onlineNetwork = nn;
+	}
 }
