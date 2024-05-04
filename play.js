@@ -170,11 +170,15 @@ async function play() {
 		}
 
 		if(replayMemory.length === replayBufferSize) {
-			console.log('Update server buffer');
 			console.log(`averageReward${rewardAveragerLen}Best: ${averageRewardBest}`)
+			console.log('Update server buffer');
+			console.time('update')
 			await replayMemory.updateServer();
 			replayMemory.clean();
 			await tryUpdateModel();
+			var endTime = performance.now()
+			console.log(`Call to doSomething took ${endTime - startTime} milliseconds`)
+			console.timeEnd('update')
 		}
 		agents[state.player].playStep();
 		if(state.player === 0) {
