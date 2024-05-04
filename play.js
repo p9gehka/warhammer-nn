@@ -10,7 +10,7 @@ import { DumbAgent } from './static/agents/dumb-agent.js';
 import { GameAgent } from './static/agents/game-agent0.1.js';
 import { TestAgent } from './static/agents/test-agent.js';
 import { ReplayMemoryClient } from './replay-memory/replay-memory-client.js';
-import { sendDataToTelegram } from './visualization/utils.js';
+import { sendDataToTelegram, sendMessage, memoryUsage } from './visualization/utils.js';
 import { MovingAverager } from './moving-averager.js';
 import { lock } from './replay-memory/lock-api.js'
 
@@ -157,6 +157,7 @@ async function play() {
 				`Frame #${frameCount}::Epsilon ${agents[0].epsilon?.toFixed(3)}::averageReward${rewardAveragerLen}Best ${averageRewardBest}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
 				`:${JSON.stringify(testActions)}:`
 			);
+			await sendMessage(JSON.stringify(memoryUsage()));
 		}
 
 		if (frameCount % 1000 === 0) {
@@ -170,9 +171,13 @@ async function play() {
 		if(replayMemory.length === replayBufferSize) {
 			console.log('Update server buffer');
 			console.log(`averageReward${rewardAveragerLen}Best: ${averageRewardBest}`)
+			console.time('updateMemory');
 			await replayMemory.updateServer();
 			replayMemory.clean();
+			console.timeEnd('updateMemory');
+			console.time('updateModel');
 			await tryUpdateModel();
+			console.timeEnd('updateModel');
 		}
 		agents[state.player].playStep();
 		await(new Promise((resolve) => { setTimeout(resolve, sleepTimer)}))
