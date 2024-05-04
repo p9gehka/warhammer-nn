@@ -94,9 +94,4 @@ export class GameAgent {
 	dispose() {
 		this.onlineNetwork.dispose();
 	}
-
-	setOnlineNetwork(nn) {
-		this.onlineNetwork.dispose();
-		this.onlineNetwork = nn;
-	}
 }
