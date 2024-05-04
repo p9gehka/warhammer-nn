@@ -177,7 +177,6 @@ async function play() {
 			replayMemory.clean();
 			await tryUpdateModel();
 			var endTime = performance.now()
-			console.log(`Call to doSomething took ${endTime - startTime} milliseconds`)
 			console.timeEnd('update')
 		}
 		agents[state.player].playStep();
