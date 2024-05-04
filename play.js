@@ -143,7 +143,6 @@ async function play() {
 				}
 				testAttempst++;
 			}
-			testAgents.forEach(agent => agent.dispose());
 			env.reset();
 			agents.forEach(agent => agent.reset());
 			/*

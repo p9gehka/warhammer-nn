@@ -53,7 +53,4 @@ export class TestAgent {
 	awarding() {
 		this.game.awarding();
 	}
-	dispose() {
-		this.onlineNetwork.dispose();
-	}
 }
