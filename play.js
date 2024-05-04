@@ -33,14 +33,15 @@ async function play() {
 	async function tryUpdateModel() {
 		try {
 			const nn = await tf.loadLayersModel(config.loadPath);
+			const nn2 = await tf.models.modelFromJSON({modelTopology: nn.toJSON(null, false) });
 			await nn?.save(`file://${savePath}/temp`);
 			console.log(`Load model from ${config.loadPath} success`);
 			if (agents[0].onlineNetwork === undefined) {
 				agents[0] = new GameAgent(players[0], { nn, replayMemory, epsilonDecayFrames: config.epsilonDecayFrames });
-				agents[1] = new GameAgent(players[1], { nn, replayMemory, epsilonDecayFrames: config.epsilonDecayFrames });
+				agents[1] = new GameAgent(players[1], { nn: nn2, replayMemory, epsilonDecayFrames: config.epsilonDecayFrames });
 			} else {
-				agents[0].onlineNetwork = nn;
-				agents[1].onlineNetwork = nn;
+				agents[0].setOnlineNetwork(nn);	
+				agents[1].setOnlineNetwork(nn2);
 			}
 		} catch(e) {
 			console.log(e.message)
@@ -142,7 +143,7 @@ async function play() {
 				}
 				testAttempst++;
 			}
-
+			testAgents.forEach(agent => agent.dispose());
 			env.reset();
 			agents.forEach(agent => agent.reset());
 			/*
