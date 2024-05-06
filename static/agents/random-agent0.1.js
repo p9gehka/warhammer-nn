@@ -34,7 +34,7 @@ export class RandomAgent {
 		let [order_, state , reward] = this.game.step(orders.all[orderIndex]);
 
 		if (orderIndex === orders.moveIndexes[0]) {
-			[, state,] = this.game.step({ action: Action.NextPhase });
+			[, state, reward] = this.game.step({ action: Action.NextPhase });
 			this.skipPhase = false;
 		} else if (initState.modelsStamina[selected] === state.modelsStamina[selected]) {
 			this.skipPhase = true;
