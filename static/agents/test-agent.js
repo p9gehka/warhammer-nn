@@ -36,13 +36,6 @@ export class TestAgent {
 
 		let [order_, state , reward] = this.game.step(orders.all[orderIndex]);
 
-		if (orderIndex === orders.moveIndexes[0]) {
-			[, state, reward] = this.game.step({ action: Action.NextPhase });
-			this.skipPhase = false;
-		} else if (initState.modelsStamina[selected] === state.modelsStamina[selected]) {
-			this.skipPhase = true;
-		}
-
 		return [order_, state, reward, { index: orderIndex, estimate: estimate.toFixed(3) }];
 	}
 	reset() {

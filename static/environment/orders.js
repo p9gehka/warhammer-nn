@@ -16,11 +16,11 @@ export class Orders {
 			return this.orders;
 		}
 		this.orders = {
-			[Action.Move]: [],
+			nextPhaseIndex: 0,
 			moveIndexes: [],
-			all: []
+			all: [{ action: Action.NextPhase ],
+			[Action.Move]: [],
 		}
-		this.orders[Action.Move].push({ action: Action.Move, vector: [0, 0], expense: 0 });
 		angles.forEach((angle, i) => {
 			for (let distance of distances) {
 				this.orders[Action.Move].push({ action: Action.Move, vector: round(angleToVec2(distance, angle)), expense: distance });

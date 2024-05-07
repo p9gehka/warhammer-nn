@@ -9,7 +9,6 @@ export class RandomAgent {
 		const { replayMemory } = config;
 		this.game = game;
 		this.replayMemory = replayMemory;
-		this.skipPhase = false
 	}
 
 	getOrderRandomIndex() {
@@ -19,26 +18,15 @@ export class RandomAgent {
 	playStep() {
 		const initState = this.game.env.getState();
 		const { selected } = this.game.getState();
-		let orderIndex = this.getOrderRandomIndex();
 		const input = this.game.getInput();
 		const { orders } = this.game;
 		if (this.prevState !== null) {
 			this.replayMemory?.append([...this.prevState, false, input]);
 		}
 
-		if (this.skipPhase) {
-			orderIndex = orders.moveIndexes[0];
-			this.skipPhase = false;
-		}
+		let orderIndex = this.getOrderRandomIndex();
 
 		let [order_, state , reward] = this.game.step(orders.all[orderIndex]);
-
-		if (orderIndex === orders.moveIndexes[0]) {
-			[, state, reward] = this.game.step({ action: Action.NextPhase });
-			this.skipPhase = false;
-		} else if (initState.modelsStamina[selected] === state.modelsStamina[selected]) {
-			this.skipPhase = true;
-		}
 
 		this.prevState = [input, orderIndex, reward];
 		return [order_, state, reward];
@@ -52,7 +40,6 @@ export class RandomAgent {
 		}
 	}
 	reset() {
-		this.skipPhase = false
 		this.prevState = null;
 		this.game.reset();
 	}

@@ -6,7 +6,6 @@ export class ControlledAgent {
 		this.game = game;
 		const { replayMemory } = config;
 		this.replayMemory = replayMemory ?? null;
-		this.skipPhase = false;
 	}
 
 	playStep(orderIndex) {
@@ -18,19 +17,7 @@ export class ControlledAgent {
 		const { selected } = this.game.getState();
 		const { orders } = this.game;
 
-		if (this.skipPhase) {
-			orderIndex = orders.moveIndexes[0];
-			this.skipPhase = false;
-		}
-
 		let [order_, state , reward] = this.game.step(orders.all[orderIndex]);
-
-		if (orderIndex === orders.moveIndexes[0]) {
-			[, state, reward] = this.game.step({ action: Action.NextPhase });
-			this.skipPhase = false;
-		} else if (initState.modelsStamina[selected] === state.modelsStamina[selected]) {
-			this.skipPhase = true;
-		}
 
 		this.prevState = [input, orderIndex, reward];
 		return [order_, state, reward];
@@ -44,7 +31,6 @@ export class ControlledAgent {
 		}
 	}
 	reset() {
-		this.skipPhase = false;
 		this.prevState = null;
 		this.game.reset();
 	}
