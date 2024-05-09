@@ -61,6 +61,7 @@ export class Warhammer {
 	units = [];
 	models = [];
 	phase = Phase.Movement;
+	turn = 0;
 	started = false;
 	objectiveControlReward = 5;
 	totalRounds = 5;
