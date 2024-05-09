@@ -6,6 +6,9 @@ import { Action } from '../environment/orders.js';
 const tf = await getTF();
 
 export class TestAgent {
+	stepAttemps = 0;
+	stepAttempsLimit = 40;
+
 	constructor(game, config = {}) {
 		const { nn } = config;
 		this.game = game;
@@ -34,12 +37,17 @@ export class TestAgent {
 			});
 		}
 
-		let [order_, , reward] = this.game.step(orders.all[orderIndex]);
-		let [,state,] = this.game.step({ action: Action.NextPhase });
+		this.stepAttemps++;
+		if (this.stepAttemps > this.stepAttempsLimit) {
+			this.game.env.end();
+		}
+
+		let [order_, state , reward] = this.game.step(orders.all[orderIndex]);
 
 		return [order_, state, reward, { index: orderIndex, estimate: estimate.toFixed(3) }];
 	}
 	reset() {
+		this.stepAttemp = 0;
 		this.game.reset();
 		this.skipPhase = false;
 	}

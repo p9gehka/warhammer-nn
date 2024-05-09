@@ -16,11 +16,21 @@ export class Orders {
 			return this.orders;
 		}
 		this.orders = {
-			nextPhaseIndex: 0,
-			moveIndexes: [],
-			all: [{ action: Action.NextPhase ],
+			nextPhaseIndexes: [],
 			[Action.Move]: [],
+
+			moveIndexes: [],
+			[Action.NextPhase]: [],
+
+			all: [],
 		}
+
+		this.orders[Action.NextPhase] = Array(20).fill({ action: Action.NextPhase });
+		this.orders[Action.NextPhase].forEach((order) => {
+			this.orders.nextPhaseIndexes.push(this.orders.all.length);
+			this.orders.all.push(order);
+		});
+
 		angles.forEach((angle, i) => {
 			for (let distance of distances) {
 				this.orders[Action.Move].push({ action: Action.Move, vector: round(angleToVec2(distance, angle)), expense: distance });
@@ -33,7 +43,6 @@ export class Orders {
 				this.orders[Action.Move].push({ action: Action.Move, vector, expense: distancesDiagonalExpense[ii] });
 			});
 		});
-
 
 		this.orders[Action.Move].forEach((order) => {
 			this.orders.moveIndexes.push(this.orders.all.length);

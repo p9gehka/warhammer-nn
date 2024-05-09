@@ -25,8 +25,8 @@ export class RandomAgent {
 		}
 
 		let orderIndex = this.getOrderRandomIndex();
-		let [order_, , reward] = this.game.step(orders.all[orderIndex]);
-		let [,state,] = this.game.step({ action: Action.NextPhase });
+		let [order_, state , reward] = this.game.step(orders.all[orderIndex]);
+
 		this.prevState = [input, orderIndex, reward];
 		return [order_, state, reward];
 	}

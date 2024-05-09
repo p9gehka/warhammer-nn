@@ -9,7 +9,8 @@ const tf = await getTF();
 export class GameAgent {
 	orders = {};
 	prevState = null;
-
+	stepAttemps = 0;
+	stepAttempsLimit = 40;
 	constructor(game, config = {}) {
 		const { replayMemory, nn, epsilonInit, epsilonFinal, epsilonDecayFrames } = config
 		this.game = game;
@@ -53,8 +54,12 @@ export class GameAgent {
 			});
 		}
 
-		let [order_, , reward] = this.game.step(orders.all[orderIndex]);
-		let [,state,] = this.game.step({ action: Action.NextPhase });
+		this.stepAttemps++;
+		if (this.stepAttemps > this.stepAttempsLimit) {
+			this.game.env.end();
+		}
+
+		let [order_, state , reward] = this.game.step(orders.all[orderIndex]);
 
 		this.prevState = [input, orderIndex, reward];
 		return [order_, state, reward];
@@ -68,6 +73,7 @@ export class GameAgent {
 		}
 	}
 	reset() {
+		this.stepAttemp = 0;
 		this.prevState = null;
 		this.game.reset();
 		this.checkSize();
