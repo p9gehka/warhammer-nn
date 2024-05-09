@@ -28,8 +28,8 @@ export class RandomAgent {
 		if (this.prevState !== null) {
 			this.replayMemory?.append([...this.prevState, false, input]);
 		}
-		const [order_, state, reward] = this.game.step(order);
-		this.game.step({ action: Action.NextPhase });
+		const [order_, , reward] = this.game.step(order);
+		const [, state,]this.game.step({ action: Action.NextPhase });
 		this.prevState = [input, orderIndex, reward];
 		return [order_, state, reward];
 	}

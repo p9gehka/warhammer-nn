@@ -14,6 +14,7 @@ export class Trainer {
 		/* this.targetNetwork.trainable = false not work why?? */
 	}
 	async createTargetNetwork() {
+		this.targetNetwork?.dispose();
 		this.targetNetwork = await tf.models.modelFromJSON({
 			modelTopology: this.onlineNetwork.toJSON(null, false)
 		});
