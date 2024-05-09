@@ -29,7 +29,7 @@ export class RandomAgent {
 			this.replayMemory?.append([...this.prevState, false, input]);
 		}
 		const [order_, , reward] = this.game.step(order);
-		const [, state,]this.game.step({ action: Action.NextPhase });
+		const [, state,] = this.game.step({ action: Action.NextPhase });
 		this.prevState = [input, orderIndex, reward];
 		return [order_, state, reward];
 	}
