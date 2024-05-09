@@ -34,7 +34,8 @@ export class TestAgent {
 			});
 		}
 
-		let [order_, state , reward] = this.game.step(orders.all[orderIndex]);
+		let [order_, , reward] = this.game.step(orders.all[orderIndex]);
+		let [,state,] = this.game.step({ action: Action.NextPhase });
 
 		return [order_, state, reward, { index: orderIndex, estimate: estimate.toFixed(3) }];
 	}

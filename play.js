@@ -64,7 +64,6 @@ async function play() {
 
 	while (true) {
 		state = env.getState();
-		
 
 		if (state.done) {
 			agents.forEach(agent => agent.awarding());
@@ -182,7 +181,7 @@ async function play() {
 		if(state.player === 0) {
 			frameCount++;
 		}
-		await(new Promise(resolve => setTimeout(resolve, sleepTimer)))
+		await(new Promise((resolve) => { setTimeout(resolve, sleepTimer)}))
 	}
 }
 

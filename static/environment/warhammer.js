@@ -70,6 +70,7 @@ export class Warhammer {
 	models = [];
 	phase = Phase.Movement;
 	turn = 0;
+	started = false;
 	objectiveControlReward = 5;
 	totalRounds = 5;
 	constructor(config) {
@@ -82,7 +83,8 @@ export class Warhammer {
 		this.battlefield = this.battlefields[battlefieldsNames[getRandomInteger(0, battlefieldsNames.length)]];
 
 		this.phase = Phase.Movement;
-		this.turn = 0
+		this.turn = 0;
+		this.started = false;
 
 		const units = this.gameSettings.units.map(
 			(playerUnits, playerId) => playerUnits.map(unit => ({...unit, playerId }))
@@ -122,6 +124,11 @@ export class Warhammer {
 	}
 
 	step(order) {
+		if (!this.started) {
+			this.started = true;
+			this.players[0].vp += this.scoreVP();
+		}
+
 		if (this.done()) {
 			return this.getState();
 		}
