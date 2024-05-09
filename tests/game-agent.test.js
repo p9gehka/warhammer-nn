@@ -55,7 +55,7 @@ describe('game agent', () => {
 		const controlledAgent = [new ControlledAgent(players[0], { replayMemory }), new ControlledAgent(players[1])];
 
 		for (let player of [0, 1, 0, 1, 0]) {
-			controlledAgent[player].playStep(0);
+			controlledAgent[player].nextPhaseWorkaround();
 		}
 		expect(replayMemory.sample(1)[0][2]).toBe(4.9);
 	});

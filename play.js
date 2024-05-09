@@ -32,13 +32,14 @@ async function play() {
 
 	async function tryUpdateModel() {
 		try {
-			const nn = await tf.loadLayersModel(config.loadPath)
+			const nn = await tf.loadLayersModel(config.loadPath);
 			await nn?.save(`file://${savePath}/temp`);
 			console.log(`Load model from ${config.loadPath} success`);
 			if (agents[0].onlineNetwork === undefined) {
 				agents[0] = new GameAgent(players[0], { nn, replayMemory, epsilonDecayFrames: config.epsilonDecayFrames });
 				agents[1] = new GameAgent(players[1], { nn, replayMemory, epsilonDecayFrames: config.epsilonDecayFrames });
 			} else {
+				agents[0].onlineNetwork.dispose();
 				agents[0].onlineNetwork = nn;
 				agents[1].onlineNetwork = nn;
 			}
@@ -49,7 +50,6 @@ async function play() {
 	}
 	await tryUpdateModel();
 
-	players[0].frameCount = 0;
 
 	let state = env.reset();
 	agents.forEach(agent => agent.reset());
@@ -60,11 +60,11 @@ async function play() {
 	const frameTimeAverager100 = new MovingAverager(100);
 
 	let frameCountPrev = 0;
+	let frameCount = 0;
 	let t = new Date().getTime();
 
 	while (true) {
 		state = env.getState();
-		let frameCount = players[0].frameCount;
 
 		if (state.done) {
 			agents.forEach(agent => agent.awarding());
@@ -87,7 +87,8 @@ async function play() {
 				`Frame #${frameCount}: ` +
 				`cumulativeVP${rewardAveragerLen}=${averageReward.toFixed(1)}; ` +
 				`(epsilon=${agents[0].epsilon?.toFixed(3)}) ` +
-				`(${framesPerSecond.toFixed(1)} frames/s)`);
+				`(${framesPerSecond.toFixed(1)} frames/s)`
+			);
 
 			if (averageReward >= cumulativeRewardThreshold) {
 				await lock();
@@ -123,7 +124,7 @@ async function play() {
 			agents.forEach(agent => agent.reset());
 		}
 
-		if (agents[0].onlineNetwork !== undefined && frameCount !== null && frameCount % sendMessageEveryFrames === 0 && rewardAveragerBuffer !== null) {
+		if (state.player === 0 && agents[0].onlineNetwork !== undefined && frameCount % sendMessageEveryFrames === 0 && rewardAveragerBuffer !== null) {
 			const testActions = [];
 			const testAgents = [new TestAgent(players[0], { nn: agents[0].onlineNetwork }), new DumbAgent(players[1])]
 			let testAttempst = 0;
@@ -142,7 +143,6 @@ async function play() {
 				}
 				testAttempst++;
 			}
-
 			env.reset();
 			agents.forEach(agent => agent.reset());
 			/*
@@ -169,7 +169,6 @@ async function play() {
 		}
 
 		if(replayMemory.length === replayBufferSize) {
-			console.log('Update server buffer');
 			console.log(`averageReward${rewardAveragerLen}Best: ${averageRewardBest}`)
 			console.time('updateMemory');
 			await replayMemory.updateServer();
@@ -180,6 +179,9 @@ async function play() {
 			console.timeEnd('updateModel');
 		}
 		agents[state.player].playStep();
+		if(state.player === 0) {
+			frameCount++;
+		}
 		await(new Promise((resolve) => { setTimeout(resolve, sleepTimer)}))
 	}
 }

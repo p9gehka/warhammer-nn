@@ -11,9 +11,7 @@ export class PlayerEnvironment {
 	vp = 0;
 	_selectedModel = null;
 	cumulativeReward = 0;
-	frameCount = 0;
-	prevOrderAction = 0;
-	phaseStepCounter = 0;
+
 	constructor(playerId, env) {
 		this.env = env;
 		this.playerId = playerId;
@@ -26,12 +24,9 @@ export class PlayerEnvironment {
 	reset() {
 		this.vp = 0;
 		this.cumulativeReward = 0;
-		this.phaseStepCounter = 0;
 	}
 
 	step(order) {
-		this.phaseStepCounter++;
-		this.frameCount++;
 		let playerOrder;
 		const { action } = order;
 		const prevState = this.env.getState();
@@ -45,14 +40,17 @@ export class PlayerEnvironment {
 		let reward = 0;
 
 		state = this.env.step(playerOrder);
-		const { vp } = state.players[this.playerId];
-		reward = (vp - this.vp) * 5;
-		reward--;
 
-		this.vp = vp;
+		if (this.playerId === state.player) {
+			const { vp } = state.players[this.playerId];
+			reward = (vp - this.vp) * 5;
+			reward--;
+
+			this.vp = vp;
+		}
 
 		this.cumulativeReward += reward;
-		this.prevOrderAction = action;
+
 		return [{ ...playerOrder, misc: state.misc }, state, reward];
 	}
 	awarding() {

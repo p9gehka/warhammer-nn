@@ -51,8 +51,8 @@ export class GameAgent {
 		}
 
 		const order = orders.all[orderIndex];
-		const [order_, , reward] = this.game.step(order);
-		const [,state,] = this.game.step({ action: Action.NextPhase });
+		let [order_, ,reward] = this.game.step(order);
+		let [,state,] = this.game.step({ action: Action.NextPhase });
 		this.prevState = [input, orderIndex, reward];
 		return [order_, state, reward];
 	}

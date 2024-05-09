@@ -24,7 +24,7 @@ export class TestAgent {
 			index = prediction.argMax(-1).dataSync()[0];
 		});
 		const [order_, , reward] = this.game.step(this.game.orders.all[index]);
-		const [,state,] = this.game.step({ action: Action.NextPhase })
+		const [,state,] = this.game.step({ action: Action.NextPhase });
 
 		return [order_, state, reward, { index, estimate: estimate.toFixed(3) }];
 	}
