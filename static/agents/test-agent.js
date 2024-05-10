@@ -17,25 +17,27 @@ export class TestAgent {
 
 	playStep() {
 		const input = this.game.getInput();
-		let index = 0;
+		let orderIndex = 0;
 		let estimate = 0;
 		tf.tidy(() => {
 			const inputTensor = getStateTensor([input], this.game.height, this.game.width, this.game.channels);
 			const prediction = this.onlineNetwork.predict(inputTensor);
 			estimate = prediction.max(-1).dataSync()[0];
-			index = prediction.argMax(-1).dataSync()[0];
+			orderIndex = prediction.argMax(-1).dataSync()[0];
 		});
 
 		if (this.stepAttemps > this.stepAttempsLimit) {
 			this.game.env.end();
 		}
 
+		const order = orders.all[orderIndex];
+
 		let [order_, state,reward] = this.game.step(order);
 		if (order.action === Action.NextPhase) {
 			reward += this.game.primaryReward()
 		}
 
-		return [order_, state, reward, { index, estimate: estimate.toFixed(3) }];
+		return [order_, state, reward, { index: orderIndex, estimate: estimate.toFixed(3) }];
 	}
 	reset() {
 		this.stepAttemps = 0;
