@@ -5,7 +5,6 @@ import { Warhammer } from './static/environment/warhammer.js';
 import { PlayerEnvironment } from './static/environment/player-environment.js';
 import { getTF } from './static/utils/get-tf.js';
 import { copyWeights } from './dqn/dqn.js';
-import { fillReplayMemory } from './replay-memory/fill-replay-memory.js';
 import { ReplayMemoryClient } from './replay-memory/replay-memory-client.js';
 import { isLocked } from './replay-memory/lock-api.js';
 import { Trainer } from './dqn/trainer.js';
@@ -24,9 +23,6 @@ async function train(nn) {
 	const replayMemory = new ReplayMemoryClient(replayBufferSize);
 
 	await replayMemory.updateClient();
-	if (replayMemory.length < replayBufferSize) {
-		fillReplayMemory(env, replayMemory);
-	}
 
 	const trainer = new Trainer(game, { nn, replayMemory });
 	trainer.onlineNetwork.summary();
