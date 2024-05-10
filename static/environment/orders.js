@@ -14,10 +14,18 @@ export class Orders {
 			return this.orders;
 		}
 		this.orders = {
+			nextPhaseIndexes: [],
+			[Action.NextPhase]: [],
 			[Action.Move]: [],
 			moveIndexes: [],
-			all: []
-		}
+			all: [],
+		};
+
+		this.orders[Action.NextPhase] = Array(5).fill({ action: Action.NextPhase })
+		this.orders[Action.NextPhase].forEach((order) => {
+			this.orders.nextPhaseIndexes.push(this.orders.all.length);
+			this.orders.all.push(order);
+		});
 
 		for (let distance of distances) {
 			for (let angle of angles) {
