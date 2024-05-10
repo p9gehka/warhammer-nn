@@ -16,11 +16,12 @@ export class TestAgent {
 	}
 
 	playStep() {
+		const { orders, height, width, channels } = this.game;
 		const input = this.game.getInput();
 		let orderIndex = 0;
 		let estimate = 0;
 		tf.tidy(() => {
-			const inputTensor = getStateTensor([input], this.game.height, this.game.width, this.game.channels);
+			const inputTensor = getStateTensor([input], height, width, channels);
 			const prediction = this.onlineNetwork.predict(inputTensor);
 			estimate = prediction.max(-1).dataSync()[0];
 			orderIndex = prediction.argMax(-1).dataSync()[0];
