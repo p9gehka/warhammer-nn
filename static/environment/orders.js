@@ -15,15 +15,15 @@ export class Orders {
 		}
 		this.orders = {
 			[Action.NextPhase]: [],
+			nextPhaseIndexes: [],
 			[Action.Move]: [],
 			moveIndexes: [],
-			separate_move_nextPhase: [],
 			all: [],
 		};
 
 		this.orders[Action.NextPhase] = [{ action: Action.NextPhase }];
 		this.orders[Action.NextPhase].forEach((order) => {
-			this.orders.c.push(this.orders.all.length);
+			this.orders.nextPhaseIndexes.push(this.orders.all.length);
 			this.orders.all.push(order);
 		});
 
