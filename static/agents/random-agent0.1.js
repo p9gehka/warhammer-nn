@@ -30,10 +30,8 @@ export class RandomAgent {
 
 		let [order_, state, reward] = this.game.step(order);
 
-		if (Math.random() > 0.5) {
-			let nextPhaseReward;
-			[, state, nextPhaseReward] = this.game.step({ action: Action.NextPhase });
-			reward += nextPhaseReward;
+		if (order.action === Action.NextPhase) {
+			reward += this.game.primaryReward()
 		}
 
 		this.prevState = [input, orderIndex, reward];

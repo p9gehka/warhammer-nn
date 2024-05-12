@@ -35,6 +35,10 @@ export class TestAgent {
 
 		let [order_, state, reward] = this.game.step(order);
 
+		if (order.action === Action.NextPhase) {
+			reward += this.game.primaryReward()
+		}
+
 		return [order_, state, reward, { index: orderIndex, estimate: estimate.toFixed(3) }];
 	}
 	reset() {
