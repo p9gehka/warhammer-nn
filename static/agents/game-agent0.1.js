@@ -59,8 +59,12 @@ export class GameAgent {
 		const order = orders.all[orderIndex];
 		let [order_, state, reward] = this.game.step(order);
 
-		let nextPhaseReward;
-		[, state, nextPhaseReward] = this.game.step({ action: Action.NextPhase });
+		if (Math.random() < this.epsilon) {
+			let nextPhaseReward;
+			[, state, nextPhaseReward] = this.game.step({ action: Action.NextPhase });
+			reward += nextPhaseReward;
+		}
+		
 
 		reward += this.game.primaryReward()
 
