@@ -21,7 +21,7 @@ export class Orders {
 			all: [],
 		};
 
-		this.orders[Action.NextPhase] = Array(5).fill({ action: Action.NextPhase })
+		this.orders[Action.NextPhase] = [{ action: Action.NextPhase }];
 		this.orders[Action.NextPhase].forEach((order) => {
 			this.orders.nextPhaseIndexes.push(this.orders.all.length);
 			this.orders.all.push(order);

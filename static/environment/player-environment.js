@@ -39,7 +39,7 @@ export class PlayerEnvironment {
 		const state = this.env.step(playerOrder);
 
 
-		let reward = -1 * 10;
+		let reward = -1;
 		this.cumulativeReward += reward;
 
 		return [{ ...playerOrder, misc: state.misc }, state, reward];
@@ -50,7 +50,7 @@ export class PlayerEnvironment {
 		let reward = 0;
 
 		if (this.loose()) {
-			reward -= this.env.objectiveControlReward * 500;/*(5 * 3)*/
+			reward -= this.env.objectiveControlReward;/*(5 * 3)*/
 		}
 
 		this.cumulativeReward += reward;
@@ -60,7 +60,7 @@ export class PlayerEnvironment {
 		const state = this.env.getState();
 
 		const { vp } = state.players[this.playerId];
-		let reward = (vp - this.vp) * 5 * 5;
+		let reward = (vp - this.vp) * 5;
 		this.cumulativeReward += reward;
 		this.vp = vp;
 		return reward;
