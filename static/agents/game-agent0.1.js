@@ -58,10 +58,9 @@ export class GameAgent {
 
 		const order = orders.all[orderIndex];
 		let [order_, state, reward] = this.game.step(order);
-		if (order.action !== Action.NextPhase) {
-			let [, state, nextPhaseReward] = this.game.step({ action: Action.NextPhase });
-			reward += nextPhaseReward;
-		}
+
+		let nextPhaseReward;
+		[, state, nextPhaseReward] = this.game.step({ action: Action.NextPhase });
 
 		reward += this.game.primaryReward()
 

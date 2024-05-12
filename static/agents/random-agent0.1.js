@@ -28,10 +28,12 @@ export class RandomAgent {
 			this.game.env.end();
 		}
 
-		let [order_, state,reward] = this.game.step(order);
-		if (order.action === Action.NextPhase) {
-			reward += this.game.primaryReward()
-		}
+		let [order_, state, reward] = this.game.step(order);
+
+		let nextPhaseReward;
+		[, state, nextPhaseReward] = this.game.step({ action: Action.NextPhase });
+		reward += nextPhaseReward;
+
 		this.prevState = [input, orderIndex, reward];
 		return [order_, state, reward];
 	}
