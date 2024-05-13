@@ -33,11 +33,12 @@ export class TestAgent {
 
 		const order = orders.all[orderIndex];
 
-		let [order_, state, reward] = this.game.step(order);
+		let [order_, ,reward] = this.game.step(order);
+		let [,state, nextPhaseReward] = this.game.step({ action: Action.NextPhase });
 
-		if (order.action === Action.NextPhase) {
-			reward += this.game.primaryReward()
-		}
+		reward += nextPhaseReward
+		reward += this.game.primaryReward()
+
 
 		return [order_, state, reward, { index: orderIndex, estimate: estimate.toFixed(3) }];
 	}
