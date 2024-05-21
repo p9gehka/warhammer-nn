@@ -10,7 +10,7 @@ export class ControlledAgent {
 
 	playStep(orderIndex) {
 		const input = this.game.getInput();
-		const orders = this.game.orders.all;
+		const { orders } = this.game;
 		if (this.replayMemory !== null && this.prevState !== null) {
 			this.replayMemory?.append([...this.prevState, false, input]);
 		}

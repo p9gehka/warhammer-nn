@@ -2,7 +2,7 @@ import { Phase } from './warhammer.js';
 import { len } from '../utils/vec2.js';
 
 //{ Empty: 0 }
-export const Channel0 = { 0: 1 }
+export const Channel0 = { 1: 1 }
 export const Channel1 = { Stamina: 1 }
 export const Channel2 = { ObjectiveMarker: 1 };
 
@@ -53,7 +53,7 @@ export function getInput(state) {
 			let entity = null;
 
 			if (playerId === state.player) {
-				input[playerModelId] = [xy];
+				input[playerModelId + 1] = [xy];
 				if (state.phase === Phase.Movement && state.availableToMove.includes(gameModelId)) {
 					entity = Channel1Name.Stamina;
 				}
