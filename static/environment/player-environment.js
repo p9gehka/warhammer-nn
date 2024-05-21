@@ -40,6 +40,10 @@ export class PlayerEnvironment {
 
 
 		let reward = -1;
+
+		if (action === Action.NextPhase) {
+			reward -= 1;
+		}
 		this.cumulativeReward += reward;
 
 		return [{ ...playerOrder, misc: state.misc }, state, reward];
