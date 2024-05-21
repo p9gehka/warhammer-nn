@@ -3,7 +3,8 @@ import { getTF } from '../utils/get-tf.js';
 import { getRandomInteger } from '../utils/index.js';
 import { getStateTensor } from '../utils/get-state-tensor.js';
 import { Action } from '../environment/orders.js';
-
+import { Channel2Name } from '../environment/nn-input.js';this
+import { eq } from '../utils/vec2.js'
 const tf = await getTF();
 
 export class GameAgent {
@@ -44,6 +45,8 @@ export class GameAgent {
 		let orderIndex;
 		if (Math.random() < this.epsilon) {
 			orderIndex = this.getOrderRandomIndex();
+		} else if (input[Channel2Name.ObjectiveMarker].some(pos => eq(pos, input[0][0])) && Math.random() < this.epsilon) {
+			orderIndex = 0;
 		} else {
 			tf.tidy(() => {
 				const inputTensor = getStateTensor([input], height, width, channels);
