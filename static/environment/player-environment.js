@@ -39,10 +39,10 @@ export class PlayerEnvironment {
 		const state = this.env.step(playerOrder);
 
 
-		let reward = -1;
+		let reward = -0.5;
 
 		if (action === Action.NextPhase) {
-			reward -= 1;
+			reward -= 2;
 		}
 		this.cumulativeReward += reward;
 
@@ -54,7 +54,7 @@ export class PlayerEnvironment {
 		let reward = 0;
 
 		if (this.loose()) {
-			reward -= this.env.objectiveControlReward;/*(5 * 3)*/
+			reward -= this.env.objectiveControlReward * 4;/*( 3)*/
 		}
 
 		this.cumulativeReward += reward;
