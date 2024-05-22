@@ -3,7 +3,7 @@ import { getTF } from '../utils/get-tf.js';
 import { getRandomInteger } from '../utils/index.js';
 import { getStateTensor } from '../utils/get-state-tensor.js';
 import { Action } from '../environment/orders.js';
-import { Channel2Name } from '../environment/nn-input.js';
+import { Channel1Name, Channel2Name } from '../environment/nn-input.js';
 import { eq } from '../utils/vec2.js'
 const tf = await getTF();
 

@@ -2,7 +2,7 @@ import { getStateTensor } from '../utils/get-state-tensor.js';
 import { getTF } from '../utils/get-tf.js';
 import { GameAgent } from './game-agent0.1.js';
 import { Action } from '../environment/orders.js';
-import { Channel2Name } from '../environment/nn-input.js';
+import { Channel1Name, Channel2Name } from '../environment/nn-input.js';
 
 const tf = await getTF();
 
