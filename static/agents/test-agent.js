@@ -20,12 +20,17 @@ export class TestAgent {
 		const input = this.game.getInput();
 		let orderIndex = 0;
 		let estimate = 0;
-		tf.tidy(() => {
-			const inputTensor = getStateTensor([input], height, width, channels);
-			const prediction = this.onlineNetwork.predict(inputTensor);
-			estimate = prediction.max(-1).dataSync()[0];
-			orderIndex = prediction.argMax(-1).dataSync()[0];
-		});
+
+		if (input[Channel2Name.Stamina].length === 0) {
+			orderIndex = 0;
+		} else {
+			tf.tidy(() => {
+				const inputTensor = getStateTensor([input], height, width, channels);
+				const prediction = this.onlineNetwork.predict(inputTensor);
+				estimate = prediction.max(-1).dataSync()[0];
+				orderIndex = prediction.argMax(-1).dataSync()[0];
+			});
+		}
 
 		if (this.stepAttemps > this.stepAttempsLimit) {
 			this.game.env.end();
