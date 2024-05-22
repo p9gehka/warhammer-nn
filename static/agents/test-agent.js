@@ -2,6 +2,7 @@ import { getStateTensor } from '../utils/get-state-tensor.js';
 import { getTF } from '../utils/get-tf.js';
 import { GameAgent } from './game-agent0.1.js';
 import { Action } from '../environment/orders.js';
+import { Channel2Name } from '../environment/nn-input.js';
 
 const tf = await getTF();
 
@@ -21,7 +22,7 @@ export class TestAgent {
 		let orderIndex = 0;
 		let estimate = 0;
 
-		if (input[Channel2Name.Stamina].length === 0) {
+		if (input[Channel1Name.Stamina].length === 0) {
 			orderIndex = 0;
 		} else {
 			tf.tidy(() => {

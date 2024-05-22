@@ -48,7 +48,7 @@ export class GameAgent {
 		} else if (input[Channel2Name.ObjectiveMarker].some(pos => eq(pos, input[0][0])) && Math.random() < this.epsilon) {
 			orderIndex = 0;
 		} else {
-			if (input[Channel2Name.Stamina].length === 0) {
+			if (input[Channel1Name.Stamina].length === 0) {
 				orderIndex = 0;
 			} else {
 				tf.tidy(() => {
