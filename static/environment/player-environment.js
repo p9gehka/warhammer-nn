@@ -42,7 +42,7 @@ export class PlayerEnvironment {
 		let reward = -0.5;
 
 		if (action === Action.NextPhase) {
-			reward -= 3;
+			reward -= 2;
 		}
 		this.cumulativeReward += reward;
 
