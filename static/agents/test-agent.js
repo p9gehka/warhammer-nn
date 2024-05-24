@@ -9,6 +9,8 @@ const tf = await getTF();
 export class TestAgent {
 	stepAttemps = 0;
 	stepAttempsLimit = 40;
+	autoNext = true;
+
 	constructor(game, config = {}) {
 		const { nn } = config;
 		this.game = game;
@@ -22,7 +24,7 @@ export class TestAgent {
 		let orderIndex = 0;
 		let estimate = 0;
 
-		if (input[Channel1Name.Stamina].length === 0) {
+		if (this.autoNext && input[Channel1Name.Stamina].length === 0) {
 			orderIndex = 0;
 		} else {
 			tf.tidy(() => {

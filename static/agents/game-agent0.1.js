@@ -12,6 +12,7 @@ export class GameAgent {
 	prevState = null;
 	stepAttemps = 0;
 	stepAttempsLimit = 40;
+	autoNext = true;
 	constructor(game, config = {}) {
 		const { replayMemory, nn, epsilonInit, epsilonFinal, epsilonDecayFrames } = config
 		this.game = game;
@@ -48,7 +49,7 @@ export class GameAgent {
 		} else if (input[Channel2Name.ObjectiveMarker].some(pos => eq(pos, input[0][0])) && Math.random() < this.epsilon) {
 			orderIndex = 0;
 		} else {
-			if (input[Channel1Name.Stamina].length === 0) {
+			if (this.autoNext && input[Channel1Name.Stamina].length === 0) {
 				orderIndex = 0;
 			} else {
 				tf.tidy(() => {
