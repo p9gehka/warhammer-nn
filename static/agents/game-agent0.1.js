@@ -31,8 +31,6 @@ export class GameAgent {
 
 	playStep() {
 		const { orders, height, width, channels } = this.game;
-		const { selected } = this.game.getState();
-		const initState = this.game.env.getState();
 		this.frameCount++;
 		this.epsilon = this.frameCount >= this.epsilonDecayFrames ?
 			this.epsilonFinal :
@@ -50,7 +48,7 @@ export class GameAgent {
 			tf.tidy(() => {
 				const inputTensor = getStateTensor([input], height, width, channels);
 				const predictions = this.onlineNetwork.predict(inputTensor);
-				orderIndex = predictions.argMax(-1).dataSync()[0]
+				orderIndex = predictions.argMax(-1).dataSync()[0];
 			});
 		}
 
@@ -84,8 +82,5 @@ export class GameAgent {
 		if (fieldHeight !== height || fieldWidth !== width) {
 			console.warn(`!!!!Map size and Network input are inconsistent: ${[fieldHeight, fieldWidth]} !== ${[height, width]}!!!`)
 		}
-	}
-	dispose() {
-		this.onlineNetwork.dispose();
 	}
 }

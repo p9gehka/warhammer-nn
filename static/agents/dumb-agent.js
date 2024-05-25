@@ -12,5 +12,4 @@ export class DumbAgent {
 		this.game.reset();
 	}
 	trainOnReplayBatch() {}
-	dispose() {}
 }

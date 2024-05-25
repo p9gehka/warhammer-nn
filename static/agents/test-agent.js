@@ -14,7 +14,6 @@ export class TestAgent {
 		this.game = game;
 		this.gameAgent = new GameAgent(game);
 		this.onlineNetwork = nn;
-		this.skipPhase = false;
 	}
 
 	playStep() {
@@ -25,17 +24,12 @@ export class TestAgent {
 		let estimate = 0;
 		const { height, width, channels, orders } = this.game;
 
-		if (this.skipPhase) {
-			orderIndex = orders.moveIndexes[0];
-			this.skipPhase = false;
-		} else {
-			tf.tidy(() => {
-				const inputTensor = getStateTensor([input], height, width, channels);
-				const prediction = this.onlineNetwork.predict(inputTensor);
-				estimate = prediction.max(-1).dataSync()[0];
-				orderIndex = prediction.argMax(-1).dataSync()[0];
-			});
-		}
+		tf.tidy(() => {
+			const inputTensor = getStateTensor([input], height, width, channels);
+			const prediction = this.onlineNetwork.predict(inputTensor);
+			estimate = prediction.max(-1).dataSync()[0];
+			orderIndex = prediction.argMax(-1).dataSync()[0];
+		});
 
 		this.stepAttemps++;
 		if (this.stepAttemps > this.stepAttempsLimit) {
@@ -49,7 +43,6 @@ export class TestAgent {
 	reset() {
 		this.stepAttemp = 0;
 		this.game.reset();
-		this.skipPhase = false;
 	}
 
 	awarding() {
