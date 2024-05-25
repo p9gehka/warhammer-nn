@@ -56,8 +56,8 @@ export function getInput(state) {
 
 			if (playerId === state.player) {
 				input[playerModelId] = [xy];
-				if (state.phase === Phase.Movement && state.modelsStamina[gameModelId] > 0) {
-					entity = Channel1Name[`Stamina${Math.max(state.modelsStamina[gameModelId], 10)}`];
+				if (state.phase === Phase.Movement) {
+					entity = Channel1Name[`Stamina${Math.min(state.modelsStamina[gameModelId], 10)}`];
 				}
 			}
 
