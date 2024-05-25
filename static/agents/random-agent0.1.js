@@ -5,31 +5,36 @@ import { Action } from '../environment/orders.js';
 export class RandomAgent {
 	orders = []
 	prevState = null;
+	stepAttemps = 0;
+	stepAttempsLimit = 40;
 	constructor(game, config = {}) {
 		const { replayMemory } = config;
 		this.game = game;
 		this.replayMemory = replayMemory;
 	}
-	getOrderIndex() {
-		const { orders } = this.game;
-		const input = this.game.getInput();
-
-
-		if (input[Channel1Name.Stamina].length === 0) {
-			return orders.nextPhaseIndex;
-		}
-
-		return orders.moveIndexes[getRandomInteger(0, orders.moveIndexes.length)];
+	getOrderRandomIndex() {
+		return getRandomInteger(0, this.game.orders.all.length);
 	}
+
 	playStep() {
-		const orderIndex = this.getOrderIndex();
+		const orderIndex = this.getOrderRandomIndex();
 		const order = this.game.orders.all[orderIndex];
 		const input = this.game.getInput();
 		if (this.prevState !== null) {
 			this.replayMemory?.append([...this.prevState, false, input]);
 		}
-		const [order_, , reward] = this.game.step(order);
-		const [, state,] = this.game.step({ action: Action.NextPhase });
+
+		if (this.stepAttemps > this.stepAttempsLimit) {
+			this.game.env.end();
+		}
+
+		let [order_, state ,reward] = this.game.step(order);
+
+		if (order.action === Action.NextPhase) {
+			reward += this.game.primaryReward();
+		}
+
+
 		this.prevState = [input, orderIndex, reward];
 		return [order_, state, reward];
 	}
@@ -42,6 +47,7 @@ export class RandomAgent {
 		}
 	}
 	reset() {
+		this.stepAttemps = 0;
 		this.prevState = null;
 		this.game.reset();
 	}

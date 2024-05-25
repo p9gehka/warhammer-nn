@@ -54,8 +54,10 @@ async function play() {
 	let state = env.reset();
 	agents.forEach(agent => agent.reset());
 
-	let averageRewardBest = -Infinity;
+	let averageVPBest = -Infinity;
+	let vpAveragerBuffer = null;
 	let rewardAveragerBuffer = null;
+	const vpAverager = new MovingAverager(rewardAveragerLen);
 	const rewardAverager = new MovingAverager(rewardAveragerLen);
 	const frameTimeAverager100 = new MovingAverager(100);
 
@@ -76,21 +78,24 @@ async function play() {
 			if (Number.isFinite(framesPerSecond)) {
 				frameTimeAverager100.append(framesPerSecond);
 			}
-			rewardAverager.append(state.players[0].vp + players[0].cumulativeReward/1000);
+			vpAverager.append(state.players[0].vp + players[0].cumulativeReward/1000);
+			rewardAverager.append(players[0].cumulativeReward);
 
 			t = currentT;
 			frameCountPrev = frameCount;
 
+			const averageVP = vpAverager.average();
 			const averageReward = rewardAverager.average();
 
 			console.log(
 				`Frame #${frameCount}: ` +
-				`cumulativeVP${rewardAveragerLen}=${averageReward.toFixed(1)}; ` +
+				`cumulativeVP${rewardAveragerLen}=${averageVP.toFixed(1)}; ` +
+				`cumulativeReward${rewardAveragerLen}=${averageReward.toFixed(1)}; ` +
 				`(epsilon=${agents[0].epsilon?.toFixed(3)}) ` +
 				`(${framesPerSecond.toFixed(1)} frames/s)`
 			);
 
-			if (averageReward >= cumulativeRewardThreshold) {
+			if (averageVP >= cumulativeRewardThreshold) {
 				await lock();
 				if (savePath != null) {
 					if (!fs.existsSync(savePath)) {
@@ -102,15 +107,16 @@ async function play() {
 						console.log(`Saved DQN to ${savePath} final`);
 					}
 				}
-				await sendDataToTelegram(
-					rewardAveragerBuffer.buffer.filter(v => v !== null),
-					`Training done - averageReward${rewardAveragerLen}:${averageReward.toFixed(1)} cumulativeRewardThreshold ${cumulativeRewardThreshold}`
+				await sendDataToTelegram(vpAveragerBuffer.buffer.filter(v => v !== null));
+				await sendDataToTelegram(rewardAveragerBuffer.buffer.filter(v => v !== null));
+				await sendMessage(
+					`Training done - averageVP${rewardAveragerLen}:${averageVP.toFixed(1)} cumulativeRewardThreshold ${cumulativeRewardThreshold}`
 				);
 				break;
 			}
 
-			if (averageReward > averageRewardBest && rewardAverager.isFull()) {
-				averageRewardBest = averageReward;
+			if (averageVP > averageVPBest && vpAverager.isFull()) {
+				averageVPBest = averageVP;
 				if (savePath != null) {
 					if (!fs.existsSync(savePath)) {
 						shelljs.mkdir('-p', savePath);
@@ -124,7 +130,7 @@ async function play() {
 			agents.forEach(agent => agent.reset());
 		}
 
-		if (state.player === 0 && agents[0].onlineNetwork !== undefined && frameCount % sendMessageEveryFrames === 0 && rewardAveragerBuffer !== null) {
+		if (state.player === 0 && agents[0].onlineNetwork !== undefined && frameCount % sendMessageEveryFrames === 0 && vpAveragerBuffer !== null && rewardAveragerBuffer !== null) {
 			const testActions = [];
 			const testAgents = [new TestAgent(players[0], { nn: agents[0].onlineNetwork }), new DumbAgent(players[1])]
 			let testAttempst = 0;
@@ -147,20 +153,28 @@ async function play() {
 			agents.forEach(agent => agent.reset());
 			/*
 			console.log(
-				rewardAveragerBuffer.buffer.filter(v => v !== null),
+				vpAveragerBuffer.buffer.filter(v => v !== null),
 				`Frame #${frameCount}::Epsilon ${agents[0].epsilon?.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
 				`:${JSON.stringify(testActions)}:`
 			)
 			*/
-			await sendDataToTelegram(
-				rewardAveragerBuffer.buffer.filter(v => v !== null),
-				`Frame #${frameCount}::Epsilon ${agents[0].epsilon?.toFixed(3)}::averageReward${rewardAveragerLen}Best ${averageRewardBest}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
+			await sendDataToTelegram(vpAveragerBuffer.buffer.filter(v => v !== null));
+			await sendDataToTelegram(rewardAveragerBuffer.buffer.filter(v => v !== null));
+
+			await sendMessage(
+				`Frame #${frameCount}::Epsilon ${agents[0].epsilon?.toFixed(3)}::averageVP${rewardAveragerLen}Best ${averageVPBest}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
 				`:${JSON.stringify(testActions)}:`
 			);
 			await sendMessage(JSON.stringify(memoryUsage()));
 		}
 
 		if (frameCount % 1000 === 0) {
+			if (vpAveragerBuffer === null) {
+				vpAveragerBuffer = new MovingAverager(config.rewardAveragerBufferLength);
+			}
+
+			vpAveragerBuffer.append({ frame: frameCount, averageVP: vpAverager.average()});
+
 			if (rewardAveragerBuffer === null) {
 				rewardAveragerBuffer = new MovingAverager(config.rewardAveragerBufferLength);
 			}
@@ -169,7 +183,7 @@ async function play() {
 		}
 
 		if(replayMemory.length === replayBufferSize) {
-			console.log(`averageReward${rewardAveragerLen}Best: ${averageRewardBest}`)
+			console.log(`averageVP${rewardAveragerLen}Best: ${averageVPBest}`)
 			console.time('updateMemory');
 			await replayMemory.updateServer();
 			replayMemory.clean();

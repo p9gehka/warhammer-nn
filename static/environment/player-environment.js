@@ -36,19 +36,14 @@ export class PlayerEnvironment {
 		} else {
 			playerOrder = order;
 		}
-		let state;
-		let reward = 0;
+		const state = this.env.step(playerOrder);
 
-		state = this.env.step(playerOrder);
 
-		if (this.playerId === state.player) {
-			const { vp } = state.players[this.playerId];
-			reward = (vp - this.vp) * 5;
-			reward--;
+		let reward = -0.5;
 
-			this.vp = vp;
+		if (action === Action.NextPhase) {
+			reward -= 10;
 		}
-
 		this.cumulativeReward += reward;
 
 		return [{ ...playerOrder, misc: state.misc }, state, reward];
@@ -59,13 +54,21 @@ export class PlayerEnvironment {
 		let reward = 0;
 
 		if (this.loose()) {
-			reward -= this.env.objectiveControlReward * 10;/*(5 * 3)*/
+			reward -= this.env.objectiveControlReward * 4;/*( 3)*/
 		}
 
 		this.cumulativeReward += reward;
 		return reward;
 	}
+	primaryReward() {
+		const state = this.env.getState();
 
+		const { vp } = state.players[this.playerId];
+		let reward = (vp - this.vp) * 5;
+		this.cumulativeReward += reward;
+		this.vp = vp;
+		return reward;
+	}
 	getInput() {
 		const state = this.env.getState();
 		return getInput(state);

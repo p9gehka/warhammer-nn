@@ -126,6 +126,7 @@ export class Warhammer {
 		}
 
 		if (order.action === BaseAction.NextPhase) {
+			this.players[this.getPlayer()].vp += this.scoreVP();
 			this.models.forEach(model => model.updateAvailableToMove(false));
 
 			if (this.phase === phaseOrd.at(-1)) {
@@ -137,7 +138,6 @@ export class Warhammer {
 		const currentPlayerId = this.getPlayer();
 		if (order.action === BaseAction.NextPhase) {
 			if (this.phase === Phase.Movement) {
-				this.players[currentPlayerId].vp += this.scoreVP();
 				this.models.forEach((model) => {
 					if (model.playerId === currentPlayerId) {
 						model.updateAvailableToMove(true);
