@@ -16,14 +16,19 @@ export class RandomAgent {
 	}
 
 	playStep() {
+		const orderIndex = this.getOrderRandomIndex();
+		const order = this.game.orders.all[orderIndex];
 		const input = this.game.getInput();
 		const { orders } = this.game;
 		if (this.prevState !== null) {
 			this.replayMemory?.append([...this.prevState, false, input]);
 		}
 
-		let orderIndex = this.getOrderRandomIndex();
-		let [order_, state , reward] = this.game.step(orders.all[orderIndex]);
+		let [order_, state ,reward] = this.game.step(order);
+
+		if (order.action === Action.NextPhase) {
+			reward += this.game.primaryReward();
+		}
 
 		this.prevState = [input, orderIndex, reward];
 		return [order_, state, reward];

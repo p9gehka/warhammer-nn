@@ -29,13 +29,13 @@ export function createDeepQNetwork(numActions, h, w, c) {
 				`Expected numActions to be a integer greater than 1, ` +
 				`but got ${numActions}`);
 	}
-
+	const inputShape = [h, w, c];
 	const model = tf.sequential();
-	model.add(tf.layers.conv2d({filters: 64, kernelSize: 8,strides: 2, activation: 'relu', inputShape: [h, w, c] }));
+	model.add(tf.layers.conv2d({filters: 8, kernelSize: 4, activation: 'relu', inputShape }));
 	model.add(tf.layers.batchNormalization());
-	model.add(tf.layers.conv2d({filters: 128, kernelSize: 4,strides: 1, activation: 'relu'}));
+	model.add(tf.layers.conv2d({filters: 16, kernelSize: 2, activation: 'relu'}));
 	model.add(tf.layers.batchNormalization());
-	model.add(tf.layers.conv2d({filters: 128, kernelSize: 3, strides: 1, activation: 'relu' }));
+	model.add(tf.layers.conv2d({filters: 16, kernelSize: 2, activation: 'relu' }));
 	model.add(tf.layers.flatten());
 	model.add(tf.layers.dense({units: 100, activation: 'relu'}));
 	model.add(tf.layers.dropout({rate: 0.25}));

@@ -10,12 +10,18 @@ export class ControlledAgent {
 
 	playStep(orderIndex) {
 		const input = this.game.getInput();
+		const { orders } = this.game;
 		if (this.replayMemory !== null && this.prevState !== null) {
 			this.replayMemory?.append([...this.prevState, false, input]);
 		}
 
-		let [order_, state , reward] = this.game.step(orders.all[orderIndex]);
+		const order = orders.all[orderIndex];
+		let [order_, state ,reward] = this.game.step(order);
+		
 
+		if (order.action === Action.NextPhase) {
+			reward += this.game.primaryReward();
+		}
 		this.prevState = [input, orderIndex, reward];
 		return [order_, state, reward];
 	}
@@ -23,7 +29,6 @@ export class ControlledAgent {
 	nextPhaseWorkaround() {
 		const input = this.game.getInput();
 		const [order_, state, reward] = this.game.step({ action: Action.NextPhase });
-	
 		return [order_, state, reward];	
 	}
 

@@ -16,16 +16,16 @@ export class Orders {
 			return this.orders;
 		}
 		this.orders = {
+			[Action.NextPhase]: [],
 			nextPhaseIndexes: [],
 			[Action.Move]: [],
 
 			moveIndexes: [],
-			[Action.NextPhase]: [],
 
 			all: [],
-		}
+		};
 
-		this.orders[Action.NextPhase] = Array(20).fill({ action: Action.NextPhase });
+		this.orders[Action.NextPhase] = [{ action: Action.NextPhase }];
 		this.orders[Action.NextPhase].forEach((order) => {
 			this.orders.nextPhaseIndexes.push(this.orders.all.length);
 			this.orders.all.push(order);

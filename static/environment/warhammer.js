@@ -134,7 +134,7 @@ export class Warhammer {
 		}
 
 		if (order.action === BaseAction.NextPhase) {
-			this.players[currentPlayerId].vp += this.scoreVP();
+			this.players[this.getPlayer()].vp += this.scoreVP();
 			this.models.forEach(model => model.updateAvailableToMove(false));
 
 			if (this.phase === phaseOrd.at(-1)) {

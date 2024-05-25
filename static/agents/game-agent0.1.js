@@ -3,14 +3,15 @@ import { getTF } from '../utils/get-tf.js';
 import { getRandomInteger } from '../utils/index.js';
 import { getStateTensor } from '../utils/get-state-tensor.js';
 import { Action } from '../environment/orders.js';
-
+import { Channel1Name, Channel2Name } from '../environment/nn-input.js';
+import { eq } from '../utils/vec2.js'
 const tf = await getTF();
 
 export class GameAgent {
 	orders = {};
 	prevState = null;
-	stepAttemps = 0;
-	stepAttempsLimit = 40;
+	autoNext = true;
+
 	constructor(game, config = {}) {
 		const { replayMemory, nn, epsilonInit, epsilonFinal, epsilonDecayFrames } = config
 		this.game = game;
@@ -44,20 +45,26 @@ export class GameAgent {
 		let orderIndex;
 		if (Math.random() < this.epsilon) {
 			orderIndex = this.getOrderRandomIndex();
+		} else if (input[Channel2Name.ObjectiveMarker].some(pos => eq(pos, input[0][0])) && Math.random() < this.epsilon) {
+			orderIndex = 0;
 		} else {
-			tf.tidy(() => {
-				const inputTensor = getStateTensor([input], height, width, channels);
-				const predictions = this.onlineNetwork.predict(inputTensor);
-				orderIndex = predictions.argMax(-1).dataSync()[0];
-			});
+			if (this.autoNext && input[Channel1Name.Stamina0].length > 0) {
+				orderIndex = 0;
+			} else {
+				tf.tidy(() => {
+					const inputTensor = getStateTensor([input], height, width, channels);
+					const predictions = this.onlineNetwork.predict(inputTensor);
+					orderIndex = predictions.argMax(-1).dataSync()[0];
+				});
+			}
 		}
 
-		this.stepAttemps++;
-		if (this.stepAttemps > this.stepAttempsLimit) {
-			this.game.env.end();
-		}
+		const order = orders.all[orderIndex];
+		let [order_, state ,reward] = this.game.step(order);
 
-		let [order_, state , reward] = this.game.step(orders.all[orderIndex]);
+		if (order.action === Action.NextPhase) {
+			reward += this.game.primaryReward();
+		}
 
 		this.prevState = [input, orderIndex, reward];
 		return [order_, state, reward];
@@ -69,6 +76,7 @@ export class GameAgent {
 			const [input, orderIndex] = this.prevState;
 			this.replayMemory?.append([input, orderIndex, reward, this.game.loose(), nextInput]);
 		}
+		return reward;
 	}
 	reset() {
 		this.stepAttemp = 0;
