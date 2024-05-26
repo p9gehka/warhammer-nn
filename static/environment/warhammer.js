@@ -3,7 +3,7 @@ import tauUnits from '../settings/tau-units.json' assert { type: 'json' };
 import tauWeapons from '../settings/tau-weapons.json' assert { type: 'json' };
 import battlefields from '../settings/battlefields-small.json' assert { type: 'json' };
 
-import { mul, len, sub, add, eq } from '../utils/vec2.js'
+import { mul, len, sub, add, eq, scaleToLen, round } from '../utils/vec2.js'
 import { getRandomInteger } from '../utils/index.js';
 
 export const Phase = {
@@ -159,12 +159,12 @@ export class Warhammer {
 		const model = this.models[order.id];
 
 		if (order.action === BaseAction.Move) {
-			if (len(order.vector) > model.stamina) {
-				model.updateAvailableToMove(false);
-				return this.getState();
+			let vectorToMove = order.vector;
+			if (order.expense > model.stamina) {
+				vectorToMove = round(scaleToLen(order.vector, model.stamina))
 			}
 
-			const newPosition = add(model.position, order.vector);
+			const newPosition = add(model.position, vectorToMove);
 			model.move(newPosition, order.expense);
 
 			this.models.forEach(model => {
