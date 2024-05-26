@@ -3,9 +3,9 @@ import { BaseAction } from './warhammer.js';
 export const Action = { ...BaseAction }
 
 /* `←``↑``→``↓``↖``↗``↘``↙`*/
-const distances = [2, 6];
-const distancesDiagonal = [2];
-const distancesDiagonalExpense = [2];
+const distances = [1, 2, 3, 6];
+const distancesDiagonal = [1, 2, 4];
+const distancesDiagonalExpense = [2, 3, 6];
 const angles = [0, 90, 180, 270];
 
 export class Orders {
