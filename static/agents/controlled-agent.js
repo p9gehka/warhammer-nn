@@ -17,7 +17,6 @@ export class ControlledAgent {
 
 		const order = orders.all[orderIndex];
 		let [order_, state ,reward] = this.game.step(order);
-		
 
 		if (order.action === Action.NextPhase) {
 			reward += this.game.primaryReward();
