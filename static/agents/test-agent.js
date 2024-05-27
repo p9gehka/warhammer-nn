@@ -7,8 +7,6 @@ import { Channel1Name } from '../environment/nn-input.js';
 const tf = await getTF();
 
 export class TestAgent {
-	stepAttemps = 0;
-	stepAttempsLimit = 40;
 	autoNext = true;
 
 	constructor(game, config = {}) {
@@ -24,7 +22,7 @@ export class TestAgent {
 		let orderIndex = 0;
 		let estimate = 0;
 
-		if (this.autoNext && input[Channel1Name.Stamina].length === 0) {
+		if (this.autoNext && input[Channel1Name.Stamina0].length > 0) {
 			orderIndex = 0;
 		} else {
 			tf.tidy(() => {
@@ -35,10 +33,6 @@ export class TestAgent {
 			});
 		}
 
-		if (this.stepAttemps > this.stepAttempsLimit) {
-			this.game.env.end();
-		}
-
 		const order = orders.all[orderIndex];
 		let [order_, state ,reward] = this.game.step(order);
 
@@ -46,11 +40,9 @@ export class TestAgent {
 			reward += this.game.primaryReward();
 		}
 
-
 		return [order_, state, reward, { index: orderIndex, estimate: estimate.toFixed(3) }];
 	}
 	reset() {
-		this.stepAttemps = 0;
 		this.game.reset();
 	}
 

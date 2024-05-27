@@ -50,7 +50,6 @@ async function play() {
 	}
 	await tryUpdateModel();
 
-
 	let state = env.reset();
 	agents.forEach(agent => agent.reset());
 

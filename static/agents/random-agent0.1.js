@@ -5,13 +5,12 @@ import { Action } from '../environment/orders.js';
 export class RandomAgent {
 	orders = []
 	prevState = null;
-	stepAttemps = 0;
-	stepAttempsLimit = 40;
 	constructor(game, config = {}) {
 		const { replayMemory } = config;
 		this.game = game;
 		this.replayMemory = replayMemory;
 	}
+
 	getOrderRandomIndex() {
 		return getRandomInteger(0, this.game.orders.all.length);
 	}
@@ -20,12 +19,9 @@ export class RandomAgent {
 		const orderIndex = this.getOrderRandomIndex();
 		const order = this.game.orders.all[orderIndex];
 		const input = this.game.getInput();
+		const { orders } = this.game;
 		if (this.prevState !== null) {
 			this.replayMemory?.append([...this.prevState, false, input]);
-		}
-
-		if (this.stepAttemps > this.stepAttempsLimit) {
-			this.game.env.end();
 		}
 
 		let [order_, state ,reward] = this.game.step(order);
@@ -33,7 +29,6 @@ export class RandomAgent {
 		if (order.action === Action.NextPhase) {
 			reward += this.game.primaryReward();
 		}
-
 
 		this.prevState = [input, orderIndex, reward];
 		return [order_, state, reward];
@@ -47,7 +42,6 @@ export class RandomAgent {
 		}
 	}
 	reset() {
-		this.stepAttemps = 0;
 		this.prevState = null;
 		this.game.reset();
 	}

@@ -1,6 +1,7 @@
 body {
 	margin: 0;
 }
+
 .main {
 	display: grid;
 	grid-template-columns:auto min-content;
@@ -8,6 +9,7 @@ body {
 	overflow: hidden;
 	margin: 0;
 }
+
 .orders-list, .history-list {
 	overflow: scroll;
 	border: 1px solid #cccccc;
@@ -15,18 +17,22 @@ body {
 	padding: 8px;
 	margin: 0;
 }
+
 .orders-list li:hover, .history-list li:hover {
 	cursor: pointer;
 	background-color: #eeeeee;
 }
+
 .left-panel {
 	display: grid;
 	height: 100vh;
 	grid-template-rows: min-content;
 }
+
 .player-0 {
 	background: rgba(255, 0, 0, 0.2);
 }
+
 .player-1 {
 	background: rgba(0, 0, 255, 0.2);
 }
@@ -39,14 +45,43 @@ body {
 	align-items: center;
 	padding-left: 8px;
 }
+
 .header-controls {
 	display: grid;
 	grid-auto-flow: column;
 }
+
 .hidden {
 	display: none;
 }
 
 .table {
 	width: 900px;
+}
+
+.units-strip {
+	display: flex;
+	list-style: none;
+	gap: 4px;
+	padding: 0;
+	width: 900px;
+	box-sizing: border-box;
+	overflow: scroll;
+	margin-bottom: 0;
+}
+
+.units-strip li {
+	cursor: pointer;
+	height: 40px;
+	width: 50px;
+	overflow: hidden;
+}
+
+.units-strip li.disabled {
+	cursor: unset;
+	opacity: 0.8;
+}
+
+.units-strip li:focus {
+	background: #cccccc;
 }

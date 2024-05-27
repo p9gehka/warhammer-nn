@@ -1,9 +1,11 @@
-import { angleToVec2, round } from '../utils/vec2.js';
+import { angleToVec2, round, add } from '../utils/vec2.js';
 import { BaseAction } from './warhammer.js';
 export const Action = { ...BaseAction }
 
 /* `←``↑``→``↓``↖``↗``↘``↙`*/
 const distances = [1, 2, 3, 6];
+const distancesDiagonal = [1, 2, 4];
+const distancesDiagonalExpense = [2, 3, 6];
 const angles = [0, 90, 180, 270];
 
 export class Orders {
@@ -17,7 +19,9 @@ export class Orders {
 			[Action.NextPhase]: [],
 			nextPhaseIndexes: [],
 			[Action.Move]: [],
+
 			moveIndexes: [],
+
 			all: [],
 		};
 
@@ -27,11 +31,18 @@ export class Orders {
 			this.orders.all.push(order);
 		});
 
-		for (let distance of distances) {
-			for (let angle of angles) {
-				this.orders[Action.Move].push({ action:Action.Move, vector: round(angleToVec2(distance, angle)) });
+		angles.forEach((angle, i) => {
+			for (let distance of distances) {
+				this.orders[Action.Move].push({ action: Action.Move, vector: round(angleToVec2(distance, angle)), expense: distance });
 			}
-		}
+
+			distancesDiagonal.forEach((distance, ii) => {
+				const vector1 = angleToVec2(distance, angle);
+				const vector2 = angleToVec2(distance, angles[(i+1) % angles.length]);
+				const vector = round(add(vector1, vector2));
+				this.orders[Action.Move].push({ action: Action.Move, vector, expense: distancesDiagonalExpense[ii] });
+			});
+		});
 
 		this.orders[Action.Move].forEach((order) => {
 			this.orders.moveIndexes.push(this.orders.all.length);

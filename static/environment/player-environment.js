@@ -32,12 +32,11 @@ export class PlayerEnvironment {
 		const prevState = this.env.getState();
 
 		if (action === Action.Move) {
-			playerOrder = {action, id: this._selectedModel, vector: order.vector };
+			playerOrder = {action, id: this._selectedModel, vector: order.vector, expense: order.expense };
 		} else {
 			playerOrder = order;
 		}
 		const state = this.env.step(playerOrder);
-
 
 		let reward = -0.5;
 
@@ -62,13 +61,13 @@ export class PlayerEnvironment {
 	}
 	primaryReward() {
 		const state = this.env.getState();
-
 		const { vp } = state.players[this.playerId];
 		let reward = (vp - this.vp) * 5;
 		this.cumulativeReward += reward;
 		this.vp = vp;
 		return reward;
 	}
+
 	getInput() {
 		const state = this.env.getState();
 		return getInput(state);
