@@ -8,6 +8,8 @@ import { copyWeights } from './dqn/dqn.js';
 import { ReplayMemoryClient } from './replay-memory/replay-memory-client.js';
 import { isLocked } from './replay-memory/lock-api.js';
 import { Trainer } from './dqn/trainer.js';
+import gameSettings from './static/settings/game-settings.json' assert { type: 'json' };
+import battlefields from './static/settings/battlefields.json' assert { type: 'json' };
 
 import config from './config.json' assert { type: 'json' };
 
@@ -18,7 +20,7 @@ const { replayBufferSize, gamma, repeatBatchTraining } = config;
 const learningRate = 1e-3;
 
 async function train(nn) {
-	const env = new Warhammer();
+	const env = new Warhammer({ gameSettings, battlefields });
 	const game = new PlayerEnvironment(0, env);
 	const replayMemory = new ReplayMemoryClient(replayBufferSize);
 

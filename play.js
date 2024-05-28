@@ -13,6 +13,8 @@ import { ReplayMemoryClient } from './replay-memory/replay-memory-client.js';
 import { sendDataToTelegram, sendMessage, memoryUsage } from './visualization/utils.js';
 import { MovingAverager } from './moving-averager.js';
 import { lock } from './replay-memory/lock-api.js'
+import gameSettings from './static/settings/game-settings.json' assert { type: 'json' };
+import battlefields from './static/settings/battlefields.json' assert { type: 'json' };
 
 import config from './config.json' assert { type: 'json' };
 
@@ -24,7 +26,8 @@ const { cumulativeRewardThreshold, sendMessageEveryFrames, sleepTimer } = config
 const rewardAveragerLen = 100;
 
 async function play() {
-	const env = new Warhammer();
+	const env = new Warhammer({ gameSettings, battlefields });
+
 	let players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
 	const replayMemory = new ReplayMemoryClient(replayBufferSize);
 
@@ -77,7 +80,7 @@ async function play() {
 			if (Number.isFinite(framesPerSecond)) {
 				frameTimeAverager100.append(framesPerSecond);
 			}
-			vpAverager.append(state.players[0].vp + players[0].cumulativeReward/1000);
+			vpAverager.append(state.players[0].primaryVP + players[0].cumulativeReward/1000);
 			rewardAverager.append(players[0].cumulativeReward);
 
 			t = currentT;

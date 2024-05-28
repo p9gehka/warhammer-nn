@@ -5,7 +5,8 @@ const tf = await getTF();
 export function getStateTensor(state, h, w, channels) {
 	const c = channels.length;
 	const numExamples = state.length;
-	let buffer = tf.buffer([numExamples, h, w, c]);
+	/* rotate wh to hwc*/
+	let buffer = tf.buffer([numExamples, w, h, c]);
 	for (let n = 0; n < numExamples; ++n) {
 		if (state[n] === null) {
 			continue;
@@ -17,7 +18,8 @@ export function getStateTensor(state, h, w, channels) {
 					return;
 				}
 				const enitities = state[n][entity].forEach(yx => {
-					buffer.set(channel[entity], n, yx[0], yx[1], i);
+					/* rotate wh to hwc*/
+					buffer.set(channel[entity], n, yx[1], yx[0], i);
 				});
 			}
 		});

@@ -24,9 +24,20 @@ body {
 }
 
 .left-panel {
+	min-width: max-content;
 	display: grid;
 	height: 100vh;
 	grid-template-rows: min-content;
+}
+
+.right-pane {
+	width: 900px;
+	height: 660px;
+	overflow: scroll;
+}
+
+.info-cell {
+	background: aqua;
 }
 
 .player-0 {
