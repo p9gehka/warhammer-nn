@@ -7,6 +7,9 @@ import { ControlledAgent } from './agents/controlled-agent.js';
 import { getStateTensor } from '../utils/get-state-tensor.js';
 import { getInput, channels } from '../environment/nn-input.js';
 
+import gameSettings from './settings/game-settings.json' assert { type: 'json' };
+import battlefields from './settings/battlefields.json' assert { type: 'json' };
+
 const restartBtn = document.getElementById('restart');
 const canvas = document.getElementById("canvas")
 const viewCheckbox = document.getElementById("view-checkbox");
@@ -33,7 +36,7 @@ let players = [];
 let agents = [];
 
 async function start() {
-	env = new Warhammer();
+	env = new Warhammer({ gameSettings, battlefields });
 
 	scene = new Scene(ctx, env.getState());
 	await scene.init();
@@ -68,7 +71,7 @@ async function play() {
 }
 
 function updateHeader(state) {
-	header.innerHTML = `Round: ${state.round}, Player turn: ${state.player}, Player0: ${state.players[0].vp}, Player1: ${state.players[1].vp}`;
+	header.innerHTML = `Round: ${state.round}, Player turn: ${state.player}, Player0: ${state.players[0].primaryVP}, Player1: ${state.players[1].primaryVP}`;
 }
 
 function drawOrders() {

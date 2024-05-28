@@ -1,34 +1,37 @@
 {
-	"forwarded-outpost": {
-		"size": [44, 30],
-		"ruins": [[[5, 7], [15, 7]], [[28, 8], [38, 8]], [[17, 15], [27, 15]], [[29, 23], [39, 23]], [[6, 22], [16, 22]]],
-		"deploment": [],
-		"objective_marker": [[6, 15], [22, 7], [22, 23], [38, 15]],
-		"objective_marker_control_distance": 3
+	"geeseValdas1-3": {
+		"size": [60, 44],
+		"terrain": "geeseValdas1-3",
+		"deployment": "searchAndDestroy",
+		"primary_mission": "take_and_hold",
+		"secondary_mission": "chilling_rain"
 	},
-
-	"scorched-earth": {
-		"size": [44, 30],
-		"ruins": [[[5, 7], [5, 17]], [[28, 8], [38, 8]], [[17, 15], [27, 15]], [[39, 13], [39, 23]], [[6, 22], [16, 22]]],
-		"deploment": [],
-		"objective_marker": [[12, 11], [22, 9], [22, 21], [32, 19]],
-		"objective_marker_control_distance": 3
+	"geeseValdas4-6": {
+		"size": [60, 44],
+		"terrain": "geeseValdas4-6",
+		"deployment": "sweepingEngagement",
+		"primary_mission": "take_and_hold",
+		"secondary_mission": "chilling_rain"
 	},
-
-	"sweeping-raid": {
-		"size": [44, 30],
-		"ruins": [[[5, 7], [5, 17]], [[28, 8], [38, 8]], [[22, 10], [22, 20]], [[39, 13], [39, 23]], [[6, 22], [16, 22]]],
-		"deploment": [],
-		"objective_marker": [[6, 21], [19, 6], [25, 24], [38, 9]],
-		"objective_marker_control_distance": 3
+	"geeseValdas7-9": {
+		"size": [60, 44],
+		"terrain": "geeseValdas7-9",
+		"deployment": "hammerAndAnvil",
+		"primary_mission": "take_and_hold",
+		"secondary_mission": "chilling_rain"
 	},
-
-	"display-of-might": {
-		"size": [44, 30],
-		"ruins": [[[5, 7], [5, 17]], [[28, 15], [38, 15]], [[22, 10], [22, 20]], [[39, 13], [39, 23]], [[6, 15], [16, 15]]],
-		"deploment": [],
-		"objective_marker": [[8, 15], [22, 7], [22, 23], [36, 15]],
-		"objective_marker_control_distance": 3
+	"geeseValdas10-12": {
+		"size": [60, 44],
+		"terrain": "geeseValdas10-12",
+		"deployment": "dawnOfWar",
+		"primary_mission": "take_and_hold",
+		"secondary_mission": "chilling_rain"
+	},
+	"geeseValdas13-15": {
+		"size": [60, 44],
+		"terrain": "geeseValdas13-15",
+		"deployment": "crucibleOfBattle",
+		"primary_mission": "take_and_hold",
+		"secondary_mission": "chilling_rain"
 	}
-
 }

@@ -1,5 +1,6 @@
 import { Phase } from './warhammer.js';
 import { len } from '../utils/vec2.js';
+import { deployment } from  '../battlefield/deployment.js';
 
 //{ Empty: 0 }
 export const Channel0 = { 0: 1 };
@@ -26,12 +27,13 @@ export function emptyInput() {
 const objectiveMemoized = {};
 
 export function getInput(state) {
-	const memoKey = state.battlefield.objective_marker.join();
+	const memoKey = state.battlefield.deployment;
 
-	if (objectiveMemoized[memoKey] === undefined) {
-		objectiveMemoized[memoKey] = []
-		state.battlefield.objective_marker.forEach(([x, y]) => {
-			const delta = state.battlefield.objective_marker_control_distance;
+	if (deployment[memoKey] !== undefined && objectiveMemoized[memoKey] === undefined) {
+		objectiveMemoized[memoKey] = [];
+		const currentDeployment = new deployment[memoKey]();
+		currentDeployment.objective_markers.forEach(([x, y]) => {
+			const delta = currentDeployment.objective_marker_control_distance;
 			for(let i = -delta; i <= delta; i++) {
 				for(let ii = -delta; ii <= delta; ii++) {
 					if (len([i, ii]) <= delta) {
@@ -49,7 +51,7 @@ export function getInput(state) {
 
 	state.players.forEach((player, playerId) => {
 		player.models.forEach((gameModelId, playerModelId) => {
-			const xy = state.models[gameModelId]
+			const xy = state.models[gameModelId];
 			if (xy === null) { return; }
 
 			let entity = null;
@@ -65,7 +67,7 @@ export function getInput(state) {
 				if (input[entity] === undefined) {
 					input[entity] = [];
 				}
-				input[entity].push(xy)
+				input[entity].push(xy);
 			}
 		});
 	});

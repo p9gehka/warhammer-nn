@@ -1,7 +1,4 @@
-import gameSettings from '../settings/game-settings0.1.json' assert { type: 'json' };
-import tauUnits from '../settings/tau-units.json' assert { type: 'json' };
-import tauWeapons from '../settings/tau-weapons.json' assert { type: 'json' };
-import battlefields from '../settings/battlefields-small.json' assert { type: 'json' };
+import { MissionController} from './mission.js';
 
 import { mul, len, sub, add, eq, scaleToLen, round } from '../utils/vec2.js'
 import { getRandomInteger } from '../utils/index.js';
@@ -22,15 +19,21 @@ class Model {
 	wound = 0;
 	dead = true;
 
-	constructor(id, unit, position) {
+	constructor(id, unit, position, profile) {
 		this.id = id;
 		this.name = unit.name;
 		this.playerId = unit.playerId;
-		this.unitProfile = tauUnits[unit.name];
-		if (position !== null) {
-			this.position = position;
-			this.dead = false;
-			this.wound = this.unitProfile.w;
+		this.unitProfile = {
+			"m": parseInt(profile.M),
+			"oc": parseInt(profile.OC),
+		};
+
+		this.stamina = 0;
+		this.position = position;
+		this.dead = false;
+		this.wounds = this.unitProfile.w;
+		if(!isNaN(position[0])) {
+			this.deployed = true;
 		}
 	}
 
@@ -39,18 +42,13 @@ class Model {
 			this.position = position;
 		}
 	}
-
-	move(position, expense) {
-		if (!this.dead) {
-			this.stamina = Math.max(0, this.stamina - expense);
-			this.position = position;
-		}
-	}
-
 	updateAvailableToMove(value) {
-		if (!this.dead) {
+		if (!isNaN(this.position[0])) {
 			this.stamina = value ? this.unitProfile.m : 0;
 		}
+	}
+	decreaseStamina(value) {
+		this.stamina = Math.max(0, this.stamina - value);
 	}
 
 	kill() {
@@ -74,8 +72,12 @@ export class Warhammer {
 	objectiveControlReward = 5;
 	totalRounds = 5;
 	constructor(config) {
-		this.gameSettings = config?.gameSettings ?? gameSettings;
-		this.battlefields = config?.battlefields ?? battlefields;
+		this.missions = [
+			new MissionController('TakeAndHold', 'ChillingRain'),
+			new MissionController('TakeAndHold', 'ChillingRain')
+		]
+		this.gameSettings = config.gameSettings;
+		this.battlefields = config.battlefields;
 		this.reset();
 	}
 	reset() {
@@ -85,29 +87,35 @@ export class Warhammer {
 		this.phase = Phase.Movement;
 		this.turn = 0;
 		this.started = false;
+		let unitCounter = 0;
 
 		const units = this.gameSettings.units.map(
-			(playerUnits, playerId) => playerUnits.map(unit => ({...unit, playerId }))
+			(playerUnits, playerId) => playerUnits.map(unit => {
+				const result = ({...unit, playerId, id: unitCounter });
+				unitCounter++;
+				return result;
+			})
 		);
 		this.players = [
-			{ units: units[0], models: units[0].map(unit => unit.models).flat(), vp: 0 },
-			{ units: units[1], models: units[1].map(unit => unit.models).flat(), vp: 0 }
+			{ units: units[0], models: units[0].map(unit => unit.models).flat(), primaryVP: 0 },
+			{ units: units[1], models: units[1].map(unit => unit.models).flat(), primaryVP: 0 }
 		];
 		this.units = units.flat();
 
 		const usedPosition = [];
-		this.models = this.units.map(unit => {
+		this.models = this.units.map((unit, unitId) => {
 			return unit.models.map(id => {
-				if (this.gameSettings.models.length !== 0 && this.gameSettings.models[id] !== undefined) {
-					return new Model(id, unit, this.gameSettings.models[id]);
+				if (this.gameSettings.models.length !== 0 && this.gameSettings.models[id] !== undefined && this.gameSettings.models[id] !== null) {
+					return new Model(id, unit, this.gameSettings.models[id], this.gameSettings.modelProfiles[id]);
 				}
 				usedPosition.push(this.getRandomStartPosition(usedPosition));
-				return new Model(id, unit, usedPosition.at(-1));
+				return new Model(id, unit, usedPosition.at(-1), this.gameSettings.modelProfiles[id]);
 			});
 		}).flat();
 
+		this.missions.forEach(mission => mission.reset());
 		this.models.forEach(model => {
-			if (model.playerId === this.getPlayer()) {
+			if (model.playerId === 0) {
 				model.updateAvailableToMove(true);
 			}
 		});
@@ -126,7 +134,7 @@ export class Warhammer {
 	step(order) {
 		if (!this.started) {
 			this.started = true;
-			this.players[0].vp += this.scoreVP();
+			this.players[0].primaryVP += this.scorePrimaryVP();
 		}
 
 		if (this.done()) {
@@ -134,7 +142,9 @@ export class Warhammer {
 		}
 
 		if (order.action === BaseAction.NextPhase) {
-			this.players[this.getPlayer()].vp += this.scoreVP();
+			this.missions[this.getPlayer()].startTurn(this.getState(), this.models.map(m => m.unitProfile));
+			this.players[this.getPlayer()].primaryVP += this.scorePrimaryVP();
+
 			this.models.forEach(model => model.updateAvailableToMove(false));
 
 			if (this.phase === phaseOrd.at(-1)) {
@@ -158,14 +168,14 @@ export class Warhammer {
 
 		const model = this.models[order.id];
 
-		if (order.action === BaseAction.Move) {
+		if (order.action === BaseAction.Move && model !== undefined) {
 			let vectorToMove = order.vector;
 			if (order.expense > model.stamina) {
 				vectorToMove = round(scaleToLen(order.vector, model.stamina))
 			}
-
+			model.decreaseStamina(order.expense);
 			const newPosition = add(model.position, vectorToMove);
-			model.move(newPosition, order.expense);
+			model.update(newPosition);
 
 			this.models.forEach(model => {
 				const [x, y] = model.position;
@@ -188,27 +198,15 @@ export class Warhammer {
 	end() {
 		this.turn = (this.totalRounds * 2);
 	}
-	scoreVP() {
-		const objectiveControl = Array(this.battlefield.objective_marker.length).fill(0);
-
-		this.models.forEach((model) => {
-			this.battlefield.objective_marker.forEach((markerPosition, i) => {
-				if (len(sub(model.position, markerPosition)) <= this.gameSettings.objective_marker_control_distance) {
-					const ocSign = model.playerId === this.getPlayer() ? 1 : 0;
-					const oc = model.unitProfile.oc * ocSign;
-					objectiveControl[i] += oc;
-				}
-			});
-		});
-
-		return Math.min(objectiveControl.filter(oc => oc > 0).length * this.objectiveControlReward, 15);
+	scorePrimaryVP() {
+		return this.missions[this.getPlayer()].scorePrimaryVP(this.getState());
 	}
 
 	getState(misc) {
 		return {
 			players: this.players,
 			units: this.units,
-			models: this.models.map(model => !model.dead ? model.position : null),
+			models: this.models.map(model => model.position),
 			modelsStamina: this.models.map(model => model.stamina),
 			phase: this.phase,
 			player: this.getPlayer(),

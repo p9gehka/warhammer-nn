@@ -1,23 +1,9 @@
-import tauUnits from '../settings/tau-units.json' assert { type: 'json' };
 import { Orders } from '../environment/orders.js';
+import { Drawing } from './drawing.js';
+import { deployment } from '../battlefield/deployment.js';
+
 
 const mmToInch = mm => mm / 25.4;
-
-class Drawing {
-	fillPath(cb) {
-		this.ctx.beginPath()
-		cb();
-		this.ctx.closePath()
-		this.ctx.fill();
-	}
-
-	strokePath(cb) {
-		this.ctx.beginPath()
-		cb();
-		this.ctx.closePath()
-		this.ctx.stroke();
-	}
-}
 
 class Model extends Drawing {
 	position = [0, 0];
@@ -27,18 +13,22 @@ class Model extends Drawing {
 		this.name = unit.name;
 		this.playerId = unit.playerId;
 		this.position = position;
-		this.unitProfile = tauUnits[unit.name];
+		this.unitBase = [15];
 	}
 
 	draw() {
-		if (this.position === null) {
+		if (isNaN(this.position[0])) {
 			return;
 		}
-		const { base } = this.unitProfile;
+		const base = this.unitBase;
 		const radius = 1
-		this.ctx.fillStyle = this.playerId === 1 ? 'blue' : 'red';
+		this.ctx.fillStyle = this.playerId === 1 ? '#3e476b' : '#6b3e3e';
+		this.ctx.strokeStyle = this.playerId === 1 ? 'blue' : 'red';
 		this.ctx.translate(0.5, 0.5);
 		this.fillPath(() => {
+			this.ctx.ellipse(this.position[0], this.position[1], mmToInch(base[0] / 2), mmToInch(base[0] / 2), 0, 0, 2 * Math.PI);
+		});
+		this.strokePath(() => {
 			this.ctx.ellipse(this.position[0], this.position[1], mmToInch(base[0] / 2), mmToInch(base[0] / 2), 0, 0, 2 * Math.PI);
 		});
 		this.ctx.translate(-0.5, -0.5);
@@ -59,7 +49,7 @@ export class Battlefield extends Drawing {
 	async init() {
 		return new Promise((resolve) => {
 			this.bg = new Image(...sceneSize);
-			this.bg.addEventListener('load', resolve)
+			this.bg.addEventListener('load', resolve);
 			this.bg.src = "image/map.jpg";
 		});
 	}
@@ -70,12 +60,29 @@ export class Battlefield extends Drawing {
 
 	draw() {
 		this.ctx.drawImage(this.bg, 0, 0, ...sceneSize);
+
+		/*border*/
 		this.ctx.lineWidth = 0.1;
 		this.ctx.strokeStyle = "red";
 		this.strokePath(() => {
 			this.ctx.rect(0, 0, ...this.battlefield.size);
 		});
 
+		/*deployment*/
+		this.ctx.lineWidth = 0.1;
+
+		if (this.battlefield.deployment) {
+			(new deployment[this.battlefield.deployment]).getDrawings().forEach(({ methods, args, strokeStyle }) => {
+				this.ctx.strokeStyle = strokeStyle;
+				this.strokePath(() => { 
+					 methods.forEach((method, i) => {
+					 	this.ctx[method](...args[i]);
+					 });
+				});
+			});
+		}
+
+		/*dots*/
 		this.ctx.translate(0.5, 0.5);
 		this.ctx.fillStyle = '#b4dfb4';
 		this.fillPath(() => {
@@ -86,26 +93,6 @@ export class Battlefield extends Drawing {
 			}
 		});
 
-		this.ctx.strokeStyle = "burlywood";
-		this.battlefield.objective_marker.forEach((pos) => {
-			this.strokePath(() => {
-				this.ctx.ellipse(
-					...pos,
-					this.battlefield.objective_marker_control_distance,
-					this.battlefield.objective_marker_control_distance,
-					0, 0, 2 * Math.PI
-				);
-			});
-		});
-
-		this.ctx.strokeStyle = "black";
-		this.battlefield.ruins.forEach((ruin) => {
-			const [x1, y1] = ruin.at(0);
-			const [x2, y2] = ruin.at(-1);
-			this.strokePath(() => {
-				this.ctx.rect(x1, y1, Math.max(Math.abs(x1 - x2), 0.5), Math.max(Math.abs(y1 - y2), 0.5));
-			});
-		});
 		this.ctx.translate(-0.5, -0.5);
 	}
 }
