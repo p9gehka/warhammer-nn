@@ -1,36 +1,36 @@
 {
 	"geeseValdas1-3": {
-		"size": [60, 44],
+		"size": [22, 22],
 		"terrain": "geeseValdas1-3",
-		"deployment": "searchAndDestroy",
+		"deployment": "small1",
 		"primary_mission": "take_and_hold",
 		"secondary_mission": "chilling_rain"
 	},
 	"geeseValdas4-6": {
-		"size": [60, 44],
+		"size": [22, 22],
 		"terrain": "geeseValdas4-6",
-		"deployment": "sweepingEngagement",
+		"deployment": "small2",
 		"primary_mission": "take_and_hold",
 		"secondary_mission": "chilling_rain"
 	},
 	"geeseValdas7-9": {
-		"size": [60, 44],
+		"size": [22, 22],
 		"terrain": "geeseValdas7-9",
-		"deployment": "hammerAndAnvil",
+		"deployment": "small3",
 		"primary_mission": "take_and_hold",
 		"secondary_mission": "chilling_rain"
 	},
 	"geeseValdas10-12": {
-		"size": [60, 44],
+		"size": [22, 22],
 		"terrain": "geeseValdas10-12",
-		"deployment": "dawnOfWar",
+		"deployment": "small4",
 		"primary_mission": "take_and_hold",
 		"secondary_mission": "chilling_rain"
 	},
 	"geeseValdas13-15": {
-		"size": [60, 44],
+		"size": [22, 22],
 		"terrain": "geeseValdas13-15",
-		"deployment": "crucibleOfBattle",
+		"deployment": "small5",
 		"primary_mission": "take_and_hold",
 		"secondary_mission": "chilling_rain"
 	}

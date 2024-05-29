@@ -14,7 +14,8 @@ const vpPlayer2Element = document.getElementById('player-2-vp');
 
 ctx.scale(canvas.width / 60, canvas.height / 44);
 
-const model = await tf.loadLayersModel(`/models/dqn/model.json`)
+const [width, height] = [22, 22];
+const model = await tf.loadLayersModel(`/models/dqn/temp/model.json`)
 const battlefield = new Battlefield(ctx, { size: [0, 0], objective_marker: [], ruins: [] });
 await battlefield.init()
 battlefield.draw()
@@ -72,7 +73,7 @@ async function updatePredictions(state) {
 
 	const [_, height, width] = model.input.shape;
 	window.tf.tidy(() => {
-		const predictions = model.predict(getStateTensor([getInput(state)], ...state.battlefield.size, channels)).dataSync();
+		const predictions = model.predict(getStateTensor([getInput(state)], width, height, channels)).dataSync();
 		orders.forEach((order, i) => {
 			const li = document.createElement("LI");
 			li.innerHTML = [JSON.stringify(order), predictions[i].toFixed(3)].join();

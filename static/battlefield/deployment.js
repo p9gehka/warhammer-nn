@@ -74,10 +74,85 @@ class SweepingEngagement {
 	}
 }
 
+class small1 {
+	constructor() {
+		this.deploy_markers = [];
+		this.nomansland_markers = [];
+		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
+		this.objective_marker_control_distance = 3;
+	}
+	getDrawings() {
+		return this.objective_markers.map(
+			(position, i) => getObjectDrawing(position, this.objective_marker_control_distance)
+		);
+	}
+}
+
+class small2 {
+	constructor() {
+		this.deploy_markers = [];
+		this.nomansland_markers = [[11, 11]];
+		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
+		this.objective_marker_control_distance = 3;
+	}
+	getDrawings() {
+		return this.objective_markers.map(
+			(position, i) => getObjectDrawing(position, this.objective_marker_control_distance)
+		);
+	}
+}
+
+class small3 {
+	constructor() {
+		this.deploy_markers = [];
+		this.nomansland_markers = [[3, 3]];
+		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
+		this.objective_marker_control_distance = 3;
+	}
+	getDrawings() {
+		return this.objective_markers.map(
+			(position, i) => getObjectDrawing(position, this.objective_marker_control_distance)
+		);
+	}
+}
+
+class small4 {
+	constructor() {
+		this.deploy_markers = [];
+		this.nomansland_markers = [[18, 3]];
+		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
+		this.objective_marker_control_distance = 3;
+	}
+	getDrawings() {
+		return this.objective_markers.map(
+			(position, i) => getObjectDrawing(position, this.objective_marker_control_distance)
+		);
+	}
+}
+
+class small5 {
+	constructor() {
+		this.deploy_markers = [];
+		this.nomansland_markers = [[3, 18]];
+		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
+		this.objective_marker_control_distance = 3;
+	}
+	getDrawings() {
+		return this.objective_markers.map(
+			(position, i) => getObjectDrawing(position, this.objective_marker_control_distance)
+		);
+	}
+}
+
 export const deployment = {
 	"crucibleOfBattle": CrucibleOfBattle,
 	"dawnOfWar": DawnOfWar,
 	"hammerAndAnvil": HammerAndAnvil,
 	"searchAndDestroy": SearchAndDestroy,
 	"sweepingEngagement": SweepingEngagement,
+	small1,
+	small2,
+	small3,
+	small4,
+	small5,
 }

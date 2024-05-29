@@ -5,8 +5,8 @@ import { getStateTensor } from '../utils/get-state-tensor.js';
 import { eq } from '../utils/vec2.js';
 
 export class PlayerEnvironment {
-	width = 60;
-	height = 44;
+	width = 22;
+	height = 22;
 	channels = channels;
 	vp = 0;
 	_selectedModel = null;
@@ -22,7 +22,7 @@ export class PlayerEnvironment {
 	}
 
 	reset() {
-		this.vp = 0;
+		this.primaryVP = 0;
 		this.cumulativeReward = 0;
 	}
 
@@ -62,9 +62,9 @@ export class PlayerEnvironment {
 	primaryReward() {
 		const state = this.env.getState();
 		const { primaryVP } = state.players[this.playerId];
-		let reward = (primaryVP - this.vp) * 5;
+		let reward = (primaryVP - this.primaryVP) * 5;
 		this.cumulativeReward += reward;
-		this.vp = primaryVP;
+		this.primaryVP = primaryVP;
 		return reward;
 	}
 
