@@ -1,31 +1,7 @@
 import { len, sub } from '../utils/vec2.js';
 import { deployment } from '../battlefield/deployment.js';
 
-export const Mission = {
-	BehindEnemyLines: 'BehindEnemyLines',
-	EngageOnAllFronts: 'EngageOnAllFronts',
-	Cleanse: 'Cleanse',
-	DeployTeleportHomer: 'DeployTeleportHomer',
-	InvestigateSignals: 'InvestigateSignals',
-	DefendStronhold: 'DefendStronhold',
-	SecureNoMansLand: 'SecureNoMansLand',
-	AreaDenial: 'AreaDenial',
-	CaptureEnemyOutpost: 'CaptureEnemyOutpost',
-	ATamptingTarget: 'ATamptingTarget',
-	ExtendBattleLines: 'ExtendBattleLines',
-	Assassination: 'Assassination',
-	NoPrisoners: 'NoPrisoners',
-	BringItDown: 'BringItDown',
-	OverwhelmingForce: 'OverwhelmingForce',
-	StormHostileObjective: 'StormHostileObjective',
-}
 
-const size = [60, 44];
-const center = [30, 22];
-
-function onBattlefield(position) {
-	return !isNaN(position[0]);
-}
 export class MissionController {
 	startTurnObjectiveControl = [];
 	constructor(primary, missionRule) {
@@ -64,9 +40,6 @@ export class MissionController {
 		const round = Math.floor(turn / 2);
 		const objectiveControlReward = 5;
 
-		if (round < 1) {
-			return 0;
-		}
 		return Math.min(this.startTurnObjectiveControl.filter(oc => oc > 0).length * objectiveControlReward, 15);
 	}
 }

@@ -35,6 +35,7 @@ let env = [];
 let players = [];
 let agents = [];
 
+let playPromise = null;
 async function start() {
 	env = new Warhammer({ gameSettings, battlefields });
 
@@ -42,13 +43,17 @@ async function start() {
 	await scene.init();
 	players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
 	agents = [new ControlledAgent(players[0]), new ControlledAgent(players[1])];
-	play();
+	playPromise = play();
 }
 
-function restart() {
+async function restart() {
+	env.end();
+	orderResolve(0);
+	await playPromise;
 	agents.forEach(agent => agent.reset());
+	players.forEach(player => player.reset());
 	env.reset();
-	play();
+	playPromise = play();
 }
 
 async function play() {

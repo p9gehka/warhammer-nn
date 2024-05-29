@@ -32,9 +32,7 @@ class Model {
 		this.position = position;
 		this.dead = false;
 		this.wounds = this.unitProfile.w;
-		if(!isNaN(position[0])) {
-			this.deployed = true;
-		}
+		this.deployed = !isNaN(position[0]);
 	}
 
 	update(position) {
