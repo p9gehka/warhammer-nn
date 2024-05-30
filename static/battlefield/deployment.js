@@ -91,7 +91,7 @@ class small1 {
 class small2 {
 	constructor() {
 		this.deploy_markers = [];
-		this.nomansland_markers = [[11, 11]];
+		this.nomansland_markers = [[15, 15]];
 		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 		this.objective_marker_control_distance = 3;
 	}
@@ -105,7 +105,7 @@ class small2 {
 class small3 {
 	constructor() {
 		this.deploy_markers = [];
-		this.nomansland_markers = [[3, 3]];
+		this.nomansland_markers = [[5, 5]];
 		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 		this.objective_marker_control_distance = 3;
 	}
@@ -119,7 +119,7 @@ class small3 {
 class small4 {
 	constructor() {
 		this.deploy_markers = [];
-		this.nomansland_markers = [[18, 3]];
+		this.nomansland_markers = [[25, 5]];
 		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 		this.objective_marker_control_distance = 3;
 	}
@@ -133,7 +133,21 @@ class small4 {
 class small5 {
 	constructor() {
 		this.deploy_markers = [];
-		this.nomansland_markers = [[3, 18]];
+		this.nomansland_markers = [[5, 25]];
+		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
+		this.objective_marker_control_distance = 3;
+	}
+	getDrawings() {
+		return this.objective_markers.map(
+			(position, i) => getObjectDrawing(position, this.objective_marker_control_distance)
+		);
+	}
+}
+
+class small6 {
+	constructor() {
+		this.deploy_markers = [];
+		this.nomansland_markers = [[25, 25]];
 		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 		this.objective_marker_control_distance = 3;
 	}
@@ -155,4 +169,5 @@ export const deployment = {
 	small3,
 	small4,
 	small5,
+	small6,
 }
