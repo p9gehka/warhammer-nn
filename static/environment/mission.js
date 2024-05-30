@@ -25,7 +25,7 @@ export class MissionController {
 				objectiveMarkers.forEach((markerPosition, i) => {
 					const modelPosition = state.models[modelId];
 					if (len(sub(modelPosition, markerPosition)) <= deploy.objective_marker_control_distance) {
-						const ocSign = modelPlayerId === activePlayerId ? 1 : -1;
+						const ocSign = modelPlayerId === activePlayerId ? 1 : 0;
 						const oc = profiles[modelId].oc * ocSign;
 						objectiveControl[i] += oc;
 					}
