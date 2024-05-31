@@ -74,10 +74,14 @@ class SweepingEngagement {
 	}
 }
 
-class small1 {
+/*
+
+*/
+
+class ClashOfPatrols {
 	constructor() {
 		this.deploy_markers = [];
-		this.nomansland_markers = [];
+		this.nomansland_markers = [[12, 15], [22, 9], [32, 15], [22, 21]];
 		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 		this.objective_marker_control_distance = 3;
 	}
@@ -88,10 +92,10 @@ class small1 {
 	}
 }
 
-class small2 {
+class ArcheothechRecovery {
 	constructor() {
 		this.deploy_markers = [];
-		this.nomansland_markers = [[15, 15]];
+		this.nomansland_markers = [[6, 23], [14, 7], [22,15], [30, 23], [38, 7]];
 		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 		this.objective_marker_control_distance = 3;
 	}
@@ -102,10 +106,10 @@ class small2 {
 	}
 }
 
-class small3 {
+class ForwardOutpost {
 	constructor() {
 		this.deploy_markers = [];
-		this.nomansland_markers = [[5, 5]];
+		this.nomansland_markers = [[6, 15], [22, 7], [38, 15], [22, 23]];
 		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 		this.objective_marker_control_distance = 3;
 	}
@@ -116,10 +120,10 @@ class small3 {
 	}
 }
 
-class small4 {
+class ScorchedEarth {
 	constructor() {
 		this.deploy_markers = [];
-		this.nomansland_markers = [[25, 5]];
+		this.nomansland_markers = [[12, 11], [22, 9], [32, 19], [22, 21]];
 		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 		this.objective_marker_control_distance = 3;
 	}
@@ -130,10 +134,10 @@ class small4 {
 	}
 }
 
-class small5 {
+class SweepingRaid {
 	constructor() {
 		this.deploy_markers = [];
-		this.nomansland_markers = [[5, 25]];
+		this.nomansland_markers = [[6, 21], [19, 6],  [38, 9],  [25, 24]];
 		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 		this.objective_marker_control_distance = 3;
 	}
@@ -144,10 +148,10 @@ class small5 {
 	}
 }
 
-class small6 {
+class DisplayOfMight {
 	constructor() {
 		this.deploy_markers = [];
-		this.nomansland_markers = [[25, 25]];
+		this.nomansland_markers = [[8, 15], [22, 7], [36, 15], [22, 23]];
 		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 		this.objective_marker_control_distance = 3;
 	}
@@ -164,10 +168,10 @@ export const deployment = {
 	"hammerAndAnvil": HammerAndAnvil,
 	"searchAndDestroy": SearchAndDestroy,
 	"sweepingEngagement": SweepingEngagement,
-	small1,
-	small2,
-	small3,
-	small4,
-	small5,
-	small6,
+	"clashOfPatrols": ClashOfPatrols,
+	"archeothechRecovery": ArcheothechRecovery,
+	"forwardOutpost": ForwardOutpost,
+	"scorchedEarth": ScorchedEarth,
+	"sweepingRaid": SweepingRaid,
+	"displayOfMight": DisplayOfMight,
 }

@@ -14,7 +14,7 @@ const vpPlayer2Element = document.getElementById('player-2-vp');
 
 ctx.scale(canvas.width / 60, canvas.height / 44);
 
-const [width, height] = [30, 30];
+const [width, height] = [44, 30];
 const model = await tf.loadLayersModel(`/models/dqn/temp/model.json`)
 const battlefield = new Battlefield(ctx, { size: [0, 0], objective_marker: [], ruins: [] });
 await battlefield.init()
