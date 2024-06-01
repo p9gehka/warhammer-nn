@@ -6,7 +6,7 @@ import { eq } from '../utils/vec2.js';
 
 export class PlayerEnvironment {
 	width = 44;
-	height = 30;
+	height = 44;
 	channels = channels;
 	vp = 0;
 	_selectedModel = null;
