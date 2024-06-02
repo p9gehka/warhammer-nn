@@ -167,6 +167,7 @@ export const deployment = {
 	"hammerAndAnvil": HammerAndAnvil,
 	"searchAndDestroy": SearchAndDestroy,
 	"sweepingEngagement": SweepingEngagement,
+
 	"clashOfPatrols": ClashOfPatrols,
 	"archeothechRecovery": ArcheothechRecovery,
 	"forwardOutpost": ForwardOutpost,

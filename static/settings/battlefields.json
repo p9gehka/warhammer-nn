@@ -1,32 +1,27 @@
 {
-	"clashOfPatrols": {
-		"size": [22, 22],
-		"deployment": "clashOfPatrols",
+	"crucibleOfBattle": {
+		"size": [60, 44],
+		"deployment": "crucibleOfBattle",
 		"primary_mission": "take_and_hold"
 	},
-	"archeothechRecovery": {
-		"size": [22, 22],
-		"deployment": "archeothechRecovery",
+	"dawnOfWar": {
+		"size": [60, 44],
+		"deployment": "dawnOfWar",
 		"primary_mission": "take_and_hold"
 	},
-	"forwardOutpost": {
-		"size": [22, 22],
-		"deployment": "forwardOutpost",
+	"hammerAndAnvil": {
+		"size": [60, 44],
+		"deployment": "hammerAndAnvil",
 		"primary_mission": "take_and_hold"
 	},
-	"scorchedEarth": {
-		"size": [22, 22],
-		"deployment": "scorchedEarth",
+	"searchAndDestroy": {
+		"size": [60, 44],
+		"deployment": "searchAndDestroy",
 		"primary_mission": "take_and_hold"
 	},
-	"sweepingRaid": {
-		"size": [22, 22],
-		"deployment": "sweepingRaid",
-		"primary_mission": "take_and_hold"
-	},
-	"displayOfMight": {
-		"size": [22, 22],
-		"deployment": "displayOfMight",
+	"sweepingEngagement": {
+		"size": [60, 44],
+		"deployment": "sweepingEngagement",
 		"primary_mission": "take_and_hold"
 	}
 }
