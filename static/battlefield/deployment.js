@@ -80,7 +80,7 @@ class SweepingEngagement {
 class ClashOfPatrols {
 	constructor() {
 		this.deploy_markers = [];
-		this.nomansland_markers = [[4, 4]];
+		this.nomansland_markers = [[12, 15], [22, 9], [32, 15], [22, 21]];
 		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 		this.objective_marker_control_distance = 3;
 	}
@@ -94,7 +94,7 @@ class ClashOfPatrols {
 class ArcheothechRecovery {
 	constructor() {
 		this.deploy_markers = [];
-		this.nomansland_markers = [[18, 18]];
+		this.nomansland_markers = [[6, 23], [14, 7], [22,15], [30, 23], [38, 7]];
 		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 		this.objective_marker_control_distance = 3;
 	}
@@ -108,7 +108,7 @@ class ArcheothechRecovery {
 class ForwardOutpost {
 	constructor() {
 		this.deploy_markers = [];
-		this.nomansland_markers = [[18,4]]
+		this.nomansland_markers = [[6, 15], [22, 7], [38, 15], [22, 23]]
 		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 		this.objective_marker_control_distance = 3;
 	}
@@ -122,7 +122,7 @@ class ForwardOutpost {
 class ScorchedEarth {
 	constructor() {
 		this.deploy_markers = [];
-		this.nomansland_markers = [[4, 18]];
+		this.nomansland_markers = [[12, 11], [22, 9], [32, 19], [22, 21]];
 		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 		this.objective_marker_control_distance = 3;
 	}
@@ -136,7 +136,7 @@ class ScorchedEarth {
 class SweepingRaid {
 	constructor() {
 		this.deploy_markers = [];
-		this.nomansland_markers = [[11, 11]];
+		this.nomansland_markers = [[6, 21], [19, 6],  [38, 9],  [25, 24]];
 		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 		this.objective_marker_control_distance = 3;
 	}
@@ -150,7 +150,7 @@ class SweepingRaid {
 class DisplayOfMight {
 	constructor() {
 		this.deploy_markers = [];
-		this.nomansland_markers = [];
+		this.nomansland_markers = [[8, 15], [22, 7], [36, 15], [22, 23]];
 		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 		this.objective_marker_control_distance = 3;
 	}
