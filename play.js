@@ -13,6 +13,8 @@ import { ReplayMemoryClient } from './replay-memory/replay-memory-client.js';
 import { sendDataToTelegram, sendMessage, memoryUsage } from './visualization/utils.js';
 import { MovingAverager } from './moving-averager.js';
 import { lock } from './replay-memory/lock-api.js'
+import { filterObjByKeys } from './static/utils/index.js';
+
 import gameSettings from './static/settings/game-settings.json' assert { type: 'json' };
 import allBattlefields from './static/settings/battlefields.json' assert { type: 'json' };
 
@@ -24,10 +26,6 @@ const savePath = './static/models/dqn/';
 const { cumulativeRewardThreshold, sendMessageEveryFrames, sleepTimer } = config;
 
 const rewardAveragerLen = 100;
-
-function filterObjByKeys(obj, keys) {
-	return Object.fromEntries(keys.map(k => [k, obj[k]]));
-}
 
 let battlefields = config.battlefields.length > 0 ? filterObjByKeys(allBattlefields, config.battlefields) : allBattlefields;
 
