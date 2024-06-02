@@ -59,6 +59,8 @@ export class Game {
 					if (unit.playerId === state.player) {
 						const playerModelId = state.players[state.player].models.indexOf(modelId);
 						this.orderResolve([orders.selectIndexes[playerModelId]]);
+					} else {
+						this.onUpdate(state);
 					}
 				}
 			})
@@ -111,14 +113,14 @@ export class Game {
 		this.scene = new Scene(this.ctx, state);
 		this.scene.init();
 		this.deployPlayers = [new DeployEnvironment(0, this.deploy), new DeployEnvironment(1, this.deploy)];
-		this.onUpdate(state, this.deployPlayers[state.player].getState());
+		this.onUpdate(state);
 		while(true) {
 			state = this.deploy.getState();
 			if (state.done) {
 				break;
 			} else {
-				this.scene.updateState(state);
-				this.onUpdate(state, this.deployPlayers[state.player].getState());
+				this.scene.updateState(state, {}, { selecteddUnit: this.selectedUnit });
+				this.onUpdate(state);
 				this.orderHandlers = [
 					([x, y]) => this.orderResolve([this.deployOrders.setXIndexes[x], this.deployOrders.setYIndexes[y], this.deployOrders.deployIndex])
 				];
@@ -173,8 +175,8 @@ export class Game {
 		while(true) {
 			const state = this.env.getState();
 			const playerState = this.players[state.player].getState();
-			this.scene.updateState(state, playerState);
-			this.onUpdate(state, (state.phase === Phase.Reinforcements ? this.reinforcementsPlayers : this.players)[state.player].getState());
+			this.scene.updateState(state, playerState, { selecteddUnit: this.selectedUnit });
+			this.onUpdate(state);
 			this.orderHandlers = [];
 
 			if (state.done) {

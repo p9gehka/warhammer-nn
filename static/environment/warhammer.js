@@ -41,8 +41,9 @@ function parseProfile(value) {
 		if(diceCondition === 'd3') {
 			diceResult = Math.ceil(d6Result/3);
 		}
-		return diceResult + parseInt(tail);
-
+		let tailValue = parseInt(tail);
+		tailValue = isNaN(tailValue) ? 0 : tailValue
+		return diceResult + tailValue;
 	}
 }
 
@@ -285,7 +286,8 @@ export class Warhammer {
 		if (order.action === BaseAction.Shoot && this.units[order.target] !== undefined) {
 			const weapon = this.models[order.id].rangedWeapons[order.weaponId];
 			if (weapon !== undefined) {
-				const hits = Array(weapon.a).fill(0).map(d6);
+				const numberOfAttack = Number.isInteger(weapon.a) ? weapon.a : weapon.a(d6());
+				const hits = Array(numberOfAttack).fill(0).map(d6);
 				const wounds = [];
 				const saves = [];
 				const damage = [];
@@ -348,7 +350,7 @@ export class Warhammer {
 			this.missions[currentPlayerId].updateSecondary(round);
 		}
 
-		if (order.action === BaseAction.DeployModel && (round === 1 || round === 2)) {
+		if (order.action === BaseAction.DeployModel) {
 			this.models[order.id].update(order.position);
 			this.models[order.id].deployed = true;
 		}

@@ -31,6 +31,7 @@ class Model extends Drawing {
 		this.playerId = unit.playerId;
 		this.position = position;
 		this.unitBase = base[unit.name] ?? [15];
+		this.selected = false;
 	}
 
 	draw() {
@@ -49,10 +50,17 @@ class Model extends Drawing {
 		this.strokePath(() => {
 			this.ctx.ellipse(this.position[0], this.position[1], mmToInch(base[0] / 2), mmToInch(base[0] / 2), 0, 0, 2 * Math.PI);
 		});
+		this.ctx.strokeStyle = 'yellow'; //'greenyellow'
+		if (this.selected) {
+			this.strokePath(() => {
+				this.ctx.ellipse(this.position[0], this.position[1], mmToInch((base[0] / 2) + 8), mmToInch((base[0] / 2) + 8), 0, 0, 2 * Math.PI);
+			});
+		}
 		this.ctx.translate(-0.5, -0.5);
 
 	}
-	update(position) {
+	update(position, selected) {
+		this.selected = selected;
 		this.position = position;
 	}
 }
@@ -182,10 +190,12 @@ export class Scene extends Drawing {
 		});
 		this.ctx.translate(-0.5, -0.5);
 	}
-	updateState(state, playerState) {
+	updateState(state, playerState = {}, gameControllerState = {}) {
 		this.battlefield.update(state.battlefield);
-		state.models.forEach((position, id) => {
-			this.models[id].update(position);
+		state.players.forEach((player, playerId) => {
+			player.models.forEach((id, index) => {
+				this.models[id].update(state.models[id], state.player === playerId && playerState.selected === index);
+			});
 		});
 		this.bindings = [];
 		if (playerState?.shootingTargeting !== undefined) {

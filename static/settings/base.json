@@ -46,7 +46,7 @@
 	"caladius grav-tank": [170],
 	"anathema psykana rhino": [120],
 
-	"MECH": "MECH",
+	"ADEPTUS MECH": "ADEPTUS MECH",
 	"tech-priest dominus": [50],
 	"tech-priest enginseer": [32],
 	"skitarii rangers": [25],
@@ -64,7 +64,7 @@
 	"norn emissary": [100],
 	"tyrannofex": [120],
 
-	"Drukhari": "Drukhari",
+	"DRUKHARI": "DRUKHARI",
 
 	"lelith hesperax": [32],
 	"archon": [25],
@@ -75,7 +75,7 @@
 	"ravager": [60],
 	"incubi": [28],
 
-	"leagues of VOTANN": "leagues of VOTANN",
+	"LEAGUES OF VOTANN": "LEAGUES OF VOTANN",
 	"einhyr champion": [40],
 	"kâhl" :[40],
 	"hearthkyn warriors" :[28],
@@ -84,5 +84,20 @@
 	"einhyr hearthguard" :[32],
 	"hernkyn pioneers" :[90],
 	"hekaton land fortress" :[150],
-	"sagitaur" :[130]
+	"sagitaur" :[130],
+
+	"AELDARI": "AELDARI",
+	"autarch wayleaper": [32],
+	"death jester": [25],
+	"farseer": [25],
+	"spiritseer": [25],
+	"fuegan": [25],
+	"karandras": [25],
+	"solitaire": [25],
+	"falcon": [140],
+	"fire dragons": [25],
+	"shining spears": [60],
+	"striking scorpions": [25],
+	"wraithguard": [40],
+	"wraithknight": [120]
 }

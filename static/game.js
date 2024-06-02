@@ -74,7 +74,7 @@ function updateTable(state) {
 	table.appendChild(fragment);
 }
 
-function updateUnitsStrip(state, playerState) {
+function updateUnitsStrip(state) {
 	unitsStrip.innerHTML = '';
 	let unitCounter = 0;
 
@@ -191,10 +191,10 @@ game.onUpdateDice = (diceInfo) => {
 	diceSection.innerHTML = JSON.stringify(diceInfo);
 }
 
-game.onUpdate = (state, playerState) => {
+game.onUpdate = (state) => {
 	updateTable(state);
 	updateHeader(state);
-	updateUnitsStrip(state, playerState);
+	updateUnitsStrip(state);
 	updateSecondaryMission(state);
 	updateUnitSection(game.selectedUnit);
 	updateWeaponSection(state);
