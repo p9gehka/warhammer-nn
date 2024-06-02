@@ -9,6 +9,7 @@
 		"deployment": "dawnOfWar",
 		"primary_mission": "take_and_hold"
 	},
+
 	"hammerAndAnvil": {
 		"size": [60, 44],
 		"deployment": "hammerAndAnvil",
@@ -22,6 +23,92 @@
 	"sweepingEngagement": {
 		"size": [60, 44],
 		"deployment": "sweepingEngagement",
+		"primary_mission": "take_and_hold"
+	},
+
+	"crucibleOfBattle1": {
+		"size": [60, 44],
+		"deployment": "crucibleOfBattle1",
+		"primary_mission": "take_and_hold"
+	},
+	"crucibleOfBattle2": {
+		"size": [60, 44],
+		"deployment": "crucibleOfBattle2",
+		"primary_mission": "take_and_hold"
+	},
+	"crucibleOfBattle3": {
+		"size": [60, 44],
+		"deployment": "crucibleOfBattle3",
+		"primary_mission": "take_and_hold"
+	},
+	"crucibleOfBattle4": {
+		"size": [60, 44],
+		"deployment": "crucibleOfBattle4",
+		"primary_mission": "take_and_hold"
+	},
+	"crucibleOfBattle5": {
+		"size": [60, 44],
+		"deployment": "crucibleOfBattle5",
+		"primary_mission": "take_and_hold"
+	},
+	"dawnOfWar1": {
+		"size": [60, 44],
+		"deployment": "dawnOfWar1",
+		"primary_mission": "take_and_hold"
+	},
+	"dawnOfWar2": {
+		"size": [60, 44],
+		"deployment": "dawnOfWar2",
+		"primary_mission": "take_and_hold"
+	},
+	"dawnOfWar3": {
+		"size": [60, 44],
+		"deployment": "dawnOfWar3",
+		"primary_mission": "take_and_hold"
+	},
+	"dawnOfWar4": {
+		"size": [60, 44],
+		"deployment": "dawnOfWar4",
+		"primary_mission": "take_and_hold"
+	},
+	"searchAndDestroy1": {
+		"size": [60, 44],
+		"deployment": "searchAndDestroy1",
+		"primary_mission": "take_and_hold"
+	},
+	"searchAndDestroy2": {
+		"size": [60, 44],
+		"deployment": "searchAndDestroy2",
+		"primary_mission": "take_and_hold"
+	},
+	"searchAndDestroy3": {
+		"size": [60, 44],
+		"deployment": "searchAndDestroy3",
+		"primary_mission": "take_and_hold"
+	},
+	"searchAndDestroy4": {
+		"size": [60, 44],
+		"deployment": "searchAndDestroy4",
+		"primary_mission": "take_and_hold"
+	},
+	"sweepingEngagement1": {
+		"size": [60, 44],
+		"deployment": "sweepingEngagement1",
+		"primary_mission": "take_and_hold"
+	},
+	"sweepingEngagement2": {
+		"size": [60, 44],
+		"deployment": "sweepingEngagement2",
+		"primary_mission": "take_and_hold"
+	},
+	"sweepingEngagement3": {
+		"size": [60, 44],
+		"deployment": "sweepingEngagement3",
+		"primary_mission": "take_and_hold"
+	},
+	"sweepingEngagement4": {
+		"size": [60, 44],
+		"deployment": "sweepingEngagement4",
 		"primary_mission": "take_and_hold"
 	}
 }
