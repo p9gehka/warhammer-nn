@@ -4,11 +4,14 @@ import { Orders } from './environment/orders.js';
 import { PlayerEnvironment } from './environment/player-environment.js'
 import { RandomAgent } from './agents/random-agent0.1.js';
 import { ControlledAgent } from './agents/controlled-agent.js';
-import { getStateTensor } from '../utils/get-state-tensor.js';
-import { getInput, channels } from '../environment/nn-input.js';
+import { getStateTensor } from './utils/get-state-tensor.js';
+import { filterObjByKeys } from './utils/index.js';
+import { getInput, channels } from './environment/nn-input.js';
 
 import gameSettings from './settings/game-settings.json' assert { type: 'json' };
-import battlefields from './settings/battlefields.json' assert { type: 'json' };
+import allBattlefields from './settings/battlefields.json' assert { type: 'json' };
+
+import config from './game.config.json' assert { type: 'json' };
 
 const restartBtn = document.getElementById('restart');
 const canvas = document.getElementById("canvas");
@@ -26,6 +29,9 @@ await battlefield.init();
 battlefield.draw();
 
 let scene = null;
+
+let battlefields = config.battlefields.length > 0 ? filterObjByKeys(allBattlefields, config.battlefields) : allBattlefields;
+
 
 drawOrders();
 let orderResolve;
