@@ -15,20 +15,20 @@ const vpPlayer2Element = document.getElementById('player-2-vp');
 ctx.scale(canvas.width / 60, canvas.height / 44);
 
 const [width, height] = [22, 22];
-const model = await tf.loadLayersModel(`/models/dqn/temp/model.json`)
+const model = await tf.loadLayersModel(`/models/dqn/temp/model.json`);
 const battlefield = new Battlefield(ctx, { size: [0, 0], objective_marker: [], ruins: [] });
-await battlefield.init()
-battlefield.draw()
+await battlefield.init();
+battlefield.draw();
 
 let actionAndStates = [];
-let scene = null
+let scene = null;
 
 async function start () {
 	historyList.innerHTML = '';
 	const response = await fetch('/play', {
 		method: 'POST',
 		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({})
+		body: JSON.stringify({}),
 	});
 
 	actionAndStates = await response.json();

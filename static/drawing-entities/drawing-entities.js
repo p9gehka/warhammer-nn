@@ -13,7 +13,7 @@ class Model extends Drawing {
 		this.name = unit.name;
 		this.playerId = unit.playerId;
 		this.position = position;
-		this.unitBase = [15];
+		this.unitBase = [28];
 	}
 
 	draw() {

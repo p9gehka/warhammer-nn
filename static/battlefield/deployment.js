@@ -15,7 +15,6 @@ class CrucibleOfBattle {
 			(position, i) => getObjectDrawing(position, this.objective_marker_control_distance)
 		);
 	}
-
 }
 
 class DawnOfWar {

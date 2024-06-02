@@ -11,9 +11,9 @@ import gameSettings from './settings/game-settings.json' assert { type: 'json' }
 import battlefields from './settings/battlefields.json' assert { type: 'json' };
 
 const restartBtn = document.getElementById('restart');
-const canvas = document.getElementById("canvas")
+const canvas = document.getElementById("canvas");
 const viewCheckbox = document.getElementById("view-checkbox");
-const table = document.getElementById("table")
+const table = document.getElementById("table");
 const ordersList = document.getElementById("orders-list");
 const header = document.getElementById("header");
 
@@ -22,10 +22,10 @@ const ctx = canvas.getContext("2d");
 ctx.scale(canvas.width / 60, canvas.height / 44);
 
 const battlefield = new Battlefield(ctx, { size: [0, 0], objective_marker: [], ruins: [] });
-await battlefield.init()
-battlefield.draw()
+await battlefield.init();
+battlefield.draw();
 
-let scene = null
+let scene = null;
 
 drawOrders();
 let orderResolve;
@@ -92,7 +92,7 @@ function drawOrders() {
 function updateTable(state) {
 	const data = getStateTensor([getInput(state)], ...state.battlefield.size, channels).arraySync();
 	const fragment = new DocumentFragment();
-	const nextline = Math.floor(Math.sqrt(data[0][0][0].length))
+	const nextline = Math.floor(Math.sqrt(data[0][0][0].length));
 	for(let row of data[0]) {
 		const rowEl = document.createElement('TR');
 		for (let cell of row) {
