@@ -59,6 +59,11 @@ export class PlayerEnvironment {
 		this.cumulativeReward += reward;
 		return reward;
 	}
+
+	getState() {
+		return { selected: this._selectedModel };
+	}
+
 	primaryReward() {
 		const state = this.env.getState();
 		const { primaryVP } = state.players[this.playerId];
@@ -70,7 +75,7 @@ export class PlayerEnvironment {
 
 	getInput() {
 		const state = this.env.getState();
-		return getInput(state);
+		return getInput(state, this.getState());
 	}
 
 	printStateTensor() {
