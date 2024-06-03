@@ -16,6 +16,11 @@ import {
 } from './44x30.js';
 
 import {
+	SmallFull1,
+	SmallFull2,
+	SmallFull3,
+	SmallFull4,
+	SmallFull5,
 	Small1,
 	Small2,
 	Small3,
@@ -36,6 +41,7 @@ export const deployment = {
 	"scorchedEarth": ScorchedEarth,
 	"sweepingRaid": SweepingRaid,
 	"displayOfMight": DisplayOfMight,
+	"smallFull1": SmallFull1,
 	"small1": Small1,
 	"small2": Small2,
 	"small3": Small3,
