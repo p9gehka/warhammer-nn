@@ -1,4 +1,4 @@
-import { mul, len, sub, add, eq } from '../utils/vec2.js'
+import { mul, len, sub, add, eq, scaleToLen, round } from '../utils/vec2.js'
 import { getRandomInteger } from '../utils/index.js';
 import { MissionController, Mission } from './mission.js';
 
@@ -107,15 +107,19 @@ class Model {
 			this.position = position;
 		}
 	}
+
 	updateAvailableToScoutMove() {
 		if (onBattlefield(this.position)) {
 			this.stamina = this.scoutMove;
 		} 
 	}
 	updateAvailableToMove(value) {
-		if (onBattlefield(this.position)) {
+		if (!isNaN(this.position[0])) {
 			this.stamina = value ? this.unitProfile.m : 0;
 		}
+	}
+	decreaseStamina(value) {
+		this.stamina = Math.max(0, this.stamina - value);
 	}
 
 	kill() {
@@ -153,16 +157,17 @@ export class Warhammer {
 	models = [];
 	phase = Phase.PreBattle;
 	turn = 0;
+	started = false;
 	objectiveControlReward = 5;
 	totalRounds = 5;
 	phaseSequence = 0;
 	constructor(config) {
-		this.gameSettings = config.gameSettings;
-		this.battlefields = config.battlefields;
 		this.missions = [
 			new MissionController('TakeAndHold', 'ChillingRain', [Mission.ATamptingTarget, Mission.StormHostileObjective]),
 			new MissionController('TakeAndHold', 'ChillingRain', [Mission.DeployTeleportHomer, Mission.Cleanse])
 		]
+		this.gameSettings = config.gameSettings;
+		this.battlefields = config.battlefields;
 		this.reset();
 	}
 	reset() {
@@ -173,6 +178,7 @@ export class Warhammer {
 		this.turn = 0
 		this.phaseSequence = 0;
 		let unitCounter = 0;
+
 		const units = this.gameSettings.units.map(
 			(playerUnits, playerId) => playerUnits.map(unit => {
 				const result = ({...unit, playerId, id: unitCounter });
@@ -189,7 +195,7 @@ export class Warhammer {
 		const usedPosition = [];
 		this.models = this.units.map((unit, unitId) => {
 			return unit.models.map(id => {
-				if (this.gameSettings.models.length !== 0 && this.gameSettings.models[id] !== undefined) {
+				if (this.gameSettings.models.length !== 0 && this.gameSettings.models[id] !== undefined && this.gameSettings.models[id] !== null) {
 					return new Model(id, unit, this.gameSettings.models[id], this.gameSettings.modelProfiles[id], this.gameSettings.categories[unitId], this.gameSettings.rules[unitId], this.gameSettings.rangedWeapons[id]);
 				}
 				usedPosition.push(this.getRandomStartPosition(usedPosition));
@@ -219,13 +225,14 @@ export class Warhammer {
 		if (order.action === BaseAction.Done) {
 			this._done = true;
 		}
+
 		if (this.done()) {
 			return this.getState();
 		}
 		const currentPlayerId = this.getPlayer();
 		if (order.action === BaseAction.NextPhase) {
 			if (this.phase === Phase.Command) {
-				this.players[currentPlayerId].primaryVP += this.missions[currentPlayerId].scorePrimaryVP(this.getState());
+				this.players[this.getPlayer()].primaryVP += this.scorePrimaryVP();
 				this.players[currentPlayerId].primaryVP = Math.min(this.players[currentPlayerId].primaryVP, 50);
 			}
 
@@ -329,13 +336,12 @@ export class Warhammer {
 			}
 		}
 		if (order.action === BaseAction.Move && model !== undefined) {
-			if (len(order.vector) > model.stamina) {
-				return this.getState();
+			let vectorToMove = order.vector;
+			if (order.expense > model.stamina) {
+				vectorToMove = [0, 0];
 			}
-
 			model.decreaseStamina(order.expense);
-
-			const newPosition = add(model.position, order.vector);
+			const newPosition = add(model.position, vectorToMove);
 			model.update(newPosition);
 
 			this.models.forEach(model => {
@@ -376,12 +382,16 @@ export class Warhammer {
 	end() {
 		this.turn = (this.totalRounds * 2);
 	}
+
 	getRound() {
 		return Math.floor(this.turn / 2);
 	}
 
 	strenghtVsToughness(s, t) {
 		return [s >= t * 2, s > t, s === t, s < t && t < s * 2, s * 2 <= t].findIndex(v=> v) + 2;
+	}
+	scorePrimaryVP() {
+		return this.missions[this.getPlayer()].scorePrimaryVP(this.getState());
 	}
 
 	getState(misc) {
@@ -392,6 +402,7 @@ export class Warhammer {
 			deadModels: this.models.map(model => model.deathPosition),
 			dead: this.models.filter(model => model.dead).map(model => model.id),
 			modelsWounds: this.models.map(model => model.wounds),
+			modelsStamina: this.models.map(model => model.stamina),
 			phase: this.phase,
 			player: this.getPlayer(),
 			done: this.done(),

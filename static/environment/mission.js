@@ -81,6 +81,7 @@ export class MissionController {
 			this._deck.splice(card, 1);
 		}
 	}
+
 	startTurn(state, profiles) {
 		const activePlayerId = state.player;
 		const battlefield = state.battlefield;

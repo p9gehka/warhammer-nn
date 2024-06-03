@@ -6,8 +6,14 @@ import { Game } from './game-controller/game-controller.js';
 import { getDeployOrders } from './environment/deploy.js';
 import { roster2settings } from './utils/roster2settings.js';
 import { Mission } from './environment/mission.js';
+import { PlayerEnvironment } from './environment/player-environment.js'
+import { ControlledAgent } from './agents/controlled-agent.js';
 
-import battlefields from '../settings/battlefields.json' assert { type: 'json' };
+import gameSettings from './settings/game-settings.json' assert { type: 'json' };
+import allBattlefields from './settings/battlefields.json' assert { type: 'json' };
+
+import config from './game.config.json' assert { type: 'json' };
+
 
 const startBtn = document.getElementById('start');
 const restartBtn = document.getElementById('restart');
@@ -47,7 +53,6 @@ orderViewCheckbox.addEventListener('change', (e) => {
 })
 
 function updateHeader(state) {
-
 	let phaseName = ['Command', 'Movement', 'Reinforcements', 'Shooting'][state.phase] ?? 'Deploy';
 	if (state.phase === Phase.PreBattle) {
 		phaseName = 'PreBattle';
@@ -60,13 +65,16 @@ function updateHeader(state) {
 function updateTable(state) {
 	const data = getStateTensor([getInput(state)], ...state.battlefield.size, channels).arraySync();
 	const fragment = new DocumentFragment();
-
+	const nextline = Math.floor(Math.sqrt(data[0][0][0].length));
 	for(let row of data[0]) {
 		const rowEl = document.createElement('TR');
 		for (let cell of row) {
 			const cellEl = document.createElement('TD');
-			cellEl.innerHTML = cell;
+			cellEl.innerHTML = cell.map((v, i) => v.toFixed(1) + ((i === nextline) ? '\n' : ',')).join('');
 			rowEl.appendChild(cellEl);
+			if (cell.some(v => v !== 0)) {
+				cellEl.classList.add('info-cell');
+			}
 		}
 		fragment.appendChild(rowEl);
 	}
@@ -88,7 +96,7 @@ function updateUnitsStrip(state) {
 			li.classList.add(`selected`);
 		}
 		unitsStrip.appendChild(li);
-		if (state.player === unit.playerId) {	
+		if (state.player === unit.playerId) {
 			const unitId = unitCounter;
 			li.addEventListener('click', () => {
 				if (unitId !== game.selectedUnit) {
@@ -231,7 +239,7 @@ function drawOrders() {
 }
 
 function drawBattlefieldOptions() {
-	Object.keys(battlefields).forEach((name) => {
+	Object.keys(allBattlefields).forEach((name) => {
 		const option = document.createElement('OPTION');
 		option.innerHTML = name;
 		option.value = name;
@@ -244,13 +252,13 @@ battlefieldSelect.addEventListener('change', (e) => {
 });
 
 nextPhaseBtn.addEventListener('click', () => {
-	game.orderResolve([new Orders().getOrders().nextPhaseIndex]);
+	game.orderResolve([new Orders().getOrders().nextPhaseIndexes[0]]);
 });
 
 document.addEventListener('keydown', (e) => {
 	if(e.code === 'Space') {
 		e.preventDefault();
-		game.orderResolve([new Orders().getOrders().nextPhaseIndex]);
+		game.orderResolve([new Orders().getOrders().nextPhaseIndexes[0]]);
 	}
 
 	if(e.code === 'Tab') {

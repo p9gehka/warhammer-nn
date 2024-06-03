@@ -5,10 +5,11 @@ import { Warhammer } from './static/environment/warhammer.js';
 import { PlayerEnvironment } from './static/environment/player-environment.js';
 import { getTF } from './static/utils/get-tf.js';
 import { copyWeights } from './dqn/dqn.js';
-import { fillReplayMemory } from './replay-memory/fill-replay-memory.js';
 import { ReplayMemoryClient } from './replay-memory/replay-memory-client.js';
 import { isLocked } from './replay-memory/lock-api.js';
 import { Trainer } from './dqn/trainer.js';
+import gameSettings from './static/settings/game-settings.json' assert { type: 'json' };
+import battlefields from './static/settings/battlefields.json' assert { type: 'json' };
 
 import config from './config.json' assert { type: 'json' };
 
@@ -19,18 +20,15 @@ const { replayBufferSize, gamma, repeatBatchTraining } = config;
 const learningRate = 1e-3;
 
 async function train(nn) {
-	const env = new Warhammer();
+	const env = new Warhammer({ gameSettings, battlefields });
 	const game = new PlayerEnvironment(0, env);
 	const replayMemory = new ReplayMemoryClient(replayBufferSize);
 
 	await replayMemory.updateClient();
-	if (replayMemory.length < replayBufferSize) {
-		fillReplayMemory(env, replayMemory);
-	}
 
-	const trainer = new Trainer(game, { nn: nn ?? undefined, replayMemory });
+	const trainer = new Trainer(game, { nn, replayMemory });
 	trainer.onlineNetwork.summary();
-
+	await trainer.createTargetNetwork();
 	const optimizer = tf.train.adam(learningRate);
 	let epoch = 0;
 
@@ -41,7 +39,7 @@ async function train(nn) {
 		}
 
 		if (epoch % config.syncEveryEpoch === 0) { /* sync не произойдет */
-			copyWeights(trainer.targetNetwork, trainer.onlineNetwork);
+			trainer.copyWeights();
 			console.log('Sync\'ed weights from online network to target network');
 		}
 
@@ -63,12 +61,10 @@ async function train(nn) {
 }
 
 async function main() {
-	let nn = null
+	let nn;
 	if (fs.existsSync(`${config.savePath}/model.json`)) {
-		nn = [];
 		try {
-			nn[0] = await tf.loadLayersModel(`file://${config.savePath}/model.json`);
-			nn[1] = await tf.loadLayersModel(`file://${config.savePath}/model.json`);
+			nn = await tf.loadLayersModel(`file://${config.savePath}/model.json`);
 			console.log(`Loaded from ${config.savePath}/model.json`);
 		} catch (e) {
 			console.log(e.message);

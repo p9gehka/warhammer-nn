@@ -22,9 +22,9 @@ export class Orders {
 			return this.orders;
 		}
 		this.orders = {
-			nextPhaseIndex: 0,
+			nextPhaseIndexes: [],
 			doneIndex: 1,
-			[Action.NextPhase]: [{ action: Action.NextPhase }],
+			[Action.NextPhase]: [],
 			[Action.Move]: [],
 			[Action.Select]: [],
 			[Action.DiscardSecondary]: [{ action: Action.DiscardSecondary, id: 0 }, { action: Action.DiscardSecondary, id: 1 }],
@@ -36,11 +36,15 @@ export class Orders {
 			shootIndex: NaN,
 			all: []
 		}
-		this.orders.all.push({ action: Action.NextPhase });
+		this.orders[Action.NextPhase] = [{ action: Action.NextPhase }];
+		this.orders[Action.NextPhase].forEach((order) => {
+			this.orders.nextPhaseIndexes.push(this.orders.all.length);
+			this.orders.all.push(order);
+		});
+
 		this.orders.all.push({ action: Action.Done });
 
 		this.orders[Action.Select] = Array(50).fill().map((_, id) => ({ action: Action.Select, id }));
-
 		this.orders[Action.Select].forEach((order) => {
 			this.orders.selectIndexes.push(this.orders.all.length);
 			this.orders.all.push(order);

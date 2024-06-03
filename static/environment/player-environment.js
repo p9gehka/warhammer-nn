@@ -11,12 +11,10 @@ export class PlayerEnvironment {
 	vp = 0;
 	_selectedModel = null;
 	cumulativeReward = 0;
-	frameCount = 0;
-	prevOrderAction = 0;
-	phaseStepCounter = 0;
 
 	_shootingQueue = [];
 	_shootingTargeting = {};
+
 	constructor(playerId, env) {
 		this.env = env;
 		this.playerId = playerId;
@@ -27,15 +25,12 @@ export class PlayerEnvironment {
 	}
 
 	reset() {
-		this.vp = 0;
+		this.primaryVP = 0;
 		this.cumulativeReward = 0;
-		this.phaseStepCounter = 0;
 		this._selectedModel = 0;
 	}
 
 	step(order) {
-		this.phaseStepCounter++;
-		this.frameCount++;
 		let playerOrder;
 		const { action } = order;
 		const prevState = this.env.getState();
@@ -103,18 +98,15 @@ export class PlayerEnvironment {
 		} else {
 			playerOrder = order;
 		}
-		let state;
-		let reward = 0;
+		const state = this.env.step(playerOrder);
 
-		state = this.env.step(playerOrder);
-		const { vp } = state.players[this.playerId];
-		reward = (vp - this.vp) * 5;
-		reward--;
+		let reward = -0.5;
 
-		this.vp = vp;
-
+		if (action === Action.NextPhase) {
+			reward -= 10;
+		}
 		this.cumulativeReward += reward;
-		this.prevOrderAction = action;
+
 		return [{ ...playerOrder, misc: state.misc }, state, reward];
 	}
 	awarding() {
@@ -123,15 +115,26 @@ export class PlayerEnvironment {
 		let reward = 0;
 
 		if (this.loose()) {
-			reward -= this.env.objectiveControlReward * 10;/*(5 * 3)*/
+			reward -= this.env.objectiveControlReward * 4;/*( 3)*/
 		}
 
 		this.cumulativeReward += reward;
 		return reward;
 	}
+
 	getState() {
 		return { selected: this._selectedModel, shootingQueue: this._shootingQueue, shootingTargeting: this._shootingTargeting };
 	}
+
+	primaryReward() {
+		const state = this.env.getState();
+		const { primaryVP } = state.players[this.playerId];
+		let reward = (primaryVP - this.primaryVP) * 5;
+		this.cumulativeReward += reward;
+		this.primaryVP = primaryVP;
+		return reward;
+	}
+
 	getInput() {
 		const state = this.env.getState();
 		return getInput(state);

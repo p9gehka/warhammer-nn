@@ -7,27 +7,28 @@ const startBtn = document.getElementById('start');
 const canvas = document.getElementById("canvas")
 const historyList = document.getElementById("history-list");
 const ordersList = document.getElementById("orders-list");
-
+const unitsStrip = document.getElementById("units-strip");
 const ctx = canvas.getContext("2d");
 const vpPlayer1Element = document.getElementById('player-1-vp');
 const vpPlayer2Element = document.getElementById('player-2-vp');
 
 ctx.scale(canvas.width / 60, canvas.height / 44);
 
-const model = await tf.loadLayersModel(`/models/dqn/model.json`)
+const [width, height] = [22, 22];
+const model = await tf.loadLayersModel(`/models/dqn/temp/model.json`);
 const battlefield = new Battlefield(ctx, { size: [0, 0], objective_marker: [], ruins: [] });
-await battlefield.init()
-battlefield.draw()
+await battlefield.init();
+battlefield.draw();
 
 let actionAndStates = [];
-let scene = null
+let scene = null;
 
 async function start () {
 	historyList.innerHTML = '';
 	const response = await fetch('/play', {
 		method: 'POST',
 		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({})
+		body: JSON.stringify({}),
 	});
 
 	actionAndStates = await response.json();
@@ -62,6 +63,7 @@ function setState(e) {
 		scene.updateState(state);
 		scene.drawOrder(order);
 		updatePredictions(prevState);
+		updateUnitsStrip(state);
 	}
 }
 
@@ -71,7 +73,7 @@ async function updatePredictions(state) {
 
 	const [_, height, width] = model.input.shape;
 	window.tf.tidy(() => {
-		const predictions = model.predict(getStateTensor([getInput(state)], ...state.battlefield.size, channels)).dataSync();
+		const predictions = model.predict(getStateTensor([getInput(state)], width, height, channels)).dataSync();
 		orders.forEach((order, i) => {
 			const li = document.createElement("LI");
 			li.innerHTML = [JSON.stringify(order), predictions[i].toFixed(3)].join();
@@ -97,3 +99,17 @@ historyList.addEventListener('keydown', (e) => {
 		}
 	}
 });
+
+function updateUnitsStrip(state) {
+	unitsStrip.innerHTML = '';
+	state.players.forEach((player) => {
+		let modelCounter = 0;
+		player.units.forEach((unit) => {
+			const li = document.createElement("LI");
+			li.tabIndex = 0;
+			li.innerHTML =`${unit.name} ${state.modelsStamina[unit.models[0]]}`;
+			li.classList.add(`player-${unit.playerId}`);
+			unitsStrip.appendChild(li);
+		});
+	})
+}

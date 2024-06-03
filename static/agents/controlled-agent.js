@@ -1,3 +1,5 @@
+import { Action } from '../environment/orders.js';
+
 export class ControlledAgent {
 	prevState = null;
 	constructor(game, config = {}) {
@@ -11,13 +13,27 @@ export class ControlledAgent {
 	}
 	_playStep(orderIndex) {
 		const input = this.game.getInput();
+		const { orders } = this.game;
 		if (this.replayMemory !== null && this.prevState !== null) {
 			this.replayMemory?.append([...this.prevState, false, input]);
 		}
-		const [order_, state, reward] = this.game.step(this.game.orders.all[orderIndex]);
+
+		const order = orders.all[orderIndex];
+		let [order_, state ,reward] = this.game.step(order);
+
+		if (order.action === Action.NextPhase) {
+			reward += this.game.primaryReward();
+		}
 		this.prevState = [input, orderIndex, reward];
 		return [order_, state, reward];
 	}
+
+	nextPhaseWorkaround() {
+		const input = this.game.getInput();
+		const [order_, state, reward] = this.game.step({ action: Action.NextPhase });
+		return [order_, state, reward];	
+	}
+
 	awarding() {
 		const reward = this.game.awarding();
 		const nextInput = this.game.getInput();
@@ -26,6 +42,7 @@ export class ControlledAgent {
 			this.replayMemory?.append([input, orderIndex, reward, true, nextInput]);
 		}
 	}
+
 	reset() {
 		this.prevState = null;
 		this.game.reset();

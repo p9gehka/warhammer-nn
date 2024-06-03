@@ -1,5 +1,4 @@
 import base from '../settings/base.json' assert { type: 'json' };
-import { Orders } from '../environment/orders.js';
 import { Drawing } from './drawing.js';
 import { deployment } from '../battlefield/deployment.js';
 import { terrain } from '../battlefield/terrain.js';
@@ -22,6 +21,7 @@ class Binding extends Drawing {
 		});
 	}
 }
+
 class Model extends Drawing {
 	position = [0, 0];
 	constructor(ctx, unit, position) {
@@ -107,8 +107,6 @@ export class Battlefield extends Drawing {
 				});
 			});
 		}
-
-
 		/*runis*/
 
 		if (this.battlefield.terrain) {
@@ -121,7 +119,6 @@ export class Battlefield extends Drawing {
 				});
 			});
 		}
-
 
 		/*dots*/
 		this.ctx.translate(0.5, 0.5);

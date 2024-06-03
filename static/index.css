@@ -1,6 +1,7 @@
 body {
 	margin: 0;
 }
+
 .main {
 	display: grid;
 	grid-template-columns:auto min-content;
@@ -8,6 +9,7 @@ body {
 	overflow: hidden;
 	margin: 0;
 }
+
 .orders-list, .history-list {
 	overflow: scroll;
 	border: 1px solid #cccccc;
@@ -15,18 +17,33 @@ body {
 	padding: 8px;
 	margin: 0;
 }
+
 .orders-list li:hover, .history-list li:hover {
 	cursor: pointer;
 	background-color: #eeeeee;
 }
+
 .left-panel {
+	width: 20vw;
 	display: grid;
 	height: 100vh;
 	grid-template-rows: min-content;
 }
+
+.right-pane {
+	width: 900px;
+	height: 660px;
+	overflow: scroll;
+}
+
+.info-cell {
+	background: aqua;
+}
+
 .player-0 {
 	background: rgba(255, 0, 0, 0.2);
 }
+
 .player-1 {
 	background: rgba(0, 0, 255, 0.2);
 }
@@ -61,6 +78,7 @@ body {
 .table {
 	width: 900px;
 }
+
 .units-strip {
 	display: flex;
 	list-style: none;
@@ -95,6 +113,7 @@ body {
 .weapon-section li {
 	cursor: pointer;
 }
+
 .weapon-section li:hover {
 	background: #cccccc;
 }
