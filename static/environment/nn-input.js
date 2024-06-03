@@ -46,7 +46,7 @@ export function getInput(state, playerState) {
 		});
 	}
 
-	let objectiveMarkerInput = objectiveMemoized[memoKey];
+	let objectiveMarkerInput = objectiveMemoized[memoKey].filter(([x, y]) => 0 <= x && x < state.battlefield.size[0] && 0 <= y && y < state.battlefield.size[1]);
 
 	const input = emptyInput();
 	input[Channel2Name.ObjectiveMarker] = objectiveMarkerInput;
