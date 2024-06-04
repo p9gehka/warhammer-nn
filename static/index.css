@@ -24,7 +24,7 @@ body {
 }
 
 .left-panel {
-	min-width: max-content;
+	width: 20vw;
 	display: grid;
 	height: 100vh;
 	grid-template-rows: min-content;
@@ -57,9 +57,18 @@ body {
 	padding-left: 8px;
 }
 
+.header .player0 {
+	border-bottom: 2px solid red;
+}
+
+.header .player1 {
+	border-bottom: 2px solid blue;
+}
+
 .header-controls {
 	display: grid;
 	grid-auto-flow: column;
+	grid-gap: 12px;
 }
 
 .hidden {
@@ -93,6 +102,18 @@ body {
 	opacity: 0.8;
 }
 
-.units-strip li:focus {
+.units-strip li.selected {
+	background: #cccccc;
+}
+
+.unit-section li.selected{
+	background: #cccccc;
+}
+
+.weapon-section li {
+	cursor: pointer;
+}
+
+.weapon-section li:hover {
 	background: #cccccc;
 }

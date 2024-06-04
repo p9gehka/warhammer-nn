@@ -11,7 +11,6 @@ import { filterObjByKeys } from './static/utils/index.js';
 import gameSettings from './static/settings/game-settings.json' assert { type: 'json' };
 import allBattlefields from './static/settings/battlefields.json' assert { type: 'json' };
 
-
 import config from './static/game.config.json' assert { type: 'json' };
 import * as tf from '@tensorflow/tfjs-node';
 

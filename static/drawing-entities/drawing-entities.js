@@ -1,9 +1,26 @@
-import { Orders } from '../environment/orders.js';
+import base from '../settings/base.json' assert { type: 'json' };
 import { Drawing } from './drawing.js';
 import { deployment } from '../battlefield/deployment.js';
-
+import { terrain } from '../battlefield/terrain.js';
 
 const mmToInch = mm => mm / 25.4;
+
+class Binding extends Drawing {
+	constructor(ctx, fromArg, to) {
+		super();
+		this.ctx = ctx;
+		this.from = [fromArg[0] + Math.random(), fromArg[1] + Math.random()];
+		this.to = to;
+	}
+
+	draw() {
+		this.ctx.strokeStyle = 'pink';
+		this.strokePath(() => {
+			this.ctx.moveTo(...this.from);
+			this.ctx.lineTo(...this.to);
+		});
+	}
+}
 
 class Model extends Drawing {
 	position = [0, 0];
@@ -13,7 +30,8 @@ class Model extends Drawing {
 		this.name = unit.name;
 		this.playerId = unit.playerId;
 		this.position = position;
-		this.unitBase = [28];
+		this.unitBase = base[unit.name] ?? [15];
+		this.selected = false;
 	}
 
 	draw() {
@@ -28,13 +46,21 @@ class Model extends Drawing {
 		this.fillPath(() => {
 			this.ctx.ellipse(this.position[0], this.position[1], mmToInch(base[0] / 2), mmToInch(base[0] / 2), 0, 0, 2 * Math.PI);
 		});
+
 		this.strokePath(() => {
 			this.ctx.ellipse(this.position[0], this.position[1], mmToInch(base[0] / 2), mmToInch(base[0] / 2), 0, 0, 2 * Math.PI);
 		});
+		this.ctx.strokeStyle = 'yellow'; //'greenyellow'
+		if (this.selected) {
+			this.strokePath(() => {
+				this.ctx.ellipse(this.position[0], this.position[1], mmToInch((base[0] / 2) + 8), mmToInch((base[0] / 2) + 8), 0, 0, 2 * Math.PI);
+			});
+		}
 		this.ctx.translate(-0.5, -0.5);
 
 	}
-	update(position) {
+	update(position, selected) {
+		this.selected = selected;
 		this.position = position;
 	}
 }
@@ -81,6 +107,18 @@ export class Battlefield extends Drawing {
 				});
 			});
 		}
+		/*runis*/
+
+		if (this.battlefield.terrain) {
+			(new terrain[this.battlefield.terrain]).getDrawings().forEach(({ methods, args, fillStyle }) => {
+				this.ctx.fillStyle = fillStyle;
+				this.fillPath(() => { 
+					 methods.forEach((method, i) => {
+					 	this.ctx[method](...args[i]);
+					 });
+				});
+			});
+		}
 
 		/*dots*/
 		this.ctx.translate(0.5, 0.5);
@@ -98,9 +136,10 @@ export class Battlefield extends Drawing {
 }
 
 export class Scene extends Drawing {
-	players = []
-	units = []
-	models = []
+	players = [];
+	units = [];
+	models = [];
+	bindings = [];
 	constructor(ctx, state) {
 		super();
 		this.ctx = ctx;
@@ -120,6 +159,7 @@ export class Scene extends Drawing {
 	draw() {
 		this.battlefield.draw();
 		this.models.forEach(model => model.draw());
+		this.bindings.forEach(binding => binding.draw());
 	}
 
 	drawOrder(order) {
@@ -137,13 +177,39 @@ export class Scene extends Drawing {
 			});
 		}
 	}
-
-	updateState(state) {
-		this.battlefield.update(state.battlefield);
-		state.models.forEach((position, id) => {
-			this.models[id].update(position);
+	drawOrders(orders) {
+		this.ctx.translate(0.5, 0.5);
+		this.fillPath(() => {
+			this.ctx.fillStyle = '#00000050';
+			orders.forEach(([x1, y1]) => {
+				this.ctx.rect(x1 - 0.5, y1 - 0.5, 1, 1);
+			});
 		});
-
+		this.ctx.translate(-0.5, -0.5);
+	}
+	updateState(state, playerState = {}, gameControllerState = {}) {
+		this.battlefield.update(state.battlefield);
+		state.players.forEach((player, playerId) => {
+			player.models.forEach((id, index) => {
+				this.models[id].update(state.models[id], state.player === playerId && playerState.selected === index);
+			});
+		});
+		this.bindings = [];
+		if (playerState?.shootingTargeting !== undefined) {
+			for (let weaponName in playerState.shootingTargeting) {
+				for (let shooterId in playerState.shootingTargeting[weaponName]) {
+					for (let targetId of playerState.shootingTargeting[weaponName][shooterId]) {
+						this.bindings.push(
+							new Binding(
+								this.ctx,
+								state.models[shooterId],
+								state.models[state.units[targetId].models[0]]
+							)
+						);
+					}
+				}
+			}
+		}
 		this.draw();
 	}
 }
