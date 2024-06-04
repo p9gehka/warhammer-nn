@@ -105,7 +105,9 @@ function updateTable(state, input) {
 			const cellEl = document.createElement('TD');
 			cellEl.innerHTML = cell.map((v, i) => v.toFixed(1) + ((i === nextline) ? '\n' : ',')).join('');
 			rowEl.appendChild(cellEl);
-			if (cell.some(v => v !== 0)) {
+			if (cell[0] !== 0) {
+				cellEl.classList.add('model-cell');
+			} else if (cell.some(v => v !== 0)) {
 				cellEl.classList.add('info-cell');
 			}
 		}

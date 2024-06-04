@@ -18,24 +18,40 @@ export class PlayerEnvironment {
 		this.enemyId = (playerId+1) % 2;
 		this.reset();
 		this.orders = new Orders().getOrders();
-		this._selectedModel = this.env.players[this.playerId].models[0];
 	}
 
 	reset() {
 		this.primaryVP = 0;
 		this.cumulativeReward = 0;
+		this.lastRound = -1;
+		this._selectedModel = 0;
 	}
 
 	step(order) {
 		let playerOrder;
 		const { action } = order;
 		const prevState = this.env.getState();
+		const playerModels = prevState.players[this.playerId].models;
+		const round = prevState.round;
+		if (this.lastRound !== round) {
+			this.env.step({ action: Action.Move, vector: [0, 0], expense: 0, id: playerModels[this._selectedModel] });
+			this.lastRound = round;
+		}
 
 		if (action === Action.Move) {
 			playerOrder = {action, id: this._selectedModel, vector: order.vector, expense: order.expense };
+		} else if (action === Action.NextPhase && playerModels.some((modelId, playerModelId) => prevState.modelsStamina[modelId] !== 0 && playerModelId !== this._selectedModel)){
+			playerOrder = { action: Action.Move, vector: [0, 0], expense: 0, id: playerModels[this._selectedModel] };
 		} else {
 			playerOrder = order;
 		}
+
+		if (action === Action.NextPhase) {
+			this._selectedModel = (this._selectedModel + 1) % playerModels.length;
+			this.env.step({ action: Action.Move, vector: [0, 0], expense: 0, id: playerModels[this._selectedModel] });
+		}
+
+
 		const state = this.env.step(playerOrder);
 
 		let reward = -0.5;
