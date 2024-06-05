@@ -52,6 +52,13 @@ import {
 	Medium4,
 } from './30x30.js';
 
+import {
+	Medium36_1,
+	Medium36_2,
+	Medium36_3,
+	Medium36_4,
+} from './36x30.js';
+
 export const deployment = {
 	"crucibleOfBattle": CrucibleOfBattle,
 	"dawnOfWar": DawnOfWar,
@@ -97,4 +104,9 @@ export const deployment = {
 	"medium2": Medium2,
 	"medium3": Medium3,
 	"medium4": Medium4,
+
+	"medium36_1": Medium36_1,
+	"medium36_2": Medium36_2,
+	"medium36_3": Medium36_3,
+	"medium36_4": Medium36_4,
 }
