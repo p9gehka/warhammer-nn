@@ -18,5 +18,15 @@
 		"size": [36, 30],
 		"deployment": "medium36_4",
 		"primary_mission": "take_and_hold"
+	},
+	"medium36_5": {
+		"size": [36, 30],
+		"deployment": "medium36_5",
+		"primary_mission": "take_and_hold"
+	},
+	"medium36_6": {
+		"size": [36, 30],
+		"deployment": "medium36_6",
+		"primary_mission": "take_and_hold"
 	}
 }

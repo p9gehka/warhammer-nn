@@ -57,6 +57,8 @@ import {
 	Medium36_2,
 	Medium36_3,
 	Medium36_4,
+	Medium36_5,
+	Medium36_6,
 } from './36x30.js';
 
 export const deployment = {
@@ -109,4 +111,6 @@ export const deployment = {
 	"medium36_2": Medium36_2,
 	"medium36_3": Medium36_3,
 	"medium36_4": Medium36_4,
+	"medium36_5": Medium36_5,
+	"medium36_6": Medium36_6,
 }
