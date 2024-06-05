@@ -39,18 +39,17 @@ export class PlayerEnvironment {
 		}
 
 		if (action === Action.Move) {
-			playerOrder = {action, id: this._selectedModel, vector: order.vector, expense: order.expense };
+			playerOrder = {action, id: playerModels[this._selectedModel], vector: order.vector, expense: order.expense };
 		} else if (action === Action.NextPhase && playerModels.some((modelId, playerModelId) => prevState.modelsStamina[modelId] !== 0 && playerModelId !== this._selectedModel)){
+			this._selectedModel = this.selectNextModel(prevState);
 			playerOrder = { action: Action.Move, vector: [0, 0], expense: 0, id: playerModels[this._selectedModel] };
 		} else {
 			playerOrder = order;
 		}
 
-		if (action === Action.NextPhase) {
-			this._selectedModel = (this._selectedModel + 1) % playerModels.length;
-			this.env.step({ action: Action.Move, vector: [0, 0], expense: 0, id: playerModels[this._selectedModel] });
+		if (playerOrder.action === Action.NextPhase) {
+			this._selectedModel = this.selectNextModel(prevState);
 		}
-
 
 		const state = this.env.step(playerOrder);
 
@@ -75,7 +74,19 @@ export class PlayerEnvironment {
 		this.cumulativeReward += reward;
 		return reward;
 	}
-
+	selectNextModel(state) {
+		const playerModels = state.players[this.playerId].models;
+		const twicePlayerModels = [...playerModels, ...playerModels];
+		let newSelectedModel = this._selectedModel;
+		for (let i = newSelectedModel + 1; i < twicePlayerModels.length; i++) {
+			let modelId = twicePlayerModels[i];
+			if (!isNaN(state.models[modelId][0])) {
+				newSelectedModel = i % playerModels.length;
+				break;
+			}
+		}
+		return newSelectedModel;
+	}
 	getState() {
 		return { selected: this._selectedModel };
 	}
