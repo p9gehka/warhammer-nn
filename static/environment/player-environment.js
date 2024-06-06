@@ -53,7 +53,7 @@ export class PlayerEnvironment {
 		let reward = 0;
 
 		if (this.loose()) {
-			reward -= this.env.objectiveControlReward * 5 * 5;
+			reward -= this.env.objectiveControlReward * 5 * 10;
 		}
 
 		this.cumulativeReward += reward;
