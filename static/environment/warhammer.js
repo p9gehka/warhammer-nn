@@ -169,7 +169,8 @@ export class Warhammer {
 		if (order.action === BaseAction.Move && model !== undefined) {
 			let vectorToMove = order.vector;
 			if (order.expense > model.stamina) {
-				vectorToMove = [0, 0];
+				model.kill();
+				return this.getState(); 
 			}
 			model.decreaseStamina(order.expense);
 			const newPosition = add(model.position, vectorToMove);
