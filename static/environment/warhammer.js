@@ -173,10 +173,14 @@ export class Warhammer {
 			}
 			model.decreaseStamina(order.expense);
 			const newPosition = add(model.position, vectorToMove);
-			const [x, y] = newPosition;
-			if(0 <= x && x < this.battlefield.size[0] && 0 <= y && y < this.battlefield.size[1]) {
-				model.update(newPosition);
-			}
+			model.update(newPosition);
+
+			this.models.forEach(model => {
+				const [x, y] = model.position;
+				if (x < 0 || this.battlefield.size[0] <= x || y < 0 || this.battlefield.size[1] <= y) {
+					model.kill();
+				}
+			});
 		}
 
 		return this.getState();
