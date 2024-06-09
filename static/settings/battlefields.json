@@ -28,5 +28,25 @@
 		"size": [36, 30],
 		"deployment": "medium36_6",
 		"primary_mission": "take_and_hold"
+	},
+	"medium36_7": {
+		"size": [36, 30],
+		"deployment": "medium36_3",
+		"primary_mission": "take_and_hold"
+	},
+	"medium36_8": {
+		"size": [36, 30],
+		"deployment": "medium36_4",
+		"primary_mission": "take_and_hold"
+	},
+	"medium36_9": {
+		"size": [36, 30],
+		"deployment": "medium36_5",
+		"primary_mission": "take_and_hold"
+	},
+	"medium36_10": {
+		"size": [36, 30],
+		"deployment": "medium36_6",
+		"primary_mission": "take_and_hold"
 	}
 }
