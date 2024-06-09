@@ -1,32 +1,22 @@
 {
-	"small1": {
-		"size": [22, 22],
-		"deployment": "small1",
+	"medium30_1": {
+		"size": [30, 30],
+		"deployment": "medium30_1",
 		"primary_mission": "take_and_hold"
 	},
-	"small2": {
-		"size": [22, 22],
-		"deployment": "small2",
+	"medium30_2": {
+		"size": [30, 30],
+		"deployment": "medium30_2",
 		"primary_mission": "take_and_hold"
 	},
-	"small3": {
-		"size": [22, 22],
-		"deployment": "small3",
+	"medium30_3": {
+		"size": [30, 30],
+		"deployment": "medium30_3",
 		"primary_mission": "take_and_hold"
 	},
-	"small4": {
-		"size": [22, 22],
-		"deployment": "small4",
-		"primary_mission": "take_and_hold"
-	},
-	"small5": {
-		"size": [22, 22],
-		"deployment": "small5",
-		"primary_mission": "take_and_hold"
-	},
-	"small6": {
-		"size": [22, 22],
-		"deployment": "small6",
+	"medium30_4": {
+		"size": [30, 30],
+		"deployment": "medium30_4",
 		"primary_mission": "take_and_hold"
 	}
 }

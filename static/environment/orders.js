@@ -19,9 +19,7 @@ export class Orders {
 			[Action.NextPhase]: [],
 			nextPhaseIndexes: [],
 			[Action.Move]: [],
-
 			moveIndexes: [],
-
 			all: [],
 		};
 
