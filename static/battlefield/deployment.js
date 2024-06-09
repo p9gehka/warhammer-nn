@@ -46,10 +46,10 @@ import {
 } from './22x22.js';
 
 import {
-	Medium1,
-	Medium2,
-	Medium3,
-	Medium4,
+	Medium30_1,
+	Medium30_2,
+	Medium30_3,
+	Medium30_4,
 } from './30x30.js';
 
 import {
@@ -106,10 +106,10 @@ export const deployment = {
 	"small4": Small4,
 	"small5": Small5,
 	"small6": Small6,
-	"medium1": Medium1,
-	"medium2": Medium2,
-	"medium3": Medium3,
-	"medium4": Medium4,
+	"medium30_1": Medium30_1,
+	"medium30_2": Medium30_2,
+	"medium30_3": Medium30_3,
+	"medium30_4": Medium30_4,
 
 	"medium36_1": Medium36_1,
 	"medium36_2": Medium36_2,
