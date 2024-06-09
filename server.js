@@ -46,7 +46,7 @@ app.post('/play', async (req,res) => {
 	let state = env.reset();
 	agents.forEach(a => a.reset());
 	let attempts = 0;
-	const actionsAndStates = [[state, null, state]];
+	const actionsAndStates = [[state, players[state.player].getState(), null, state]];
 	const states = [];
 
 	while (!state.done && attempts < 100) {
@@ -57,7 +57,7 @@ app.post('/play', async (req,res) => {
 		 }
 		 const stepInfo = agents[state.player].playStep();
 
-		 actionsAndStates.push([state, ...stepInfo])
+		 actionsAndStates.push([state, players[state.player].getState(), ...stepInfo])
 		 attempts++;
 	}
 	console.log(`cumulativeReward: ${players[0].cumulativeReward} VP: ${state.players[0].primaryVP}`)
