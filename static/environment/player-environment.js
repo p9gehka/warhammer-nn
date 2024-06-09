@@ -53,7 +53,7 @@ export class PlayerEnvironment {
 		let reward = 0;
 
 		if (this.loose()) {
-			reward -= this.env.objectiveControlReward * 5 * 3;
+			reward -= this.env.objectiveControlReward * 4;
 		}
 
 		this.cumulativeReward += reward;
@@ -62,7 +62,7 @@ export class PlayerEnvironment {
 	primaryReward() {
 		const state = this.env.getState();
 		const { primaryVP } = state.players[this.playerId];
-		let reward = (primaryVP - this.primaryVP) * 8;
+		let reward = (primaryVP - this.primaryVP) * 5;
 		this.cumulativeReward += reward;
 		this.primaryVP = primaryVP;
 		return reward;
