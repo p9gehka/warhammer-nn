@@ -1,22 +1,22 @@
 {
-	"small1": {
+	"smallFull1": {
 		"size": [22, 22],
-		"deployment": "small1",
+		"deployment": "smallFull1",
 		"primary_mission": "take_and_hold"
 	},
-	"small2": {
+	"smallFull2": {
 		"size": [22, 22],
-		"deployment": "small2",
+		"deployment": "smallFull2",
 		"primary_mission": "take_and_hold"
 	},
-	"small3": {
+	"smallFull3": {
 		"size": [22, 22],
-		"deployment": "small3",
+		"deployment": "smallFull3",
 		"primary_mission": "take_and_hold"
 	},
-	"small4": {
+	"smallFull4": {
 		"size": [22, 22],
-		"deployment": "small4",
+		"deployment": "smallFull4",
 		"primary_mission": "take_and_hold"
 	}
 }
