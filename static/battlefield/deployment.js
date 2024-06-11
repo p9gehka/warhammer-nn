@@ -30,6 +30,7 @@ import {
 	ScorchedEarth,
 	SweepingRaid,
 	DisplayOfMight,
+	Empty44x30,
 } from './44x30.js';
 
 import {
@@ -96,6 +97,8 @@ export const deployment = {
 	"scorchedEarth": ScorchedEarth,
 	"sweepingRaid": SweepingRaid,
 	"displayOfMight": DisplayOfMight,
+	"empty44x30": Empty44x30,
+
 	"smallFull1": SmallFull1,
 	"smallFull2": SmallFull2,
 	"smallFull3": SmallFull3,
