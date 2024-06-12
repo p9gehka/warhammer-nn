@@ -19,9 +19,9 @@
 		"deployment": "scorchedEarth",
 		"primary_mission": "take_and_hold"
 	},
-	"weepingRaid": {
+	"sweepingRaid": {
 		"size": [44, 30],
-		"deployment": "weepingRaid",
+		"deployment": "sweepingRaid",
 		"primary_mission": "take_and_hold"
 	},
 	"displayOfMight": {
