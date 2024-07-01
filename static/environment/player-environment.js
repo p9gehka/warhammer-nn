@@ -62,7 +62,7 @@ export class PlayerEnvironment {
 	primaryReward() {
 		const state = this.env.getState();
 		const { primaryVP } = state.players[this.playerId];
-		let reward = (primaryVP - this.primaryVP) * 5;
+		let reward = (primaryVP - this.primaryVP) * 10 + 10;
 		this.cumulativeReward += reward;
 		this.primaryVP = primaryVP;
 		return reward;
