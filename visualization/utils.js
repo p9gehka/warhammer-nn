@@ -35,8 +35,11 @@ export async function sendDataToTelegram(rewardAverager, message) {
 	}
 	const rewardAveragerSvg = await createSVG(rewardAverager, 'line');
 	const rewardAveragerPNG = await sharp(Buffer.from(rewardAveragerSvg)).toFormat('png').toBuffer();
-
-	await bot?.sendPhoto(config.chat_id, rewardAveragerPNG, { reply_to_message_id: config.reply_to_message_id });
+	try {
+		await bot?.sendPhoto(config.chat_id, rewardAveragerPNG, { reply_to_message_id: config.reply_to_message_id });
+	} catch (err) {
+	  console.log(err)
+	}
 }
 
 export async function sendMessage(message) {
@@ -44,8 +47,11 @@ export async function sendMessage(message) {
 		bot = new TelegramBot(config.token, {polling: true});
 	}
 	console.log(`Send value to telegram ${message}`);
-
-	await bot?.sendMessage(config.chat_id, message + ':' + os.hostname(), { reply_to_message_id: config.reply_to_message_id });
+	try {
+		await bot?.sendMessage(config.chat_id, message + ':' + os.hostname(), { reply_to_message_id: config.reply_to_message_id });
+	} catch (err) {
+	  console.log(err)
+	}
 }
 
 const formatMemoryUsage = (data) => `${Math.round(data / 1024 / 1024 * 100) / 100} MB`;
