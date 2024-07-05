@@ -14,22 +14,25 @@ import { sendDataToTelegram, sendMessage, memoryUsage } from './visualization/ut
 import { MovingAverager } from './moving-averager.js';
 import { lock } from './replay-memory/lock-api.js'
 import { filterObjByKeys } from './static/utils/index.js';
+import { getTrainerConfig } from './replay-memory/trainer-config.js';
 
 import gameSettings from './static/settings/game-settings.json' assert { type: 'json' };
 import allBattlefields from './static/settings/battlefields.json' assert { type: 'json' };
 
 import config from './config.json' assert { type: 'json' };
 
-const { replayBufferSize } = config;
 const savePath = './static/models/dqn/';
 
-const { cumulativeRewardThreshold, sendMessageEveryFrames, sleepTimer } = config;
+const { cumulativeRewardThreshold, sendMessageEveryFrames, replayBufferSize, replayMemorySize, epsilonDecayFrames } = config;
 
 const rewardAveragerLen = 100;
 
 let battlefields = config.battlefields.length > 0 ? filterObjByKeys(allBattlefields, config.battlefields) : allBattlefields;
 
 async function play() {
+	const trainerConfig = await getTrainerConfig();
+	await sendMessage(`Player hyperparams Config replayBufferSize:${replayBufferSize}epsilonDecayFrames:${epsilonDecayFrames} cumulativeRewardThreshold:${cumulativeRewardThreshold}`);
+	await sendMessage(`Trainer hyperparams replayMemorySize:${trainerConfig.replayMemorySize} syncEveryEpoch:${trainerConfig.syncEveryEpoch} saveEveryEpoch:${trainerConfig.saveEveryEpoch} batchSize:${trainerConfig.batchSize}`);
 	const env = new Warhammer({ gameSettings, battlefields });
 
 	let players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
@@ -166,7 +169,7 @@ async function play() {
 			*/
 			await sendDataToTelegram(vpAveragerBuffer.buffer.filter(v => v !== null));
 			await sendDataToTelegram(rewardAveragerBuffer.buffer.filter(v => v !== null));
-
+			
 			await sendMessage(
 				`Frame #${frameCount}::Epsilon ${agents[0].epsilon?.toFixed(3)}::averageVP${rewardAveragerLen}Best ${averageVPBest}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
 				`:${JSON.stringify(testActions)}:`
@@ -202,7 +205,6 @@ async function play() {
 		if(state.player === 0) {
 			frameCount++;
 		}
-		await(new Promise((resolve) => { setTimeout(resolve, sleepTimer)}))
 	}
 }
 
