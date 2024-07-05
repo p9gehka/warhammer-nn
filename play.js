@@ -31,8 +31,10 @@ let battlefields = config.battlefields.length > 0 ? filterObjByKeys(allBattlefie
 
 async function play() {
 	const trainerConfig = await getTrainerConfig();
-	await sendMessage(`Player hyperparams Config replayBufferSize:${replayBufferSize}epsilonDecayFrames:${epsilonDecayFrames} cumulativeRewardThreshold:${cumulativeRewardThreshold}`);
-	await sendMessage(`Trainer hyperparams replayMemorySize:${trainerConfig.replayMemorySize} syncEveryEpoch:${trainerConfig.syncEveryEpoch} saveEveryEpoch:${trainerConfig.saveEveryEpoch} batchSize:${trainerConfig.batchSize}`);
+	await sendMessage(
+		`Player hyperparams Config replayBufferSize:${replayBufferSize} epsilonDecayFrames:${epsilonDecayFrames} cumulativeRewardThreshold:${cumulativeRewardThreshold}` +
+		`Trainer hyperparams replayMemorySize:${trainerConfig.replayMemorySize} replayBufferSize:${trainerConfig.replayBufferSize} learningRate:${trainerConfig.learningRate} syncEveryEpoch:${trainerConfig.syncEveryEpoch} saveEveryEpoch:${trainerConfig.saveEveryEpoch} batchSize:${trainerConfig.batchSize}`
+	);
 	const env = new Warhammer({ gameSettings, battlefields });
 
 	let players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];

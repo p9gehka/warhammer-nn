@@ -15,9 +15,7 @@ import config from './config.json' assert { type: 'json' };
 
 const tf = await getTF();
 
-const { replayBufferSize, gamma, repeatBatchTraining } = config;
-
-const learningRate = 1e-3;
+const { replayBufferSize, gamma, repeatBatchTraining, learningRate } = config;
 
 async function train(nn) {
 	const env = new Warhammer({ gameSettings, battlefields });
