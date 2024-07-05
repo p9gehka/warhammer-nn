@@ -5,6 +5,7 @@
 
 	"syncEveryEpoch": 1e2,
 	"saveEveryEpoch": 1e2,
+	"learningRate": 1e-3,
 	"repeatBatchTraining": 5,
 	"batchSize": 64,
 	"gamma": 0.99,
