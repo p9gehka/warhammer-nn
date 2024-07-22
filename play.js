@@ -17,7 +17,7 @@ import { filterObjByKeys } from './static/utils/index.js';
 import { getTrainerConfig } from './replay-memory/trainer-config.js';
 
 import gameSettings from './static/settings/game-settings.json' assert { type: 'json' };
-import allBattlefields from './static/settings/battlefields.json' assert { type: 'json' };
+import allBattlefields from './static/settings/battlefields36x30.json' assert { type: 'json' };
 
 import config from './config.json' assert { type: 'json' };
 
