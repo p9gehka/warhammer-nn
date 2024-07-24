@@ -9,7 +9,7 @@ import { filterObjByKeys } from './utils/index.js';
 import { getInput, channels } from './environment/nn-input.js';
 
 import gameSettings from './settings/game-settings.json' assert { type: 'json' };
-import allBattlefields from './settings/battlefields.json' assert { type: 'json' };
+import allBattlefields from './settings/battlefields60x44.json' assert { type: 'json' };
 
 import config from './game.config.json' assert { type: 'json' };
 
