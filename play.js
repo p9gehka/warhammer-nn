@@ -23,18 +23,25 @@ import config from './config.json' assert { type: 'json' };
 
 const savePath = './static/models/dqn/';
 
-const { cumulativeRewardThreshold, sendMessageEveryFrames, replayBufferSize, replayMemorySize, epsilonDecayFrames } = config;
+const { cumulativeRewardThreshold, sendMessageEveryFrames, replayBufferSize, replayMemorySize, epsilonDecayFrames, framesThreshold } = config;
 
 const rewardAveragerLen = 100;
 
 let battlefields = config.battlefields.length > 0 ? filterObjByKeys(allBattlefields, config.battlefields) : allBattlefields;
 
-async function play() {
+let configMessageSended = false;
+
+async function sendConfigMessage() {
+	if (configMessageSended) { return; }
 	const trainerConfig = await getTrainerConfig();
 	await sendMessage(
-		`Player hyperparams Config replayBufferSize:${replayBufferSize} epsilonDecayFrames:${epsilonDecayFrames} cumulativeRewardThreshold:${cumulativeRewardThreshold}` +
-		`Trainer hyperparams replayMemorySize:${trainerConfig.replayMemorySize} replayBufferSize:${trainerConfig.replayBufferSize} learningRate:${trainerConfig.learningRate} syncEveryEpoch:${trainerConfig.syncEveryEpoch} saveEveryEpoch:${trainerConfig.saveEveryEpoch} batchSize:${trainerConfig.batchSize}`
+		`Player hyperparams Config replayBufferSize:${replayBufferSize} epsilonDecayFrames:${epsilonDecayFrames} cumulativeRewardThreshold:${cumulativeRewardThreshold}\n` +
+		`Trainer hyperparams replayMemorySize: ${trainerConfig.replayMemorySize} replayBufferSize:${trainerConfig.replayBufferSize} learningRate:${trainerConfig.learningRate} syncEveryEpoch:${trainerConfig.syncEveryEpoch} saveEveryEpoch:${trainerConfig.saveEveryEpoch} batchSize:${trainerConfig.batchSize}`
 	);
+	configMessageSended = true;
+}
+
+async function play() {
 	const env = new Warhammer({ gameSettings, battlefields });
 
 	let players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
@@ -106,7 +113,7 @@ async function play() {
 				`(${framesPerSecond.toFixed(1)} frames/s)`
 			);
 
-			if (averageVP >= cumulativeRewardThreshold) {
+			if (averageVP >= cumulativeRewardThreshold || frameCount > framesThreshold) {
 				await lock();
 				if (savePath != null) {
 					if (!fs.existsSync(savePath)) {
@@ -118,6 +125,7 @@ async function play() {
 						console.log(`Saved DQN to ${savePath} final`);
 					}
 				}
+				await sendConfigMessage();
 				await sendDataToTelegram(vpAveragerBuffer.buffer.filter(v => v !== null));
 				await sendDataToTelegram(rewardAveragerBuffer.buffer.filter(v => v !== null));
 				await sendMessage(
@@ -162,13 +170,7 @@ async function play() {
 			}
 			env.reset();
 			agents.forEach(agent => agent.reset());
-			/*
-			console.log(
-				vpAveragerBuffer.buffer.filter(v => v !== null),
-				`Frame #${frameCount}::Epsilon ${agents[0].epsilon?.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
-				`:${JSON.stringify(testActions)}:`
-			)
-			*/
+			await sendConfigMessage();
 			await sendDataToTelegram(vpAveragerBuffer.buffer.filter(v => v !== null));
 			await sendDataToTelegram(rewardAveragerBuffer.buffer.filter(v => v !== null));
 			
