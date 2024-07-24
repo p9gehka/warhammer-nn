@@ -66,6 +66,18 @@ import {
 	Medium36_10,
 } from './36x30.js';
 
+
+import {
+	Large44_1,
+	Large44_2,
+	Large44_3,
+	Large44_4,
+	Large44_5,
+	Large44_6,
+	Empty44,
+} from './44x44.js';
+
+
 export const deployment = {
 	"crucibleOfBattle": CrucibleOfBattle,
 	"dawnOfWar": DawnOfWar,
@@ -123,5 +135,13 @@ export const deployment = {
 	"medium36_7": Medium36_7,
 	"medium36_8": Medium36_8,
 	"medium36_9": Medium36_9,
-	"medium36_10": Medium36_10
+	"medium36_10": Medium36_10,
+
+	"large44_1": Large44_1,
+	"large44_2": Large44_2,
+	"large44_3": Large44_3,
+	"large44_4": Large44_4,
+	"large44_5": Large44_5,
+	"large44_6": Large44_6,
+	"empty44": Empty44,
 }
