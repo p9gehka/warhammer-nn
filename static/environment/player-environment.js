@@ -43,17 +43,8 @@ export class PlayerEnvironment {
 		if (action === Action.NextPhase) {
 			reward -= 10;
 		}
-		if (this.playerId === 0) {
-			console.log('*********')
-			console.log({ cumulativeReward: this.cumulativeReward })
-		}
-		this.cumulativeReward += reward;
 
-		if (this.playerId === 0) {
-			console.log(action)
-			console.log({ reward })
-			console.log({ cumulativeReward: this.cumulativeReward })
-		}
+		this.cumulativeReward += reward;
 
 		return [{ ...playerOrder, misc: state.misc }, state, reward];
 	}
