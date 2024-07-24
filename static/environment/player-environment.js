@@ -43,6 +43,7 @@ export class PlayerEnvironment {
 		if (action === Action.NextPhase) {
 			reward -= 10;
 		}
+
 		this.cumulativeReward += reward;
 
 		return [{ ...playerOrder, misc: state.misc }, state, reward];
@@ -52,17 +53,13 @@ export class PlayerEnvironment {
 		const { players } = state;
 		let reward = 0;
 
-		if (this.loose()) {
-			reward -= this.env.objectiveControlReward * 4;
-		}
-
 		this.cumulativeReward += reward;
 		return reward;
 	}
 	primaryReward() {
 		const state = this.env.getState();
 		const { primaryVP } = state.players[this.playerId];
-		let reward = (primaryVP - this.primaryVP) * 5 + 10;
+		let reward = (primaryVP - this.primaryVP) * 5;
 		this.cumulativeReward += reward;
 		this.primaryVP = primaryVP;
 		return reward;
@@ -79,9 +76,5 @@ export class PlayerEnvironment {
 		console.log('*************************');
 		console.log(stateTensor.arraySync().map(v => v.map(c=> c.join('|')).join('\n')).join('\n'));
 		console.log('*************************');
-	}
-	loose() {
-		const player = this.env.players[this.playerId];
-		return player.models.every(gameModelId => this.env.models[gameModelId].dead);
 	}
 }
