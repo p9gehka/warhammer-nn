@@ -37,7 +37,9 @@ export class PlayerEnvironment {
 			playerOrder = order;
 		}
 		const state = this.env.step(playerOrder);
-		this.cumulativeReward -= 0.5;
+
+		let reward = -0.5;
+		this.cumulativeReward -= reward;
 
 		return [{ ...playerOrder, misc: state.misc }, state, reward];
 	}
