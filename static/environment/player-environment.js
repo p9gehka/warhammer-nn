@@ -40,10 +40,6 @@ export class PlayerEnvironment {
 
 		let reward = -0.5;
 
-		if (action === Action.NextPhase) {
-			reward -= 10;
-		}
-
 		this.cumulativeReward += reward;
 
 		return [{ ...playerOrder, misc: state.misc }, state, reward];
@@ -59,7 +55,7 @@ export class PlayerEnvironment {
 	primaryReward() {
 		const state = this.env.getState();
 		const { primaryVP } = state.players[this.playerId];
-		let reward = (primaryVP - this.primaryVP) * 5 + 10;
+		let reward = (primaryVP - this.primaryVP) * 5;
 		this.cumulativeReward += reward;
 		this.primaryVP = primaryVP;
 		return reward;
