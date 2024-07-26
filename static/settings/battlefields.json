@@ -1,32 +1,37 @@
 {
-	"small1": {
-		"size": [22, 22],
-		"deployment": "small1",
+	"clashOfPatrols": {
+		"size": [44, 30],
+		"deployment": "clashOfPatrols",
 		"primary_mission": "take_and_hold"
 	},
-	"small2": {
-		"size": [22, 22],
-		"deployment": "small2",
+	"archeothechRecovery": {
+		"size": [44, 30],
+		"deployment": "archeothechRecovery",
 		"primary_mission": "take_and_hold"
 	},
-	"small3": {
-		"size": [22, 22],
-		"deployment": "small3",
+	"forwardOutpost": {
+		"size": [44, 30],
+		"deployment": "forwardOutpost",
 		"primary_mission": "take_and_hold"
 	},
-	"small4": {
-		"size": [22, 22],
-		"deployment": "small4",
+	"scorchedEarth": {
+		"size": [44, 30],
+		"deployment": "scorchedEarth",
 		"primary_mission": "take_and_hold"
 	},
-	"small5": {
-		"size": [22, 22],
-		"deployment": "small5",
+	"sweepingRaid": {
+		"size": [44, 30],
+		"deployment": "sweepingRaid",
 		"primary_mission": "take_and_hold"
 	},
-	"small6": {
-		"size": [22, 22],
-		"deployment": "small6",
+	"displayOfMight": {
+		"size": [44, 30],
+		"deployment": "displayOfMight",
+		"primary_mission": "take_and_hold"
+	},
+	"empty44x30": {
+		"size": [44, 30],
+		"deployment": "empty44x30",
 		"primary_mission": "take_and_hold"
 	}
 }

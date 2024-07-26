@@ -35,3 +35,9 @@ export class DisplayOfMight extends DeploymentCommon {
 	nomansland_markers = [[8, 15], [22, 7], [36, 15], [22, 23]];
 	objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 }
+
+export class Empty44x30 extends DeploymentCommon {
+	deploy_markers = [];
+	nomansland_markers = [];
+	objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
+}

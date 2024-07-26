@@ -1,0 +1,52 @@
+{
+	"medium36_1": {
+		"size": [36, 30],
+		"deployment": "medium36_1",
+		"primary_mission": "take_and_hold"
+	},
+	"medium36_2": {
+		"size": [36, 30],
+		"deployment": "medium36_2",
+		"primary_mission": "take_and_hold"
+	},
+	"medium36_3": {
+		"size": [36, 30],
+		"deployment": "medium36_3",
+		"primary_mission": "take_and_hold"
+	},
+	"medium36_4": {
+		"size": [36, 30],
+		"deployment": "medium36_4",
+		"primary_mission": "take_and_hold"
+	},
+	"medium36_5": {
+		"size": [36, 30],
+		"deployment": "medium36_5",
+		"primary_mission": "take_and_hold"
+	},
+	"medium36_6": {
+		"size": [36, 30],
+		"deployment": "medium36_6",
+		"primary_mission": "take_and_hold"
+	},
+	"medium36_7": {
+		"size": [36, 30],
+		"deployment": "medium36_7",
+		"primary_mission": "take_and_hold"
+	},
+	"medium36_8": {
+		"size": [36, 30],
+		"deployment": "medium36_8",
+		"primary_mission": "take_and_hold"
+	},
+	"medium36_9": {
+		"size": [36, 30],
+		"deployment": "medium36_9",
+		"primary_mission": "take_and_hold"
+	},
+	"medium36_10": {
+		"size": [36, 30],
+		"deployment": "medium36_10",
+		"primary_mission": "take_and_hold"
+	}
+}
