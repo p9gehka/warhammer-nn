@@ -129,7 +129,7 @@ async function play() {
 				await sendDataToTelegram(vpAveragerBuffer.buffer.filter(v => v !== null));
 				await sendDataToTelegram(rewardAveragerBuffer.buffer.filter(v => v !== null));
 				await sendMessage(
-					`Training done - averageVP${rewardAveragerLen}:${averageVP.toFixed(1)} cumulativeRewardThreshold ${cumulativeRewardThreshold}`
+					`Training done - averageVP${rewardAveragerLen}Best ${averageVPBest} cumulativeRewardThreshold ${cumulativeRewardThreshold}`
 				);
 				break;
 			}
