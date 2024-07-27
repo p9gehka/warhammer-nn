@@ -9,7 +9,7 @@ import { TestAgent } from './static/agents/test-agent.js';
 import { filterObjByKeys } from './static/utils/index.js';
 
 import gameSettings from './static/settings/game-settings.json' assert { type: 'json' };
-import allBattlefields from './static/settings/battlefields44x44.json' assert { type: 'json' };
+import allBattlefields from './static/settings/battlefields60x44.json' assert { type: 'json' };
 
 
 import config from './static/game.config.json' assert { type: 'json' };

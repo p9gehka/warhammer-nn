@@ -5,7 +5,7 @@ import { getStateTensor } from '../utils/get-state-tensor.js';
 import { eq } from '../utils/vec2.js';
 
 export class PlayerEnvironment {
-	width = 44;
+	width = 60;
 	height = 44;
 	channels = channels;
 	vp = 0;
