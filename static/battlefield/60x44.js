@@ -31,106 +31,45 @@ export class SweepingEngagement extends DeploymentCommon {
 }
 
 
-export class CrucibleOfBattle1 extends DeploymentCommon {
+export class ClashOfPatrols60x44 extends DeploymentCommon {
 	deploy_markers = [];
-	nomansland_markers = [[14, 34]];
+	nomansland_markers = [[15, 12], [9, 22], [15, 32], [21, 22], [ 45, 12 ], [ 39, 22 ], [ 45, 32 ], [ 51, 22 ]];
 	objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 }
 
-export class CrucibleOfBattle2 extends DeploymentCommon {
+export class ArcheothechRecovery60x44 extends DeploymentCommon {
 	deploy_markers = [];
-	nomansland_markers = [[46, 10]];
+	nomansland_markers = [[23,6],[7,14],[15,22],[23,30],[7,38], [ 53, 6 ], [ 37, 14 ], [ 45, 22 ], [ 53, 30 ], [ 37, 38 ]];
 	objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 }
 
-export class CrucibleOfBattle3 extends DeploymentCommon {
+export class ForwardOutpost60x44 extends DeploymentCommon {
 	deploy_markers = [];
-	nomansland_markers = [[20, 8]];
+	nomansland_markers = [[15,6],[7,22],[15,38],[23,22],[ 45, 6 ], [ 37, 22 ], [ 45, 38 ], [ 53, 22 ]]
 	objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 }
 
-export class CrucibleOfBattle4 extends DeploymentCommon {
+export class ScorchedEarth60x44 extends DeploymentCommon {
 	deploy_markers = [];
-	nomansland_markers = [[40, 36]];
+	nomansland_markers = [[11,12],[9,22],[19,32],[21,22], [ 41, 12 ], [ 39, 22 ], [ 49, 32 ], [ 51, 22 ]];
 	objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 }
 
-export class CrucibleOfBattle5 extends DeploymentCommon {
+export class SweepingRaid60x44 extends DeploymentCommon {
 	deploy_markers = [];
-	nomansland_markers = [[30, 22]];
+	nomansland_markers = [[21,6],[6,19],[9,38],[24,25], [ 41, 12 ], [ 39, 22 ], [ 49, 32 ], [ 51, 22 ]];
 	objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 }
 
-
-export class DawnOfWar1 extends DeploymentCommon {
+export class DisplayOfMight60x44 extends DeploymentCommon {
 	deploy_markers = [];
-	nomansland_markers = [[30, 6]];
+	nomansland_markers = [[15,8],[7,22],[15,36],[23,22], [ 45, 8 ], [ 37, 22 ], [ 45, 36 ], [ 53, 22 ]];
 	objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 }
 
-export class DawnOfWar2 extends DeploymentCommon {
+export class Empty60x44 extends DeploymentCommon {
 	deploy_markers = [];
-	nomansland_markers = [[30, 38]];
+	nomansland_markers = [];
 	objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 }
 
-export class DawnOfWar3 extends DeploymentCommon {
-	deploy_markers = [];
-	nomansland_markers = [[10, 22]];
-	objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
-}
-
-export class DawnOfWar4 extends DeploymentCommon {
-	deploy_markers = [];
-	nomansland_markers = [[50, 22]];
-	objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
-}
-
-
-export class SearchAndDestroy1 extends DeploymentCommon {
-	deploy_markers = [];
-	nomansland_markers = [[14, 33]];
-	objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
-}
-
-export class SearchAndDestroy2 extends DeploymentCommon {
-	deploy_markers = [];
-	nomansland_markers = [[46, 9]];
-	objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
-}
-
-export class SearchAndDestroy3 extends DeploymentCommon {
-	deploy_markers = [];
-	nomansland_markers = [[14, 9]];
-	objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
-}
-
-export class SearchAndDestroy4 extends DeploymentCommon {
-	deploy_markers = [];
-	nomansland_markers = [[46, 33]];
-	objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
-}
-
-export class SweepingEngagement1 extends DeploymentCommon {
-	deploy_markers = [];
-	nomansland_markers = [[18, 38]];
-	objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
-}
-
-export class SweepingEngagement2 extends DeploymentCommon {
-	deploy_markers = [];
-	nomansland_markers = [[42, 6]];
-	objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
-}
-
-export class SweepingEngagement3 extends DeploymentCommon {
-	deploy_markers = [];
-	nomansland_markers = [[10, 14]];
-	objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
-}
-
-export class SweepingEngagement4 extends DeploymentCommon {
-	deploy_markers = [];
-	nomansland_markers = [[50, 30]];
-	objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
-}
