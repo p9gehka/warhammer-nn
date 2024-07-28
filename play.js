@@ -115,16 +115,6 @@ async function play() {
 
 			if (averageVP >= cumulativeRewardThreshold || frameCount > framesThreshold) {
 				await lock();
-				if (savePath != null) {
-					if (!fs.existsSync(savePath)) {
-						shelljs.mkdir('-p', savePath);
-					}
-
-					await agents[0].onlineNetwork?.save(`file://${savePath}`);
-					if (agents[0].onlineNetwork) {
-						console.log(`Saved DQN to ${savePath} final`);
-					}
-				}
 				await sendConfigMessage();
 				await sendDataToTelegram(vpAveragerBuffer.buffer.filter(v => v !== null));
 				await sendDataToTelegram(rewardAveragerBuffer.buffer.filter(v => v !== null));
@@ -132,6 +122,17 @@ async function play() {
 					`Training done - averageVP${rewardAveragerLen}Best ${averageVPBest} cumulativeRewardThreshold ${cumulativeRewardThreshold}`
 				);
 				break;
+			}
+
+			if (savePath != null && averageVP >= cumulativeRewardThreshold) {
+				if (!fs.existsSync(savePath)) {
+					shelljs.mkdir('-p', savePath);
+				}
+
+				await agents[0].onlineNetwork?.save(`file://${savePath}`);
+				if (agents[0].onlineNetwork) {
+					console.log(`Saved DQN to ${savePath} final`);
+				}
 			}
 
 			if (averageVP > averageVPBest && vpAverager.isFull()) {
