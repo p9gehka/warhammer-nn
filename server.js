@@ -12,7 +12,7 @@ import gameSettings from './static/settings/game-settings.json' assert { type: '
 import allBattlefields from './static/settings/battlefields60x44.json' assert { type: 'json' };
 
 
-import config from './static/game.config.json' assert { type: 'json' };
+import config from './config.json' assert { type: 'json' };
 import * as tf from '@tensorflow/tfjs-node';
 
 const __filename = fileURLToPath(import.meta.url);
