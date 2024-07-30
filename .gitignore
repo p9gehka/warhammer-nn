@@ -3,3 +3,6 @@ visualization/.config.json
 .config.json
 **/*/.DS_Store
 .DS_Store
+
+**/*/.model
+.model

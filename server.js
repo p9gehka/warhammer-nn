@@ -33,10 +33,13 @@ app.post('/play', async (req,res) => {
 	const onlineNetwork = await tf.loadLayersModel(`file://${savePath}/model.json`);
 	const env = new Warhammer({ gameSettings, battlefields });
 
-	let agents = [new TestAgent({ nn: onlineNetwork }), new TestAgent({ nn: onlineNetwork })];
-	const players = [new PlayerAgent(0, env, agenets[0]), new PlayerAgent(1, env, agents[1])];
+	const players = [new PlayerAgent(0, env), new PlayerAgent(1, env)];
+	try {
+		await Promise.all(players.map(player => player.load()));
+	} catch(e) {
+		console.log(e.message);
+	}
 	let state = env.reset();
-	agents.forEach(a => a.reset());
 	let attempts = 0;
 	const actionsAndStates = [[state, null, state]];
 	const states = [];
@@ -44,7 +47,7 @@ app.post('/play', async (req,res) => {
 	while (!state.done && attempts < 100) {
 		 state = env.getState();
 		 if (state.done) {
-			 players.forEach(agent => agent.awarding());
+			 players.forEach(player => player.awarding());
 			 break;
 		 }
 		 const stepInfo = players[state.player].playStep();

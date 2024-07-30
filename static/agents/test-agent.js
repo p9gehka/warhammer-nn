@@ -21,7 +21,6 @@ export class TestAgent {
 			orderIndex = 0;
 		} else {
 			tf.tidy(() => {
-				
 				const prediction = this.onlineNetwork.predict(inputTensor);
 				estimate = prediction.max(-1).dataSync()[0];
 				orderIndex = prediction.argMax(-1).dataSync()[0];

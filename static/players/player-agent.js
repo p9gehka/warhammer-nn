@@ -1,13 +1,10 @@
-import { Orders, Action } from '../environment/orders.js';
-import { channels, getInput } from '../environment/nn-input.js';
+import { Action } from '../environment/orders.js';
+import { MoveAgent } from '../agents/move-agent44x30/move-agent44x30.js';
 
-import { getStateTensor } from '../utils/get-state-tensor.js';
+
 import { eq } from '../utils/vec2.js';
 
 export class PlayerAgent {
-	width = 44;
-	height = 30;
-	channels = channels;
 	vp = 0;
 	_selectedModel = null;
 	cumulativeReward = 0;
@@ -17,25 +14,23 @@ export class PlayerAgent {
 		this.playerId = playerId;
 		this.enemyId = (playerId+1) % 2;
 		this.reset();
-		this.orders = new Orders().getOrders();
 		this._selectedModel = this.env.players[this.playerId].models[0];
-		this.agent = agent;
+		this.agent = new MoveAgent();
 	}
-
+	async load() {
+		await this.agent.load();
+	}
 	reset() {
 		this.primaryVP = 0;
 		this.cumulativeReward = 0;
 	}
 	playStep() {
-		const { orders, height, width, channels } = this;
-		const input = this.getInput();
-		const inputTensor = getStateTensor([input], height, width, channels);
-		const orderIndex = this.agent.playStep(input, inputTensor);
-		const order = this.orders.all[orderIndex];
+		const baseState = this.env.getState();
+		const { orderIndex, order, estimate } = this.agent.playStep(baseState);
 		let [order_, state ,reward] = this.step(order);
 
 		if (order.action === Action.NextPhase) {
-			reward += this.game.primaryReward();
+			reward += this.primaryReward();
 		}
 		
 		this.cumulativeReward += reward;
@@ -57,8 +52,6 @@ export class PlayerAgent {
 
 		let reward = -0.5;
 
-		
-
 		return [{ ...playerOrder, misc: state.misc }, state, reward];
 	}
 	awarding() {
@@ -76,18 +69,5 @@ export class PlayerAgent {
 		this.cumulativeReward += reward;
 		this.primaryVP = primaryVP;
 		return reward;
-	}
-
-	getInput() {
-		const state = this.env.getState();
-		return getInput(state);
-	}
-
-	printStateTensor() {
-		const input = this.getInput();
-		const stateTensor = getStateTensor([input], this.height, this.width, this.channels);
-		console.log('*************************');
-		console.log(stateTensor.arraySync().map(v => v.map(c=> c.join('|')).join('\n')).join('\n'));
-		console.log('*************************');
 	}
 }
