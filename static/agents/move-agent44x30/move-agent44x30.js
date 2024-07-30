@@ -6,16 +6,12 @@ import { channels, getInput } from '../../environment/nn-input.js';
 
 const tf = await getTF();
 
-export class MoveAgent {
-	autoNext = true;
-	width = 44;
-	height = 30;
-	channels = channels;
+class MoveAgentBase {
 	constructor() {
 		this.orders = new Orders().getOrders();
 	}
 	async load() {
-		this.onlineNetwork = await tf.loadLayersModel('file://' + 'static/' + 'agents/move-agent44x30/.model/model.json');
+		this.onlineNetwork = await tf.loadLayersModel(this.loadPath);
 	}
 	playStep(state) {
 		const { orders, height, width, channels } = this;
@@ -25,7 +21,7 @@ export class MoveAgent {
 		let orderIndex = 0;
 		let estimate = 0;
 
-		if (this.autoNext && input[Channel1Name.Stamina0].length > 0 && this.onlineNetwork === undefined) {
+		if (input[Channel1Name.Stamina0].length > 0 && this.onlineNetwork === undefined) {
 			orderIndex = 0;
 		} else {
 			tf.tidy(() => {
@@ -45,4 +41,11 @@ export class MoveAgent {
 		console.log(stateTensor.arraySync().map(v => v.map(c=> c.join('|')).join('\n')).join('\n'));
 		console.log('*************************');
 	}
+}
+
+export class MoveAgent extends MoveAgentBase {
+	width = 44;
+	height = 30;
+	channels = channels;
+	loadPath = 'file://' + 'static/' + 'agents/move-agent44x30/.model/model.json'
 }
