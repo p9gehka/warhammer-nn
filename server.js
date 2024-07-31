@@ -12,7 +12,7 @@ import gameSettings from './static/settings/game-settings.json' assert { type: '
 import allBattlefields from './static/settings/battlefields.json' assert { type: 'json' };
 
 
-import config from './static/game.config.json' assert { type: 'json' };
+import config from './config.json' assert { type: 'json' };
 import * as tf from '@tensorflow/tfjs-node';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -51,10 +51,6 @@ app.post('/play', async (req,res) => {
 
 	while (!state.done && attempts < 100) {
 		 state = env.getState();
-		 if (state.done) {
-			 agents.forEach(agent => agent.awarding());
-			 break;
-		 }
 		 const stepInfo = agents[state.player].playStep();
 
 		 actionsAndStates.push([state, players[state.player].getState(), ...stepInfo])

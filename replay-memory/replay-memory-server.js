@@ -18,6 +18,8 @@ app.get('/', (req,res) => {
 	res.sendStatus(200);
 });
 
+
+
 app.post('/append', (req,res) => {
 	if (locked) {
 		res.sendStatus(423);
@@ -46,6 +48,7 @@ app.get('/sample', (req,res) => {
 	res.json({ buffer: replayMemory.sample(batchSize) });
 });
 
+app.get('/config', (req,res) => res.json(config));
 app.get('/model', (req,res) => res.sendFile('static/dqn/model.json', { root: __dirname }));
 app.get('/weight', (req,res) => res.sendFile('static/dqn/weight.bin', { root: __dirname }));
 

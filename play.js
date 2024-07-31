@@ -14,20 +14,32 @@ import { sendDataToTelegram, sendMessage, memoryUsage } from './visualization/ut
 import { MovingAverager } from './moving-averager.js';
 import { lock } from './replay-memory/lock-api.js'
 import { filterObjByKeys } from './static/utils/index.js';
+import { getTrainerConfig } from './replay-memory/trainer-config.js';
 
 import gameSettings from './static/settings/game-settings.json' assert { type: 'json' };
 import allBattlefields from './static/settings/battlefields.json' assert { type: 'json' };
 
 import config from './config.json' assert { type: 'json' };
 
-const { replayBufferSize } = config;
 const savePath = './static/models/dqn/';
 
-const { cumulativeRewardThreshold, sendMessageEveryFrames, sleepTimer } = config;
+const { cumulativeRewardThreshold, sendMessageEveryFrames, replayBufferSize, replayMemorySize, epsilonDecayFrames, framesThreshold } = config;
 
 const rewardAveragerLen = 100;
 
 let battlefields = config.battlefields.length > 0 ? filterObjByKeys(allBattlefields, config.battlefields) : allBattlefields;
+
+let configMessageSended = false;
+
+async function sendConfigMessage() {
+	if (configMessageSended) { return; }
+	const trainerConfig = await getTrainerConfig();
+	await sendMessage(
+		`Player hyperparams Config replayBufferSize:${replayBufferSize} epsilonDecayFrames:${epsilonDecayFrames} cumulativeRewardThreshold:${cumulativeRewardThreshold}\n` +
+		`Trainer hyperparams replayMemorySize: ${trainerConfig.replayMemorySize} replayBufferSize:${trainerConfig.replayBufferSize} learningRate:${trainerConfig.learningRate} syncEveryEpoch:${trainerConfig.syncEveryEpoch} saveEveryEpoch:${trainerConfig.saveEveryEpoch} batchSize:${trainerConfig.batchSize}`
+	);
+	configMessageSended = true;
+}
 
 async function play() {
 	const env = new Warhammer({ gameSettings, battlefields });
@@ -75,8 +87,6 @@ async function play() {
 		state = env.getState();
 
 		if (state.done) {
-			agents.forEach(agent => agent.awarding());
-
 			const currentFrameCount = frameCount - frameCountPrev; 
 			const currentT = new Date().getTime();
 			const framesPerSecond = currentFrameCount / (currentT - t) * 1e3;
@@ -101,24 +111,26 @@ async function play() {
 				`(${framesPerSecond.toFixed(1)} frames/s)`
 			);
 
-			if (averageVP >= cumulativeRewardThreshold) {
+			if (averageVP >= cumulativeRewardThreshold || frameCount > framesThreshold) {
 				await lock();
-				if (savePath != null) {
-					if (!fs.existsSync(savePath)) {
-						shelljs.mkdir('-p', savePath);
-					}
-
-					await agents[0].onlineNetwork?.save(`file://${savePath}`);
-					if (agents[0].onlineNetwork) {
-						console.log(`Saved DQN to ${savePath} final`);
-					}
-				}
+				await sendConfigMessage();
 				await sendDataToTelegram(vpAveragerBuffer.buffer.filter(v => v !== null));
 				await sendDataToTelegram(rewardAveragerBuffer.buffer.filter(v => v !== null));
 				await sendMessage(
-					`Training done - averageVP${rewardAveragerLen}:${averageVP.toFixed(1)} cumulativeRewardThreshold ${cumulativeRewardThreshold}`
+					`Training done - averageVP${rewardAveragerLen}Best ${averageVPBest} cumulativeRewardThreshold ${cumulativeRewardThreshold}`
 				);
 				break;
+			}
+
+			if (savePath != null && averageVP >= cumulativeRewardThreshold) {
+				if (!fs.existsSync(savePath)) {
+					shelljs.mkdir('-p', savePath);
+				}
+
+				await agents[0].onlineNetwork?.save(`file://${savePath}`);
+				if (agents[0].onlineNetwork) {
+					console.log(`Saved DQN to ${savePath} final`);
+				}
 			}
 
 			if (averageVP > averageVPBest && vpAverager.isFull()) {
@@ -157,16 +169,10 @@ async function play() {
 			}
 			env.reset();
 			agents.forEach(agent => agent.reset());
-			/*
-			console.log(
-				vpAveragerBuffer.buffer.filter(v => v !== null),
-				`Frame #${frameCount}::Epsilon ${agents[0].epsilon?.toFixed(3)}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
-				`:${JSON.stringify(testActions)}:`
-			)
-			*/
+			await sendConfigMessage();
 			await sendDataToTelegram(vpAveragerBuffer.buffer.filter(v => v !== null));
 			await sendDataToTelegram(rewardAveragerBuffer.buffer.filter(v => v !== null));
-
+			
 			await sendMessage(
 				`Frame #${frameCount}::Epsilon ${agents[0].epsilon?.toFixed(3)}::averageVP${rewardAveragerLen}Best ${averageVPBest}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
 				`:${JSON.stringify(testActions)}:`
@@ -202,7 +208,6 @@ async function play() {
 		if(state.player === 0) {
 			frameCount++;
 		}
-		await(new Promise((resolve) => { setTimeout(resolve, sleepTimer)}))
 	}
 }
 
