@@ -41,6 +41,9 @@ class MoveAgentBase {
 		console.log(stateTensor.arraySync().map(v => v.map(c=> c.join('|')).join('\n')).join('\n'));
 		console.log('*************************');
 	}
+	getInput(state) {
+		return getInput(state)
+	}
 }
 
 export class MoveAgent extends MoveAgentBase {
