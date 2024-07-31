@@ -51,10 +51,6 @@ app.post('/play', async (req,res) => {
 
 	while (!state.done && attempts < 100) {
 		 state = env.getState();
-		 if (state.done) {
-			 agents.forEach(agent => agent.awarding());
-			 break;
-		 }
 		 const stepInfo = agents[state.player].playStep();
 
 		 actionsAndStates.push([state, ...stepInfo])
