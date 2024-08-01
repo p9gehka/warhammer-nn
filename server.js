@@ -39,6 +39,7 @@ app.get('/game/init', async (req,res) => {
 
 app.post('/play', async (req,res) => {
 	const onlineNetwork = await tf.loadLayersModel(`file://${savePath}/model.json`);
+	console.log(`Load model from ${config.loadPath} success`);
 	const env = new Warhammer({ gameSettings, battlefields });
 
 	const players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
