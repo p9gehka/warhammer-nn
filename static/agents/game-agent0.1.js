@@ -84,11 +84,4 @@ export class GameAgent {
 		this.game.reset();
 		this.checkSize();
 	}
-	checkSize() {
-		const [_, height, width] = this.onlineNetwork.inputs[0].shape;
-		const [fieldHeight, fieldWidth] = this.game.env.battlefield.size;
-		if (fieldHeight !== height || fieldWidth !== width) {
-			console.warn(`!!!!Map size and Network input are inconsistent: ${[fieldHeight, fieldWidth]} !== ${[height, width]}!!!`)
-		}
-	}
 }

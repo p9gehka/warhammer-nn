@@ -1,11 +1,8 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { Warhammer, Phase } from './static/environment/warhammer.js';
+import { Warhammer } from './static/environment/warhammer.js';
 import { PlayerAgent } from './static/players/player-agent.js';
-import { DumbAgent } from './static//dumb-agent.js';
-import { GameAgent } from './static/agents/game-agent0.1.js';
-import { TestAgent } from './static/agents/test-agent.js';
 import { filterObjByKeys } from './static/utils/index.js';
 
 import gameSettings from './static/settings/game-settings.json' assert { type: 'json' };

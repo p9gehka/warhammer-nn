@@ -3,17 +3,32 @@ import { getTF } from '../../utils/get-tf.js';
 import { Orders } from '../../environment/orders.js';
 import { Channel1Name } from '../../environment/nn-input.js';
 import { channels, getInput } from '../../environment/nn-input.js';
+import { getRandomInteger } from '../../utils/index.js';
 
 const tf = await getTF();
 
-class MoveAgentBase {
+class RandomAgent {
 	constructor() {
 		this.orders = new Orders().getOrders();
 	}
+	playStep(state) {
+		const orderIndex = getRandomInteger(0, this.orders.all.length);
+		return { order: this.orders.all[orderIndex], orderIndex, estimate: 0 };
+	}
+	getInput(state) {
+		return getInput(state)
+	}
+}
+
+class MoveAgentBase {
+	fillAgent = new RandomAgent();
 	async load() {
 		this.onlineNetwork = await tf.loadLayersModel(this.loadPath);
 	}
 	playStep(state) {
+		if (this.onlineNetwork === undefined) {
+			return this.fillAgent.playStep(state);
+		}
 		const { orders, height, width, channels } = this;
 		const input = getInput(state);
 		const inputTensor = getStateTensor([input], height, width, channels);
@@ -21,7 +36,7 @@ class MoveAgentBase {
 		let orderIndex = 0;
 		let estimate = 0;
 
-		if (input[Channel1Name.Stamina0].length > 0 && this.onlineNetwork === undefined) {
+		if (input[Channel1Name.Stamina0].length > 0) {
 			orderIndex = 0;
 		} else {
 			tf.tidy(() => {
@@ -47,8 +62,10 @@ class MoveAgentBase {
 }
 
 export class MoveAgent extends MoveAgentBase {
-	width = 44;
-	height = 30;
-	channels = channels;
+	static settings = { width: 44, height: 30, orders: new Orders().getOrders(), channels: channels }
+	width = MoveAgent.settings.width;
+	height = MoveAgent.settings.height;
+	channels = MoveAgent.settings.channels;
+	orders = MoveAgent.settings.orders;
 	loadPath = 'file://' + 'static/' + 'agents/move-agent44x30/.model/model.json'
 }

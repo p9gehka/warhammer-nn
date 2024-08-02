@@ -3,19 +3,14 @@ import * as tf from '@tensorflow/tfjs-node';
 import shelljs from 'shelljs';
 
 import { Warhammer } from './static/environment/warhammer.js';
-import { Action } from './static/environment/orders.js';
-import { PlayerEnvironment } from './static/environment/player-environment.js';
-import { RandomAgent } from './static/agents/random-agent0.1.js';
 import { DumbAgent } from './static/agents/dumb-agent.js';
-import { GameAgent } from './static/agents/game-agent0.1.js';
-import { TestAgent } from './static/agents/test-agent.js';
 import { ReplayMemoryClient } from './replay-memory/replay-memory-client.js';
 import { sendDataToTelegram, sendMessage, memoryUsage } from './visualization/utils.js';
 import { MovingAverager } from './moving-averager.js';
 import { lock } from './replay-memory/lock-api.js'
 import { filterObjByKeys } from './static/utils/index.js';
 import { getTrainerConfig } from './replay-memory/trainer-config.js';
-
+import { Student } from './students/student.js';
 import gameSettings from './static/settings/game-settings.json' assert { type: 'json' };
 import allBattlefields from './static/settings/battlefields.json' assert { type: 'json' };
 
@@ -44,24 +39,17 @@ async function sendConfigMessage() {
 async function play() {
 	const env = new Warhammer({ gameSettings, battlefields });
 
-	let players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
 	const replayMemory = new ReplayMemoryClient(replayBufferSize);
-
-	let agents = [new RandomAgent(players[0], { replayMemory }), new RandomAgent(players[1], { replayMemory })];
+	const players = [new Student(0, env, { replayMemory, epsilonDecayFrames: config.epsilonDecayFrames }), new Student(1, env, { replayMemory, epsilonDecayFrames: config.epsilonDecayFrames })];
 
 	async function tryUpdateModel() {
 		try {
 			const nn = await tf.loadLayersModel(config.loadPath);
 			await nn?.save(`file://${savePath}/temp`);
 			console.log(`Load model from ${config.loadPath} success`);
-			if (agents[0].onlineNetwork === undefined) {
-				agents[0] = new GameAgent(players[0], { nn, replayMemory, epsilonDecayFrames: config.epsilonDecayFrames });
-				agents[1] = new GameAgent(players[1], { nn, replayMemory, epsilonDecayFrames: config.epsilonDecayFrames });
-			} else {
-				agents[0].onlineNetwork.dispose();
-				agents[0].onlineNetwork = nn;
-				agents[1].onlineNetwork = nn;
-			}
+			players[0].getOnlineNetwork()?.dispose();
+			players[0].setOnlineNetwork(nn);
+			players[1].setOnlineNetwork(nn);
 		} catch(e) {
 			console.log(e.message)
 			console.log(`Load model from ${config.loadPath} faile`);
@@ -70,7 +58,7 @@ async function play() {
 	await tryUpdateModel();
 
 	let state = env.reset();
-	agents.forEach(agent => agent.reset());
+	players.forEach(player => player.reset());
 
 	let averageVPBest = -Infinity;
 	let vpAveragerBuffer = null;
@@ -94,8 +82,8 @@ async function play() {
 			if (Number.isFinite(framesPerSecond)) {
 				frameTimeAverager100.append(framesPerSecond);
 			}
-			vpAverager.append(state.players[0].primaryVP + players[0].cumulativeReward/1000);
-			rewardAverager.append(players[0].cumulativeReward);
+			vpAverager.append(state.players[0].primaryVP + players[0].getCumulativeReward()/1000);
+			rewardAverager.append(players[0].getCumulativeReward());
 
 			t = currentT;
 			frameCountPrev = frameCount;
@@ -107,7 +95,7 @@ async function play() {
 				`Frame #${frameCount}: ` +
 				`cumulativeVP${rewardAveragerLen}=${averageVP.toFixed(1)}; ` +
 				`cumulativeReward${rewardAveragerLen}=${averageReward.toFixed(1)}; ` +
-				`(epsilon=${agents[0].epsilon?.toFixed(3)}) ` +
+				`(epsilon=${players[0].epsilon?.toFixed(3)}) ` +
 				`(${framesPerSecond.toFixed(1)} frames/s)`
 			);
 
@@ -127,8 +115,8 @@ async function play() {
 					shelljs.mkdir('-p', savePath);
 				}
 
-				await agents[0].onlineNetwork?.save(`file://${savePath}`);
-				if (agents[0].onlineNetwork) {
+				await players[0].getOnlineNetwork()?.save(`file://${savePath}`);
+				if (players[0].getOnlineNetwork()) {
 					console.log(`Saved DQN to ${savePath} final`);
 				}
 			}
@@ -139,21 +127,23 @@ async function play() {
 					if (!fs.existsSync(savePath)) {
 						shelljs.mkdir('-p', savePath);
 					}
-					await agents[0].onlineNetwork?.save(`file://${savePath}`);
+					await players[0].getOnlineNetwork()?.save(`file://${savePath}`);
 					console.log(`Saved DQN to ${savePath}`);
 				}
 			}
 
 			state = env.reset();
-			agents.forEach(agent => agent.reset());
+			players.forEach(agent => agent.reset());
 		}
 
-		if (state.player === 0 && agents[0].onlineNetwork !== undefined && frameCount % sendMessageEveryFrames === 0 && vpAveragerBuffer !== null && rewardAveragerBuffer !== null) {
+		if (state.player === 0 && players[0].getOnlineNetwork() !== undefined && frameCount % sendMessageEveryFrames === 0 && vpAveragerBuffer !== null && rewardAveragerBuffer !== null) {
 			const testActions = [];
-			const testAgents = [new TestAgent(players[0], { nn: agents[0].onlineNetwork }), new DumbAgent(players[1])]
+
+
+			const testAgents = [players[0].rowPlayer, new DumbAgent(env)]
 			let testAttempst = 0;
 			let testState = env.reset();
-			agents.forEach(agent => agent.reset());
+			
 
 			while (!testState.done && testAttempst < 100) {
 				testState = env.getState();
@@ -167,17 +157,18 @@ async function play() {
 				}
 				testAttempst++;
 			}
-			env.reset();
-			agents.forEach(agent => agent.reset());
 			await sendConfigMessage();
 			await sendDataToTelegram(vpAveragerBuffer.buffer.filter(v => v !== null));
 			await sendDataToTelegram(rewardAveragerBuffer.buffer.filter(v => v !== null));
 			
 			await sendMessage(
-				`Frame #${frameCount}::Epsilon ${agents[0].epsilon?.toFixed(3)}::averageVP${rewardAveragerLen}Best ${averageVPBest}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
+				`Frame #${frameCount}::Epsilon ${players[0].epsilon?.toFixed(3)}::averageVP${rewardAveragerLen}Best ${averageVPBest}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
 				`:${JSON.stringify(testActions)}:`
 			);
 			await sendMessage(JSON.stringify(memoryUsage()));
+
+			env.reset();
+			players.forEach(agent => agent.reset());
 		}
 
 		if (frameCount % 1000 === 0) {
@@ -204,8 +195,8 @@ async function play() {
 			await tryUpdateModel();
 			console.timeEnd('updateModel');
 		}
-		agents[state.player].playStep();
-		if(state.player === 0) {
+		players[state.player].playStep();
+		if (state.player === 0) {
 			frameCount++;
 		}
 	}

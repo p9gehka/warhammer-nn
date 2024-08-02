@@ -1,70 +1,99 @@
-import { Action } from './static/environment/orders.js';
-import { MoveAgent } from './static/agents/move-agent44x30/move-agent44x30.js';
+import { getRandomInteger } from '../static/utils/index.js';
+import { eq } from '../static/utils/vec2.js';
+import { Channel2Name } from '../static/environment/nn-input.js';
+import { PlayerAgent } from '../static/players/player-agent.js';
 
-
-import { eq } from '../utils/vec2.js';
-
-export class PlayerAgent {
-	vp = 0;
-	_selectedModel = null;
-	cumulativeReward = 0;
-
-	constructor(playerId, env) {
-		this.env = env;
-		this.playerId = playerId;
-		this.enemyId = (playerId+1) % 2;
-		this.reset();
-		this._selectedModel = this.env.players[this.playerId].models[0];
-		this.agent = new MoveAgent();
-	}
-
-	reset() {
-		this.primaryVP = 0;
-		this.cumulativeReward = 0;
-	}
+export class StudentAgent extends PlayerAgent {
 	playStep() {
 		const prevState = this.env.getState();
-
 		let orderIndex;
+		let estimate = 0;
 		const input = this.agent.getInput(prevState);
+
 		if (Math.random() < this.epsilon) {
 			orderIndex = getRandomInteger(0, this.agent.orders.all.length);
 		} else if (input[Channel2Name.ObjectiveMarker].some(pos => eq(pos, input[0][0])) && Math.random() < this.epsilon) {
 			orderIndex = 0;
 		} else {
-			const { orderIndex: stepOrderIndex, order, estimate } = this.agent.playStep(prevState);
+			let { orderIndex: stepOrderIndex, estimate } = this.agent.playStep(prevState);
 			orderIndex = stepOrderIndex;
 		}
 
 		const order = this.agent.orders.all[orderIndex];
 
-		let [order_, state ,reward] = this.step(order);
+		let [order_, state] = this.step(order);
 
-		if (order.action === Action.NextPhase) {
+		return [order_, state, { index: orderIndex, estimate: estimate.toFixed(3) }];
+	}
+}
+
+
+export class Student {
+	orders = {};
+	prevState = null;
+	autoNext = true;
+	cumulativeReward = 0;
+	primaryVP = 0;
+
+	constructor(playerId, game, config = {}) {
+		const { replayMemory, nn, epsilonInit, epsilonFinal, epsilonDecayFrames } = config
+		this.game = game;
+
+		this.replayMemory = replayMemory ?? null;
+		this.frameCount = 0;
+		this.epsilonInit = epsilonInit ?? 0.5;
+		this.epsilonFinal = epsilonFinal ?? 0.01;
+		this.epsilonDecayFrames = epsilonDecayFrames ?? 1e6;
+		this.epsilonIncrement_ = (this.epsilonFinal - this.epsilonInit) / this.epsilonDecayFrames;
+		this.epsilon = this.epsilonInit;
+
+		this.player = new StudentAgent(playerId, game);
+		this.rowPlayer = new PlayerAgent(playerId, game);
+
+		this.setOnlineNetwork(nn);
+	}
+	setOnlineNetwork(nn) {
+		this.player.agent.onlineNetwork = nn;
+	}
+	getOnlineNetwork(nn) {
+		return this.player.agent.onlineNetwork;
+	}
+	getCumulativeReward() {
+		return this.cumulativeReward;
+	}
+	playStep() {
+		const { orders, height, width, channels } = this.game;
+		this.frameCount++;
+		this.epsilon = this.frameCount >= this.epsilonDecayFrames ?
+			this.epsilonFinal :
+			this.epsilonInit + this.epsilonIncrement_ * this.frameCount;
+		const prevState = this.game.getState();
+		const input = this.player.agent.getInput(prevState);
+
+		if (this.prevState !== null) {
+			this.replayMemory?.append([...this.prevState, false, input]);
+		}
+		let epsilon = this.epsilon;
+		const result = this.player.playStep()
+		let reward = -0.5;
+		if (result[2].orderIndex === 0) {
 			reward += this.primaryReward();
 		}
-		
+
 		this.cumulativeReward += reward;
-
-		return [order_, state, reward, { index: orderIndex, estimate: estimate.toFixed(3) }];
-
-	}
-	step(order) {
-		let playerOrder;
-		const { action } = order;
-		const prevState = this.env.getState();
-
-		if (action === Action.Move) {
-			playerOrder = {action, id: this._selectedModel, vector: order.vector, expense: order.expense };
-		} else {
-			playerOrder = order;
-		}
-		const state = this.env.step(playerOrder);
-		let reward = -0.5;
-
-		return [{ ...playerOrder, misc: state.misc }, state, reward];
+		this.prevState = [input, result[2].orderIndex, reward];
+		return result;
 	}
 
+	reset() {
+		this.stepAttemp = 0;
+		this.prevState = null;
+		this.game.reset();
+		this.player.reset();
+		this.rowPlayer.reset();
+		this.cumulativeReward = 0;
+		this.primaryVP = 0;
+	}
 	primaryReward() {
 		const state = this.env.getState();
 		const { primaryVP } = state.players[this.playerId];
@@ -73,55 +102,5 @@ export class PlayerAgent {
 		this.primaryVP = primaryVP;
 		return reward;
 	}
-}
 
-
-export class Student extends PlayerAgent {
-	orders = {};
-	prevState = null;
-	autoNext = true;
-
-	constructor(game, config = {}) {
-		super();
-		const { replayMemory, nn, epsilonInit, epsilonFinal, epsilonDecayFrames } = config
-		this.game = game;
-
-		this.onlineNetwork = nn;
-		this.replayMemory = replayMemory ?? null;
-		this.frameCount = 0;
-		this.epsilonInit = epsilonInit ?? 0.5;
-		this.epsilonFinal = epsilonFinal ?? 0.01;
-		this.epsilonDecayFrames = epsilonDecayFrames ?? 1e6;
-		this.epsilonIncrement_ = (this.epsilonFinal - this.epsilonInit) / this.epsilonDecayFrames;
-		this.epsilon = this.epsilonInit;
-	}
-
-	getOrderRandomIndex() {
-		return getRandomInteger(0, this.game.orders.all.length);
-	}
-
-	playStep() {
-		const { orders, height, width, channels } = this.game;
-		this.frameCount++;
-		this.epsilon = this.frameCount >= this.epsilonDecayFrames ?
-			this.epsilonFinal :
-			this.epsilonInit + this.epsilonIncrement_ * this.frameCount;
-		const prevState = this.env.getState();
-		const input = this.agent.getInput(prevState)
-		if (this.prevState !== null) {
-			this.replayMemory?.append([...this.prevState, false, input]);
-		}
-		let epsilon = this.epsilon;
-		let [orderIndex, reward] = super.playStep()
-
-		this.prevState = [input, orderIndex, reward];
-		return [order_, state, reward];
-	}
-
-	reset() {
-		this.stepAttemp = 0;
-		this.prevState = null;
-		this.game.reset();
-		this.checkSize();
-	}
 }

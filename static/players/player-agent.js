@@ -1,19 +1,13 @@
 import { Action } from '../environment/orders.js';
 import { MoveAgent } from '../agents/move-agent44x30/move-agent44x30.js';
 
-
-import { eq } from '../utils/vec2.js';
-
 export class PlayerAgent {
-	vp = 0;
+	static cascad = [MoveAgent.settings]
 	_selectedModel = null;
-	cumulativeReward = 0;
-
-	constructor(playerId, env, agent) {
+	constructor(playerId, env) {
 		this.env = env;
 		this.playerId = playerId;
 		this.enemyId = (playerId+1) % 2;
-		this.reset();
 		this._selectedModel = this.env.players[this.playerId].models[0];
 		this.agent = new MoveAgent();
 	}
@@ -21,21 +15,17 @@ export class PlayerAgent {
 		await this.agent.load();
 	}
 	reset() {
-		this.primaryVP = 0;
-		this.cumulativeReward = 0;
+		this.checkSize();
+		this._selectedModel = this.env.players[this.playerId].models[0];
 	}
 	playStep() {
-		const baseState = this.env.getState();
-		const { orderIndex, order, estimate } = this.agent.playStep(baseState);
-		let [order_, state ,reward] = this.step(order);
+		const prevState = this.env.getState();
 
-		if (order.action === Action.NextPhase) {
-			reward += this.primaryReward();
-		}
-		
-		this.cumulativeReward += reward;
+		const { orderIndex, order, estimate } = this.agent.playStep(prevState);
 
-		return [order_, state, reward, { index: orderIndex, estimate: estimate.toFixed(3) }];
+		let [order_, state] = this.step(order);
+
+		return [order_, state, { index: orderIndex, estimate: estimate.toFixed(3) }];
 
 	}
 	step(order) {
@@ -50,24 +40,17 @@ export class PlayerAgent {
 		}
 		const state = this.env.step(playerOrder);
 
-		let reward = -0.5;
-
-		return [{ ...playerOrder, misc: state.misc }, state, reward];
+		return [{ ...playerOrder, misc: state.misc }, state];
 	}
-	awarding() {
-		const state = this.env.getState();
-		const { players } = state;
-		let reward = 0;
 
-		this.cumulativeReward += reward;
-		return reward;
-	}
-	primaryReward() {
-		const state = this.env.getState();
-		const { primaryVP } = state.players[this.playerId];
-		let reward = (primaryVP - this.primaryVP) * 5;
-		this.cumulativeReward += reward;
-		this.primaryVP = primaryVP;
-		return reward;
+	checkSize() {
+		if (this.agent.onlineNetwork === undefined) {
+			return;
+		}
+		const [_, height, width] = this.agent.onlineNetwork.inputs[0].shape;
+		const [fieldHeight, fieldWidth] = this.env.battlefield.size;
+		if (fieldHeight !== height || fieldWidth !== width) {
+			console.warn(`!!!!Map size and Network input are inconsistent: ${[fieldHeight, fieldWidth]} !== ${[height, width]}!!!`)
+		}
 	}
 }
