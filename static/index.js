@@ -16,7 +16,7 @@ const vpPlayer2Element = document.getElementById('player-2-vp');
 
 ctx.scale(canvas.width / 60, canvas.height / 44);
 
-const model = await tf.loadLayersModel(`/models/dqn/model.json`);
+const model = await tf.loadLayersModel(`/agents/move-agent44x30/.model/model.json`);
 const battlefield = new Battlefield(ctx, { size: [0, 0], objective_marker: [], ruins: [] });
 await battlefield.init();
 battlefield.draw();
@@ -40,12 +40,12 @@ async function start () {
 
 	let lastRound = 1;
 	let prevPlayer = 'player-0';
-	actionAndStates.forEach(([prevState, playerState, order, state, reward, nnInfo], i) => {
+	actionAndStates.forEach(([prevState, playerState, order, state, nnInfo, reward], i) => {
 		const li = document.createElement("LI");
 		li.classList.add(prevPlayer);
 		prevPlayer = state.player === 0 ? 'player-0': 'player-1';
 		li.dataset.indexNumber = i;
-		li.innerHTML = [JSON.stringify(order), reward, (nnInfo?.estimate ?? 'N/A')].join();
+		li.innerHTML = [JSON.stringify(order), (nnInfo?.estimate ?? 'N/A'), reward].join();
 		li.tabIndex = 0;
 		historyList.appendChild(li);
 		let round = Math.floor(state.turn / 2);

@@ -5,11 +5,11 @@ import { copyWeights } from '../dqn/dqn.js';
 const tf = await getTF();
 
 export class Trainer {
-	constructor(game, config = {}) {
+	constructor(cascad, config = {}) {
 		const { replayMemory, nn, targetNN } = config
-		this.game = game;
+		this.game = cascad[0];
 		this.replayMemory = replayMemory;
-		this.onlineNetwork = nn ?? createDeepQNetwork(game.orders.all.length, game.width, game.height, game.channels.length);
+		this.onlineNetwork = nn ?? createDeepQNetwork(this.game.orders.all.length, this.game.width, this.game.height, this.game.channels.length);
 		this.targetNetwork = null;
 		/* this.targetNetwork.trainable = false not work why?? */
 	}
