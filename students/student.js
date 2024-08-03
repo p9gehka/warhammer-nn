@@ -54,6 +54,7 @@ export class Student {
 	}
 	setOnlineNetwork(nn) {
 		this.player.agent.onlineNetwork = nn;
+		this.rowPlayer.agent.onlineNetwork = nn;
 	}
 	getOnlineNetwork(nn) {
 		return this.player.agent.onlineNetwork;

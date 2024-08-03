@@ -3,7 +3,7 @@ import * as tf from '@tensorflow/tfjs-node';
 import shelljs from 'shelljs';
 
 import { Warhammer } from './static/environment/warhammer.js';
-import { DumbAgent } from './static/agents/dumb-agent.js';
+import { PlayerDumb } from './static/players/player-dumb.js';
 import { ReplayMemoryClient } from './replay-memory/replay-memory-client.js';
 import { sendDataToTelegram, sendMessage, memoryUsage } from './visualization/utils.js';
 import { MovingAverager } from './moving-averager.js';
@@ -139,8 +139,7 @@ async function play() {
 		if (state.player === 0 && players[0].getOnlineNetwork() !== undefined && frameCount % sendMessageEveryFrames === 0 && vpAveragerBuffer !== null && rewardAveragerBuffer !== null) {
 			const testActions = [];
 
-
-			const testAgents = [players[0].rowPlayer, new DumbAgent(env)]
+			const testAgents = [players[0].rowPlayer, new PlayerDumb(env)]
 			let testAttempst = 0;
 			let testState = env.reset();
 			
@@ -151,9 +150,9 @@ async function play() {
 					break;
 				}
 
-				let actionInfo = testAgents[testState.player].playStep().at(-1);
+				let actionData = testAgents[testState.player].playStep().at(-1);
 				if (testState.player === 0) {
-					testActions.push(actionInfo);
+					testActions.push(actionData);
 				}
 				testAttempst++;
 			}
