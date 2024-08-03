@@ -33,8 +33,6 @@ export class Student {
 	orders = {};
 	prevState = null;
 	autoNext = true;
-	cumulativeReward = 0;
-	primaryVP = 0;
 
 	constructor(playerId, env, config = {}) {
 		const { replayMemory, nn, epsilonInit, epsilonFinal, epsilonDecayFrames } = config
@@ -51,6 +49,7 @@ export class Student {
 		this.player = new StudentAgent(playerId, env);
 
 		this.setOnlineNetwork(nn);
+		this.rewarder = new Rewarder(this.playerId, this.env);
 	}
 	setOnlineNetwork(nn) {
 		this.player.agent.onlineNetwork = nn;
@@ -59,8 +58,9 @@ export class Student {
 		return this.player.agent.onlineNetwork;
 	}
 	getCumulativeReward() {
-		return this.cumulativeReward;
+		return this.rewarder.cumulativeReward;
 	}
+
 	playStep() {
 		this.frameCount++;
 		this.epsilon = this.frameCount >= this.epsilonDecayFrames ?
@@ -74,31 +74,43 @@ export class Student {
 		}
 		let epsilon = this.epsilon;
 		const result = this.player.playTrainStep();
+		let reward = this.rewarder.step(result[0].action);
 
-		let reward = -0.5;
-		if (result[0].action === Action.NextPhase) {
-			reward += this.primaryReward();
-		}
-
-		this.cumulativeReward += reward;
 		this.prevState = [input, result[2].index, reward];
 		return result;
 	}
 
 	reset() {
-		this.stepAttemp = 0;
 		this.prevState = null;
+		this.rewarder.reset();
 		this.player.reset();
+	}
+}
+
+export class Rewarder {
+	constructor(playerId, env) {
+		this.env = env;
+		this.playerId = playerId;
 		this.cumulativeReward = 0;
 		this.primaryVP = 0;
 	}
-	primaryReward() {
-		const state = this.env.getState();
-		const { primaryVP } = state.players[this.playerId];
+	primaryReward(primaryVP) {
 		let reward = (primaryVP - this.primaryVP) * 5;
-		this.cumulativeReward += reward;
 		this.primaryVP = primaryVP;
 		return reward;
 	}
-
+	step(action, state) {
+		let reward = -0.5;
+		if (action === Action.NextPhase) {
+			const state = this.env.getState();
+			const { primaryVP } = state.players[this.playerId];
+			reward += this.primaryReward(primaryVP);
+		}
+		this.cumulativeReward += reward;
+		return reward;
+	}
+	reset() {
+		this.primaryVP = 0;
+		this.cumulativeReward = 0;
+	}
 }
