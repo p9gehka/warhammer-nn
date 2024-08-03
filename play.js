@@ -42,15 +42,12 @@ async function play() {
 	const replayMemory = new ReplayMemoryClient(replayBufferSize);
 	const players = [new Student(0, env, { replayMemory, epsilonDecayFrames: config.epsilonDecayFrames }), new Student(1, env, { replayMemory, epsilonDecayFrames: config.epsilonDecayFrames })];
 
-	let nn;
 	async function tryUpdateModel() {
 		try {
-			const newNN = await tf.loadLayersModel(config.loadPath);
-			await newNN?.save(`file://${savePath}/temp`);
-			nn?.dispose();
-			nn = newNN;
-
+			const nn = await tf.loadLayersModel(config.loadPath);
+			await nn?.save(`file://${savePath}/temp`);
 			console.log(`Load model from ${config.loadPath} success`);
+			players[0].getOnlineNetwork()?.dispose();
 			players[0].setOnlineNetwork(nn);
 			players[1].setOnlineNetwork(nn);
 		} catch(e) {

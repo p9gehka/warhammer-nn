@@ -7,6 +7,5 @@ export class PlayerDumb {
 	playStep() {
 		const state = this.env.step({ action: Action.NextPhase });
 		return [{ action: Action.NextPhase }, state, { index: 0, estimate: 0 }];
-
 	}
 }
