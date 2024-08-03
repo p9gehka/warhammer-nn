@@ -1,9 +1,9 @@
 import { getRandomInteger } from '../static/utils/index.js';
-import { eq } from '../static/utils/vec2.js';
+import { eq, sub, len } from '../static/utils/vec2.js';
 import { Channel2Name } from '../static/environment/nn-input.js';
 import { PlayerAgent } from '../static/players/player-agent.js';
 import { Action } from '../static/environment/orders.js';
-
+import { deployment } from '../static/battlefield/deployment.js'
 export class StudentAgent extends PlayerAgent {
 	playTrainStep() {
 		const prevState = this.env.getState();
@@ -75,7 +75,7 @@ export class Student {
 		let epsilon = this.epsilon;
 		const result = this.player.playTrainStep();
 		let reward = this.rewarder.step(result[0].action);
-
+		reward += this.rewarder.epsiloneReward(result[0].action) * epsilon
 		this.prevState = [input, result[2].index, reward];
 		return result;
 	}
@@ -99,15 +99,24 @@ export class Rewarder {
 		this.primaryVP = primaryVP;
 		return reward;
 	}
-	step(action, state) {
+	step(action) {
 		let reward = -0.5;
+		const state = this.env.getState();
 		if (action === Action.NextPhase) {
-			const state = this.env.getState();
 			const { primaryVP } = state.players[this.playerId];
 			reward += this.primaryReward(primaryVP);
 		}
 		this.cumulativeReward += reward;
 		return reward;
+	}
+	epsiloneReward(action) {
+		let reward = 0;
+		if (action === Action.Move) {
+			const state = this.env.getState();
+			reward += 1/Math.min(...new deployment[state.battlefield.deployment]().objective_markers.map(deployment => len(sub(deployment, state.models[this.playerId])))) * 40;
+		}
+		return reward;
+
 	}
 	reset() {
 		this.primaryVP = 0;
