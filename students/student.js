@@ -2,9 +2,10 @@ import { getRandomInteger } from '../static/utils/index.js';
 import { eq } from '../static/utils/vec2.js';
 import { Channel2Name } from '../static/environment/nn-input.js';
 import { PlayerAgent } from '../static/players/player-agent.js';
+import { Action } from '../static/environment/orders.js';
 
 export class StudentAgent extends PlayerAgent {
-	playStep() {
+	playTrainStep() {
 		const prevState = this.env.getState();
 		let orderIndex;
 		let estimate = 0;
@@ -35,9 +36,9 @@ export class Student {
 	cumulativeReward = 0;
 	primaryVP = 0;
 
-	constructor(playerId, game, config = {}) {
+	constructor(playerId, env, config = {}) {
 		const { replayMemory, nn, epsilonInit, epsilonFinal, epsilonDecayFrames } = config
-		this.game = game;
+		this.env = env;
 
 		this.replayMemory = replayMemory ?? null;
 		this.frameCount = 0;
@@ -46,15 +47,13 @@ export class Student {
 		this.epsilonDecayFrames = epsilonDecayFrames ?? 1e6;
 		this.epsilonIncrement_ = (this.epsilonFinal - this.epsilonInit) / this.epsilonDecayFrames;
 		this.epsilon = this.epsilonInit;
-
-		this.player = new StudentAgent(playerId, game);
-		this.rowPlayer = new PlayerAgent(playerId, game);
+		this.playerId = playerId;
+		this.player = new StudentAgent(playerId, env);
 
 		this.setOnlineNetwork(nn);
 	}
 	setOnlineNetwork(nn) {
 		this.player.agent.onlineNetwork = nn;
-		this.rowPlayer.agent.onlineNetwork = nn;
 	}
 	getOnlineNetwork(nn) {
 		return this.player.agent.onlineNetwork;
@@ -63,35 +62,33 @@ export class Student {
 		return this.cumulativeReward;
 	}
 	playStep() {
-		const { orders, height, width, channels } = this.game;
 		this.frameCount++;
 		this.epsilon = this.frameCount >= this.epsilonDecayFrames ?
 			this.epsilonFinal :
 			this.epsilonInit + this.epsilonIncrement_ * this.frameCount;
-		const prevState = this.game.getState();
+		const prevState = this.env.getState();
 		const input = this.player.agent.getInput(prevState);
 
 		if (this.prevState !== null) {
 			this.replayMemory?.append([...this.prevState, false, input]);
 		}
 		let epsilon = this.epsilon;
-		const result = this.player.playStep()
+		const result = this.player.playTrainStep();
+
 		let reward = -0.5;
-		if (result[2].orderIndex === 0) {
+		if (result[0].action === Action.NextPhase) {
 			reward += this.primaryReward();
 		}
 
 		this.cumulativeReward += reward;
-		this.prevState = [input, result[2].orderIndex, reward];
+		this.prevState = [input, result[2].index, reward];
 		return result;
 	}
 
 	reset() {
 		this.stepAttemp = 0;
 		this.prevState = null;
-		this.game.reset();
 		this.player.reset();
-		this.rowPlayer.reset();
 		this.cumulativeReward = 0;
 		this.primaryVP = 0;
 	}
