@@ -113,6 +113,7 @@ export class Rewarder {
 
 			const objectiveMarkers = new deployment[state.battlefield.deployment]().objective_markers;
 			const objectiveDistances = objectiveMarkers.map(deployment => len(sub(deployment, initialPosititon)) - len(sub(deployment, currentPosition)));
+			reward += objectiveDistances.reduce((a, b) => a + b, 0);
 		}
 
 		return reward * epsilon;
@@ -121,8 +122,8 @@ export class Rewarder {
 	primaryReward(order, primaryVP) {
 		let reward = 0;
 		if (order.action === Action.NextPhase) {
-			this.primaryVP = primaryVP;
 			reward = (primaryVP - this.primaryVP) * 5;
+			this.primaryVP = primaryVP;
 		}
 		return reward;
 	}
