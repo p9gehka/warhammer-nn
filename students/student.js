@@ -1,5 +1,5 @@
 import { getRandomInteger } from '../static/utils/index.js';
-import { eq, sub, len, angleDegrees } from '../static/utils/vec2.js';
+import { eq, sub, len } from '../static/utils/vec2.js';
 import { Channel2Name } from '../static/environment/nn-input.js';
 import { PlayerAgent } from '../static/players/player-agent.js';
 import { Action } from '../static/environment/orders.js';
