@@ -1,10 +1,8 @@
 import * as fs from 'fs';
 import shelljs from 'shelljs';
 
-import { Warhammer } from './static/environment/warhammer.js';
-import { PlayerEnvironment } from './static/environment/player-environment.js';
+import { PlayerAgent } from './static/players/player-agent.js';
 import { getTF } from './static/utils/get-tf.js';
-import { copyWeights } from './dqn/dqn.js';
 import { ReplayMemoryClient } from './replay-memory/replay-memory-client.js';
 import { isLocked } from './replay-memory/lock-api.js';
 import { Trainer } from './dqn/trainer.js';
@@ -15,18 +13,13 @@ import config from './config.json' assert { type: 'json' };
 
 const tf = await getTF();
 
-const { replayBufferSize, gamma, repeatBatchTraining } = config;
-
-const learningRate = 1e-3;
+const { replayBufferSize, gamma, repeatBatchTraining, learningRate } = config;
 
 async function train(nn) {
-	const env = new Warhammer({ gameSettings, battlefields });
-	const game = new PlayerEnvironment(0, env);
 	const replayMemory = new ReplayMemoryClient(replayBufferSize);
-
 	await replayMemory.updateClient();
 
-	const trainer = new Trainer(game, { nn, replayMemory });
+	const trainer = new Trainer(PlayerAgent.cascad, { nn, replayMemory });
 	trainer.onlineNetwork.summary();
 	await trainer.createTargetNetwork();
 	const optimizer = tf.train.adam(learningRate);

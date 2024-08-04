@@ -26,6 +26,7 @@ export class Orders {
 			doneIndex: 1,
 			[Action.NextPhase]: [],
 			[Action.Move]: [],
+
 			[Action.Select]: [],
 			[Action.DiscardSecondary]: [{ action: Action.DiscardSecondary, id: 0 }, { action: Action.DiscardSecondary, id: 1 }],
 			moveIndexes: [],
@@ -35,7 +36,8 @@ export class Orders {
 			selectWeaponIndex: [],
 			shootIndex: NaN,
 			all: []
-		}
+		};
+
 		this.orders[Action.NextPhase] = [{ action: Action.NextPhase }];
 		this.orders[Action.NextPhase].forEach((order) => {
 			this.orders.nextPhaseIndexes.push(this.orders.all.length);

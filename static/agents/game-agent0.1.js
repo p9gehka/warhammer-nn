@@ -74,7 +74,7 @@ export class GameAgent {
 		const nextInput = this.game.getInput();
 		if (this.replayMemory !== null && this.prevState !== null) {
 			const [input, orderIndex] = this.prevState;
-			this.replayMemory?.append([input, orderIndex, reward, this.game.loose(), nextInput]);
+			this.replayMemory?.append([input, orderIndex, reward, false, nextInput]);
 		}
 		return reward;
 	}
@@ -83,12 +83,5 @@ export class GameAgent {
 		this.prevState = null;
 		this.game.reset();
 		this.checkSize();
-	}
-	checkSize() {
-		const [_, height, width] = this.onlineNetwork.inputs[0].shape;
-		const [fieldHeight, fieldWidth] = this.game.env.battlefield.size;
-		if (fieldHeight !== height || fieldWidth !== width) {
-			console.warn(`!!!!Map size and Network input are inconsistent: ${[fieldHeight, fieldWidth]} !== ${[height, width]}!!!`)
-		}
 	}
 }

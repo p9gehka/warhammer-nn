@@ -342,14 +342,10 @@ export class Warhammer {
 			}
 			model.decreaseStamina(order.expense);
 			const newPosition = add(model.position, vectorToMove);
-			model.update(newPosition);
-
-			this.models.forEach(model => {
-				const [x, y] = model.position;
-				if (x < 0 || this.battlefield.size[0] <= x || y < 0 || this.battlefield.size[1] <= y) {
-					model.kill();
-				}
-			});
+			const [x, y] = newPosition;
+			if(0 <= x && x < this.battlefield.size[0] && 0 <= y && y < this.battlefield.size[1]) {
+				model.update(newPosition);
+			}
 		}
 		if (order.action === BaseAction.DiscardSecondary) {
 			this.missions[currentPlayerId].discardSecondary(order.id);
