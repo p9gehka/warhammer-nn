@@ -1,6 +1,6 @@
 import { getRandomInteger } from '../static/utils/index.js';
 import { eq } from '../static/utils/vec2.js';
-import { Channel2Name } from '../static/environment/nn-input.js';
+import { Channel2Name, Channel3Name } from '../static/environment/nn-input.js';
 import { PlayerAgent } from '../static/players/player-agent.js';
 import { Action } from '../static/environment/orders.js';
 
@@ -9,14 +9,15 @@ export class StudentAgent extends PlayerAgent {
 		const prevState = this.env.getState();
 		let orderIndex;
 		let estimate = 0;
-		const input = this.agent.getInput(prevState);
+		const input = this.agent.getInput(prevState, this.getState());
+		const selected = input[Channel3Name.Selected][0];
 
 		if (Math.random() < this.epsilon) {
 			orderIndex = getRandomInteger(0, this.agent.orders.all.length);
-		} else if (input[Channel2Name.ObjectiveMarker].some(pos => eq(pos, input[0][0])) && Math.random() < this.epsilon) {
+		} else if (input[Channel2Name.ObjectiveMarker].some(pos => eq(pos, selected)) && Math.random() < this.epsilon) {
 			orderIndex = 0;
 		} else {
-			let { orderIndex: stepOrderIndex, estimate } = this.agent.playStep(prevState);
+			let { orderIndex: stepOrderIndex, estimate } = this.agent.playStep(prevState, this.getState());
 			orderIndex = stepOrderIndex;
 		}
 
@@ -67,7 +68,7 @@ export class Student {
 			this.epsilonFinal :
 			this.epsilonInit + this.epsilonIncrement_ * this.frameCount;
 		const prevState = this.env.getState();
-		const input = this.player.agent.getInput(prevState);
+		const input = this.player.agent.getInput(prevState, this.player.getState());
 
 		if (this.prevState !== null) {
 			this.replayMemory?.append([...this.prevState, false, input]);
