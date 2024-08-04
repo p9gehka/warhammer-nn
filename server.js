@@ -45,8 +45,7 @@ app.post('/play', async (req,res) => {
 	while (!state.done && attempts < 100) {
 		state = env.getState();
 		const stepInfo = players[state.player].playStep();
-		let reward = rewarders[state.player].step(stepInfo[0].action);
-		reward += rewarders[state.player].epsiloneReward(stepInfo[0].action) * 0.5;
+		let reward = rewarders[state.player].step(stepInfo[0], 0.5);
 
 		actionsAndStates.push([state, ...stepInfo, reward])
 		attempts++;

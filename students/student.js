@@ -1,9 +1,10 @@
 import { getRandomInteger } from '../static/utils/index.js';
-import { eq, sub, len } from '../static/utils/vec2.js';
+import { eq, sub, len, angleDegrees } from '../static/utils/vec2.js';
 import { Channel2Name } from '../static/environment/nn-input.js';
 import { PlayerAgent } from '../static/players/player-agent.js';
 import { Action } from '../static/environment/orders.js';
 import { deployment } from '../static/battlefield/deployment.js'
+
 export class StudentAgent extends PlayerAgent {
 	playTrainStep() {
 		const prevState = this.env.getState();
@@ -74,8 +75,7 @@ export class Student {
 		}
 		let epsilon = this.epsilon;
 		const result = this.player.playTrainStep();
-		let reward = this.rewarder.step(result[0].action);
-		reward += this.rewarder.epsiloneReward(result[0].action) * epsilon
+		let reward = this.rewarder.step(result[0], epsilon);
 		this.prevState = [input, result[2].index, reward];
 		return result;
 	}
@@ -94,30 +94,39 @@ export class Rewarder {
 		this.cumulativeReward = 0;
 		this.primaryVP = 0;
 	}
-	primaryReward(primaryVP) {
-		let reward = (primaryVP - this.primaryVP) * 5;
-		this.primaryVP = primaryVP;
-		return reward;
-	}
-	step(action) {
+	step(order, epsilon) {
 		let reward = -0.5;
 		const state = this.env.getState();
-		if (action === Action.NextPhase) {
-			const { primaryVP } = state.players[this.playerId];
-			reward += this.primaryReward(primaryVP);
-		}
+
+		const { primaryVP } = state.players[this.playerId];
+		reward += this.primaryReward(order, primaryVP);
+		reward += this.epsilonReward(order, epsilon);
 		this.cumulativeReward += reward;
 		return reward;
 	}
-	epsiloneReward(action) {
+	epsilonReward(order, epsilon) {
 		let reward = 0;
-		if (action === Action.Move) {
+		if (order.action === Action.Move) {
 			const state = this.env.getState();
-			reward += 1/Math.min(...new deployment[state.battlefield.deployment]().objective_markers.map(deployment => len(sub(deployment, state.models[this.playerId])))) * 40;
+			const initialPosititon = sub(state.models[this.playerId], order.vector);
+			const currentPosition = state.models[this.playerId];
+
+			const objectiveMarkers = new deployment[state.battlefield.deployment]().objective_markers;
+			const objectiveDistances = objectiveMarkers.map(deployment => len(sub(deployment, initialPosititon)) - len(sub(deployment, currentPosition)));
+		}
+
+		return reward * epsilon;
+	}
+
+	primaryReward(order, primaryVP) {
+		let reward = 0;
+		if (order.action === Action.NextPhase) {
+			this.primaryVP = primaryVP;
+			reward = (primaryVP - this.primaryVP) * 5;
 		}
 		return reward;
-
 	}
+
 	reset() {
 		this.primaryVP = 0;
 		this.cumulativeReward = 0;
