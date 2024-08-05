@@ -1,7 +1,7 @@
 import { Action } from '../environment/orders.js';
 
 export class DumbAgent {
-	constructor(game, config) {
+	constructor(game) {
 		this.game = game;
 	}
 	playStep() {
