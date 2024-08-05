@@ -28,7 +28,6 @@ app.get('/', (req,res) => res.sendFile('static/index.html', { root: __dirname })
 app.get('/game', (req,res) => res.sendFile('static/game.html', { root: __dirname }));
 
 app.post('/play', async (req,res) => {
-	console.log(`Load model from ${`file://${savePath}/model.json`} success`);
 	const env = new Warhammer({ gameSettings, battlefields });
 	const players = [new PlayerAgent(0, env), new PlayerAgent(1, env)];
 	const rewarders = [new Rewarder(0, env), new Rewarder(1, env)];
