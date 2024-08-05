@@ -112,8 +112,8 @@ export class Rewarder {
 			const currentPosition = state.models[this.playerId];
 
 			const objectiveMarkers = new deployment[state.battlefield.deployment]().objective_markers;
-			const objectiveDistances = objectiveMarkers.map(deployment => len(sub(deployment, initialPosititon)) - len(sub(deployment, currentPosition)));
-			reward += objectiveDistances.reduce((a, b) => a + b, 0);
+			const objectiveDistances = objectiveMarkers.map(marker => len(sub(marker, state.models[this.playerId])));
+			reward += 1 / Math.min(...objectiveDistances) * 50;
 		}
 
 		return reward * epsilon;
