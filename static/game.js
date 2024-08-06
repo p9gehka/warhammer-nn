@@ -1,9 +1,7 @@
 import { Battlefield, Scene } from './drawing-entities/drawing-entities.js';
 import { Warhammer } from './environment/warhammer.js'
 import { Orders } from './environment/orders.js';
-import { PlayerEnvironment } from './environment/player-environment.js'
-import { RandomAgent } from './agents/random-agent0.1.js';
-import { ControlledAgent } from './agents/controlled-agent.js';
+import { PlayerControlled } from './players/player-controlled.js';
 import { getStateTensor } from './utils/get-state-tensor.js';
 import { filterObjByKeys } from './utils/index.js';
 import { getInput, channels } from './environment/nn-input.js';
@@ -47,16 +45,14 @@ async function start() {
 
 	scene = new Scene(ctx, env.getState());
 	await scene.init();
-	players = [new PlayerEnvironment(0, env), new PlayerEnvironment(1, env)];
-	agents = [new ControlledAgent(players[0]), new ControlledAgent(players[1])];
+	players = [new PlayerControlled(0, env), new PlayerControlled(1, env)];
 	playPromise = play();
 }
 
 async function restart() {
 	env.end();
-	orderResolve(0);
+	orderResolve([0]);
 	await playPromise;
-	agents.forEach(agent => agent.reset());
 	players.forEach(player => player.reset());
 	env.reset();
 	playPromise = play();
@@ -74,9 +70,9 @@ async function play() {
 			console.log('CumulativeReward awarding', players.map(p => p.cumulativeReward));
 			break;
 		} else {
-			const order = await orderPromise;
+			players[state.player].orderPromise = orderPromise;
+			const [lastAction] = await players[state.player].playStep();
 			orderPromise = new Promise((resolve) => { orderResolve = resolve });
-			agents[state.player].playStep(order)
 		}
 	}
 }
@@ -90,7 +86,7 @@ function drawOrders() {
 	orders.forEach((order, i) => {
 		const li = document.createElement("LI");
 		li.innerHTML = JSON.stringify(order);
-		li.addEventListener('click', () => orderResolve(i))
+		li.addEventListener('click', () => orderResolve([i]))
 		ordersList.appendChild(li);
 	});
 }
@@ -122,4 +118,4 @@ restartBtn.addEventListener('click', restart);
 viewCheckbox.addEventListener('change', (e) => {
 	table.classList.toggle('hidden', !e.target.checked);
 	canvas.classList.toggle('hidden', e.target.checked);
-})
+});
