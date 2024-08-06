@@ -1,5 +1,5 @@
 import { Action } from '../environment/orders.js';
-import { MoveAgent } from '../agents/move-agent44x30/move-agent44x30.js';
+import { MoveAgent } from '../agents/move-agent/move-agent44x30.js';
 
 export class PlayerAgent {
 	static cascad = [MoveAgent.settings]

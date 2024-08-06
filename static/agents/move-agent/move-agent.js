@@ -2,7 +2,7 @@ import { getStateTensor } from '../../utils/get-state-tensor.js';
 import { getTF } from '../../utils/get-tf.js';
 import { Orders } from '../../environment/orders.js';
 import { Channel1Name, Channel3Name } from '../../environment/nn-input.js';
-import { channels, getInput } from '../../environment/nn-input.js';
+import { getInput } from '../../environment/nn-input.js';
 import { getRandomInteger } from '../../utils/index.js';
 import { eq } from '../../utils/vec2.js';
 
@@ -21,10 +21,11 @@ class RandomAgent {
 	}
 }
 
-class MoveAgentBase {
+export class MoveAgentBase {
 	fillAgent = new RandomAgent();
 	async load() {
-		this.onlineNetwork = await tf.loadLayersModel(this.loadPath);
+		const loadPath = 'file://' + 'static/' + `agents/move-agent/.model${this.width}x${this.height}x${this.channels.length}/model.json`;
+		this.onlineNetwork = await tf.loadLayersModel(loadPath);
 	}
 	playStep(state, playerState) {
 		if (this.onlineNetwork === undefined) {
@@ -63,13 +64,4 @@ class MoveAgentBase {
 	getInput(state, playerState) {
 		return getInput(state, playerState)
 	}
-}
-
-export class MoveAgent extends MoveAgentBase {
-	static settings = { width: 44, height: 30, orders: new Orders().getOrders(), channels: channels }
-	width = MoveAgent.settings.width;
-	height = MoveAgent.settings.height;
-	channels = MoveAgent.settings.channels;
-	orders = MoveAgent.settings.orders;
-	loadPath = 'file://' + 'static/' + 'agents/move-agent44x30/.model/model.json'
 }
