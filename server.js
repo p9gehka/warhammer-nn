@@ -30,7 +30,7 @@ app.get('/game', (req,res) => res.sendFile('static/game.html', { root: __dirname
 app.post('/play', async (req,res) => {
 	const env = new Warhammer({ gameSettings, battlefields });
 	const players = [new PlayerAgent(0, env), new PlayerAgent(1, env)];
-	const rewarders = [new Rewarder(0, env), new Rewarder(1, env)];
+	const rewarders = [new Rewarder(env, players[0]), new Rewarder(env, players[1])];
 	try {
 		await Promise.all(players.map(player => player.load()));
 	} catch(e) {

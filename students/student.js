@@ -51,7 +51,7 @@ export class Student {
 		this.player = new StudentAgent(playerId, env);
 
 		this.setOnlineNetwork(nn);
-		this.rewarder = new Rewarder(this.playerId, this.env);
+		this.rewarder = new Rewarder(this.env, this.player);
 	}
 	setOnlineNetwork(nn) {
 		this.player.agent.onlineNetwork = nn;
@@ -89,9 +89,10 @@ export class Student {
 }
 
 export class Rewarder {
-	constructor(playerId, env) {
+	constructor(env, player) {
 		this.env = env;
-		this.playerId = playerId;
+		this.player = player;
+		this.playerId = player.playerId;
 		this.cumulativeReward = 0;
 		this.primaryVP = 0;
 	}
@@ -109,8 +110,10 @@ export class Rewarder {
 		let reward = 0;
 		if (order.action === Action.Move) {
 			const state = this.env.getState();
-			const initialPosititon = sub(state.models[this.playerId], order.vector);
-			const currentPosition = state.models[this.playerId];
+			const playerState = this.player.getState();
+			const selected = state.players[this.playerId].models[playerState.selected];
+			const initialPosititon = sub(state.models[selected], order.vector);
+			const currentPosition = state.models[selected];
 
 			const objectiveMarkers = new deployment[state.battlefield.deployment]().objective_markers;
 			const objectiveDistances = objectiveMarkers.map(deployment => len(sub(deployment, initialPosititon)) - len(sub(deployment, currentPosition)));
