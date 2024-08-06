@@ -1,9 +1,6 @@
 import { Battlefield, Scene } from '../drawing-entities/drawing-entities.js';
 import { Warhammer, Phase } from '../environment/warhammer.js'
 import { Deploy, DeployAction, DeployEnvironment, getDeployOrders } from '../environment/deploy.js'
-import { PlayerEnvironment } from '../environment/player-environment.js'
-import { ControlledAgent } from '../agents/controlled-agent.js';
-import { Agent as OpponentAgent } from '../agents/baldiozAgent04.01.js';
 import { Orders } from '../environment/orders.js';
 import { add, eq, len } from '../utils/vec2.js'
 import { PlayerControlled } from '../players/player-controlled.js';
@@ -37,7 +34,6 @@ export class Game {
 		this.orderResolve;
 		this.orderPromise = new Promise((resolve) => this.orderResolve = resolve);
 
-		this.players = [];
 		this.agents = [];
 
 		this.onUpdate = () => {};
@@ -147,7 +143,6 @@ export class Game {
 
 		this.env = new Warhammer({ gameSettings: this.deploy.getSettings(), battlefields: this.deploy.getBattlefields() });
 
-		this.players = [new PlayerEnvironment(0, this.env), new PlayerEnvironment(1, this.env)];
 		this.reinforcementsPlayers = [new DeployEnvironment(0, this.env), new DeployEnvironment(1, this.env)];
 		this.agents = [new PlayerControlled(0, this.env), new PlayerAgent(1, this.env)];
 		await this.agents[1].load()
@@ -157,7 +152,6 @@ export class Game {
 	restart() {
 		this.orderResolve([this.deployOrders.doneIndex]);
 		this.orderPromise = new Promise((resolve) => this.orderResolve = resolve);
-		this.players.forEach(player => player.reset());
 		this.agents.forEach(agent => agent.reset());
 		this.env?.reset();
 		this.play();
@@ -165,7 +159,6 @@ export class Game {
 	reload() {
 		this.orderResolve([this.orders.doneIndex]);
 		this.orderPromise = new Promise((resolve) => this.orderResolve = resolve);
-		this.players.forEach(player => player.reset());
 		this.agents.forEach(agent => agent.reset());
 		this.env?.reset();
 		this.deploy?.reset();

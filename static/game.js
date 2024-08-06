@@ -210,8 +210,8 @@ game.onUpdate = (state) => {
 function updateShootingQueue(state) {
 	shootingQueue.innerHTML = '';
 	if (game.started) {
-		shootingQueue.append(JSON.stringify(game.players[state.player]._shootingQueue));
-		shootingQueue.append(JSON.stringify(game.players[state.player]._shootingTargeting));
+		shootingQueue.append(JSON.stringify(game.agents[state.player]._shootingQueue ?? []));
+		shootingQueue.append(JSON.stringify(game.agents[state.player]._shootingTargeting ?? []));
 	}
 }
 

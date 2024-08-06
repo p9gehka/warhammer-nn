@@ -32,11 +32,11 @@ export class MoveAgentBase {
 			return this.fillAgent.playStep(state);
 		}
 		const { orders, height, width, channels } = this;
-		const input = getInput(state);
+		const input = getInput(state, playerState);
 
 		let orderIndex = 0;
 		let estimate = 0;
-		const selected = state.models[playerState.selected];
+		const selected = state.models[state.players[state.player].models[playerState.selected]];
 		if (input[Channel1Name.Stamina0].some(pos => eq(pos, selected)))  {
 			orderIndex = 0;
 		} else {
