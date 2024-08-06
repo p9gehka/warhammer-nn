@@ -89,7 +89,7 @@ export class PlayerControlled {
 		const state = this.env.step(playerOrder);
 		return [{ ...playerOrder, misc: state.misc }, state];
 	}
-	
+
 	getState() {
 		return { selected: this._selectedModel, shootingQueue: this._shootingQueue, shootingTargeting: this._shootingTargeting };
 	}

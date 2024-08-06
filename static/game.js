@@ -6,8 +6,6 @@ import { Game } from './game-controller/game-controller.js';
 import { getDeployOrders } from './environment/deploy.js';
 import { roster2settings } from './utils/roster2settings.js';
 import { Mission } from './environment/mission.js';
-import { PlayerEnvironment } from './environment/player-environment.js'
-import { ControlledAgent } from './agents/controlled-agent.js';
 
 import gameSettings from './settings/game-settings.json' assert { type: 'json' };
 import allBattlefields from './settings/battlefields.json' assert { type: 'json' };
