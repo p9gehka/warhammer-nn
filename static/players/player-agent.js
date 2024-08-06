@@ -1,5 +1,6 @@
 import { Action } from '../environment/orders.js';
-import { MoveAgent } from '../agents/move-agent/move-agent44x30.js';
+import { MoveAgent } from '../agents/move-agent/move-agent60x44.js';
+import { Phase } from '../environment/warhammer.js';
 
 export class PlayerAgent {
 	static cascad = [MoveAgent.settings]
@@ -20,13 +21,20 @@ export class PlayerAgent {
 	}
 	playStep() {
 		const prevState = this.env.getState();
-
-		const { orderIndex, order, estimate } = this.agent.playStep(prevState);
+		let orderIndex, order, estimate;
+		if (prevState.phase === Phase.Movement) {
+			const result = this.agent.playStep(prevState, this.getState());
+			orderIndex = result.orderIndex;
+			order = result.order;
+			estimate = result.estimate;
+		} else {
+			orderIndex = 0;
+			order = { action: Action.NextPhase };
+			estimate = 0;
+		}
 
 		let [order_, state] = this.step(order);
-
 		return [order_, state, { index: orderIndex, estimate: estimate.toFixed(3) }];
-
 	}
 	step(order) {
 		let playerOrder;
@@ -42,7 +50,9 @@ export class PlayerAgent {
 
 		return [{ ...playerOrder, misc: state.misc }, state];
 	}
-
+	getState() {
+		return { selected: this._selectedModel };
+	}
 	checkSize() {
 		if (this.agent.onlineNetwork === undefined) {
 			return;

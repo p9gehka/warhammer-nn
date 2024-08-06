@@ -4,6 +4,7 @@ import { Orders } from '../../environment/orders.js';
 import { Channel1Name } from '../../environment/nn-input.js';
 import { getInput } from '../../environment/nn-input.js';
 import { getRandomInteger } from '../../utils/index.js';
+import { eq } from '../../utils/vec2.js';
 
 const tf = await getTF();
 
@@ -23,10 +24,10 @@ class RandomAgent {
 export class MoveAgentBase {
 	fillAgent = new RandomAgent();
 	async load() {
-		const loadPath = 'file://' + 'static/' + `agents/move-agent/.model${this.width}x${this.height}x${this.channels.length}/model.json`;
+		const loadPath = (typeof window === 'undefined' ? 'file://static/' : '') + `agents/move-agent/.model${this.width}x${this.height}x${this.channels.length}/model.json`;
 		this.onlineNetwork = await tf.loadLayersModel(loadPath);
 	}
-	playStep(state) {
+	playStep(state, playerState) {
 		if (this.onlineNetwork === undefined) {
 			return this.fillAgent.playStep(state);
 		}
@@ -35,8 +36,8 @@ export class MoveAgentBase {
 
 		let orderIndex = 0;
 		let estimate = 0;
-
-		if (input[Channel1Name.Stamina0].length > 0) {
+		const selected = state.models[playerState.selected];
+		if (input[Channel1Name.Stamina0].some(pos => eq(pos, selected)))  {
 			orderIndex = 0;
 		} else {
 			tf.tidy(() => {
@@ -46,7 +47,9 @@ export class MoveAgentBase {
 				orderIndex = prediction.argMax(-1).dataSync()[0];
 			});
 		}
-
+		if (orderIndex !== 0) {
+			orderIndex = orders.moveIndexes[orderIndex - 1];
+		}
 		return { order: this.orders.all[orderIndex], orderIndex, estimate };
 	}
 

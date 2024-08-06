@@ -6,6 +6,8 @@ import { ControlledAgent } from '../agents/controlled-agent.js';
 import { Agent as OpponentAgent } from '../agents/baldiozAgent04.01.js';
 import { Orders } from '../environment/orders.js';
 import { add, eq, len } from '../utils/vec2.js'
+import { PlayerControlled } from '../players/player-controlled.js';
+import { PlayerAgent } from '../players/player-agent.js'
 
 import battlefields from '../settings/battlefields.json' assert { type: 'json' };
 
@@ -147,7 +149,8 @@ export class Game {
 
 		this.players = [new PlayerEnvironment(0, this.env), new PlayerEnvironment(1, this.env)];
 		this.reinforcementsPlayers = [new DeployEnvironment(0, this.env), new DeployEnvironment(1, this.env)];
-		this.agents = [new ControlledAgent(this.players[0]), new OpponentAgent(this.players[1])];
+		this.agents = [new PlayerControlled(0, this.env), new PlayerAgent(1, this.env)];
+		await this.agents[1].load()
 		this.play();
 	}
 
@@ -174,13 +177,12 @@ export class Game {
 	async play() {
 		while(true) {
 			const state = this.env.getState();
-			const playerState = this.players[state.player].getState();
+			const playerState = this.agents[state.player].getState();
 			this.scene.updateState(state, playerState, { selecteddUnit: this.selectedUnit });
 			this.onUpdate(state);
 			this.orderHandlers = [];
 
 			if (state.done) {
-				this.agents.forEach(agent => agent.awarding());
 				break;
 			} else {
 				const { selected } = playerState;
@@ -261,6 +263,6 @@ export class Game {
 		if (state.phase === Phase.Reinforcements) {
 			return this.reinforcementsPlayers[state.player].getState().selected;
 		}
-		return this.players[state.player].getState().selected;
+		return this.agents[player].getState().selected;
 	}
 }
