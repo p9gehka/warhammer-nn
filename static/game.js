@@ -198,7 +198,7 @@ game.onUpdateDice = (diceInfo) => {
 }
 
 game.onUpdate = (state) => {
-	updateTable(state);
+	//updateTable(state);
 	updateHeader(state);
 	updateUnitsStrip(state);
 	updateSecondaryMission(state);
