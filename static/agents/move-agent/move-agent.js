@@ -9,7 +9,7 @@ const tf = await getTF();
 
 class RandomAgent {
 	constructor() {
-		orders = moveOrders;
+		this.orders = moveOrders;
 	}
 	playStep(state) {
 		const orderIndex = getRandomInteger(0, this.orders.all.length);
