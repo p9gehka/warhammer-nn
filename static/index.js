@@ -1,5 +1,5 @@
 import { Battlefield, Scene } from './drawing-entities/drawing-entities.js';
-import { Orders } from './environment/orders.js';
+import { playerOrders } from './players/player-orders.js';
 import { getInput, channels } from '../environment/nn-input.js';
 import { getStateTensor } from '../utils/get-state-tensor.js';
 
@@ -68,7 +68,7 @@ function setState(e) {
 
 async function updatePredictions(state) {
 	ordersList.innerHTML = '';
-	const orders = new Orders().getOrders().all;
+	const orders = playerOrders;
 
 	const [_, height, width] = model.input.shape;
 	window.tf.tidy(() => {

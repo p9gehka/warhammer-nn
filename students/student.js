@@ -2,8 +2,8 @@ import { getRandomInteger } from '../static/utils/index.js';
 import { eq, sub, len } from '../static/utils/vec2.js';
 import { Channel2Name } from '../static/environment/nn-input.js';
 import { PlayerAgent } from '../static/players/player-agent.js';
-import { Action } from '../static/environment/orders.js';
-import { deployment } from '../static/battlefield/deployment.js'
+import { BaseAction } from '../static/environment/warhammer.js';
+import { deployment } from '../static/battlefield/deployment.js';
 
 export class StudentAgent extends PlayerAgent {
 	playTrainStep() {
@@ -106,7 +106,7 @@ export class Rewarder {
 	}
 	epsilonReward(order, epsilon) {
 		let reward = 0;
-		if (order.action === Action.Move) {
+		if (order.action === BaseAction.Move) {
 			const state = this.env.getState();
 			const initialPosititon = sub(state.models[this.playerId], order.vector);
 			const currentPosition = state.models[this.playerId];
@@ -120,7 +120,7 @@ export class Rewarder {
 
 	primaryReward(order, primaryVP) {
 		let reward = 0;
-		if (order.action === Action.NextPhase) {
+		if (order.action === BaseAction.NextPhase) {
 			reward = (primaryVP - this.primaryVP) * 5;
 			this.primaryVP = primaryVP;
 		}
