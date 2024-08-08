@@ -61,7 +61,7 @@ function updateHeader(state) {
 }
 
 function updateTable(state) {
-	const data = getStateTensor([getInput(state)], ...state.battlefield.size, channels).arraySync();
+	const data = getStateTensor([getInput(state, { selected: game.getSelectedModel()})], ...state.battlefield.size, channels).arraySync();
 	const fragment = new DocumentFragment();
 	const nextline = Math.floor(Math.sqrt(data[0][0][0].length));
 	for(let row of data[0]) {
@@ -143,7 +143,7 @@ function updateUnitSection(selectedUnit) {
 	unitSection.append(game.gameSettings.rules[selectedUnit].join(', ') + '; ');
 	const state = game.env?.getState() ?? game.deploy?.getState();
 	const orders = (state.round === -1 || state.phase === Phase.Reinforcements) ? getDeployOrders() : new Orders().getOrders();
-	const selected = game.getSelectedModel();
+	const selected = state.players[state.player].models[game.getSelectedModel()];
 	state.units[selectedUnit].models.forEach((modelId) => {
 		const li = document.createElement("LI");
 		li.append(`${modelId} ${game.gameSettings.modelNames[modelId]} ${state.modelsWounds[modelId]} ${state.modelsStamina[modelId]} `);
@@ -164,7 +164,7 @@ function updateUnitSection(selectedUnit) {
 }
 function updateWeaponSection(state) {
 	weaponSection.innerHTML = '';
-	const selectedModel = game.getSelectedModel();
+	const selectedModel = state.players[state.player].models[game.getSelectedModel()];
 	if (selectedModel === null) {
 		return;
 	}
@@ -198,7 +198,7 @@ game.onUpdateDice = (diceInfo) => {
 }
 
 game.onUpdate = (state) => {
-	//updateTable(state);
+	updateTable(state);
 	updateHeader(state);
 	updateUnitsStrip(state);
 	updateSecondaryMission(state);
