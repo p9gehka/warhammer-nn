@@ -22,7 +22,7 @@ export class StudentAgent extends PlayerAgent {
 			orderIndex = stepOrderIndex;
 		}
 
-		const order = this.agent.orders.all[orderIndex];
+		const order = this.agent.orders[orderIndex];
 
 		let [order_, state] = this.step(order);
 

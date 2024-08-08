@@ -8,7 +8,8 @@ export const Channel1 = { };
 [0,1,2,3,4,5,6,7,8,9,10].forEach(v => { Channel1[`Stamina${v}`] = v / 10; });
 
 export const Channel2 = { ObjectiveMarker: 1 };
-export const Channel3 = { Selected: 1 };
+export const Channel3 = {};
+[0,1,2,3,4,5,6,7,8,9].forEach(v => { Channel3[`Order${v}`] = (v + 1) / 10; });
 
 export const Channel0Name = {}, Channel1Name = {}, Channel2Name = {}, Channel3Name = {};
 
@@ -56,26 +57,28 @@ export function getInput(state, playerState) {
 			const xy = state.models[gameModelId];
 			if (xy === null) { return; }
 
-			let entity = null;
+			let entities = [];
 
 			if (playerId === state.player) {
 				input[playerModelId] = [xy];
 
-				if (playerModelId === playerState.selected) {
-					input[Channel3Name.Selected] = [xy];
+				if (playerModelId >= playerState.selected) {
+					const order = Math.min(playerModelId - playerState.selected, 9);
+					entities.push(Channel3Name[`Order${order}`]);
 				}
 
-				if (state.phase === Phase.Movement) {
-					entity = Channel1Name[`Stamina${Math.min(state.modelsStamina[gameModelId], 10)}`];
+				if (state.phase == Phase.Movement) {
+					const stamina = Math.min(state.modelsStamina[gameModelId], 10);
+					entities.push(Channel1Name[`Stamina${stamina}`]);
 				}
 			}
 
-			if (entity !== null) {
+			entities.forEach(entity => {
 				if (input[entity] === undefined) {
 					input[entity] = [];
 				}
 				input[entity].push(xy);
-			}
+			});
 		});
 	});
 	return input;
