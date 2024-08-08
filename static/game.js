@@ -1,94 +1,63 @@
-import { Battlefield, Scene } from './drawing-entities/drawing-entities.js';
-import { Warhammer } from './environment/warhammer.js'
 import { Orders } from './environment/orders.js';
-import { PlayerControlled } from './players/player-controlled.js';
-import { getStateTensor } from './utils/get-state-tensor.js';
-import { filterObjByKeys } from './utils/index.js';
 import { getInput, channels } from './environment/nn-input.js';
+import { Phase } from './environment/warhammer.js';
+import { getStateTensor } from '../utils/get-state-tensor.js';
+import { Game } from './game-controller/game-controller.js';
+import { getDeployOrders } from './environment/deploy.js';
+import { roster2settings } from './utils/roster2settings.js';
+import { Mission } from './environment/mission.js';
 
 import gameSettings from './settings/game-settings.json' assert { type: 'json' };
 import allBattlefields from './settings/battlefields.json' assert { type: 'json' };
 
 import config from './game.config.json' assert { type: 'json' };
 
+
+const startBtn = document.getElementById('start');
 const restartBtn = document.getElementById('restart');
-const canvas = document.getElementById("canvas");
+const settingsRestartBtn = document.getElementById('settings-restart');
+const shootBtn = document.getElementById('shoot');
+const canvas = document.getElementById("canvas")
 const viewCheckbox = document.getElementById("view-checkbox");
+const orderViewCheckbox = document.getElementById("order-view-checkbox");
+
 const table = document.getElementById("table");
-const ordersList = document.getElementById("orders-list");
-const header = document.getElementById("header");
+const ordersSection = document.getElementById("orders-section");
+const fullOrdersList = document.getElementById("full-orders-list");
+const headerInfo = document.getElementById("header-info");
+const nextPhaseBtn = document.getElementById("next-phase-button");
+const settingsDialog = document.getElementById("settings-dialog");
+const closeSettingsDialog = document.getElementById("close-settings-dialog");
+const unitsStrip = document.getElementById("units-strip");
+const loadRosterInputPlayer1 = document.getElementById("load-roster-player1");
+const loadRosterInputPlayer2 = document.getElementById("load-roster-player2");
 
-const ctx = canvas.getContext("2d");
+const battlefieldSelect = document.getElementById("battlefield-select");
+const reloadBtn = document.getElementById("game-reload");
+const missionSection = document.getElementById("mission-section");
+const unitSection = document.getElementById("unit-section");
+const diceSection = document.getElementById("dice-section");
+const weaponSection = document.getElementById("weapon-section");
+const shootingQueue = document.getElementById("shooting-queue");
 
-ctx.scale(canvas.width / 60, canvas.height / 44);
+viewCheckbox.addEventListener('change', (e) => {
+	table.classList.toggle('hidden', !e.target.checked);
+	canvas.classList.toggle('hidden', e.target.checked);
+});
 
-const battlefield = new Battlefield(ctx, { size: [0, 0], objective_marker: [], ruins: [] });
-await battlefield.init();
-battlefield.draw();
-
-let scene = null;
-
-let battlefields = config.battlefields.length > 0 ? filterObjByKeys(allBattlefields, config.battlefields) : allBattlefields;
-
-
-drawOrders();
-let orderResolve;
-let orderPromise = new Promise((resolve) => { orderResolve = resolve });
-
-let env = [];
-let players = [];
-let agents = [];
-
-let playPromise = null;
-async function start() {
-	env = new Warhammer({ gameSettings, battlefields });
-
-	scene = new Scene(ctx, env.getState());
-	await scene.init();
-	players = [new PlayerControlled(0, env), new PlayerControlled(1, env)];
-	playPromise = play();
-}
-
-async function restart() {
-	env.end();
-	orderResolve([0]);
-	await playPromise;
-	players.forEach(player => player.reset());
-	env.reset();
-	playPromise = play();
-}
-
-async function play() {
-	while(true) {
-		const state = env.getState();
-		scene.updateState(state);
-		updateTable(state);
-		updateHeader(state)
-		console.log('CumulativeReward', players.map(p => p.cumulativeReward))
-		if (state.done) {
-			agents.forEach(agent => agent.awarding());
-			console.log('CumulativeReward awarding', players.map(p => p.cumulativeReward));
-			break;
-		} else {
-			players[state.player].orderPromise = orderPromise;
-			const [lastAction] = await players[state.player].playStep();
-			orderPromise = new Promise((resolve) => { orderResolve = resolve });
-		}
-	}
-}
+orderViewCheckbox.addEventListener('change', (e) => {
+	fullOrdersList.classList.toggle('hidden', !e.target.checked);
+	ordersSection.classList.toggle('hidden', e.target.checked);
+})
 
 function updateHeader(state) {
-	header.innerHTML = `Round: ${state.round}, Player turn: ${state.player}, Player0: ${state.players[0].primaryVP}, Player1: ${state.players[1].primaryVP}`;
-}
-
-function drawOrders() {
-	const orders = new Orders().getOrders().all;
-	orders.forEach((order, i) => {
-		const li = document.createElement("LI");
-		li.innerHTML = JSON.stringify(order);
-		li.addEventListener('click', () => orderResolve([i]))
-		ordersList.appendChild(li);
-	});
+	let phaseName = ['Command', 'Movement', 'Reinforcements', 'Shooting'][state.phase] ?? 'Deploy';
+	if (state.phase === Phase.PreBattle) {
+		phaseName = 'PreBattle';
+	}
+	headerInfo.classList.toggle('player0', state.player === 0);
+	headerInfo.classList.toggle('player1', state.player === 1);
+	headerInfo.innerHTML = `Phase: ${phaseName}, Round: ${state.round}, Player turn: ${state.player}, Player0: ${state.players[0].primaryVP}/${state.players[0].secondaryVP}, Player1: ${state.players[1].primaryVP}/${state.players[1].secondaryVP}`;
 }
 
 function updateTable(state) {
@@ -105,15 +74,229 @@ function updateTable(state) {
 				cellEl.classList.add('info-cell');
 			}
 		}
-		fragment.appendChild(rowEl)
+		fragment.appendChild(rowEl);
 	}
 	table.innerHTML = '';
 	table.appendChild(fragment);
 }
-start();
-restartBtn.addEventListener('click', restart);
 
-viewCheckbox.addEventListener('change', (e) => {
-	table.classList.toggle('hidden', !e.target.checked);
-	canvas.classList.toggle('hidden', e.target.checked);
+function updateUnitsStrip(state) {
+	unitsStrip.innerHTML = '';
+	let unitCounter = 0;
+
+	const orders = game.started ? game.orders : game.deployOrders;
+	state.units.forEach((unit, unitId) => {
+		const li = document.createElement("LI");
+		li.tabIndex = 0;
+		li.innerHTML =`${unit.name}`;
+		li.classList.add(`player-${unit.playerId}`);
+		if (unitId === game.selectedUnit) {
+			li.classList.add(`selected`);
+		}
+		unitsStrip.appendChild(li);
+		if (state.player === unit.playerId) {
+			const unitId = unitCounter;
+			li.addEventListener('click', () => {
+				if (unitId !== game.selectedUnit) {
+					game.selectUnit(unitId);
+					game.orderResolve([orders.selectIndexes[game.gameSettings.units.flat()[unitId].models[0]]]);
+				}
+			});
+		} else {
+			li.classList.add(`disabled`);
+		}
+		unitCounter++;
+	});
+}
+
+function updateSecondaryMission(state) {
+	const orders = new Orders().getOrders();
+	missionSection.innerHTML = '';
+	state.secondaryMissions.forEach((missions, playerId) => {
+		missionSection.append(`Player: ${playerId}`);
+		missions.forEach((mission, missionIndex) => {
+			const li = document.createElement("LI");
+			const button = document.createElement("BUTTON");
+			li.innerHTML = mission + (mission === Mission.ATamptingTarget ? state.tamptingTarget : '');
+			if(state.phase === Phase.Command && state.player === playerId) {
+				button.innerHTML = 'X';
+				li.appendChild(button);
+				button.addEventListener('click', () => game.orderResolve([orders.discardSecondaryIndex[missionIndex]]));
+			}
+			missionSection.appendChild(li);
+		});
+	});
+}
+
+const game = new Game(canvas);
+
+function updateUnitSection(selectedUnit) {
+	unitSection.innerHTML = '';
+	if (selectedUnit === null || selectedUnit === undefined) {
+		return;
+	}
+
+	unitSection.append(game.gameSettings.units.flat()[selectedUnit].name + '; ');
+
+	unitSection.append(JSON.stringify(game.gameSettings.unitProfiles[selectedUnit]) + '; ');
+	unitSection.append(game.gameSettings.categories[selectedUnit].join(', ') + '; ');
+	unitSection.append(game.gameSettings.rules[selectedUnit].join(', ') + '; ');
+	const state = game.env?.getState() ?? game.deploy?.getState();
+	const orders = (state.round === -1 || state.phase === Phase.Reinforcements) ? getDeployOrders() : new Orders().getOrders();
+	const selected = game.getSelectedModel();
+	state.units[selectedUnit].models.forEach((modelId) => {
+		const li = document.createElement("LI");
+		li.append(`${modelId} ${game.gameSettings.modelNames[modelId]} ${state.modelsWounds[modelId]} ${state.modelsStamina[modelId]} `);
+		if (Object.keys(game.gameSettings.unitProfiles[selectedUnit]).length === 0) {
+			li.append(JSON.stringify(game.gameSettings.modelProfiles[modelId]) + '; ');
+		}
+		if (modelId === selected) {
+			li.classList.add(`selected`);
+		}
+
+		unitSection.append(li);
+
+		li.addEventListener('click', () => {
+			game.orderResolve([orders.selectIndexes[state.players[state.player].models.indexOf(modelId)]]);
+		});
+	});
+
+}
+function updateWeaponSection(state) {
+	weaponSection.innerHTML = '';
+	const selectedModel = game.getSelectedModel();
+	if (selectedModel === null) {
+		return;
+	}
+	const orders = new Orders().getOrders();
+	game.gameSettings.rangedWeapons[selectedModel]?.forEach((weapon, weaponIndex) => {
+		const li = document.createElement("LI");
+		for(let key in weapon) {
+			li.append(`${key}: ${weapon[key]}; `);
+		}
+
+		weaponSection.append(li);
+		if (state.phase === Phase.Shooting) {
+			li.addEventListener('click', () => {
+				game.orderResolve([orders.selectWeaponIndex[weaponIndex]]);
+			});
+		}
+	});
+
+	game.gameSettings.meleeWeapons[selectedModel]?.forEach((weapon) => {
+		const li = document.createElement("LI");
+		for(let key in weapon) {
+			li.append(`${key}: ${weapon[key]}; `);
+		}
+
+		weaponSection.append(li);
+	});
+};
+
+game.onUpdateDice = (diceInfo) => {
+	diceSection.innerHTML = JSON.stringify(diceInfo);
+}
+
+game.onUpdate = (state) => {
+	//updateTable(state);
+	updateHeader(state);
+	updateUnitsStrip(state);
+	updateSecondaryMission(state);
+	updateUnitSection(game.selectedUnit);
+	updateWeaponSection(state);
+	updateShootingQueue(state);
+}
+
+function updateShootingQueue(state) {
+	shootingQueue.innerHTML = '';
+	if (game.started) {
+		shootingQueue.append(JSON.stringify(game.agents[state.player]._shootingQueue ?? []));
+		shootingQueue.append(JSON.stringify(game.agents[state.player]._shootingTargeting ?? []));
+	}
+}
+
+drawBattlefieldOptions();
+drawOrders();
+
+startBtn.addEventListener('click', () => game.start());
+restartBtn.addEventListener('click', () => game.restart());
+shootBtn.addEventListener('click', () => game.orderResolve([new Orders().getOrders().shootIndex]));
+reloadBtn.addEventListener('click', () => {
+	game.reload();
+	settingsDialog.close();
+});
+
+function drawOrders() {
+	const orders = new Orders().getOrders().all;
+	orders.forEach((order, i) => {
+		const li = document.createElement("LI");
+		li.innerHTML = JSON.stringify(order);
+		li.addEventListener('click', () => game.orderResolve([i]));
+		fullOrdersList.appendChild(li);
+	});
+}
+
+function drawBattlefieldOptions() {
+	Object.keys(allBattlefields).forEach((name) => {
+		const option = document.createElement('OPTION');
+		option.innerHTML = name;
+		option.value = name;
+		battlefieldSelect.appendChild(option);
+	});
+}
+
+battlefieldSelect.addEventListener('change', (e) => {
+	localStorage.setItem('battlefield-name', battlefieldSelect.selectedOptions[0].value);
+});
+
+nextPhaseBtn.addEventListener('click', () => {
+	game.orderResolve([new Orders().getOrders().nextPhaseIndexes[0]]);
+});
+
+document.addEventListener('keydown', (e) => {
+	if(e.code === 'Space') {
+		e.preventDefault();
+		game.orderResolve([new Orders().getOrders().nextPhaseIndexes[0]]);
+	}
+
+	if(e.code === 'Tab') {
+		e.preventDefault();
+		game.selectNextModel();
+	}
+});
+
+settingsRestartBtn.addEventListener('click', () => {
+	settingsDialog.showModal();
+});
+
+closeSettingsDialog.addEventListener('click', () => {
+	settingsDialog.close();
+});
+
+function getEntries(file, options) {
+	return (new zip.ZipReader(new zip.BlobReader(file))).getEntries(options);
+}
+
+loadRosterInputPlayer1.addEventListener('change', async (e) => {
+	var file = e.target.files[0];
+	if (!file) {
+		return;
+	}
+
+	const entries = await getEntries(file);
+	const data = await entries[0].getData(new zip.TextWriter());
+	const settings = roster2settings(xml2js(data, { compact: true }));
+	localStorage.setItem('game-settings-player1', JSON.stringify(settings));
+});
+
+loadRosterInputPlayer2.addEventListener('change', async (e) => {
+	var file = e.target.files[0];
+	if (!file) {
+		return;
+	}
+
+	const entries = await getEntries(file);
+	const data = await entries[0].getData(new zip.TextWriter());
+	const settings = roster2settings(xml2js(data, { compact: true }));
+	localStorage.setItem('game-settings-player2', JSON.stringify(settings));
 });

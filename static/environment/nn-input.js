@@ -26,7 +26,7 @@ export function emptyInput() {
 
 const objectiveMemoized = {};
 
-export function getInput(state) {
+export function getInput(state, playerState) {
 	const memoKey = state.battlefield.deployment;
 
 	if (deployment[memoKey] !== undefined && objectiveMemoized[memoKey] === undefined) {
@@ -57,7 +57,9 @@ export function getInput(state) {
 			let entity = null;
 
 			if (playerId === state.player) {
-				input[playerModelId] = [xy];
+				if (playerModelId === playerState.selected) {
+					input[0] = [xy];
+				}
 				if (state.phase === Phase.Movement) {
 					entity = Channel1Name[`Stamina${Math.min(state.modelsStamina[gameModelId], 10)}`];
 				}

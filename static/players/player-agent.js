@@ -1,5 +1,6 @@
 import { Action } from '../environment/orders.js';
-import { MoveAgent } from '../agents/move-agent/move-agent44x30.js';
+import { MoveAgent } from '../agents/move-agent/move-agent60x44.js';
+import { Phase } from '../environment/warhammer.js';
 
 export class PlayerAgent {
 	static cascad = [MoveAgent.settings]
@@ -8,7 +9,7 @@ export class PlayerAgent {
 		this.env = env;
 		this.playerId = playerId;
 		this.enemyId = (playerId+1) % 2;
-		this._selectedModel = this.env.players[this.playerId].models[0];
+		this._selectedModel = 0;
 		this.agent = new MoveAgent();
 	}
 	async load() {
@@ -16,31 +17,75 @@ export class PlayerAgent {
 	}
 	reset() {
 		this.checkSize();
-		this._selectedModel = this.env.players[this.playerId].models[0];
+		this.lastRound = -1
+		this._selectedModel = 0;
 	}
-	playStep() {
+	async playStep() {
+		await new Promise(resolve => setTimeout(resolve, 100))
 		const prevState = this.env.getState();
-
-		const { orderIndex, order, estimate } = this.agent.playStep(prevState);
+		let orderIndex, order, estimate;
+		if (prevState.phase === Phase.Movement) {
+			const result = this.agent.playStep(prevState, this.getState());
+			orderIndex = result.orderIndex;
+			order = result.order;
+			estimate = result.estimate;
+		} else {
+			orderIndex = 0;
+			order = { action: Action.NextPhase };
+			estimate = 0;
+		}
 
 		let [order_, state] = this.step(order);
-
 		return [order_, state, { index: orderIndex, estimate: estimate.toFixed(3) }];
-
 	}
+
 	step(order) {
 		let playerOrder;
 		const { action } = order;
 		const prevState = this.env.getState();
 
+		const playerModels = prevState.players[this.playerId].models;
+		const round = prevState.round;
+
+		if (this.lastRound !== round) {
+			this.env.step({ action: Action.Move, vector: [0, 0], expense: 0, id: playerModels[this._selectedModel] });
+			this.lastRound = round;
+		}
+
 		if (action === Action.Move) {
-			playerOrder = {action, id: this._selectedModel, vector: order.vector, expense: order.expense };
+			playerOrder = {action, id: playerModels[this._selectedModel], vector: order.vector, expense: order.expense };
+		} else if (action === Action.NextPhase && playerModels.some((modelId, playerModelId) => prevState.modelsStamina[modelId] !== 0 && playerModelId !== this._selectedModel)){
+			this._selectedModel = this.selectNextModel(prevState);
+			playerOrder = { action: Action.Move, vector: [0, 0], expense: 0, id: playerModels[this._selectedModel] };
 		} else {
 			playerOrder = order;
 		}
+
+		if (playerOrder.action === Action.NextPhase) {
+			this._selectedModel = this.selectNextModel(prevState);
+		}
+
 		const state = this.env.step(playerOrder);
 
 		return [{ ...playerOrder, misc: state.misc }, state];
+	}
+
+	selectNextModel(state) {
+		const playerModels = state.players[this.playerId].models;
+		const twicePlayerModels = [...playerModels, ...playerModels];
+		let newSelectedModel = this._selectedModel;
+		for (let i = newSelectedModel + 1; i < twicePlayerModels.length; i++) {
+			let modelId = twicePlayerModels[i];
+			if (!isNaN(state.models[modelId][0])) {
+				newSelectedModel = i % playerModels.length;
+				break;
+			}
+		}
+		return newSelectedModel;
+	}
+
+	getState() {
+		return { selected: this._selectedModel };
 	}
 
 	checkSize() {

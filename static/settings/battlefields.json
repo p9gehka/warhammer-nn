@@ -1,37 +1,37 @@
 {
-	"clashOfPatrols": {
-		"size": [44, 30],
-		"deployment": "clashOfPatrols",
-		"primary_mission": "take_and_hold"
+	"geeseValdas1-3": {
+		"size": [60, 44],
+		"terrain": "geeseValdas1-3",
+		"deployment": "searchAndDestroy",
+		"primary_mission": "take_and_hold",
+		"secondary_mission": "chilling_rain"
 	},
-	"archeothechRecovery": {
-		"size": [44, 30],
-		"deployment": "archeothechRecovery",
-		"primary_mission": "take_and_hold"
+	"geeseValdas4-6": {
+		"size": [60, 44],
+		"terrain": "geeseValdas4-6",
+		"deployment": "sweepingEngagement",
+		"primary_mission": "take_and_hold",
+		"secondary_mission": "chilling_rain"
 	},
-	"forwardOutpost": {
-		"size": [44, 30],
-		"deployment": "forwardOutpost",
-		"primary_mission": "take_and_hold"
+	"geeseValdas7-9": {
+		"size": [60, 44],
+		"terrain": "geeseValdas7-9",
+		"deployment": "hammerAndAnvil",
+		"primary_mission": "take_and_hold",
+		"secondary_mission": "chilling_rain"
 	},
-	"scorchedEarth": {
-		"size": [44, 30],
-		"deployment": "scorchedEarth",
-		"primary_mission": "take_and_hold"
+	"geeseValdas10-12": {
+		"size": [60, 44],
+		"terrain": "geeseValdas10-12",
+		"deployment": "dawnOfWar",
+		"primary_mission": "take_and_hold",
+		"secondary_mission": "chilling_rain"
 	},
-	"sweepingRaid": {
-		"size": [44, 30],
-		"deployment": "sweepingRaid",
-		"primary_mission": "take_and_hold"
-	},
-	"displayOfMight": {
-		"size": [44, 30],
-		"deployment": "displayOfMight",
-		"primary_mission": "take_and_hold"
-	},
-	"empty44x30": {
-		"size": [44, 30],
-		"deployment": "empty44x30",
-		"primary_mission": "take_and_hold"
+	"geeseValdas13-15": {
+		"size": [60, 44],
+		"terrain": "geeseValdas13-15",
+		"deployment": "crucibleOfBattle",
+		"primary_mission": "take_and_hold",
+		"secondary_mission": "chilling_rain"
 	}
 }
