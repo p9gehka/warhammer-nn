@@ -62,7 +62,7 @@ async function play() {
 	while(true) {
 		const state = env.getState();
 		scene.updateState(state);
-		updateTable(state, players[state.player].getInput());
+		updateTable(state, getInput(state, players[state.player].getState()));
 		updateHeader(state)
 		console.log('CumulativeReward', players.map(p => p.cumulativeReward))
 		if (state.done) {
