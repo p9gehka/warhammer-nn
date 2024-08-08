@@ -8,13 +8,15 @@ const canvas = document.getElementById("canvas")
 const historyList = document.getElementById("history-list");
 const ordersList = document.getElementById("orders-list");
 const unitsStrip = document.getElementById("units-strip");
+const viewCheckbox = document.getElementById("view-checkbox");
+const table = document.getElementById("table");
 const ctx = canvas.getContext("2d");
 const vpPlayer1Element = document.getElementById('player-1-vp');
 const vpPlayer2Element = document.getElementById('player-2-vp');
 
 ctx.scale(canvas.width / 60, canvas.height / 44);
 
-const model = await tf.loadLayersModel(`/agents/move-agent/.model44x30x3/model.json`);
+const model = await tf.loadLayersModel(`/agents/move-agent/.model44x30x4/model.json`);
 const battlefield = new Battlefield(ctx, { size: [0, 0], objective_marker: [], ruins: [] });
 await battlefield.init();
 battlefield.draw();
@@ -38,7 +40,7 @@ async function start () {
 
 	let lastRound = 1;
 	let prevPlayer = 'player-0';
-	actionAndStates.forEach(([prevState, order, state, nnInfo, reward], i) => {
+	actionAndStates.forEach(([prevState, playerState, order, state, nnInfo, reward], i) => {
 		const li = document.createElement("LI");
 		li.classList.add(prevPlayer);
 		prevPlayer = state.player === 0 ? 'player-0': 'player-1';
@@ -58,21 +60,23 @@ async function start () {
 
 function setState(e) {
 	if (e.target.dataset.indexNumber) {
-		const [prevState, order, state] = actionAndStates[e.target.dataset.indexNumber];
+		const [prevState, playerState, order, state] = actionAndStates[e.target.dataset.indexNumber];
 		scene.updateState(state);
 		scene.drawOrder(order);
-		updatePredictions(prevState);
+		const input = getInput(prevState, playerState);
+		updatePredictions(prevState, input);
+		updateTable(prevState, input);
 		updateUnitsStrip(state);
 	}
 }
 
-async function updatePredictions(state) {
+async function updatePredictions(state, input) {
 	ordersList.innerHTML = '';
 	const orders = playerOrders;
 
 	const [_, height, width] = model.input.shape;
 	window.tf.tidy(() => {
-		const predictions = model.predict(getStateTensor([getInput(state)], width, height, channels)).dataSync();
+		const predictions = model.predict(getStateTensor([input], width, height, channels)).dataSync();
 		orders.forEach((order, i) => {
 			const li = document.createElement("LI");
 			li.innerHTML = [JSON.stringify(order), predictions[i].toFixed(3)].join();
@@ -111,4 +115,31 @@ function updateUnitsStrip(state) {
 			unitsStrip.appendChild(li);
 		});
 	})
+}
+
+viewCheckbox.addEventListener('change', (e) => {
+	table.classList.toggle('hidden', !e.target.checked);
+	canvas.classList.toggle('hidden', e.target.checked);
+});
+
+function updateTable(state, input) {
+	const data = getStateTensor([input], ...state.battlefield.size, channels).arraySync();
+	const fragment = new DocumentFragment();
+	const nextline = Math.floor(Math.sqrt(data[0][0][0].length)) - 1;
+	for(let row of data[0]) {
+		const rowEl = document.createElement('TR');
+		for (let cell of row) {
+			const cellEl = document.createElement('TD');
+			cellEl.innerHTML = cell.map((v, i) => v.toFixed(1) + ((i === nextline) ? '\n' : ',')).join('');
+			rowEl.appendChild(cellEl);
+			if (cell[0] !== 0) {
+				cellEl.classList.add('model-cell');
+			} else if (cell.some(v => v !== 0)) {
+				cellEl.classList.add('info-cell');
+			}
+		}
+		fragment.appendChild(rowEl)
+	}
+	table.innerHTML = '';
+	table.appendChild(fragment);
 }

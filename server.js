@@ -30,7 +30,7 @@ app.get('/game', (req,res) => res.sendFile('static/game.html', { root: __dirname
 app.post('/play', async (req,res) => {
 	const env = new Warhammer({ gameSettings, battlefields });
 	const players = [new PlayerAgent(0, env), new PlayerAgent(1, env)];
-	const rewarders = [new Rewarder(0, env), new Rewarder(1, env)];
+	const rewarders = [new Rewarder(env, players[0]), new Rewarder(env, players[1])];
 	try {
 		await Promise.all(players.map(player => player.load()));
 	} catch(e) {
@@ -38,15 +38,14 @@ app.post('/play', async (req,res) => {
 	}
 	let state = env.reset();
 	let attempts = 0;
-	const actionsAndStates = [[state, null, state]];
+	const actionsAndStates = [[state, players[state.player].getState(), null, state]];
 	const states = [];
 
 	while (!state.done && attempts < 100) {
 		state = env.getState();
 		const stepInfo = players[state.player].playStep();
-		let reward = rewarders[state.player].step(stepInfo[0], 0.5);
-
-		actionsAndStates.push([state, ...stepInfo, reward])
+		const reward = rewarders[state.player].step(stepInfo[0], 0.5);
+		actionsAndStates.push([state, players[state.player].getState(), ...stepInfo, reward])
 		attempts++;
 	}
 	console.log(`cumulativeReward: ${rewarders[0].cumulativeReward} VP: ${state.players[0].primaryVP}`)

@@ -1,48 +1,44 @@
-import { BaseAction } from '../environment/warhammer.js';
-import { MoveAgent } from '../agents/move-agent/move-agent44x30.js';
+import { Orders, Action } from './orders.js';
+import { channels, getInput } from './nn-input.js';
 
-export class PlayerAgent {
-	static cascad = [MoveAgent.settings]
+import { getStateTensor } from '../utils/get-state-tensor.js';
+import { eq } from '../utils/vec2.js';
+
+export class PlayerEnvironment {
+	width = 44;
+	height = 30;
+	channels = channels;
+	vp = 0;
 	_selectedModel = null;
+	cumulativeReward = 0;
+
 	constructor(playerId, env) {
 		this.env = env;
 		this.playerId = playerId;
 		this.enemyId = (playerId+1) % 2;
-		this._selectedModel = 0;
-		this.agent = new MoveAgent();
+		this.reset();
+		this.orders = new Orders().getOrders();
 	}
-	async load() {
-		await this.agent.load();
-	}
+
 	reset() {
-		this.checkSize();
+		this.primaryVP = 0;
+		this.cumulativeReward = 0;
 		this.lastRound = -1;
 		this._selectedModel = 0;
 	}
-	playStep() {
-		const prevState = this.env.getState();
 
-		const { orderIndex, order, estimate } = this.agent.playStep(prevState, this.getState());
-
-		let [order_, state] = this.step(order);
-
-		return [order_, state, { index: orderIndex, estimate: estimate.toFixed(3) }];
-
-	}
 	step(order) {
 		let playerOrder;
 		const { action } = order;
 		const prevState = this.env.getState();
-
 		const playerModels = prevState.players[this.playerId].models;
 		const round = prevState.round;
-
 		if (this.lastRound !== round) {
 			this.env.step({ action: Action.Move, vector: [0, 0], expense: 0, id: playerModels[this._selectedModel] });
 			this.lastRound = round;
 		}
 
-		if (action === BaseAction.Move) {
+		if (action === Action.Move) {
 			playerOrder = {action, id: playerModels[this._selectedModel], vector: order.vector, expense: order.expense };
 		} else if (action === Action.NextPhase && playerModels.some((modelId, playerModelId) => prevState.modelsStamina[modelId] !== 0 && playerModelId !== this._selectedModel)){
 			this._selectedModel = this.selectNextModel(prevState);
@@ -57,18 +53,19 @@ export class PlayerAgent {
 
 		const state = this.env.step(playerOrder);
 
-		return [{ ...playerOrder, misc: state.misc }, state];
-	}
+		let reward = -0.5;
 
-	checkSize() {
-		if (this.agent.onlineNetwork === undefined) {
-			return;
-		}
-		const [_, height, width] = this.agent.onlineNetwork.inputs[0].shape;
-		const [fieldHeight, fieldWidth] = this.env.battlefield.size;
-		if (fieldHeight !== height || fieldWidth !== width) {
-			console.warn(`!!!!Map size and Network input are inconsistent: ${[fieldHeight, fieldWidth]} !== ${[height, width]}!!!`)
-		}
+		this.cumulativeReward += reward;
+
+		return [{ ...playerOrder, misc: state.misc }, state, reward];
+	}
+	awarding() {
+		const state = this.env.getState();
+		const { players } = state;
+		let reward = 0;
+
+		this.cumulativeReward += reward;
+		return reward;
 	}
 	selectNextModel(state) {
 		const playerModels = state.players[this.playerId].models;
@@ -83,8 +80,29 @@ export class PlayerAgent {
 		}
 		return newSelectedModel;
 	}
-
 	getState() {
 		return { selected: this._selectedModel };
+	}
+
+	primaryReward() {
+		const state = this.env.getState();
+		const { primaryVP } = state.players[this.playerId];
+		let reward = (primaryVP - this.primaryVP) * 5;
+		this.cumulativeReward += reward;
+		this.primaryVP = primaryVP;
+		return reward;
+	}
+
+	getInput() {
+		const state = this.env.getState();
+		return getInput(state, this.getState());
+	}
+
+	printStateTensor() {
+		const input = this.getInput();
+		const stateTensor = getStateTensor([input], this.height, this.width, this.channels);
+		console.log('*************************');
+		console.log(stateTensor.arraySync().map(v => v.map(c=> c.join('|')).join('\n')).join('\n'));
+		console.log('*************************');
 	}
 }

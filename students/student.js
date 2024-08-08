@@ -1,6 +1,6 @@
 import { getRandomInteger } from '../static/utils/index.js';
 import { eq, sub, len } from '../static/utils/vec2.js';
-import { Channel2Name } from '../static/environment/nn-input.js';
+import { Channel2Name, Channel3Name } from '../static/environment/nn-input.js';
 import { PlayerAgent } from '../static/players/player-agent.js';
 import { BaseAction } from '../static/environment/warhammer.js';
 import { deployment } from '../static/battlefield/deployment.js';
@@ -10,14 +10,15 @@ export class StudentAgent extends PlayerAgent {
 		const prevState = this.env.getState();
 		let orderIndex;
 		let estimate = 0;
-		const input = this.agent.getInput(prevState);
+		const input = this.agent.getInput(prevState, this.getState());
+		const selected = input[Channel3Name.Selected][0];
 
 		if (Math.random() < this.epsilon) {
 			orderIndex = getRandomInteger(0, this.agent.orders.all.length);
-		} else if (input[Channel2Name.ObjectiveMarker].some(pos => eq(pos, input[0][0])) && Math.random() < this.epsilon) {
+		} else if (input[Channel2Name.ObjectiveMarker].some(pos => eq(pos, selected)) && Math.random() < this.epsilon) {
 			orderIndex = 0;
 		} else {
-			let { orderIndex: stepOrderIndex, estimate } = this.agent.playStep(prevState);
+			let { orderIndex: stepOrderIndex, estimate } = this.agent.playStep(prevState, this.getState());
 			orderIndex = stepOrderIndex;
 		}
 
@@ -50,7 +51,7 @@ export class Student {
 		this.player = new StudentAgent(playerId, env);
 
 		this.setOnlineNetwork(nn);
-		this.rewarder = new Rewarder(this.playerId, this.env);
+		this.rewarder = new Rewarder(this.env, this.player);
 	}
 	setOnlineNetwork(nn) {
 		this.player.agent.onlineNetwork = nn;
@@ -68,7 +69,7 @@ export class Student {
 			this.epsilonFinal :
 			this.epsilonInit + this.epsilonIncrement_ * this.frameCount;
 		const prevState = this.env.getState();
-		const input = this.player.agent.getInput(prevState);
+		const input = this.player.agent.getInput(prevState, this.player.getState());
 
 		if (this.prevState !== null) {
 			this.replayMemory?.append([...this.prevState, false, input]);
@@ -88,9 +89,10 @@ export class Student {
 }
 
 export class Rewarder {
-	constructor(playerId, env) {
+	constructor(env, player) {
 		this.env = env;
-		this.playerId = playerId;
+		this.player = player;
+		this.playerId = player.playerId;
 		this.cumulativeReward = 0;
 		this.primaryVP = 0;
 	}
@@ -108,8 +110,10 @@ export class Rewarder {
 		let reward = 0;
 		if (order.action === BaseAction.Move) {
 			const state = this.env.getState();
-			const initialPosititon = sub(state.models[this.playerId], order.vector);
-			const currentPosition = state.models[this.playerId];
+			const playerState = this.player.getState();
+			const selected = state.players[this.playerId].models[playerState.selected];
+			const initialPosititon = sub(state.models[selected], order.vector);
+			const currentPosition = state.models[selected];
 
 			const objectiveMarkers = new deployment[state.battlefield.deployment]().objective_markers;
 			const objectiveDistances = objectiveMarkers.map(deployment => len(sub(deployment, initialPosititon)) - len(sub(deployment, currentPosition)));

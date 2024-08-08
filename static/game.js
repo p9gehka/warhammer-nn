@@ -62,7 +62,7 @@ async function play() {
 	while(true) {
 		const state = env.getState();
 		scene.updateState(state);
-		updateTable(state);
+		updateTable(state, getInput(state, players[state.player].getState()));
 		updateHeader(state)
 		console.log('CumulativeReward', players.map(p => p.cumulativeReward))
 		if (state.done) {
@@ -91,17 +91,19 @@ function drawOrders() {
 	});
 }
 
-function updateTable(state) {
-	const data = getStateTensor([getInput(state)], ...state.battlefield.size, channels).arraySync();
+function updateTable(state, input) {
+	const data = getStateTensor([input], ...state.battlefield.size, channels).arraySync();
 	const fragment = new DocumentFragment();
-	const nextline = Math.floor(Math.sqrt(data[0][0][0].length));
+	const nextline = Math.floor(Math.sqrt(data[0][0][0].length)) - 1;
 	for(let row of data[0]) {
 		const rowEl = document.createElement('TR');
 		for (let cell of row) {
 			const cellEl = document.createElement('TD');
 			cellEl.innerHTML = cell.map((v, i) => v.toFixed(1) + ((i === nextline) ? '\n' : ',')).join('');
 			rowEl.appendChild(cellEl);
-			if (cell.some(v => v !== 0)) {
+			if (cell[0] !== 0) {
+				cellEl.classList.add('model-cell');
+			} else if (cell.some(v => v !== 0)) {
 				cellEl.classList.add('info-cell');
 			}
 		}
