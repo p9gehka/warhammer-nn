@@ -13,8 +13,8 @@ class RandomAgent {
 		this.orders = moveOrders;
 	}
 	playStep(state) {
-		const orderIndex = getRandomInteger(0, this.orders.all.length);
-		return { order: this.orders.all[orderIndex], orderIndex, estimate: 0 };
+		const orderIndex = getRandomInteger(0, this.orders.length);
+		return { order: this.orders[orderIndex], orderIndex, estimate: 0 };
 	}
 	getInput(state, playerState) {
 		return getInput(state, playerState)
@@ -52,7 +52,7 @@ export class MoveAgentBase {
 			});
 		}
 
-		return { order: this.orders.all[orderIndex], orderIndex, estimate };
+		return { order: this.orders[orderIndex], orderIndex, estimate };
 	}
 
 	printStateTensor() {

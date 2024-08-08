@@ -14,15 +14,15 @@ export class StudentAgent extends PlayerAgent {
 		const selected = input[Channel3Name.Selected][0];
 
 		if (Math.random() < this.epsilon) {
-			orderIndex = getRandomInteger(0, this.agent.orders.all.length);
-		} else if (input[Channel2Name.ObjectiveMarker].some(pos => eq(pos, selected)) && Math.random() < this.epsilon) {
+			orderIndex = getRandomInteger(0, this.agent.orders.length);
+		} else if (input[Channel2Name.ObjectiveMarker].some(pos => eq(pos, input[0][0])) && Math.random() < this.epsilon) {
 			orderIndex = 0;
 		} else {
 			let { orderIndex: stepOrderIndex, estimate } = this.agent.playStep(prevState, this.getState());
 			orderIndex = stepOrderIndex;
 		}
 
-		const order = this.agent.orders.all[orderIndex];
+		const order = this.agent.orders[orderIndex];
 
 		let [order_, state] = this.step(order);
 
