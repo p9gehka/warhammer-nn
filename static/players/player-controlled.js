@@ -1,4 +1,4 @@
-import { Action, Orders } from '../environment/orders.js';
+import { PlayerAction, playerOrders } from './player-orders.js';
 
 export class PlayerControlled {
 	_shootingQueue = [];
@@ -14,17 +14,16 @@ export class PlayerControlled {
 		return orders.reduce((_, order) => this._playStep(order), null);
 	}
 	_playStep(orderIndex) {
-		const order = new Orders().getOrders().all[orderIndex];
-
+		const order = playerOrders[orderIndex];
 
 		let playerOrder;
 		const { action } = order;
 		const prevState = this.env.getState();
 
-		if (action === Action.Select) {
+		if (action === PlayerAction.Select) {
 			this._selectedModel = this.env.players[this.playerId].models[order.id];
 			playerOrder = { ...order, id: this._selectedModel };
-		} else if (action === Action.SetTarget && this._selectedModel !== null) {
+		} else if (action === PlayerAction.SetTarget && this._selectedModel !== null) {
 			const selectedWeapon = this._shootingQueue.at(-1);
 			if (this._shootingTargeting[selectedWeapon] === undefined) {
 				this._shootingTargeting[selectedWeapon] = {};
@@ -37,7 +36,7 @@ export class PlayerControlled {
 				this._shootingTargeting[selectedWeapon][this._selectedModel].shift();
 			}
 			playerOrder = order;
-		} else if (action === Action.Shoot && this._shootingQueue.length > 0) {
+		} else if (action === PlayerAction.Shoot && this._shootingQueue.length > 0) {
 			let weapon;
 			let shooter;
 			while (this._shootingQueue.length > 0) {
@@ -59,14 +58,14 @@ export class PlayerControlled {
 			}
 
 			playerOrder = {
-				action: Action.Shoot,
+				action: PlayerAction.Shoot,
 				id: shooter,
 				weaponId: this.env.gameSettings.rangedWeapons[shooter].map(w=> w.name).indexOf(weapon),
 				target,
 			};
-		} else if (action === Action.Move) {
+		} else if (action === PlayerAction.Move) {
 			playerOrder = { action, id: this._selectedModel, vector: order.vector, expense: order.expense };
-		} else if (action === Action.SelectWeapon && this._selectedModel !== null) {
+		} else if (action === PlayerAction.SelectWeapon && this._selectedModel !== null) {
 			const weaponName = this.env.gameSettings.rangedWeapons[this._selectedModel][order.id].name;
 			this._shootingQueue = this._shootingQueue.filter(v => v !== weaponName);
 			if (weaponName !== undefined) {

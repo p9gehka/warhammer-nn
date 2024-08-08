@@ -1,4 +1,4 @@
-import { Action } from '../environment/orders.js';
+import { BaseAction } from '../environment/warhammer.js';
 import { MoveAgent } from '../agents/move-agent/move-agent44x30.js';
 
 export class PlayerAgent {
@@ -38,20 +38,20 @@ export class PlayerAgent {
 		const round = prevState.round;
 
 		if (this.lastRound !== round) {
-			this.env.step({ action: Action.Move, vector: [0, 0], expense: 0, id: playerModels[this._selectedModel] });
+			this.env.step({ action: BaseAction.Move, vector: [0, 0], expense: 0, id: playerModels[this._selectedModel] });
 			this.lastRound = round;
 		}
 
-		if (action === Action.Move) {
+		if (action === BaseAction.Move) {
 			playerOrder = {action, id: playerModels[this._selectedModel], vector: order.vector, expense: order.expense };
-		} else if (action === Action.NextPhase && playerModels.some((modelId, playerModelId) => prevState.modelsStamina[modelId] !== 0 && playerModelId !== this._selectedModel)){
+		} else if (action === BaseAction.NextPhase && playerModels.some((modelId, playerModelId) => prevState.modelsStamina[modelId] !== 0 && playerModelId !== this._selectedModel)){
 			this._selectedModel = this.selectNextModel(prevState);
-			playerOrder = { action: Action.Move, vector: [0, 0], expense: 0, id: playerModels[this._selectedModel] };
+			playerOrder = { action: BaseAction.Move, vector: [0, 0], expense: 0, id: playerModels[this._selectedModel] };
 		} else {
 			playerOrder = order;
 		}
 
-		if (playerOrder.action === Action.NextPhase) {
+		if (playerOrder.action === BaseAction.NextPhase) {
 			this._selectedModel = this.selectNextModel(prevState);
 		}
 

@@ -1,7 +1,5 @@
-import { Orders } from '../environment/orders.js';
 import { Drawing } from './drawing.js';
 import { deployment } from '../battlefield/deployment.js';
-
 
 const mmToInch = mm => mm / 25.4;
 

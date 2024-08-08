@@ -1,6 +1,6 @@
 import { Battlefield, Scene } from './drawing-entities/drawing-entities.js';
 import { Warhammer } from './environment/warhammer.js'
-import { Orders } from './environment/orders.js';
+import { playerOrders } from './players/player-orders.js';
 import { PlayerControlled } from './players/player-controlled.js';
 import { getStateTensor } from './utils/get-state-tensor.js';
 import { filterObjByKeys } from './utils/index.js';
@@ -62,7 +62,7 @@ async function play() {
 	while(true) {
 		const state = env.getState();
 		scene.updateState(state);
-		updateTable(state, players[state.player].getInput());
+		updateTable(state, getInput(state, players[state.player].getState()));
 		updateHeader(state)
 		console.log('CumulativeReward', players.map(p => p.cumulativeReward))
 		if (state.done) {
@@ -82,7 +82,7 @@ function updateHeader(state) {
 }
 
 function drawOrders() {
-	const orders = new Orders().getOrders().all;
+	const orders = playerOrders;
 	orders.forEach((order, i) => {
 		const li = document.createElement("LI");
 		li.innerHTML = JSON.stringify(order);
