@@ -1,4 +1,4 @@
-import { Action } from '../environment/orders.js';
+import { BaseAction } from '../environment/warhammer.js';
 import { MoveAgent } from '../agents/move-agent/move-agent60x44.js';
 
 export class PlayerAgent {
@@ -33,7 +33,7 @@ export class PlayerAgent {
 		const { action } = order;
 		const prevState = this.env.getState();
 
-		if (action === Action.Move) {
+		if (action === BaseAction.Move) {
 			playerOrder = {action, id: this._selectedModel, vector: order.vector, expense: order.expense };
 		} else {
 			playerOrder = order;
