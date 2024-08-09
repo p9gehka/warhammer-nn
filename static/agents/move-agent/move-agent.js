@@ -1,6 +1,6 @@
 import { getStateTensor } from '../../utils/get-state-tensor.js';
 import { getTF } from '../../utils/get-tf.js';
-import { Orders } from '../../environment/orders.js';
+import { moveOrders } from './move-orders.js';
 import { Channel1Name } from '../../environment/nn-input.js';
 import { getInput } from '../../environment/nn-input.js';
 import { getRandomInteger } from '../../utils/index.js';
@@ -10,11 +10,11 @@ const tf = await getTF();
 
 class RandomAgent {
 	constructor() {
-		this.orders = new Orders().getOrders();
+		this.orders = moveOrders;
 	}
 	playStep(state) {
-		const orderIndex = getRandomInteger(0, this.orders.all.length);
-		return { order: this.orders.all[orderIndex], orderIndex, estimate: 0 };
+		const orderIndex = getRandomInteger(0, this.orders.length);
+		return { order: this.orders[orderIndex], orderIndex, estimate: 0 };
 	}
 	getInput(state) {
 		return getInput(state)
@@ -23,6 +23,7 @@ class RandomAgent {
 
 export class MoveAgentBase {
 	fillAgent = new RandomAgent();
+	orders = moveOrders;
 	async load() {
 		const loadPath = (typeof window === 'undefined' ? 'file://static/' : '') + `agents/move-agent/.model${this.width}x${this.height}x${this.channels.length}/model.json`;
 		this.onlineNetwork = await tf.loadLayersModel(loadPath);
@@ -47,10 +48,8 @@ export class MoveAgentBase {
 				orderIndex = prediction.argMax(-1).dataSync()[0];
 			});
 		}
-		if (orderIndex !== 0) {
-			orderIndex = orders.moveIndexes[orderIndex - 1];
-		}
-		return { order: this.orders.all[orderIndex], orderIndex, estimate };
+
+		return { order: this.orders[orderIndex], orderIndex, estimate };
 	}
 
 	printStateTensor() {

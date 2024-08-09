@@ -1,4 +1,4 @@
-import { Orders } from './environment/orders.js';
+import { playerOrders } from './players/player-orders.js';
 import { getInput, channels } from './environment/nn-input.js';
 import { Phase } from './environment/warhammer.js';
 import { getStateTensor } from '../utils/get-state-tensor.js';
