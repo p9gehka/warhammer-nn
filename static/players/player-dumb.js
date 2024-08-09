@@ -1,4 +1,4 @@
-import { Action } from '../environment/orders.js';
+import { BaseAction } from '../environment/warhammer.js';
 
 export class PlayerDumb {
 	constructor(env) {
