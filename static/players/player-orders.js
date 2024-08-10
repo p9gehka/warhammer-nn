@@ -15,9 +15,6 @@ Array(50).fill().map((_, id) => {
 	playerOrders.push({ action: PlayerAction.Select, id });
 });
 
-playerOrders.push(...);
-
-
 Array(30).fill().map((_, id) => {
 	playerOrders.push({ action: PlayerAction.SetTarget, id });
 });
