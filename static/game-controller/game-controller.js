@@ -1,10 +1,10 @@
 import { Battlefield, Scene } from '../drawing-entities/drawing-entities.js';
 import { Warhammer, Phase } from '../environment/warhammer.js'
-import { Deploy, DeployAction, DeployEnvironment, getDeployOrders } from '../environment/deploy.js'
-import { Orders } from '../environment/orders.js';
+import { Deploy, DeployEnvironment } from '../environment/deploy.js'
 import { add, eq, len } from '../utils/vec2.js'
 import { PlayerControlled } from '../players/player-controlled.js';
 import { PlayerAgent } from '../players/player-agent.js'
+import { getDeployModelOrders, getSetTargetOrder, doneOrder, getSelectModelOrder, getMoveOrders } from '../players/player-orders.js';
 
 import battlefields from '../settings/battlefields.json' assert { type: 'json' };
 
@@ -40,15 +40,12 @@ export class Game {
 		this.onUpdateDice = () => {};
 
 		this.started = false;
-		this.orders = new Orders().getOrders();
 		this.orderHandlers = [];
-		this.deployOrders = getDeployOrders();
 		this.runDeploy();
 		this.selectedUnit = null;
 	}
 	selectHandler(clickPosition) {
 		const state = this.started ? this.env.getState() : this.deploy.getState();
-		const orders = this.started ? this.orders : this.deployOrders;
 
 		state.units.forEach((unit, unitId) => {
 			unit.models.forEach(modelId => {
@@ -56,7 +53,7 @@ export class Game {
 					this.selectUnit(unitId);
 					if (unit.playerId === state.player) {
 						const playerModelId = state.players[state.player].models.indexOf(modelId);
-						this.orderResolve([orders.selectIndexes[playerModelId]]);
+						this.orderResolve([getSelectModelOrder(playerModelId)]);
 					} else {
 						this.onUpdate(state);
 					}
@@ -119,12 +116,10 @@ export class Game {
 			} else {
 				this.scene.updateState(state, {}, { selecteddUnit: this.selectedUnit });
 				this.onUpdate(state);
-				this.orderHandlers = [
-					([x, y]) => this.orderResolve([this.deployOrders.setXIndexes[x], this.deployOrders.setYIndexes[y], this.deployOrders.deployIndex])
-				];
+				this.orderHandlers = [(coord) => this.orderResolve(getDeployModelOrders(coord))];
 				const orders = await this.orderPromise;
 				orders.forEach((order) => {
-					state = this.deployPlayers[state.player].step(this.deployOrders.all[order]);
+					state = this.deployPlayers[state.player].step(order);
 				});
 				if(!state.done) {
 					this.orderPromise = new Promise((resolve) => this.orderResolve = resolve);
@@ -137,7 +132,7 @@ export class Game {
 		if (this.started) {
 			return;
 		}
-		this.orderResolve([this.deployOrders.doneIndex]);
+		this.orderResolve([doneOrder]);
 		this.orderPromise = new Promise((resolve) => this.orderResolve = resolve);
 		this.started = true;
 
@@ -150,14 +145,14 @@ export class Game {
 	}
 
 	restart() {
-		this.orderResolve([this.deployOrders.doneIndex]);
+		this.orderResolve([doneOrder]);
 		this.orderPromise = new Promise((resolve) => this.orderResolve = resolve);
 		this.agents.forEach(agent => agent.reset());
 		this.env?.reset();
 		this.play();
 	}
 	reload() {
-		this.orderResolve([this.orders.doneIndex]);
+		this.orderResolve([doneOrder]);
 		this.orderPromise = new Promise((resolve) => this.orderResolve = resolve);
 		this.agents.forEach(agent => agent.reset());
 		this.env?.reset();
@@ -182,23 +177,20 @@ export class Game {
 				const opponentId = (state.player + 1) % 2;
 				if ((state.phase === Phase.Movement || state.phase === Phase.PreBattle) && state.modelsStamina[selected] > 0) {
 					const selectedPosition = state.models[selected];
-					this.orderHandlers = this.orders.all.map((order, i) => {
+					this.orderHandlers = getMoveOrders().map((order) => {
 						return (clickPosition) => {
-							if (order.action ==="MOVE" &&
-								eq(clickPosition, add(selectedPosition, order.vector)) &&
+							if (eq(clickPosition, add(selectedPosition, order.vector)) &&
 								state.modelsStamina[selected] >= len(order.vector)
 							) {
-								this.orderResolve([i]);
+								this.orderResolve([order]);
 							}
 						}
 					});
-					this.scene.drawOrders(this.orders.all.filter(order=> order.action === "MOVE" && state.modelsStamina[selected] >= len(order.vector)).map(order=> add(selectedPosition, order.vector)));
+					this.scene.drawOrders(getMoveOrders().filter(order=> state.modelsStamina[selected] >= len(order.vector)).map(order=> add(selectedPosition, order.vector)));
 				}
 
 				if (state.phase === Phase.Reinforcements) {
-					this.orderHandlers = [
-						([x, y]) => this.orderResolve([this.deployOrders.setXIndexes[x], this.deployOrders.setYIndexes[y], this.deployOrders.deployIndex])
-					];
+					this.orderHandlers = [(coord) => this.orderResolve(getDeployModelOrders(coord))];
 				}
 
 				if (state.phase === Phase.Shooting && selected !== null) {
@@ -207,7 +199,7 @@ export class Game {
 						unit.models.map((modelId) => {
 							this.orderHandlers.push((clickPosition) => {
 								if(eq(state.models[modelId], clickPosition)) {
-									this.orderResolve([this.orders.setTargetIndex[opponentUnitId]]);
+									this.orderResolve([getSetTargetOrder(opponentUnitId)]);
 								}
 							});
 						});
@@ -219,7 +211,7 @@ export class Game {
 				if (state.phase === Phase.Reinforcements) {
 					const orders = await this.orderPromise;
 					orders.forEach(order => {
-						this.reinforcementsPlayers[state.player].step(this.deployOrders.all[order]);
+						this.reinforcementsPlayers[state.player].step(order);
 					});
 				} else {
 					this.agents[state.player].orderPromise = this.orderPromise;
@@ -242,10 +234,9 @@ export class Game {
 
 	selectNextModel() {
 		const state = this.started ? this.env.getState() : this.deploy.getState();
-		const orders = this.started ? this.orders : this.deployOrders;
 		const totalLength = state.players[state.player].models.length;
 		const selectedModel = state.players[state.player].models.indexOf(this.getSelectedModel());
-		this.orderResolve([orders.selectIndexes[(selectedModel + 1) % totalLength]]);
+		this.orderResolve([getSelectModelOrder((selectedModel + 1) % totalLength)]);
 	}
 	getSelectedModel() {
 		const state = this.started ? this.env.getState() : this.deploy.getState();

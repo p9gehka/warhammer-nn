@@ -1,4 +1,5 @@
 import { BaseAction, Phase } from '../environment/warhammer.js';
+import { DeployAction } from '../environment/deploy.js';
 import { moveOrders } from '../agents/move-agent/move-orders.js';
 
 export const PlayerAction = {
@@ -8,25 +9,45 @@ export const PlayerAction = {
 	...BaseAction,
 }
 
-
-export const playerOrders = [...moveOrders];
-
-Array(50).fill().map((_, id) => {
-	playerOrders.push({ action: PlayerAction.Select, id });
-});
-
-Array(30).fill().map((_, id) => {
-	playerOrders.push({ action: PlayerAction.SetTarget, id });
-});
-
-Array(10).fill().map((_, id) => {
-	playerOrders.push({ action:PlayerAction.SelectWeapon, id });
-});
-
-playerOrders.push({ action: BaseAction.Shoot });
-
-getPlayerOrders(phase) {
-	if (phase === Phase.Command) {
-		return [{ action: BaseAction.DiscardSecondary, id: 0 }, { action: BaseAction.DiscardSecondary, id: 1 }];
-	}
+export const DeployPlayerAction = {
+	SetX: 'SET_X',
+	SetY: 'SET_Y',
+	...DeployAction,
 }
+
+export const shootOrder = { action: BaseAction.Shoot };
+export const nextPhaseOrder = { action: BaseAction.NextPhase };
+
+export function getMoveOrders() {
+	return moveOrders.filter(order => order.action === BaseAction.Move);
+}
+export function getDiscardMissionOrder(id) {
+	return { action: BaseAction.DiscardSecondary, id };
+}
+
+export function getSelectModelOrder(id) {
+	return { action: PlayerAction.Select, id }
+}
+
+export function getSelectWeaponOrder(id) {
+	return { action: PlayerAction.SelectWeapon, id };
+}
+
+export function getSetTargetOrder(id) {
+	return { action: PlayerAction.SetTarget, id };
+}
+
+export function getPlayerOrders(phase) {
+	return [nextPhaseOrder];
+}
+
+
+export function getDeployModelOrders([x, y]) {
+	return [
+		{ action: DeployPlayerAction.SetX, value: x },
+		{ action: DeployPlayerAction.SetY, value: y },
+		{ action: DeployAction.DeployModel },
+	];
+}
+
+export const doneOrder = { action: DeployAction.Done };

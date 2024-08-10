@@ -1,9 +1,15 @@
-import { playerOrders } from './players/player-orders.js';
+import {
+	getPlayerOrders,
+	getDiscardMissionOrder,
+	getSelectModelOrder,
+	getSelectWeaponOrder,
+	shootOrder,
+	nextPhaseOrder,
+} from './players/player-orders.js';
 import { getInput, channels } from './environment/nn-input.js';
 import { Phase } from './environment/warhammer.js';
 import { getStateTensor } from '../utils/get-state-tensor.js';
 import { Game } from './game-controller/game-controller.js';
-import { getDeployOrders } from './environment/deploy.js';
 import { roster2settings } from './utils/roster2settings.js';
 import { Mission } from './environment/mission.js';
 
@@ -99,7 +105,7 @@ function updateUnitsStrip(state) {
 			li.addEventListener('click', () => {
 				if (unitId !== game.selectedUnit) {
 					game.selectUnit(unitId);
-					game.orderResolve([orders.selectIndexes[game.gameSettings.units.flat()[unitId].models[0]]]);
+					game.orderResolve([getSelectModelOrder(game.gameSettings.units.flat()[unitId].models[0])]);
 				}
 			});
 		} else {
@@ -110,7 +116,6 @@ function updateUnitsStrip(state) {
 }
 
 function updateSecondaryMission(state) {
-	const orders = new Orders().getOrders();
 	missionSection.innerHTML = '';
 	state.secondaryMissions.forEach((missions, playerId) => {
 		missionSection.append(`Player: ${playerId}`);
@@ -121,7 +126,7 @@ function updateSecondaryMission(state) {
 			if(state.phase === Phase.Command && state.player === playerId) {
 				button.innerHTML = 'X';
 				li.appendChild(button);
-				button.addEventListener('click', () => game.orderResolve([orders.discardSecondaryIndex[missionIndex]]));
+				button.addEventListener('click', () => game.orderResolve([getDiscardMissionOrder(missionIndex)]));
 			}
 			missionSection.appendChild(li);
 		});
@@ -142,7 +147,6 @@ function updateUnitSection(selectedUnit) {
 	unitSection.append(game.gameSettings.categories[selectedUnit].join(', ') + '; ');
 	unitSection.append(game.gameSettings.rules[selectedUnit].join(', ') + '; ');
 	const state = game.env?.getState() ?? game.deploy?.getState();
-	const orders = (state.round === -1 || state.phase === Phase.Reinforcements) ? getDeployOrders() : new Orders().getOrders();
 	const selected = state.players[state.player].models[game.getSelectedModel()];
 	state.units[selectedUnit].models.forEach((modelId) => {
 		const li = document.createElement("LI");
@@ -157,7 +161,7 @@ function updateUnitSection(selectedUnit) {
 		unitSection.append(li);
 
 		li.addEventListener('click', () => {
-			game.orderResolve([orders.selectIndexes[state.players[state.player].models.indexOf(modelId)]]);
+			game.orderResolve([getSelectModelOrder(state.players[state.player].models.indexOf(modelId))]);
 		});
 	});
 
@@ -168,7 +172,7 @@ function updateWeaponSection(state) {
 	if (selectedModel === null) {
 		return;
 	}
-	const orders = new Orders().getOrders();
+
 	game.gameSettings.rangedWeapons[selectedModel]?.forEach((weapon, weaponIndex) => {
 		const li = document.createElement("LI");
 		for(let key in weapon) {
@@ -178,7 +182,7 @@ function updateWeaponSection(state) {
 		weaponSection.append(li);
 		if (state.phase === Phase.Shooting) {
 			li.addEventListener('click', () => {
-				game.orderResolve([orders.selectWeaponIndex[weaponIndex]]);
+				game.orderResolve([getSelectWeaponOrder(weaponIndex)]);
 			});
 		}
 	});
@@ -220,15 +224,14 @@ drawOrders();
 
 startBtn.addEventListener('click', () => game.start());
 restartBtn.addEventListener('click', () => game.restart());
-shootBtn.addEventListener('click', () => game.orderResolve([new Orders().getOrders().shootIndex]));
+shootBtn.addEventListener('click', () => game.orderResolve([shootOrder]));
 reloadBtn.addEventListener('click', () => {
 	game.reload();
 	settingsDialog.close();
 });
 
 function drawOrders() {
-	const orders = new Orders().getOrders().all;
-	orders.forEach((order, i) => {
+	getPlayerOrders().forEach((order, i) => {
 		const li = document.createElement("LI");
 		li.innerHTML = JSON.stringify(order);
 		li.addEventListener('click', () => game.orderResolve([i]));
@@ -250,13 +253,13 @@ battlefieldSelect.addEventListener('change', (e) => {
 });
 
 nextPhaseBtn.addEventListener('click', () => {
-	game.orderResolve([new Orders().getOrders().nextPhaseIndexes[0]]);
+	game.orderResolve([nextPhaseOrder]);
 });
 
 document.addEventListener('keydown', (e) => {
 	if(e.code === 'Space') {
 		e.preventDefault();
-		game.orderResolve([new Orders().getOrders().nextPhaseIndexes[0]]);
+		game.orderResolve([nextPhaseOrder]);
 	}
 
 	if(e.code === 'Tab') {

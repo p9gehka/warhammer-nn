@@ -1,44 +1,4 @@
-import { sub } from '../utils/vec2.js'
 import { deployment } from '../battlefield/deployment.js';
-
-export function getDeployOrders() {
-	const all = [];
-	all.push({ action: 'NEXT_PHASE' });
-	all.push({ action: 'DONE' });
-
-	const select = Array(50).fill().map((_, id) => ({ action: 'SELECT', id }));
-	const setX = Array(60).fill().map((_, value) => ({ action: 'SET_X', value }));
-	const setY = Array(44).fill().map((_, value) => ({ action: 'SET_Y', value }));
-
-	const selectIndexes = [];
-	select.forEach((order) => {
-		selectIndexes.push(all.length);
-		all.push(order);
-	});
-
-	const setXIndexes = [];
-	setX.forEach((order) => {
-		setXIndexes.push(all.length);
-		all.push(order);
-	});
-
-	const setYIndexes = [];
-	setY.forEach((order) => {
-		setYIndexes.push(all.length);
-		all.push(order);
-	});
-	const deployIndex = all.length;
-	all.push({ action: 'DEPLOY_MODEL'});
-	
-	return {
-		selectIndexes,
-		setXIndexes,
-		setYIndexes,
-		doneIndex: 1,
-		deployIndex,
-		all
-	};
-}
 
 export const DeployAction = {
 	DeployModel: 'DEPLOY_MODEL',

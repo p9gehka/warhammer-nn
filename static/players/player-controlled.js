@@ -1,4 +1,4 @@
-import { PlayerAction, playerOrders } from './player-orders.js';
+import { PlayerAction } from './player-orders.js';
 
 export class PlayerControlled {
 	_shootingQueue = [];
@@ -13,9 +13,7 @@ export class PlayerControlled {
 		const orders = await this.orderPromise;
 		return orders.reduce((_, order) => this._playStep(order), null);
 	}
-	_playStep(orderIndex) {
-		const order = playerOrders[orderIndex];
-
+	_playStep(order) {
 		let playerOrder;
 		const { action } = order;
 		const prevState = this.env.getState();
