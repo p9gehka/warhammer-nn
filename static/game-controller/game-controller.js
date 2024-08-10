@@ -216,7 +216,9 @@ export class Game {
 				} else {
 					this.agents[state.player].orderPromise = this.orderPromise;
 					const [lastAction] = await this.agents[state.player].playStep();
-
+					if (state.player === 1) {
+						await new Promise(resolve => setTimeout(resolve, 100));
+					}
 					if (lastAction.misc && Object.keys(lastAction.misc).length > 0) {
 						this.onUpdateDice(lastAction.misc);
 					}

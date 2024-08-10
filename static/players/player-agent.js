@@ -21,7 +21,6 @@ export class PlayerAgent {
 		this._selectedModel = 0;
 	}
 	async playStep() {
-		await new Promise(resolve => setTimeout(resolve, 100))
 		const prevState = this.env.getState();
 		let orderIndex, order, estimate;
 		if (prevState.phase === Phase.Movement) {

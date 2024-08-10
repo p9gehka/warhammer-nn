@@ -161,6 +161,7 @@ export class Warhammer {
 	objectiveControlReward = 5;
 	totalRounds = 5;
 	phaseSequence = 0;
+	lastMovedModelId = null;
 	constructor(config) {
 		this.missions = [
 			new MissionController('TakeAndHold', 'ChillingRain', [Mission.ATamptingTarget, Mission.StormHostileObjective]),
@@ -236,6 +237,7 @@ export class Warhammer {
 				this.players[currentPlayerId].primaryVP = Math.min(this.players[currentPlayerId].primaryVP, 50);
 			}
 
+			this.lastMovedModelId = null;
 			this.models.forEach(model => model.updateAvailableToMove(false));
 
 			if (this.phase === phaseOrd.at(-1)) {
@@ -336,6 +338,10 @@ export class Warhammer {
 			}
 		}
 		if (order.action === BaseAction.Move && model !== undefined) {
+			if (this.lastMovedModelId !== null && this.lastMovedModelId !== order.id) {
+				this.models[this.lastMovedModelId].updateAvailableToMove(false);
+			}
+			this.lastMovedModelId = order.id;
 			let vectorToMove = order.vector;
 			if (order.expense > model.stamina) {
 				vectorToMove = [0, 0];
