@@ -122,11 +122,10 @@ export class Warhammer {
 	}
 	getRandomStartPosition(exclude) {
 		while(true) {
-			let x = getRandomInteger(0, this.battlefield.size[0] * 2 - 1);
-			let y = getRandomInteger(0, this.battlefield.size[1] * 2 - 1);
-			x = x >= this.battlefield.size[0] ? x - this.battlefield.size[0] : x;
-			y = y >= this.battlefield.size[1] ? y - this.battlefield.size[1] : y;
-			if (!exclude.some(pos => eq([x, y], pos))) {
+			let x1 = getRandomInteger(0, this.battlefield.size[0]);
+			let y1 = getRandomInteger(0, this.battlefield.size[1]);
+			if (!exclude.some(pos => eq([x1, y1], pos))) {
+				return [x1, y1];
 				return [x, y];
 			}
 		}
