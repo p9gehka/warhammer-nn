@@ -8,19 +8,22 @@ export const Mission = {
 	BehindEnemyLines: 'BehindEnemyLines',
 	EngageOnAllFronts: 'EngageOnAllFronts',
 	Cleanse: 'Cleanse',
-	DeployTeleportHomer: 'DeployTeleportHomer',
-	InvestigateSignals: 'InvestigateSignals',
+	EstablishLocus: 'EstablishLocus',
 	DefendStronhold: 'DefendStronhold',
 	SecureNoMansLand: 'SecureNoMansLand',
-	AreaDenial: 'AreaDenial',
-	CaptureEnemyOutpost: 'CaptureEnemyOutpost',
-	ATamptingTarget: 'ATamptingTarget',
 	ExtendBattleLines: 'ExtendBattleLines',
 	Assassination: 'Assassination',
 	NoPrisoners: 'NoPrisoners',
-	BringItDown: 'BringItDown',
 	OverwhelmingForce: 'OverwhelmingForce',
 	StormHostileObjective: 'StormHostileObjective',
+	BringItDown: 'BringItDown',
+	AreaDenial: 'AreaDenial',
+
+	RecoverAssets: 'RecoverAssets',
+	CullTheHorde: 'CullTheHorde',
+	Containment: 'Containment',
+	MarketForDeath: 'MarkedForDeath',
+	Sabotage: 'Sabotage'
 }
 
 const size = [60, 44];
@@ -31,13 +34,14 @@ function onBattlefield(position) {
 }
 export class MissionController {
 	fixedMission = [
-		Mission.BehindEnemyLines, Mission.Cleanse, Mission.DeployTeleportHomer, Mission.EngageOnAllFronts,
-		Mission.Assassination, Mission.BringItDown, Mission.StormHostileObjective,
+		Mission.BehindEnemyLines, Mission.Cleanse, Mission.EstablishLocus, Mission.EngageOnAllFronts,
+		Mission.Assassination, Mission.BringItDown, Mission.StormHostileObjective, Mission.CullTheHorde
 	]
 
 	tacticalMissions = [
 		Mission.DefendStronhold, Mission.SecureNoMansLand, Mission.AreaDenial, Mission.ATamptingTarget,
-		Mission.CaptureEnemyOutpost, Mission.NoPrisoners, Mission.OverwhelmingForce, Mission.InvestigateSignals,
+		Mission.NoPrisoners, Mission.OverwhelmingForce, Mission.RecoverAssets, Mission.Containment,
+		Mission.ExtendBattleLines, Mission.MarketForDeath, Mission.Sabotage
 	]
 	allSecondary = [...this.fixedMission, ...this.tacticalMissions];
 	deadModels = [];
@@ -49,7 +53,6 @@ export class MissionController {
 		this.primary = primary;
 		this.missionRule = missionRule;
 		this.secondary = secondary;
-		this.tamptingTarget = getRandomInteger(0, 2);
 		this.isTactical = this.tacticalMissions.includes(secondary[0]);
 	}
 
@@ -59,8 +62,7 @@ export class MissionController {
 			this._deck = [];
 			this._deck.push(...this.allSecondary);
 		}
-	
-		this.tamptingTarget = getRandomInteger(0, 2);
+
 		this.secondariesVPByRound = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]];
 		this.opponentUnitDeathAtRound = [[],[],[],[],[]];
 		this.deadModels = [];
@@ -128,7 +130,7 @@ export class MissionController {
 			}).length;
 
 			if (hollyWithinCounter >= 2) {
-				secondaryVP += this.isTactical ? 2 : 1;
+				secondaryVP += 1;
 			}
 			if(hollyWithinCounter > 0) {
 				secondaryVP += 3;
@@ -136,7 +138,8 @@ export class MissionController {
 			}
 		}
 		if (this.secondary.includes(Mission.EngageOnAllFronts)) {
-			const quatres = [new Rect(0, 0, 27, 19), new Rect(0, 25, 27, 19), new Rect(33, 0, 27, 19), new Rect(33, 25, 27, 19)];
+			const quatres = [new Rect(0, 0, 30, 22), new Rect(0, 25, 30, 22), new Rect(33, 0, 30, 22), new Rect(33, 25, 30, 22)];
+			const centerCircle = [new Circle(...center, 6)]
 			let quatrCounters = [0, 0, 0, 0];
 
 			state.players[state.player].units.forEach(unit => {
@@ -145,7 +148,9 @@ export class MissionController {
 					return;
 				}
 				quatres.forEach((quatr, i) => {
-					if(modelsOnBattlefield.every(modelId => quatr.include(...state.models[modelId]))) {
+					if(modelsOnBattlefield.every(modelId =>
+						quatr.include(...state.models[modelId]) && !centerCircle.includes(...state.models[modelId])
+					)) {
 						quatrCounters[i]++;
 					}
 				});
@@ -156,7 +161,7 @@ export class MissionController {
 				secondaryVP += 2;
 			}
 			if(totalQuatres >= 3) {
-				secondaryVP += this.isTactical ? 3 : 2;
+				secondaryVP += 2;
 				completed.push(Mission.EngageOnAllFronts);
 			}
 		}
@@ -181,12 +186,12 @@ export class MissionController {
 				secondaryVP += 2;
 			}
 			if(cleanedMarkersCount >= 1) {
-				secondaryVP += this.isTactical ? 3 : 2;
+				secondaryVP += 2;
 				completed.push(Mission.Cleanse);
 			}
 		}
 
-		if (this.secondary.includes(Mission.DeployTeleportHomer)) {
+		if (this.secondary.includes(Mission.EstablishLocus)) {
 			let center6Circle = new Circle(...center, 6);
 			let inOpponentDeploy = false;
 			let inCenter = false;
@@ -201,35 +206,12 @@ export class MissionController {
 			}
 
 			if (inOpponentDeploy) {
-				secondaryVP += this.isTactical ? 2 : 1;
+				secondaryVP += 2;
 			} 
 
 			if (inCenter || inOpponentDeploy) {
-				secondaryVP += 3;
-				completed.push(Mission.DeployTeleportHomer);
-			}
-		}
-
-		if (this.secondary.includes(Mission.InvestigateSignals)) {
-			const angle9Circles = [[0, 0], [60, 0], [60, 44], [0, 44]].map(angle => new Circle(...angle, 9));
-			let angleCounters = [0, 0, 0, 0];
-
-			state.players[state.player].units.forEach(unit => {
-				const modelsOnBattlefield = unit.models.filter(modelId => onBattlefield(state.models[modelId]));
-				if(modelsOnBattlefield.length === 0) {
-					return;
-				}
-				angle9Circles.forEach((circle, i) => {
-					if(modelsOnBattlefield.every(modelId => circle.include(...state.models[modelId]))) {
-						angleCounters[i]++;
-					}
-				});
-			});
-
-			let totalAngles = angleCounters.filter(counter => counter > 0).length;
-			secondaryVP += totalAngles * 2;
-			if (totalAngles > 0) {
-				completed.push(Mission.InvestigateSignals);
+				secondaryVP += 2;
+				completed.push(Mission.EstablishLocus);
 			}
 		}
 
@@ -260,14 +242,14 @@ export class MissionController {
 		if (this.secondary.includes(Mission.AreaDenial)) {
 			let center6Circle = new Circle(...center, 6);
 			let center3Circle = new Circle(...center, 3);
-			let in6Center = false;
+			let in3Center = false;
 			let opponent6Center = false;
 			let opponent3Center = false;
 
 			for(let unit of state.players[state.player].units) {
 				const modelsOnBattlefield = unit.models.filter(modelId => onBattlefield(state.models[modelId]));
-				in6Center = modelsOnBattlefield.length > 0 && modelsOnBattlefield.every(modelId => center6Circle.include(...state.models[modelId]));
-				if (in6Center) {
+				in3Center = modelsOnBattlefield.length > 0 && modelsOnBattlefield.some(modelId => center3Circle.include(...state.models[modelId]));
+				if (in3Center) {
 					break;
 				}
 			}
@@ -275,7 +257,7 @@ export class MissionController {
 			for(let unit of state.players[opponentPlayer].units) {
 				const modelsOnBattlefield = unit.models.filter(modelId => onBattlefield(state.models[modelId]));
 				if (!opponent6Center) {
-					opponent6Center = modelsOnBattlefield.length > 0 && modelsOnBattlefield.every(modelId => center6Circle.include(...state.models[modelId]));
+					opponent6Center = modelsOnBattlefield.length > 0 && modelsOnBattlefield.some(modelId => center6Circle.include(...state.models[modelId]));
 				}
 				opponent3Center = modelsOnBattlefield.length > 0 && modelsOnBattlefield.some(modelId => center3Circle.include(...state.models[modelId]));
 				if (opponent3Center)  {
@@ -283,12 +265,12 @@ export class MissionController {
 				}
 			}
 
-			if(in6Center && !opponent6Center) {
-				secondaryVP += 5;
-				completed.push(Mission.AreaDenial);
-			} else if (in6Center && !opponent3Center) {
+			if (in3Center && !opponent3Center) {
+				secondaryVP += 2;
+			}
+
+			if (in3Center && !opponent6Center) {
 				secondaryVP += 3;
-				completed.push(Mission.AreaDenial);
 			}
 		}
 
@@ -311,47 +293,6 @@ export class MissionController {
 				completed.push(Mission.DefendStronhold);
 			}
 		}
-
-		if (this.secondary.includes(Mission.CaptureEnemyOutpost)) {
-			const opponentMarker = playerDeployment.deploy_markers[opponentPlayer];
-			let markerControl = 0;
-			state.players.forEach((player, modelPlayerId) => {
-				player.models.forEach(modelId => {
-					const modelPosition = state.models[modelId];
-					if (len(sub(modelPosition, opponentMarker)) <= playerDeployment.objective_marker_control_distance) {
-						const ocSign = modelPlayerId === activePlayerId ? 1 : -1;
-						const oc = profiles[modelId].oc * ocSign;
-						markerControl += oc;
-					}
-				})
-			});
-
-			if (markerControl > 0) {
-				secondaryVP += 8;
-				completed.push(Mission.CaptureEnemyOutpost);
-			}
-		}
-
-		if (this.secondary.includes(Mission.ATamptingTarget)) {
-			const targetMarker = playerDeployment.nomansland_markers[this.tamptingTarget];
-			let markerControl = 0;
-			state.players.forEach((player, modelPlayerId) => {
-				player.models.forEach(modelId => {
-					const modelPosition = state.models[modelId];
-					if (len(sub(modelPosition, targetMarker)) <= playerDeployment.objective_marker_control_distance) {
-						const ocSign = modelPlayerId === activePlayerId ? 1 : -1;
-						const oc = profiles[modelId].oc * ocSign;
-						markerControl += oc;
-					}
-				})
-			});
-
-			if (markerControl > 0) {
-				secondaryVP += 5;
-				completed.push(Mission.ATamptingTarget);
-			}
-		}
-
 
 		if (this.secondary.includes(Mission.ExtendBattleLines)) {
 			const objectiveControl = Array(playerDeployment.nomansland_markers.length).fill(0);
@@ -390,7 +331,8 @@ export class MissionController {
 		let secondaryVP = 0;
 		const completed = [];
 		let opponentUnitDeathAtRound = [];
-		if (this.secondary.includes(Mission.NoPrisoners) || this.secondary.includes(Mission.OverwhelmingForce)) {
+		if (this.secondary.includes(Mission.NoPrisoners) || this.secondary.includes(Mission.OverwhelmingForce)
+			|| this.secondary.includes(Mission.BringItDown)) {
 			opponentUnitDeathAtRound = state.players[opponentPlayer].units.filter(unit => {
 				return unit.models.every(modelId => this.deadModels.includes(modelId) || killedModels.includes(modelId))
 					&& unit.models.some(modelId => killedModels.includes(modelId));
@@ -431,28 +373,25 @@ export class MissionController {
 		if (this.secondary.includes(Mission.BringItDown)) {
 			let points = 0;
 			const indexOfMission = this.secondary.indexOf(Mission.BringItDown);
-			killedModels.forEach(modelId => {
-				if(categories[modelId].includes('monster') || categories[modelId].includes('vehicle')) {
+
+			opponentUnitDeathAtRound.forEach(unit => {
+				if(unit.models.some(modelId => categories[modelId].includes('monster') || categories[modelId].includes('vehicle'))) {
 					points += 2;
-					if (this.isTactical) {
-						points++;
+
+					const totalWounds = unit.models.reduce((acc, modelId) => acc + profiles[modelId].w,0)
+					if (totalWounds >= 15) {
+						points += 2;
 					}
-					if (profiles[modelId].w >= 10) {
-						points++;
-					}
-					if (profiles[modelId].w >= 15) {
-						points++;
-					}
-					if (profiles[modelId].w >= 20) {
-						points++;
+
+					if (totalWounds >= 15) {
+						points += 2;
 					}
 				}
-			});
-			const totalVPByRound = this.secondariesVPByRound[round][indexOfMission];
-			const vpByThisIteration = this.isTactical ? Math.min((8 - totalVPByRound), points) : points;
-			this.secondariesVPByRound[round][indexOfMission] += vpByThisIteration;
+			})
 
-			secondaryVP += vpByThisIteration;
+			this.secondariesVPByRound[round][indexOfMission] += point;
+
+			secondaryVP += points;
 		}
 
 		this.deadModels = [...state.dead];
@@ -504,7 +443,7 @@ export class MissionController {
 				return (opponentHadObjectiveMarker ? prevObjectControl < 0 : prevObjectControl === 0) && 0 < currentObjectControl;
 			});
 			if (missionCompleted) {
-				secondaryVP += (this.isTactical ? 5 : 4);
+				secondaryVP += 4;
 				completed.push(Mission.StormHostileObjective);
 			}
 		}

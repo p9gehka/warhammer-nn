@@ -164,8 +164,8 @@ export class Warhammer {
 	lastMovedModelId = null;
 	constructor(config) {
 		this.missions = [
-			new MissionController('TakeAndHold', 'ChillingRain', [Mission.ATamptingTarget, Mission.StormHostileObjective]),
-			new MissionController('TakeAndHold', 'ChillingRain', [Mission.DeployTeleportHomer, Mission.Cleanse])
+			new MissionController('TakeAndHold', 'ChillingRain', [Mission.AreaDenial, Mission.StormHostileObjective]),
+			new MissionController('TakeAndHold', 'ChillingRain', [Mission.EstablishLocus, Mission.Cleanse])
 		]
 		this.gameSettings = config.gameSettings;
 		this.battlefields = config.battlefields;
@@ -414,7 +414,6 @@ export class Warhammer {
 			turn: this.turn,
 			round: Math.floor(this.turn / 2),
 			secondaryMissions: this.missions.map(mission => mission.getSecondary()),
-			tamptingTarget: this.missions.map(mission => mission.tamptingTarget)
 		};
 	}
 }

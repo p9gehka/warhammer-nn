@@ -122,7 +122,7 @@ function updateSecondaryMission(state) {
 		missions.forEach((mission, missionIndex) => {
 			const li = document.createElement("LI");
 			const button = document.createElement("BUTTON");
-			li.innerHTML = mission + (mission === Mission.ATamptingTarget ? state.tamptingTarget : '');
+			li.innerHTML = mission;
 			if(state.phase === Phase.Command && state.player === playerId) {
 				button.innerHTML = 'X';
 				li.appendChild(button);
