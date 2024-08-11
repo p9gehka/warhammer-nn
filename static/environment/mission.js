@@ -389,7 +389,7 @@ export class MissionController {
 				}
 			})
 
-			this.secondariesVPByRound[round][indexOfMission] += point;
+			this.secondariesVPByRound[round][indexOfMission] += points;
 
 			secondaryVP += points;
 		}

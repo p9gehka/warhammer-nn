@@ -18,8 +18,7 @@ export const Phase = {
 const phaseOrd = [Phase.Command, Phase.Movement, Phase.Reinforcements, Phase.Shooting];
 
 function d6() {
-	const edge = [1,2,3,4,5,6].map(() => Math.random());
-	return edge.findIndex((v) => v ===Math.max(...edge)) + 1;
+	return getRandomInteger(1, 7);
 }
 
 export const BaseAction = {
@@ -36,6 +35,7 @@ function parseProfile(value) {
 	if (!isNaN(damage)) {
 		return damage;
 	}
+
 	const [diceCondition, tail] = value.split('+');
 	return (diceResult) => {
 		if(diceCondition === 'd3') {
@@ -295,12 +295,12 @@ export class Warhammer {
 		if (order.action === BaseAction.Shoot && this.units[order.target] !== undefined) {
 			const weapon = this.models[order.id].rangedWeapons[order.weaponId];
 			if (weapon !== undefined) {
-				const numberOfAttack = Number.isInteger(weapon.a) ? weapon.a : weapon.a(d6());
-				const hits = Array(numberOfAttack).fill(0).map(d6);
+				const hits = order.hits
 				const wounds = [];
 				const saves = [];
-				const damage = [];
-				for (let hit of hits) {
+				const damages = [];
+				for (let i = 0; i < hits.length; i++) {
+					const hit = hits[i];
 					if (hit < weapon.bs) {
 						continue;
 					}
@@ -315,7 +315,7 @@ export class Warhammer {
 
 					const targetToughness = targetModel.unitProfile.t;
 					const targetSave = targetModel.unitProfile.sv;
-					const woundDice = d6();
+					const woundDice = order.wounds[i];
 					wounds.push(woundDice);
 
 					if (woundDice < this.strenghtVsToughness(weapon.s, targetToughness)) {
@@ -327,14 +327,14 @@ export class Warhammer {
 					if (saveDice >= (targetSave - weapon.ap)) {
 						continue;
 					}
-					const damageValue = Number.isInteger(weapon.d) ? weapon.d : weapon.d(d6());
+					const damageValue = order.damages[i];
 					targetModel.inflictDamage(damageValue);
-					damage.push(damageValue);
+					damages.push(damageValue);
 				}
 
 				this.scoreSecondary('scoreShootingSecondary');
 
-				return this.getState({ hits, wounds, saves, damage });
+				return this.getState({ hits, wounds, saves, damages });
 			}
 		}
 		if (order.action === BaseAction.Move && model !== undefined) {

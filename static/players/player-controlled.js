@@ -1,4 +1,5 @@
 import { PlayerAction } from './player-orders.js';
+import { shotDice } from './dice.js';
 
 export class PlayerControlled {
 	_shootingQueue = [];
@@ -54,12 +55,13 @@ export class PlayerControlled {
 			if (Object.keys(this._shootingTargeting[weapon]).length === 0) {
 				this._shootingQueue.shift();
 			}
-
+			const weaponsId = this.env.gameSettings.rangedWeapons[shooter].findIndex(w => w.name === weapon);
 			playerOrder = {
 				action: PlayerAction.Shoot,
 				id: shooter,
-				weaponId: this.env.gameSettings.rangedWeapons[shooter].map(w=> w.name).indexOf(weapon),
+				weaponId: weaponsId,
 				target,
+				...shotDice(this.env.models[shooter].rangedWeapons[weaponsId]),
 			};
 		} else if (action === PlayerAction.Move) {
 			playerOrder = { action, id: this._getPlayerSelectedModel(), vector: order.vector, expense: order.expense };
