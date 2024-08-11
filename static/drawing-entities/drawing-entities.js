@@ -2,19 +2,20 @@ import base from '../settings/base.json' assert { type: 'json' };
 import { Drawing } from './drawing.js';
 import { deployment } from '../battlefield/deployment.js';
 import { terrain } from '../battlefield/terrain.js';
-
+import { scaleToLen, sub, add } from '../utils/vec2.js';
 const mmToInch = mm => mm / 25.4;
 
 class Binding extends Drawing {
-	constructor(ctx, fromArg, to) {
+	constructor(ctx, from, to, color) {
 		super();
 		this.ctx = ctx;
-		this.from = [fromArg[0] + Math.random(), fromArg[1] + Math.random()];
+		this.from = from;
 		this.to = to;
+		this.color = color;
 	}
 
 	draw() {
-		this.ctx.strokeStyle = 'pink';
+		this.ctx.strokeStyle = this.color;
 		this.strokePath(() => {
 			this.ctx.moveTo(...this.from);
 			this.ctx.lineTo(...this.to);
@@ -140,7 +141,7 @@ export class Scene extends Drawing {
 	units = [];
 	models = [];
 	bindings = [];
-	constructor(ctx, state) {
+	constructor(ctx, state, gameSettings) {
 		super();
 		this.ctx = ctx;
 		this.players = state.players;
@@ -149,6 +150,7 @@ export class Scene extends Drawing {
 		this.models = state.units.map(unit => {
 			return unit.models.map(id => new Model(ctx, unit, state.models[id]));
 		}).flat();
+		this.gameSettings = gameSettings;
 	}
 
 	async init() {
@@ -198,12 +200,31 @@ export class Scene extends Drawing {
 		if (playerState?.shootingTargeting !== undefined) {
 			for (let weaponName in playerState.shootingTargeting) {
 				for (let shooterId in playerState.shootingTargeting[weaponName]) {
+					const weapon = this.gameSettings.rangedWeapons[shooterId].find(w => w.name === weaponName);
 					for (let targetId of playerState.shootingTargeting[weaponName][shooterId]) {
+						const isVisible = (new terrain[this.battlefield.battlefield.terrain]).isVisible(state.models[shooterId], state.models[state.units[targetId].models[0]]);
+						const shooter = [state.models[shooterId][0] + Math.random(), state.models[shooterId][1] + Math.random()]
 						this.bindings.push(
 							new Binding(
 								this.ctx,
-								state.models[shooterId],
-								state.models[state.units[targetId].models[0]]
+								shooter,
+								state.models[state.units[targetId].models[0]],
+								isVisible ? 'green' : 'red',
+							)
+						);
+
+						this.bindings.push(
+							new Binding(
+								this.ctx,
+								add(
+									state.models[state.units[targetId].models[0]], 
+									scaleToLen(
+										sub(shooter, state.models[state.units[targetId].models[0]]),
+										parseInt(weapon['Range'])
+									)
+								),
+								state.models[state.units[targetId].models[0]],
+								'red',
 							)
 						);
 					}

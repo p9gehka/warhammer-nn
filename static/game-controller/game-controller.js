@@ -72,6 +72,7 @@ export class Game {
 
 		const player0Settings = JSON.parse(settingsLSPlayer1);
 		const player1Settings = JSON.parse(settingsLSPlayer2);
+
 		this.gameSettings = {
 			units: [player0Settings.units, player1Settings.units],
 			unitProfiles: [...player0Settings.unitProfiles, ...player1Settings.unitProfiles],
@@ -105,7 +106,7 @@ export class Game {
 		const battlefield = new Battlefield(this.ctx, state.battlefield);
 		await battlefield.init();
 		battlefield.draw();
-		this.scene = new Scene(this.ctx, state);
+		this.scene = new Scene(this.ctx, state, this.gameSettings);
 		this.scene.init();
 		this.deployPlayers = [new DeployEnvironment(0, this.deploy), new DeployEnvironment(1, this.deploy)];
 		this.onUpdate(state);

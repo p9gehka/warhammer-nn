@@ -1,6 +1,7 @@
 import { mul, len, sub, add, eq, scaleToLen, round } from '../utils/vec2.js'
 import { getRandomInteger } from '../utils/index.js';
 import { MissionController, Mission } from './mission.js';
+import { terrain } from '../battlefield/terrain.js';
 
 const GameSequense = [
 	'DeployArmies',
@@ -294,7 +295,12 @@ export class Warhammer {
 		const model = this.models[order.id];
 		if (order.action === BaseAction.Shoot && this.units[order.target] !== undefined) {
 			const weapon = this.models[order.id].rangedWeapons[order.weaponId];
-			if (weapon !== undefined) {
+			const isVisible = (new terrain[this.battlefield.terrain]).isVisible(
+					this.models[order.id].position,
+					this.models[this.units[order.target].models.filter(modelId => !this.models[modelId].dead)[0]].position
+			);
+			
+			if (weapon !== undefined && isVisible) {
 				const hits = order.hits
 				const wounds = [];
 				const saves = [];
