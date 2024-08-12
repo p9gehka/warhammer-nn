@@ -3,26 +3,13 @@ import { getTF } from '../../utils/get-tf.js';
 import { moveOrders } from './move-orders.js';
 import { Channel1Name } from '../../environment/nn-input.js';
 import { getInput } from '../../environment/nn-input.js';
-import { getRandomInteger } from '../../utils/index.js';
 import { eq } from '../../utils/vec2.js';
+import { RandomAgent } from '../random-agent.js';
 
 const tf = await getTF();
 
-class RandomAgent {
-	constructor() {
-		this.orders = moveOrders;
-	}
-	playStep(state) {
-		const orderIndex = getRandomInteger(0, this.orders.length);
-		return { order: this.orders[orderIndex], orderIndex, estimate: 0 };
-	}
-	getInput(state) {
-		return getInput(state)
-	}
-}
-
 export class MoveAgentBase {
-	fillAgent = new RandomAgent();
+	fillAgent = new RandomAgent(moveOrders, getInput);
 	orders = moveOrders;
 	async load() {
 		const loadPath = (typeof window === 'undefined' ? 'file://static/' : '') + `agents/move-agent/.model${this.width}x${this.height}x${this.channels.length}/model.json`;

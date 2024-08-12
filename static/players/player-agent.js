@@ -1,5 +1,6 @@
 import { BaseAction } from '../environment/warhammer.js';
 import { MoveAgent } from '../agents/move-agent/move-agent60x44.js';
+import { ShootAgent } from '../agents/shoot-agent/shoot-agent60x44.js';
 import { Phase } from '../environment/warhammer.js';
 
 export class PlayerAgent {
@@ -10,6 +11,10 @@ export class PlayerAgent {
 		this.playerId = playerId;
 		this.enemyId = (playerId+1) % 2;
 		this._selectedModel = 0;
+		this.agents = {
+			[Phase.Movement]: new MoveAgent(),
+			[Phase.Shoot]: new ShootAgent(),
+		}
 		this.agent = new MoveAgent();
 	}
 	async load() {
@@ -23,8 +28,8 @@ export class PlayerAgent {
 	async playStep() {
 		const prevState = this.env.getState();
 		let orderIndex, order, estimate;
-		if (prevState.phase === Phase.Movement) {
-			const result = this.agent.playStep(prevState, this.getState());
+		if (prevState.phase in this.agents) {
+			const result = this.agents[prevState.phase].playStep(prevState, this.getState());
 			orderIndex = result.orderIndex;
 			order = result.order;
 			estimate = result.estimate;
