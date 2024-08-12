@@ -8,6 +8,8 @@
 	"commander in enforcer battlesuit": [60],
 
 	"strike team": [25],
+	"breacher team": [25],
+	"pathfinder team": [25],
 	"stealth battlesuits": [32],
 	"ghostkeel battlesuit": [75],
 	"crisis fireknife battlesuits": [50],
@@ -17,6 +19,7 @@
 	"tetras": [60],
 	"barracuda":[92],
 	"hammerhead gunship": [150],
+	"devilfish": [150],
 	
 	"riptide battlesuit": [120],
 	"r'varna battlesuit": [120],
