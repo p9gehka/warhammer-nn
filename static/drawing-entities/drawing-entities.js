@@ -2,7 +2,7 @@ import base from '../settings/base.json' assert { type: 'json' };
 import { Drawing } from './drawing.js';
 import { deployment } from '../battlefield/deployment.js';
 import { terrain } from '../battlefield/terrain.js';
-import { scaleToLen, sub, add } from '../utils/vec2.js';
+import { scaleToLen, sub, add, len, mul } from '../utils/vec2.js';
 const mmToInch = mm => mm / 25.4;
 
 class Binding extends Drawing {
@@ -197,37 +197,39 @@ export class Scene extends Drawing {
 			});
 		});
 		this.bindings = [];
+		const currentTerrain = (new terrain[this.battlefield.battlefield.terrain]);
 		if (playerState?.shootingTargeting !== undefined) {
 			for (let weaponName in playerState.shootingTargeting) {
 				for (let shooterId in playerState.shootingTargeting[weaponName]) {
 					const weapon = this.gameSettings.rangedWeapons[shooterId].find(w => w.name === weaponName);
-					for (let targetId of playerState.shootingTargeting[weaponName][shooterId]) {
-						const isVisible = (new terrain[this.battlefield.battlefield.terrain]).isVisible(state.models[shooterId], state.models[state.units[targetId].models[0]]);
-						const shooter = [state.models[shooterId][0] + Math.random(), state.models[shooterId][1] + Math.random()]
-						this.bindings.push(
-							new Binding(
-								this.ctx,
-								shooter,
-								state.models[state.units[targetId].models[0]],
-								isVisible ? 'green' : 'red',
-							)
-						);
+					const shooter = state.models[shooterId];
+					const weaponRange = parseInt(weapon['Range']);
+					playerState.shootingTargeting[weaponName][shooterId].forEach((targetId, index) => {
+						const targetPositions = [];
 
-						this.bindings.push(
-							new Binding(
-								this.ctx,
-								add(
-									state.models[state.units[targetId].models[0]], 
-									scaleToLen(
-										sub(shooter, state.models[state.units[targetId].models[0]]),
-										parseInt(weapon['Range'])
-									)
-								),
-								state.models[state.units[targetId].models[0]],
-								'red',
-							)
-						);
-					}
+						state.units[targetId].models.forEach(modelId => {
+							if (!state.models[modelId].some(isNaN)) {
+								targetPositions.push(state.models[modelId])
+							}
+						});
+						const visibleTargets = currentTerrain.filterVisibleFrom(targetPositions, shooter);
+						const availableTarget = visibleTargets.find(targetPosition => len(sub(targetPosition, shooter)) <= weaponRange);
+
+						let targetPosition = availableTarget ?? visibleTargets[0] ?? targetPositions[0];
+						if (targetPosition === undefined) {
+							return;
+						}
+						let isVisible = visibleTargets.length > 0;
+			
+						const toTarget = sub(shooter, targetPosition);
+						const weaponPosition = add(shooter, mul([0.1, 0.1], index));
+						this.bindings.push(new Binding(this.ctx, weaponPosition, targetPosition, 'red'));
+
+						if (isVisible) {
+							const rangeEnd = add(targetPosition, scaleToLen(toTarget, len(toTarget) - Math.min(parseInt(weaponRange), len(toTarget))));
+							this.bindings.push(new Binding(this.ctx,weaponPosition, rangeEnd, 'green'));
+						}
+					});
 				}
 			}
 		}

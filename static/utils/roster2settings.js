@@ -89,6 +89,9 @@ export function roster2settings(roster) {
 					};
 					s.profiles.profile.characteristics.characteristic.forEach(ch => {
 						profile[ch._attributes.name] = ch._text;
+						if (ch._attributes.name === 'AP' && parseInt(ch._text) > 0) {
+							profile[ch._attributes.name] = `-${ch._text}`
+						}
 					});
 					return new Array(weaponNumber).fill(profile);
 				}

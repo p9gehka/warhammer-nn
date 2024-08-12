@@ -28,6 +28,9 @@ class Terrain {
 		];
 	}
 	isVisible(point1, point2) {
+		if ([...point1,...point2].some(isNaN)) {
+			return false;
+		}
 		const visibilityLine = [point1, point2];
 		const footprints = [...this.triangleFootprints, ...this.rectangleFootprints];
 		for (let footprintEdge of footprints) {
@@ -42,6 +45,9 @@ class Terrain {
 			}
 		}
 		return true;
+	}
+	filterVisibleFrom(points, fromPoint) {
+		return points.filter(point => this.isVisible(point, fromPoint));
 	}
 	convertRectancleToTriangles([A,B,C,D]) {
 		return [A, B, C, C, D, A]
