@@ -5,7 +5,8 @@ function d6() {
 }
 
 export function shotDice(weapon) {
-	const numberOfAttack = Number.isInteger(weapon.a) ? weapon.a : weapon.a(d6());
+	let numberOfAttack = weapon?.a ?? 0;
+	numberOfAttack = Number.isInteger(numberOfAttack) ? numberOfAttack : numberOfAttack(d6());
 	const hits = Array(numberOfAttack).fill(0).map(d6);
 	const wounds = Array(numberOfAttack).fill(0).map(d6);
 	const damages = Array(numberOfAttack).fill(0).map(() => Number.isInteger(weapon.d) ? weapon.d : weapon.d(d6()));

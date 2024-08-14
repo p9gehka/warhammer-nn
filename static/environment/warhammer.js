@@ -315,20 +315,19 @@ export class Warhammer {
 			const shooter = this.models[order.id].position;
 			const weapon = this.models[order.id].rangedWeapons[order.weaponId];
 			const weaponLoaded = this.models[order.id].rangedWeaponLoaded[order.weaponId];
-
+			this.models[order.id].rangedWeaponLoaded[order.weaponId] = false;
 			const aliveTargets = [];
 			const availableTargets = [];
 			this.units[order.target].models.forEach(modelId => {
 				if (!this.models[modelId].dead) {
 					aliveTargets.push(this.models[modelId])
-					if (len(sub(this.models[modelId].position, shooter)) <= weapon.range) {
+					if (len(sub(this.models[modelId].position, shooter)) <= weapon?.range) {
 						availableTargets.push(this.models[modelId].position);
 					}
 				}
 			});
 			const visibleTargets = (new terrain[this.battlefield.terrain]).filterVisibleFrom(availableTargets, shooter);
 			if (weapon !== undefined && weaponLoaded && visibleTargets.length > 0) {
-				this.models[order.id].rangedWeaponLoaded[order.weaponId] = false;
 				const hits = order.hits;
 				const wounds = [];
 				const saves = [];

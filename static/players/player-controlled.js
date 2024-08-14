@@ -55,7 +55,8 @@ export class PlayerControlled {
 			if (Object.keys(this._shootingTargeting[weapon]).length === 0) {
 				this._shootingQueue.shift();
 			}
-			const weaponId = this.env.gameSettings.rangedWeapons[shooter].findIndex(w => w.name === weapon);
+
+			const weaponId = this.env.gameSettings.rangedWeapons[shooter].findIndex((w, i) => w.name === weapon && this.env.models[shooter].rangedWeaponLoaded[i]);
 			playerOrder = {
 				action: PlayerAction.Shoot,
 				id: shooter,
