@@ -55,13 +55,13 @@ export class PlayerControlled {
 			if (Object.keys(this._shootingTargeting[weapon]).length === 0) {
 				this._shootingQueue.shift();
 			}
-			const weaponsId = this.env.gameSettings.rangedWeapons[shooter].findIndex(w => w.name === weapon);
+			const weaponId = this.env.gameSettings.rangedWeapons[shooter].findIndex(w => w.name === weapon);
 			playerOrder = {
 				action: PlayerAction.Shoot,
 				id: shooter,
-				weaponId: weaponsId,
+				weaponId: weaponId,
 				target,
-				...shotDice(this.env.models[shooter].rangedWeapons[weaponsId]),
+				...shotDice(this.env.models[shooter].rangedWeapons[weaponId]),
 			};
 		} else if (action === PlayerAction.Move) {
 			playerOrder = { action, id: this._getPlayerSelectedModel(), vector: order.vector, expense: order.expense };

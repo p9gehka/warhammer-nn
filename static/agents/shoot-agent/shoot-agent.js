@@ -4,7 +4,8 @@ import { getInput } from '../../environment/nn-input.js';
 
 export class ShootAgentBase {
 	fillAgent = new RandomAgent(shootOrders, getInput);
-	step(state, playerState) {
+
+	playStep(state, playerState) {
 		if (this.onlineNetwork === undefined) {
 			return this.fillAgent.playStep(state);
 		}

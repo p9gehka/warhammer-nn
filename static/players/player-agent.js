@@ -2,6 +2,7 @@ import { BaseAction } from '../environment/warhammer.js';
 import { MoveAgent } from '../agents/move-agent/move-agent60x44.js';
 import { ShootAgent } from '../agents/shoot-agent/shoot-agent60x44.js';
 import { Phase } from '../environment/warhammer.js';
+import { shotDice } from './dice.js';
 
 export class PlayerAgent {
 	static cascad = [MoveAgent.settings]
@@ -13,7 +14,7 @@ export class PlayerAgent {
 		this._selectedModel = 0;
 		this.agents = {
 			[Phase.Movement]: new MoveAgent(),
-			[Phase.Shoot]: new ShootAgent(),
+			[Phase.Shooting]: new ShootAgent(),
 		}
 		this.agent = new MoveAgent();
 	}
@@ -58,10 +59,23 @@ export class PlayerAgent {
 
 		if (action === BaseAction.Move) {
 			playerOrder = {action, id: playerModels[this._selectedModel], vector: order.vector, expense: order.expense };
-		} else if (action === BaseAction.NextPhase && playerModels.some((modelId, playerModelId) => prevState.modelsStamina[modelId] !== 0 && playerModelId !== this._selectedModel)){
+		} else if (action === BaseAction.Shoot) {
+			const weaponId = 0;
+			const shooter = playerModels[this._selectedModel];
+			playerOrder = {
+				action,
+				id: shooter,
+				target: order.target,
+				weaponId,
+				...shotDice(this.env.models[shooter].rangedWeapons[weaponId]),
+			};
+
+		} else if (action === BaseAction.NextPhase && playerModels.some((modelId, playerModelId) => prevState.modelsStamina[modelId] !== 0 && playerModelId !== this._selectedModel)) {
 			this._selectedModel = this.selectNextModel(prevState);
 			playerOrder = { action: BaseAction.Move, vector: [0, 0], expense: 0, id: playerModels[this._selectedModel] };
-		} else {
+		} else if (action === BaseAction.Shoot && playerModels.some((modelId, playerModelId) => prevState.availableToShoot.includes(modelId) && playerModelId !== this._selectedModel)) {
+			this._selectedModel = this.selectNextModel(prevState);
+		} else{
 			playerOrder = order;
 		}
 

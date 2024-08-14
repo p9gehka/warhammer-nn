@@ -86,6 +86,7 @@ class Model {
 				name: weaponProfile.name
 			}
 		});
+		this.rangedWeaponLoaded = Array(rangedWeapons.length).fill(false);
 		this.category = category;
 		this.rules = rules;
 
@@ -119,10 +120,19 @@ class Model {
 			this.stamina = value ? this.unitProfile.m : 0;
 		}
 	}
+
 	decreaseStamina(value) {
 		this.stamina = Math.max(0, this.stamina - value);
 	}
 
+	updateAvailableToShoot(value) {
+		if (!isNaN(this.position[0])) {
+			this.rangedWeaponLoaded = this.rangedWeaponLoaded.map(_=> value)
+		}
+	}
+	isAvailableToShoot() {
+		return this.rangedWeaponLoaded.some(v=>v);
+	}
 	kill() {
 		if (this.dead) {
 			return;
@@ -240,6 +250,7 @@ export class Warhammer {
 
 			this.lastMovedModelId = null;
 			this.models.forEach(model => model.updateAvailableToMove(false));
+			this.models.forEach(model => model.updateAvailableToShoot(false));
 
 			if (this.phase === phaseOrd.at(-1)) {
 				this.scoreSecondary('scoreSecondaryVP');
@@ -278,6 +289,13 @@ export class Warhammer {
 					}
 				});
 			}
+			if (this.phase === Phase.Shooting) {
+				this.models.forEach((model) => {
+					if (model.playerId === nextPlayerId) {
+						model.updateAvailableToShoot(true);
+					}
+				});
+			}
 			if (this.phase === Phase.PreBattle) {
 				this.models.forEach((model) => {
 					if (model.playerId === nextPlayerId) {
@@ -296,17 +314,22 @@ export class Warhammer {
 		if (order.action === BaseAction.Shoot && this.units[order.target] !== undefined) {
 			const shooter = this.models[order.id].position;
 			const weapon = this.models[order.id].rangedWeapons[order.weaponId];
-			const targetPositions = [];
+			const weaponLoaded = this.models[order.id].rangedWeaponLoaded[order.weaponId];
+
+			const aliveTargets = [];
+			const availableTargets = [];
 			this.units[order.target].models.forEach(modelId => {
 				if (!this.models[modelId].dead) {
-					targetPositions.push(this.models[modelId].position)
+					aliveTargets.push(this.models[modelId])
+					if (len(sub(this.models[modelId].position, shooter)) <= weapon.range) {
+						availableTargets.push(this.models[modelId].position);
+					}
 				}
 			});
-			const visibleTargets = (new terrain[this.battlefield.terrain]).filterVisibleFrom(targetPositions, shooter);
-			const availableTarget = visibleTargets.find(targetPosition => len(sub(targetPosition, shooter)) <= weapon.range);
-
-			if (weapon !== undefined && availableTarget !== undefined) {
-				const hits = order.hits
+			const visibleTargets = (new terrain[this.battlefield.terrain]).filterVisibleFrom(availableTargets, shooter);
+			if (weapon !== undefined && weaponLoaded && visibleTargets.length > 0) {
+				this.models[order.id].rangedWeaponLoaded[order.weaponId] = false;
+				const hits = order.hits;
 				const wounds = [];
 				const saves = [];
 				const damages = [];
@@ -316,8 +339,7 @@ export class Warhammer {
 						continue;
 					}
 
-					const targetModelId = targetPositions[targetPositions.length - 1];
-					const targetModel = this.models[targetModelId];
+					const targetModel = aliveTargets[aliveTargets.length - 1];
 
 					if (targetModel === undefined) {
 						break;
@@ -375,9 +397,7 @@ export class Warhammer {
 
 		return this.getState();
 	}
-	hasAvailableTarget() {
 
-	}
 	scoreSecondary(type) {
 		const currentPlayerId = this.getPlayer();
 		this.players[currentPlayerId].secondaryVP += this.missions[currentPlayerId][type](this.getState(), this.models.map(m => m.unitProfile), this.models.map(m => m.category));
@@ -418,10 +438,10 @@ export class Warhammer {
 			dead: this.models.filter(model => model.dead).map(model => model.id),
 			modelsWounds: this.models.map(model => model.wounds),
 			modelsStamina: this.models.map(model => model.stamina),
+			availableToShoot: this.models.filter(model => model.isAvailableToShoot()).map(model => model.id),
 			phase: this.phase,
 			player: this.getPlayer(),
 			done: this.done(),
-			modelsStamina: this.models.map(model => model.stamina),
 			misc: misc ?? {},
 			battlefield: this.battlefield,
 			turn: this.turn,

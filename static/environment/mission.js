@@ -39,7 +39,7 @@ export class MissionController {
 	]
 
 	tacticalMissions = [
-		Mission.DefendStronhold, Mission.SecureNoMansLand, Mission.AreaDenial, Mission.ATamptingTarget,
+		Mission.DefendStronhold, Mission.SecureNoMansLand, Mission.AreaDenial,
 		Mission.NoPrisoners, Mission.OverwhelmingForce, Mission.RecoverAssets, Mission.Containment,
 		Mission.ExtendBattleLines, Mission.MarketForDeath, Mission.Sabotage
 	]
@@ -137,6 +137,11 @@ export class MissionController {
 				completed.push(Mission.BehindEnemyLines);
 			}
 		}
+
+		if (this.secondary.includes(Mission.RecoverAssets)) {
+
+		}
+
 		if (this.secondary.includes(Mission.EngageOnAllFronts)) {
 			const quatres = [new Rect(0, 0, 30, 22), new Rect(0, 25, 30, 22), new Rect(33, 0, 30, 22), new Rect(33, 25, 30, 22)];
 			const centerCircle = [new Circle(...center, 6)]
