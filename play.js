@@ -26,9 +26,13 @@ let battlefields = config.battlefields.length > 0 ? filterObjByKeys(allBattlefie
 
 let configMessageSended = false;
 
-async function sendConfigMessage() {
+async function sendConfigMessage(model) {
 	if (configMessageSended) { return; }
 	const trainerConfig = await getTrainerConfig();
+
+	await sendMessage(
+		model.layers.map( layer => `${layer.name.split('_')[0]}{${ ['filters', 'kernelSize', 'units', 'rate'].map(filter => layer[filter] ? `filter: ${layer[filter]}` : '').filter(v=>v !=='') }}` ).join('->')
+	);
 	await sendMessage(
 		`Player hyperparams Config replayBufferSize:${replayBufferSize} epsilonDecayFrames:${epsilonDecayFrames} cumulativeRewardThreshold:${cumulativeRewardThreshold}\n` +
 		`Trainer hyperparams replayMemorySize: ${trainerConfig.replayMemorySize} replayBufferSize:${trainerConfig.replayBufferSize} learningRate:${trainerConfig.learningRate} syncEveryEpoch:${trainerConfig.syncEveryEpoch} saveEveryEpoch:${trainerConfig.saveEveryEpoch} batchSize:${trainerConfig.batchSize}`
@@ -99,9 +103,13 @@ async function play() {
 				`(${framesPerSecond.toFixed(1)} frames/s)`
 			);
 
-			if (averageVP >= cumulativeRewardThreshold || frameCount > framesThreshold) {
+			if (averageVP >= cumulativeRewardThreshold || frameCount > framesThreshold ) {
 				await lock();
-				await sendConfigMessage();
+
+				if (players[0].getOnlineNetwork() !== undefined) {
+					await sendConfigMessage(players[0].getOnlineNetwork());
+				}
+				
 				await sendDataToTelegram(vpAveragerBuffer.buffer.filter(v => v !== null));
 				await sendDataToTelegram(rewardAveragerBuffer.buffer.filter(v => v !== null));
 				await sendMessage(
@@ -156,7 +164,7 @@ async function play() {
 				}
 				testAttempst++;
 			}
-			await sendConfigMessage();
+			await sendConfigMessage(players[0].getOnlineNetwork());
 			await sendDataToTelegram(vpAveragerBuffer.buffer.filter(v => v !== null));
 			await sendDataToTelegram(rewardAveragerBuffer.buffer.filter(v => v !== null));
 			
