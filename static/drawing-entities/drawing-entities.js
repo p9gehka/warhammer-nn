@@ -168,14 +168,21 @@ export class Scene extends Drawing {
 		if (order === null) {
 			return;
 		}
-		if (order.action === "SHOOT") {
-			if (!this.models[order.id].position || !order?.misc?.targetPosition) {
+		if (order.action === "SHOOT" && this.units[order.target] !== undefined) {
+			let targetPosition;
+			for (let targetModel of this.units[order.target].models) {
+				if (!isNaN(this.models[targetModel].position[0])) {
+					targetPosition = this.models[targetModel].position;
+					break;
+				}
+			}
+			if (!this.models[order.id].position || targetPosition === undefined) {
 				return;
 			}
 			this.ctx.strokeStyle = "orange";
 			this.strokePath(() => {
 				this.ctx.moveTo(...this.models[order.id].position);
-				this.ctx.lineTo(...order.misc.targetPosition);
+				this.ctx.lineTo(...targetPosition);
 			});
 		}
 	}
@@ -202,6 +209,9 @@ export class Scene extends Drawing {
 			for (let weaponName in playerState.shootingTargeting) {
 				for (let shooterId in playerState.shootingTargeting[weaponName]) {
 					const weapon = this.gameSettings.rangedWeapons[shooterId].find(w => w.name === weaponName);
+					if (weapon === undefined) {
+						break;
+					}
 					const shooter = state.models[shooterId];
 					const weaponRange = parseInt(weapon['Range']);
 					playerState.shootingTargeting[weaponName][shooterId].forEach((targetId, index) => {

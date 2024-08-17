@@ -3,6 +3,7 @@
 	"aun shar": [25],
 	"shas nel d tano": [32],
 	"darkstrider": [32],
+	"cadre fireblade": [32],
 	"commander shadowsun":[50],
 	"commander farsight": [60],
 	"commander in coldstar battlesuit": [60],
@@ -39,9 +40,11 @@
 	"knight warden": [170],
 	"armiger helverin": [100],
 	"armiger warglaive": [100],
+
 	"AGENTS OF THE EMPERIUM": "AGENTS OF THE EMPERIUM",
 	"lord inquisitor kyria draxus": [32],
 	"inquisitor":[25],
+	"callidus assassin": [32],
 
 	"ADEPTUS CUSTODES": "ADEPTUS CUSTODES",
 	"allarus custodians": [40],

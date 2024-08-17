@@ -22,17 +22,19 @@ export class PlayerControlled {
 		if (action === PlayerAction.Select) {
 			this._selectedModel = order.id;
 			playerOrder = { ...order, id: this._getPlayerSelectedModel() };
-		} else if (action === PlayerAction.SetTarget && this._selectedModel !== null) {
+		} else if (action === PlayerAction.SetTarget && this._selectedModel !== null && this._shootingQueue.length > 0) {
 			const selectedWeapon = this._shootingQueue.at(-1);
 			if (this._shootingTargeting[selectedWeapon] === undefined) {
 				this._shootingTargeting[selectedWeapon] = {};
 			}
-			if (this._shootingTargeting[selectedWeapon][this._getPlayerSelectedModel()] === undefined) {
-				this._shootingTargeting[selectedWeapon][this._getPlayerSelectedModel()] = [];
+			const weaponField = this._shootingTargeting[selectedWeapon];
+			const selectedModel = this._getPlayerSelectedModel();
+			if (weaponField[selectedModel] === undefined) {
+				weaponField[selectedModel] = [];
 			}
-			this._shootingTargeting[selectedWeapon][this._getPlayerSelectedModel()].push(this.env.players[this.opponentId].units[order.id].id);
-			if (this._shootingTargeting[selectedWeapon][this._getPlayerSelectedModel()].length > this.env.gameSettings.rangedWeapons[this._getPlayerSelectedModel()].filter(v=> v.name === selectedWeapon).length) {
-				this._shootingTargeting[selectedWeapon][this._getPlayerSelectedModel()].shift();
+			weaponField[selectedModel].push(this.env.players[this.opponentId].units[order.id].id);
+			if (weaponField[selectedModel].length > this.env.gameSettings.rangedWeapons[selectedModel].filter(v=> v.name === selectedWeapon).length) {
+				weaponField[selectedModel].shift();
 			}
 			playerOrder = order;
 		} else if (action === PlayerAction.Shoot && this._shootingQueue.length > 0) {
@@ -84,7 +86,6 @@ export class PlayerControlled {
 		} else {
 			playerOrder = order;
 		}
-
 
 		const state = this.env.step(playerOrder);
 		return [{ ...playerOrder, misc: state.misc }, state];

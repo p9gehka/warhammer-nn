@@ -10,7 +10,7 @@ export class PlayerAgent {
 	constructor(playerId, env) {
 		this.env = env;
 		this.playerId = playerId;
-		this.enemyId = (playerId+1) % 2;
+		this.opponentId = (playerId+1) % 2;
 		this._selectedModel = 0;
 		this.agents = {
 			[Phase.Movement]: new MoveAgent(),
@@ -60,8 +60,8 @@ export class PlayerAgent {
 		if (action === BaseAction.Move) {
 			playerOrder = {action, id: playerModels[this._selectedModel], vector: order.vector, expense: order.expense };
 		} else if (action === BaseAction.Shoot) {
-			const weaponId = 0;
 			const shooter = playerModels[this._selectedModel];
+			const weaponId = this.env.models[shooter].rangedWeaponLoaded.findIndex(loaded => loaded);
 			playerOrder = {
 				action,
 				id: shooter,
@@ -73,9 +73,10 @@ export class PlayerAgent {
 		} else if (action === BaseAction.NextPhase && playerModels.some((modelId, playerModelId) => prevState.modelsStamina[modelId] !== 0 && playerModelId !== this._selectedModel)) {
 			this._selectedModel = this.selectNextModel(prevState);
 			playerOrder = { action: BaseAction.Move, vector: [0, 0], expense: 0, id: playerModels[this._selectedModel] };
-		} else if (action === BaseAction.Shoot && playerModels.some((modelId, playerModelId) => prevState.availableToShoot.includes(modelId) && playerModelId !== this._selectedModel)) {
+		} else if (action === BaseAction.NextPhase && playerModels.some((modelId, playerModelId) => prevState.availableToShoot.includes(modelId) && playerModelId !== this._selectedModel)) {
 			this._selectedModel = this.selectNextModel(prevState);
-		} else{
+			playerOrder = { action: BaseAction.Shoot, id: playerModels[this._selectedModel], target: -1 };
+		} else {
 			playerOrder = order;
 		}
 
@@ -103,7 +104,15 @@ export class PlayerAgent {
 	}
 
 	getState() {
-		return { selected: this._selectedModel };
+		const state = this.env.getState();
+		const playerModels = state.players[this.playerId].models;
+		const visibleOpponentUnits = [];
+		state.players[this.opponentId].units.forEach(unit => {
+			if (this.env.getAvailableTarget(playerModels[this._selectedModel], 0, unit.id).length > 0) {
+				visibleOpponentUnits.push(unit.id);
+			}
+		})
+		return { selected: this._selectedModel, visibleOpponentUnits: visibleOpponentUnits };
 	}
 
 	checkSize() {

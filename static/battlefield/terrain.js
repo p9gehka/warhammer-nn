@@ -32,7 +32,7 @@ class Terrain {
 			return false;
 		}
 		const visibilityLine = [point1, point2];
-		const footprints = [...this.triangleFootprints, ...this.rectangleFootprints];
+		const footprints = [...this.triangleFootprints, ...this.rectangleFootprints, ...this.containers];
 		for (let footprintEdge of footprints) {
 			let intersections = 0;
 			for (let i = 0; i < footprintEdge.length; i++) {
