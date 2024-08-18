@@ -86,7 +86,7 @@ async function play() {
 			if (Number.isFinite(framesPerSecond)) {
 				frameTimeAverager100.append(framesPerSecond);
 			}
-			vpAverager.append(state.players[0].primaryVP + players[0].getCumulativeReward()/1000);
+			vpAverager.append(state.players[0].primaryVP);
 			rewardAverager.append(players[0].getCumulativeReward());
 
 			t = currentT;
