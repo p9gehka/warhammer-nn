@@ -16,7 +16,7 @@ import allBattlefields from './static/settings/battlefields.json' assert { type:
 
 import config from './config.json' assert { type: 'json' };
 
-const savePath = './static/models/dqn/';
+const savePath = './models/play-dqn/';
 
 const { cumulativeRewardThreshold, sendMessageEveryFrames, replayBufferSize, replayMemorySize, epsilonDecayFrames, framesThreshold } = config;
 
