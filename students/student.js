@@ -95,7 +95,7 @@ export class Rewarder {
 		this.primaryVP = 0;
 	}
 	step(order, epsilon) {
-		let reward = -0.5;
+		let reward = -7;
 		const state = this.env.getState();
 
 		const { primaryVP } = state.players[this.playerId];
