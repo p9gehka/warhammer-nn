@@ -25,7 +25,7 @@ export class MoveAgentBase {
 	fillAgent = new RandomAgent();
 	orders = moveOrders;
 	async load() {
-		const loadPath = 'file://' + 'static/' + `agents/move-agent/.model${this.width}x${this.height}x${this.channels.length}/model.json`;
+		const loadPath = 'file://' + 'static/' + `agents/move-agent/.model${this.width}x${this.height}x${this.channels.length}_nmodels/model.json`;
 		this.onlineNetwork = await tf.loadLayersModel(loadPath);
 	}
 	playStep(state, playerState) {
@@ -34,7 +34,7 @@ export class MoveAgentBase {
 		}
 		const { orders, height, width, channels } = this;
 		const input = getInput(state, playerState);
-		const selected = input[Channel3Name.Selected][0];
+		const selected = input[Channel3Name.Order0][0];
 		if(isNaN(selected[0])) {
 			console.log('isNan(selected[0]!!!!');
 		}

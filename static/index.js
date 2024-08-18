@@ -1,5 +1,5 @@
 import { Battlefield, Scene } from './drawing-entities/drawing-entities.js';
-import { playerOrders } from './players/player-orders.js';
+import { moveOrders } from './players/player-orders.js';
 import { getInput, channels } from '../environment/nn-input.js';
 import { getStateTensor } from '../utils/get-state-tensor.js';
 
@@ -16,7 +16,7 @@ const vpPlayer2Element = document.getElementById('player-2-vp');
 
 ctx.scale(canvas.width / 60, canvas.height / 44);
 
-const model = await tf.loadLayersModel(`/agents/move-agent/.model44x30x4/model.json`);
+const model = await tf.loadLayersModel(`/agents/move-agent/.model44x30x4_nmodels/model.json`);
 const battlefield = new Battlefield(ctx, { size: [0, 0], objective_marker: [], ruins: [] });
 await battlefield.init();
 battlefield.draw();
@@ -72,7 +72,7 @@ function setState(e) {
 
 async function updatePredictions(state, input) {
 	ordersList.innerHTML = '';
-	const orders = playerOrders;
+	const orders = moveOrders;
 
 	const [_, height, width] = model.input.shape;
 	window.tf.tidy(() => {

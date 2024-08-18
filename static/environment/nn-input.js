@@ -3,7 +3,8 @@ import { len } from '../utils/vec2.js';
 import { deployment } from  '../battlefield/deployment.js';
 
 //{ Empty: 0 }
-export const Channel0 = { 0: 0.5, 1: 1 };
+export const Channel0 = {};
+[0,1,2,3,4,5,6,7,8,9].forEach(v => { Channel0[v] = 1 });
 export const Channel1 = { };
 [0,1,2,3,4,5,6,7,8,9,10].forEach(v => { Channel1[`Stamina${v}`] = v / 10; });
 
