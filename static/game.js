@@ -12,7 +12,7 @@ import { getStateTensor } from '../utils/get-state-tensor.js';
 import { Game } from './game-controller/game-controller.js';
 import { roster2settings } from './utils/roster2settings.js';
 import { Mission } from './environment/mission.js';
-
+import avatars from '../settings/avatars.json' assert { type: 'json' };
 import gameSettings from './settings/game-settings.json' assert { type: 'json' };
 import allBattlefields from './settings/battlefields.json' assert { type: 'json' };
 
@@ -92,6 +92,7 @@ function updateUnitsStrip(state) {
 
 	const orders = game.started ? game.orders : game.deployOrders;
 	state.units.forEach((unit, unitId) => {
+		
 		const li = document.createElement("LI");
 		li.tabIndex = 0;
 		li.innerHTML =`${unit.name}`;
@@ -100,6 +101,12 @@ function updateUnitsStrip(state) {
 			li.classList.add(`selected`);
 		}
 		unitsStrip.appendChild(li);
+		if (avatars[unit.name] !== undefined) {
+			const img = document.createElement("img");
+			const [name, ext] = avatars[unit.name].split('.')
+			img.src = `${name} full.${ext}`;
+			li.appendChild(img);
+		}
 		if (state.player === unit.playerId) {
 			const unitId = unitCounter;
 			li.addEventListener('click', () => {

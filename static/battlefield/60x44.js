@@ -15,21 +15,6 @@ export class CrucibleOfBattle extends DeploymentCommon {
 			return { include: new Triangle(...this.include_triangle[i].flat()) }
 		});
 	}
-	getDrawings() {
-		const playerColors = ["red", "blue"];
-		const deployments = this.include_triangle.map((points, i) => {
-			return { strokeStyle: playerColors[i], methods: ['moveTo', 'lineTo', 'lineTo'], args: points };
-		});
-
-		const objectiveMarkers = this.objective_markers.map(
-			(position, i) => this.getObjectDrawing(position, this.objective_marker_control_distance)
-		);
-		return [...deployments, ...objectiveMarkers];
-	}
-	include(id, position) {
-		return this.deployment_zone[id].include.include(...position);
-	}
-
 }
 
 export class DawnOfWar extends DeploymentCommon {
@@ -43,21 +28,6 @@ export class DawnOfWar extends DeploymentCommon {
 		this.deployment_zone = [0, 1].map(i => {
 			return { include: new Rect(...this.include_rect[i]) };
 		});
-
-	}
-	getDrawings() {
-		const playerColors = ["red", "blue"];
-		const deployments = this.include_rect.map((deployment, i) => {
-			return { strokeStyle: playerColors[i], methods: ['rect'], args: [deployment] }
-		});
-
-		const objectiveMarkers = this.objective_markers.map(
-			(position, i) => this.getObjectDrawing(position, this.objective_marker_control_distance)
-		);
-		return [...deployments, ...objectiveMarkers];
-	}
-	include(id, position) {
-		return this.deployment_zone[id].include.include(...position);
 	}
 }
 
@@ -72,20 +42,6 @@ export class HammerAndAnvil extends DeploymentCommon {
 			return { include: new Rect(...this.include_rect[i]) };
 		});
 	}
-	getDrawings() {
-		const playerColors = ["red", "blue"];
-		const deployments = this.include_rect.map((deployment, i) => {
-			return { strokeStyle: playerColors[i], methods: ['rect'], args: [deployment] }
-		});
-
-		const objectiveMarkers = this.objective_markers.map(
-			(position, i) => this.getObjectDrawing(position, this.objective_marker_control_distance)
-		);
-		return [...deployments, ...objectiveMarkers];
-	}
-	include(id, position) {
-		return this.deployment_zone[id].include.include(...position);
-	}
 }
 
 export class SearchAndDestroy extends DeploymentCommon {
@@ -96,35 +52,13 @@ export class SearchAndDestroy extends DeploymentCommon {
 		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 
 		this.include_rect = [[0, 22, 30, 44], [30, 0, 60, 22]];
-		this.exclude_circle = [30, 22, 9];
+		this.exclude_circle = [[30, 22, 9]];
 		this.deployment_zone = [0, 1].map(i => {
 			return {
 				include: new Rect(...this.include_rect[i]),
 				exclude: new Circle(...this.exclude_circle)
 			};
 		});
-	}
-	getDrawings() {
-		const playerColors = ["red", "blue"];
-		const deployments = this.include_rect.map((deployment, i) => {
-			return { strokeStyle: playerColors[i], methods: ['rect'], args: [deployment] }
-		});
-
-		deployments.push({
-			strokeStyle: 'green',
-			methods: ['ellipse'],
-			args: [[...this.exclude_circle, this.exclude_circle[2], 0, 0, 2 * Math.PI]]
-		});
-
-		const objectiveMarkers = this.objective_markers.map(
-			(position, i) => this.getObjectDrawing(position, this.objective_marker_control_distance)
-		);
-
-		return [...deployments, ...objectiveMarkers];
-	}
-
-	include(id, position) {
-		return this.deployment_zone[id].include.include(...position) && !this.deployment_zone[id].exclude.include(...position);
 	}
 }
 
@@ -139,20 +73,5 @@ export class SweepingEngagement extends DeploymentCommon {
 		this.deployment_zone = [0, 1].map(i => {
 			return { include: new Triangle(...this.include_triangle[i].flat()) }
 		});
-	}
-	getDrawings() {
-		const playerColors = ["red", "blue"];
-		const deployments = this.include_triangle.map((points, i) => {
-			return { strokeStyle: playerColors[i], methods: ['moveTo', 'lineTo', 'lineTo'], args: points };
-		});
-
-		const objectiveMarkers = this.objective_markers.map(
-			(position, i) => this.getObjectDrawing(position, this.objective_marker_control_distance)
-		);
-
-		return [...deployments, ...objectiveMarkers];
-	}
-	include(id, position) {
-		return this.deployment_zone[id].include.include(...position);
 	}
 }

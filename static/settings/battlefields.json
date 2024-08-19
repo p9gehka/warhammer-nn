@@ -33,5 +33,12 @@
 		"deployment": "crucibleOfBattle",
 		"primary_mission": "take_and_hold",
 		"secondary_mission": "chilling_rain"
+	},
+	"clashOfPatrols": {
+		"size": [44, 30],
+		"terrain": "arkunasha-ruins",
+		"deployment": "clashOfPatrols",
+		"primary_mission": "take_and_hold",
+		"secondary_mission": "chilling_rain"
 	}
 }

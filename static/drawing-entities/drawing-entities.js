@@ -1,4 +1,6 @@
 import base from '../settings/base.json' assert { type: 'json' };
+import avatars from '../settings/avatars.json' assert { type: 'json' };
+
 import { Drawing } from './drawing.js';
 import { deployment } from '../battlefield/deployment.js';
 import { terrain } from '../battlefield/terrain.js';
@@ -33,8 +35,14 @@ class Model extends Drawing {
 		this.position = position;
 		this.unitBase = base[unit.name] ?? [15];
 		this.selected = false;
+		this.loadAvatar();
 	}
-
+	loadAvatar() {
+		if (avatars[this.name] !== undefined) {
+			this.avatar = new Image(this.unitBase[0], this.unitBase[0]);
+			this.avatar.src = avatars[this.name];
+		}
+	}
 	draw() {
 		if (isNaN(this.position[0])) {
 			return;
@@ -44,9 +52,16 @@ class Model extends Drawing {
 		this.ctx.fillStyle = this.playerId === 1 ? '#3e476b' : '#6b3e3e';
 		this.ctx.strokeStyle = this.playerId === 1 ? 'blue' : 'red';
 		this.ctx.translate(0.5, 0.5);
-		this.fillPath(() => {
-			this.ctx.ellipse(this.position[0], this.position[1], mmToInch(base[0] / 2), mmToInch(base[0] / 2), 0, 0, 2 * Math.PI);
-		});
+
+		if (this.avatar !== undefined) {
+			this.ctx.drawImage(this.avatar, this.position[0] - mmToInch(base[0] / 2), this.position[1] -  mmToInch(base[0] / 2), mmToInch(base[0]), mmToInch(base[0]));
+		} else {
+
+			this.fillPath(() => {
+				this.ctx.ellipse(this.position[0], this.position[1], mmToInch(base[0] / 2), mmToInch(base[0] / 2), 0, 0, 2 * Math.PI);
+			});
+		}
+
 
 		this.strokePath(() => {
 			this.ctx.ellipse(this.position[0], this.position[1], mmToInch(base[0] / 2), mmToInch(base[0] / 2), 0, 0, 2 * Math.PI);
@@ -58,7 +73,6 @@ class Model extends Drawing {
 			});
 		}
 		this.ctx.translate(-0.5, -0.5);
-
 	}
 	update(position, selected) {
 		this.selected = selected;
