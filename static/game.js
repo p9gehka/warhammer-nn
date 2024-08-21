@@ -41,7 +41,9 @@ const loadRosterInputPlayer2 = document.getElementById("load-roster-player2");
 const battlefieldSelect = document.getElementById("battlefield-select");
 const reloadBtn = document.getElementById("game-reload");
 const missionSection = document.getElementById("mission-section");
+const unitName = document.getElementById("unit-name");
 const unitSection = document.getElementById("unit-section");
+const unitStatsHeader = document.getElementById("unit-stats-header");
 const diceSection = document.getElementById("dice-section");
 const weaponSection = document.getElementById("weapon-section");
 const shootingQueue = document.getElementById("shooting-queue");
@@ -143,65 +145,107 @@ function updateSecondaryMission(state) {
 const game = new Game(canvas);
 
 function updateUnitSection(selectedUnit) {
+	unitName.innerHTML = '';
 	unitSection.innerHTML = '';
-	if (selectedUnit === null || selectedUnit === undefined) {
+	const haveSelectedUnit = selectedUnit === null || selectedUnit === undefined;
+
+	unitStatsHeader.classList.toggle('hidden', haveSelectedUnit)
+	if (haveSelectedUnit) {
 		return;
 	}
 
-	unitSection.append(game.gameSettings.units.flat()[selectedUnit].name + '; ');
+	unitName.append(game.gameSettings.units.flat()[selectedUnit].name);
 
-	unitSection.append(JSON.stringify(game.gameSettings.unitProfiles[selectedUnit]) + '; ');
-	unitSection.append(game.gameSettings.categories[selectedUnit].join(', ') + '; ');
-	unitSection.append(game.gameSettings.rules[selectedUnit].join(', ') + '; ');
+
+	const unitProfilesFiels = ['M', 'T', 'SV', 'W', 'LD', 'OC'];
+
 	const state = game.env?.getState() ?? game.deploy?.getState();
 	const selected = state.players[state.player].models[game.getSelectedModel()];
+
 	state.units[selectedUnit].models.forEach((modelId) => {
-		const li = document.createElement("LI");
-		li.append(`${modelId} ${game.gameSettings.modelNames[modelId]} ${state.modelsWounds[modelId]} ${state.modelsStamina[modelId]} `);
-		if (Object.keys(game.gameSettings.unitProfiles[selectedUnit]).length === 0) {
-			li.append(JSON.stringify(game.gameSettings.modelProfiles[modelId]) + '; ');
+		const modelStats = document.createElement("div");
+		modelStats.classList.add('model-stats');
+
+		const stats = document.createElement('div');
+		stats.classList.add('stats');
+		for (let key of unitProfilesFiels) {
+			const cell = document.createElement('div');
+			cell.append(game.gameSettings.modelProfiles[modelId][key]);
+			stats.append(cell);
 		}
+
+		modelStats.append(stats);
+
+		modelStats.append(`${modelId} ${game.gameSettings.modelNames[modelId]} ${state.modelsWounds[modelId]} ${state.modelsStamina[modelId]} `);
+		
 		if (modelId === selected) {
-			li.classList.add(`selected`);
+			modelStats.classList.add(`selected`);
 		}
 
-		unitSection.append(li);
+		unitSection.append(modelStats);
 
-		li.addEventListener('click', () => {
+		modelStats.addEventListener('click', () => {
 			game.orderResolve([getSelectModelOrder(state.players[state.player].models.indexOf(modelId))]);
 		});
 	});
+
+	unitSection.append(game.gameSettings.categories[selectedUnit].join(', ') + '; ');
+	unitSection.append(game.gameSettings.rules[selectedUnit].join(', ') + '; ');
 
 }
 function updateWeaponSection(state) {
 	weaponSection.innerHTML = '';
 	const selectedModel = state.players[state.player].models[game.getSelectedModel()];
-	if (selectedModel === null) {
+	if (selectedModel === null || selectedModel === undefined) {
 		return;
 	}
+	const tr = document.createElement("tr");
+	const weaponFields = ['name', 'Keywords', 'Range', 'A', 'BS/WS', 'S', 'AP', 'D']
+	for(let key of  weaponFields) {
+		if (key === 'name') {
+			key = 'weapon name';
+		}
+		if (key === 'Keywords') {
+			key = '';
+		}
+		const th = document.createElement("th");
+		th.append(key);
+		tr.append(th);
+	}
 
+	weaponSection.append(tr);
 	game.gameSettings.rangedWeapons[selectedModel]?.forEach((weapon, weaponIndex) => {
-		const li = document.createElement("LI");
-		for(let key in weapon) {
-			li.append(`${key}: ${weapon[key]}; `);
+		const tr = document.createElement("tr");
+		for(let key of weaponFields) {
+			if (key === 'BS/WS') {
+				key = 'BS';
+			}
+			const td = document.createElement("td");
+			td.append(weapon[key] ?? '-');
+			tr.append(td);
 		}
 
-		weaponSection.append(li);
+		weaponSection.append(tr);
 		if (state.phase === Phase.Shooting) {
 			li.addEventListener('click', () => {
 				game.orderResolve([getSelectWeaponOrder(weaponIndex)]);
 			});
 		}
 	});
-
 	game.gameSettings.meleeWeapons[selectedModel]?.forEach((weapon) => {
-		const li = document.createElement("LI");
-		for(let key in weapon) {
-			li.append(`${key}: ${weapon[key]}; `);
+		const tr = document.createElement("tr");
+		for(let key of weaponFields) {
+			if (key === 'BS/WS') {
+				key = 'WS';
+			}
+			const td = document.createElement("td");
+			td.append(weapon[key] ?? '-');
+			tr.append(td);
 		}
 
-		weaponSection.append(li);
+		weaponSection.append(tr);
 	});
+
 };
 
 game.onUpdateDice = (diceInfo) => {

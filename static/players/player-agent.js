@@ -1,25 +1,31 @@
 import { BaseAction } from '../environment/warhammer.js';
-import { MoveAgent } from '../agents/move-agent/move-agent60x44.js';
+import { MoveAgent as MoveAgent60x44 } from '../agents/move-agent/move-agent60x44.js';
+import { MoveAgent as MoveAgent44x30 } from '../agents/move-agent/move-agent44x30.js';
 import { ShootAgent } from '../agents/shoot-agent/shoot-agent60x44.js';
 import { Phase } from '../environment/warhammer.js';
 import { shotDice } from './dice.js';
 
+const moveAgents = {
+	'60,44' : new MoveAgent60x44(),
+	'44,30': new MoveAgent44x30()
+}
 export class PlayerAgent {
-	static cascad = [MoveAgent.settings]
+	static cascad = [MoveAgent60x44.settings]
 	_selectedModel = null;
 	constructor(playerId, env) {
 		this.env = env;
 		this.playerId = playerId;
 		this.opponentId = (playerId+1) % 2;
 		this._selectedModel = 0;
+		const agentKey = env.battlefield.size.join();
 		this.agents = {
-			[Phase.Movement]: new MoveAgent(),
+			[Phase.Movement]: moveAgents[agentKey],
 			[Phase.Shooting]: new ShootAgent(),
 		}
-		this.agent = new MoveAgent();
 	}
 	async load() {
-		await this.agent.load();
+		await this.agents[Phase.Movement].load();
+		await this.agents[Phase.Shooting].load();
 	}
 	reset() {
 		this.checkSize();

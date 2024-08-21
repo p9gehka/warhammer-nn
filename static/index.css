@@ -1,5 +1,7 @@
 body {
 	margin: 0;
+	background: #DDDFE1;
+	font-family: -apple-system,BlinkMacSystemFont,Trebuchet MS,Roboto,Ubuntu,sans-serif;
 }
 
 .main {
@@ -24,10 +26,7 @@ body {
 }
 
 .left-panel {
-	width: 20vw;
-	display: grid;
-	height: 100vh;
-	grid-template-rows: min-content;
+
 }
 
 .right-pane {
@@ -86,7 +85,7 @@ body {
 }
 
 .hidden {
-	display: none;
+	display: none !important;
 }
 
 .table {
@@ -120,14 +119,33 @@ body {
 	background: #cccccc;
 }
 
-.unit-section li.selected{
+.unit-name {
+	background: #0A5F6A;
+	color: white;
+	text-transform: uppercase;
+}
+.unit-stats-header, .stats, .model-stats {
+	display: flex;
+}
+.unit-stats-header div, .stats div {
+	text-align: center;
+	width: 50px;
+}
+.unit-section .model-stats.selected{
 	background: #cccccc;
 }
 
-.weapon-section li {
+.weapon-section {
+	border-spacing: 0;
+}
+.weapon-section th {
+	background: #1D6070;
+	color: white;
+	text-transform: uppercase;
+}
+.weapon-section tr {
 	cursor: pointer;
 }
-
-.weapon-section li:hover {
+.weapon-section tr:hover {
 	background: #cccccc;
 }

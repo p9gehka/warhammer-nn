@@ -72,6 +72,7 @@ class Model extends Drawing {
 				this.ctx.ellipse(this.position[0], this.position[1], mmToInch((base[0] / 2) + 8), mmToInch((base[0] / 2) + 8), 0, 0, 2 * Math.PI);
 			});
 		}
+
 		this.ctx.translate(-0.5, -0.5);
 	}
 	update(position, selected) {

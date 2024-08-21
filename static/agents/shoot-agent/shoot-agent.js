@@ -5,7 +5,9 @@ import { getRandomInteger } from '../../utils/index.js';
 
 export class ShootAgentBase {
 	fillAgent = new RandomAgent(shootOrders, getInput);
-
+	async load() {
+		/* pass */ 
+	}
 	playStep(state, playerState) {
 		const { visibleOpponentUnits, selected } = playerState;
 		let orderIndex = 0;

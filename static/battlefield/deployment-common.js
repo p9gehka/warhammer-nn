@@ -4,7 +4,7 @@ export class DeploymentCommon {
 	include_rect = [];
 	exclude_circle = [];
 	objective_markers = [];
-
+	deploy_markers = [];
 	getObjectDrawing(position, radius) {
 		const args = [[ ...position, radius, radius, 0, 0, 2 * Math.PI]];
 		return { strokeStyle: "burlywood", methods: ['ellipse'],  args };

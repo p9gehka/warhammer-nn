@@ -172,7 +172,7 @@ export class MissionController {
 		}
 
 		if (this.secondary.includes(Mission.Cleanse)) {
-			const cleanseMarkers = [playerDeployment.deploy_markers[opponentPlayer], ...playerDeployment.nomansland_markers];
+			const cleanseMarkers = [...(playerDeployment.deploy_markers[opponentPlayer] ?? []), ...playerDeployment.nomansland_markers];
 			const objectiveControl = Array(cleanseMarkers.length).fill(0);
 			state.players.forEach((player, modelPlayerId) => {
 				player.models.forEach(modelId => {
@@ -280,7 +280,7 @@ export class MissionController {
 		}
 
 		if (this.secondary.includes(Mission.DefendStronhold)) {
-			const ownDelploymentMarker = playerDeployment.deploy_markers[activePlayerId];
+			const ownDelploymentMarker = playerDeployment.deploy_markers[activePlayerId] ?? [NaN, NaN];
 			let markerControl = 0;
 			state.players.forEach((player, modelPlayerId) => {
 				player.models.forEach(modelId => {

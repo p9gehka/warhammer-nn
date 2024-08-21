@@ -40,7 +40,7 @@ export class Terrain {
 		for (let footprintEdge of footprints) {
 			let intersections = 0;
 			for (let i = 0; i < footprintEdge.length; i++) {
-				if (getLineIntersection(visibilityLine, [footprintEdge[i], footprintEdge[(i+1) % 3]]) !== null) {
+				if (getLineIntersection(visibilityLine, [footprintEdge[i], footprintEdge[(i+1) % footprintEdge.length]]) !== null) {
 					intersections++;
 				}
 				if (intersections >= 2) {
