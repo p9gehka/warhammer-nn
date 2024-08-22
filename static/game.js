@@ -227,7 +227,7 @@ function updateWeaponSection(state) {
 
 		weaponSection.append(tr);
 		if (state.phase === Phase.Shooting) {
-			li.addEventListener('click', () => {
+			tr.addEventListener('click', () => {
 				game.orderResolve([getSelectWeaponOrder(weaponIndex)]);
 			});
 		}
@@ -249,7 +249,20 @@ function updateWeaponSection(state) {
 };
 
 game.onUpdateDice = (diceInfo) => {
-	diceSection.innerHTML = JSON.stringify(diceInfo);
+	diceSection.innerHTML = '';
+	[diceInfo.hits, diceInfo.wounds, diceInfo.saves, diceInfo.damages].forEach((dices) => {
+		if (dices) {
+			const diceTrayLine = document.createElement('div');
+			diceTrayLine.classList.add('dice-tray-line')
+			dices.forEach(value => {
+				const dice = document.createElement('div');
+				diceTrayLine.append(dice);
+				dice.classList.add(`dice-${value}`);
+			});
+			diceSection.append(diceTrayLine);
+		}
+	})
+	
 }
 
 game.onUpdate = (state) => {

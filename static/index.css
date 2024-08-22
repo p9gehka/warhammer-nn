@@ -149,3 +149,47 @@ body {
 .weapon-section tr:hover {
 	background: #cccccc;
 }
+
+.dice-tray-line {
+	display: flex;
+	flex-wrap: wrap;
+	position: relative;
+}
+
+.dice-tray-line div {
+	width: 27px;
+	height: 27px;
+	line-height: 9px;
+	font-family: monospace;
+	border: 1px solid gray;
+	white-space: break-spaces;
+}
+
+.dice-tray-line *::after {
+	width: 27px;
+	height: 27px;
+	text-align: center;
+	display: block;
+}
+.dice-tray-line .dice-1::after {
+	content: '\000A\00A0·\00A0';
+}
+.dice-tray-line .dice-2::after {
+	content: '·\00A0\00A0\000A\000A\00A0\00A0·';
+}
+
+.dice-tray-line .dice-3::after {
+	content: '·\00A0\00A0\000A\00A0·\00A0\000A\00A0\00A0·';
+}
+
+.dice-tray-line .dice-4::after {
+	content: '·\00A0·\000A\000A·\00A0·';
+}
+
+.dice-tray-line .dice-5::after {
+	content: '·\00A0·\000A\00A0·\00A0\000A·\00A0·';
+}
+
+.dice-tray-line .dice-6::after {
+	content: '···\000A\000A···';
+}
