@@ -10,7 +10,7 @@ export const Channel1 = { };
 
 export const Channel2 = { ObjectiveMarker: 1 };
 export const Channel3 = {};
-[0,1].forEach(v => { Channel3[`Order${v}`] = (v + 1) / 2; });
+[0, 1, 2].forEach(v => { Channel3[`Order${v}`] = (v + 1) / 3; });
 
 export const Channel0Name = {}, Channel1Name = {}, Channel2Name = {}, Channel3Name = {};
 
