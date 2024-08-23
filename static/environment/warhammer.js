@@ -71,19 +71,18 @@ class Model {
 			"w": parseInt(profile.W),
 			"ld": parseInt(profile.LD),
 			"oc": parseInt(profile.OC),
-			"ranged_weapons": ["pulse_rifle"],
-			"melee_weapons": ["close_combat_weapon_2"]
 		};
 
-		this.rangedWeapons = rangedWeapons.map((weaponProfile) => {
+		this.rangedWeapons = rangedWeapons.map(weaponProfile  => {
 			return {
-				"a": parseProfile(weaponProfile.A),
-				"ap": parseInt(weaponProfile.AP),
-				"bs": parseInt(weaponProfile.BS),
-				"d": parseProfile(weaponProfile.D),
-				"range": parseInt(weaponProfile.Range),
-				"s": parseInt(weaponProfile.S),
-				name: weaponProfile.name
+				a: parseProfile(weaponProfile.A),
+				ap: parseInt(weaponProfile.AP),
+				bs: parseInt(weaponProfile.BS),
+				d: parseProfile(weaponProfile.D),
+				range: parseInt(weaponProfile.Range),
+				s: parseInt(weaponProfile.S),
+				name: weaponProfile.name,
+				keywords: weaponProfile.Keywords.split(', ')
 			}
 		});
 		this.rangedWeaponLoaded = Array(rangedWeapons.length).fill(false);
@@ -365,7 +364,7 @@ export class Warhammer {
 
 				this.scoreSecondary('scoreShootingSecondary');
 
-				return this.getState({ hits, wounds, saves, damages });
+				return this.getState({ numberOfAttack: [hits.length], hits, wounds, saves, damages });
 			}
 		}
 		if (order.action === BaseAction.Move && model !== undefined) {

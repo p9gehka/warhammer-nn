@@ -113,11 +113,21 @@ export class PlayerAgent {
 		const state = this.env.getState();
 		const playerModels = state.players[this.playerId].models;
 		const visibleOpponentUnits = [];
+		let maxRangeWeaponId = 0;
+		let maxRange = 0;
+		const selectedEnvModel = this.env.models[playerModels[this._selectedModel]];
+		selectedEnvModel?.rangedWeapons.forEach((weapon, id) => {
+			if(selectedEnvModel.rangedWeaponLoaded[id] && weapon.range > maxRange) {
+				maxRangeWeaponId = id;
+				maxRange = weapon.range
+			}
+		});
+
 		state.players[this.opponentId].units.forEach(unit => {
-			if (this.env.getAvailableTarget(playerModels[this._selectedModel], 0, unit.id).length > 0) {
+			if (this.env.getAvailableTarget(playerModels[this._selectedModel], maxRangeWeaponId, unit.id).length > 0) {
 				visibleOpponentUnits.push(unit.id);
 			}
-		})
+		});
 		return { selected: this._selectedModel, visibleOpponentUnits: visibleOpponentUnits };
 	}
 

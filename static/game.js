@@ -65,7 +65,7 @@ function updateHeader(state) {
 	}
 	headerInfo.classList.toggle('player0', state.player === 0);
 	headerInfo.classList.toggle('player1', state.player === 1);
-	headerInfo.innerHTML = `Phase: ${phaseName}, Round: ${state.round}, Player turn: ${state.player}, Player0: ${state.players[0].primaryVP}/${state.players[0].secondaryVP}, Player1: ${state.players[1].primaryVP}/${state.players[1].secondaryVP}`;
+	headerInfo.innerHTML = `Round: ${state.round}, Phase: ${phaseName}`;
 }
 
 function updateTable(state) {
@@ -127,18 +127,20 @@ function updateUnitsStrip(state) {
 function updateSecondaryMission(state) {
 	missionSection.innerHTML = '';
 	state.secondaryMissions.forEach((missions, playerId) => {
-		missionSection.append(`Player: ${playerId}`);
+		const playerBlock = document.createElement("div");
+		playerBlock.append(`Player${playerId}: ${state.players[playerId].primaryVP}/${state.players[playerId].secondaryVP}`);
 		missions.forEach((mission, missionIndex) => {
-			const li = document.createElement("LI");
-			const button = document.createElement("BUTTON");
-			li.innerHTML = mission;
+			const missionEl = document.createElement("div");
+			const button = document.createElement("button");
+			missionEl.innerHTML = mission;
 			if(state.phase === Phase.Command && state.player === playerId) {
 				button.innerHTML = 'X';
-				li.appendChild(button);
+				missionEl.append(button);
 				button.addEventListener('click', () => game.orderResolve([getDiscardMissionOrder(missionIndex)]));
 			}
-			missionSection.appendChild(li);
+			playerBlock.append(missionEl);
 		});
+		missionSection.append(playerBlock);
 	});
 }
 
@@ -249,20 +251,27 @@ function updateWeaponSection(state) {
 };
 
 game.onUpdateDice = (diceInfo) => {
-	diceSection.innerHTML = '';
-	[diceInfo.hits, diceInfo.wounds, diceInfo.saves, diceInfo.damages].forEach((dices) => {
-		if (dices) {
+	const titles = ['numberOfAttack', 'hits', 'wounds', 'saves', 'damages'];
+	const separator = document.createElement('div');
+	separator.classList.add('dice-separator');
+	diceSection.insertBefore(separator, diceSection.firstChild);
+
+	[diceInfo.numberOfAttack, diceInfo.hits, diceInfo.wounds, diceInfo.saves, diceInfo.damages].forEach((dices, i) => {
+		if (dices.length > 0) {
 			const diceTrayLine = document.createElement('div');
 			diceTrayLine.classList.add('dice-tray-line')
 			dices.forEach(value => {
 				const dice = document.createElement('div');
 				diceTrayLine.append(dice);
+				dice.classList.add(`dice`);
 				dice.classList.add(`dice-${value}`);
 			});
-			diceSection.append(diceTrayLine);
+			const titleElement = document.createElement('div');
+			titleElement.append(titles[i]);
+			diceTrayLine.append(titleElement);
+			diceSection.insertBefore(diceTrayLine, diceSection.firstChild);
 		}
-	})
-	
+	});
 }
 
 game.onUpdate = (state) => {

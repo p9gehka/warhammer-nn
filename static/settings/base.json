@@ -75,8 +75,13 @@
 	"norn emissary": [100],
 	"tyrannofex": [120],
 
-	"DRUKHARI": "DRUKHARI",
+	"SPACE MARINES": "SPACE MARINES",
+	"captain in terminator armour": [40],
+	"librarian in terminator armour": [40],
+	"infernus squad": [32],
+	"terminator squad": [40],
 
+	"DRUKHARI": "DRUKHARI",
 	"lelith hesperax": [32],
 	"archon": [25],
 	"kabalite warriors": [25],
