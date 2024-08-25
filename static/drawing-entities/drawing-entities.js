@@ -40,7 +40,7 @@ class Model extends Drawing {
 	loadAvatar() {
 		if (avatars[this.name] !== undefined) {
 			this.avatar = new Image(this.unitBase[0], this.unitBase[0]);
-			this.avatar.src = avatars[this.name];
+			this.avatar.src = `image/circle_${avatars[this.name]}`;
 		}
 	}
 	draw() {

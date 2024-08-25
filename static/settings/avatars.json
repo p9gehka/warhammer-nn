@@ -1,8 +1,12 @@
 {
-	"ethereal": "image/ethereal.png",
-	"cadre fireblade": "image/cadre fireblade.png",
-	"strike team": "image/strike team.png",
-	"stealth battlesuits": "image/stealth battlesuits.png",
-	"ghostkeel battlesuit": "image/ghostkeel battlesuit.png"
+	"ethereal": "ethereal.png",
+	"cadre fireblade": "cadre_fireblade.png",
+	"strike team": "strike_team.png",
+	"stealth battlesuits": "stealth_battlesuits.png",
+	"ghostkeel battlesuit": "ghostkeel_battlesuit.png",
 
+	"captain in terminator armour": "captain_in_terminator_armour.png",
+	"librarian in terminator armour": "librarian_in_terminator_armour.png",
+	"infernus squad": "infernus_squad.png",
+	"terminator squad": "terminator_squad.png"
 }
