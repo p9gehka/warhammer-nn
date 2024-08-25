@@ -6,10 +6,15 @@
 		{ "M":  "8\"", "OC": "1"},
 		{ "M":  "8\"", "OC": "1"},
 		{ "M":  "8\"", "OC": "1"},
+		{ "M":  "8\"", "OC": "1"},
+		{ "M":  "8\"", "OC": "1"},
 		{ "M":  "8\"", "OC": "1"}
+
 	],
-	"models": [null, null],
+	"models": [null, null, null, null, null, null, null, null],
 	"unitProfiles": [
+		{ "M":  "8\"", "OC": "1"},
+		{ "M":  "8\"", "OC": "1"},
 		{ "M":  "8\"", "OC": "1"},
 		{ "M":  "8\"", "OC": "1"},
 		{ "M":  "8\"", "OC": "1"},
@@ -19,11 +24,11 @@
 	],
 	"units": [
 		[{
-			"models": [0, 1, 2],
+			"models": [0, 1, 2, 3],
 			"name": "stealth battlesuits"
 		}],
 		[{
-			"models": [3, 4, 5],
+			"models": [4, 5, 6, 7],
 			"name": "stealth battlesuits"
 		}]
 	]
