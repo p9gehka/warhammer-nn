@@ -105,8 +105,7 @@ function updateUnitsStrip(state) {
 		unitsStrip.appendChild(li);
 		if (avatars[unit.name] !== undefined) {
 			const img = document.createElement("img");
-			const [name, ext] = avatars[unit.name].split('.')
-			img.src = `${name} full.${ext}`;
+			img.src = `image/${avatars[unit.name]}`;
 			li.appendChild(img);
 		}
 		if (state.player === unit.playerId) {
@@ -350,7 +349,9 @@ closeSettingsDialog.addEventListener('click', () => {
 });
 
 function getEntries(file, options) {
-	return (new zip.ZipReader(new zip.BlobReader(file))).getEntries(options);
+	const fr = new FileReader();
+	fr.readAsText(file);
+	return new Promise(resolve => fr.onload = (e) => resolve(JSON.parse(e.target.result)));
 }
 
 loadRosterInputPlayer1.addEventListener('change', async (e) => {
@@ -360,8 +361,7 @@ loadRosterInputPlayer1.addEventListener('change', async (e) => {
 	}
 
 	const entries = await getEntries(file);
-	const data = await entries[0].getData(new zip.TextWriter());
-	const settings = roster2settings(xml2js(data, { compact: true }));
+	const settings = roster2settings(entries);
 	localStorage.setItem('game-settings-player1', JSON.stringify(settings));
 });
 
@@ -372,7 +372,6 @@ loadRosterInputPlayer2.addEventListener('change', async (e) => {
 	}
 
 	const entries = await getEntries(file);
-	const data = await entries[0].getData(new zip.TextWriter());
-	const settings = roster2settings(xml2js(data, { compact: true }));
+	const settings = roster2settings(entries);
 	localStorage.setItem('game-settings-player2', JSON.stringify(settings));
 });
