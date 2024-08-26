@@ -26,7 +26,6 @@ body {
 }
 
 .left-panel {
-
 }
 
 .right-pane {
@@ -89,6 +88,7 @@ body {
 
 .table {
 	width: 900px;
+	font-size: 5px;
 }
 
 .mission-section {
