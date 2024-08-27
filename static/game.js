@@ -158,7 +158,7 @@ function updateUnitSection(selectedUnit) {
 	unitName.append(game.gameSettings.units.flat()[selectedUnit].name);
 
 
-	const unitProfilesFiels = ['M', 'T', 'SV', 'W', 'LD', 'OC'];
+	const modelProfilesFiels = ['M', 'T', 'SV', 'W', 'LD', 'OC'];
 
 	const state = game.env?.getState() ?? game.deploy?.getState();
 	const selected = state.players[state.player].models[game.getSelectedModel()];
@@ -169,7 +169,7 @@ function updateUnitSection(selectedUnit) {
 
 		const stats = document.createElement('div');
 		stats.classList.add('stats');
-		for (let key of unitProfilesFiels) {
+		for (let key of modelProfilesFiels) {
 			const cell = document.createElement('div');
 			cell.append(game.gameSettings.modelProfiles[modelId][key]);
 			stats.append(cell);
@@ -191,8 +191,12 @@ function updateUnitSection(selectedUnit) {
 	});
 
 	unitSection.append(game.gameSettings.categories[selectedUnit].join(', ') + '; ');
-	unitSection.append(game.gameSettings.rules[selectedUnit].join(', ') + '; ');
 
+	const selectedModel = state.players[state.player].models[game.getSelectedModel()];
+	if (selectedModel !== null && selectedModel !== undefined) {
+		unitSection.append(game.gameSettings.rules[selectedModel].join(', ') + '; ');
+		unitSection.append(game.gameSettings.abilities[selectedModel].join(', ') + '; ');
+	}
 }
 function updateWeaponSection(state) {
 	weaponSection.innerHTML = '';
@@ -200,6 +204,7 @@ function updateWeaponSection(state) {
 	if (selectedModel === null || selectedModel === undefined) {
 		return;
 	}
+
 	const tr = document.createElement("tr");
 	const weaponFields = ['name', 'Keywords', 'Range', 'A', 'BS/WS', 'S', 'AP', 'D']
 	for(let key of  weaponFields) {

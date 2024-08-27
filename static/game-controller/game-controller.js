@@ -75,10 +75,10 @@ export class Game {
 
 		this.gameSettings = {
 			units: [player0Settings.units, player1Settings.units],
-			unitProfiles: [...player0Settings.unitProfiles, ...player1Settings.unitProfiles],
 			modelProfiles: [...player0Settings.modelProfiles, ...player1Settings.modelProfiles],
 			categories: [...player0Settings.categories, ...player1Settings.categories],
 			rules: [...player0Settings.rules, ...player1Settings.rules],
+			abilities: [...player0Settings.abilities, ...player1Settings.abilities],
 			modelNames: [...player0Settings.modelNames, ...player1Settings.modelNames],
 			rangedWeapons: [...player0Settings.rangedWeapons, ...player1Settings.rangedWeapons],
 			meleeWeapons: [...player0Settings.meleeWeapons, ...player1Settings.meleeWeapons],
@@ -206,8 +206,6 @@ export class Game {
 						});
 					})
 				}
-
-				
 
 				if (state.phase === Phase.Reinforcements) {
 					const orders = await this.orderPromise;

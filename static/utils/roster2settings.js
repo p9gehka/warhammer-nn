@@ -1,7 +1,7 @@
 export function roster2settings(roster) {
-	const unitProfiles = [];
 	const modelProfiles = [];
 	const categories = [];
+	const abilities = [];
 	const rules = [];
 	const units = [];
 	const modelNames = []
@@ -14,28 +14,24 @@ export function roster2settings(roster) {
 		.forEach(rosterUnit => {
 			if (rosterUnit.type === "model") {
 				rosterUnit = {
-					"number": 1,
-					"type": "unit",
-					"name": rosterUnit.name,
+					number: 1,
+					type: "unit",
+					name: rosterUnit.name,
 					selections: [rosterUnit],
-					profiles: rosterUnit.profiles,
 					categories: rosterUnit.categories,
-					rules: rosterUnit.rules,
 				};
 			}
 			let rosterSelection = rosterUnit.selections;
-			let rosterUnitProfiles = rosterUnit.profiles;
-			const unitProfile = {};
 
-			rosterUnitProfiles.filter(p => p.typeName === 'Unit')[0].characteristics.forEach(ch => {
-				unitProfile[ch.name] = ch.$text;
-			});
+			let rosterUnitProfiles = rosterUnit.profiles ?? [];
+			const unitRules = rosterUnit.rules?.map(r => r.name.toLowerCase()) ?? [];
 
 			const unitModelsNames = [];
 			const unitRangedWeapons = [];
 			const unitMeleeWeapons = [];
 			const unitModelsProfiles = [];
-
+			const unitModelsRules = [];
+			const unitModelsAbilities = [];
 			rosterSelection.forEach(unitSelectionArg => {
 				if (unitSelectionArg.type !== 'model') {
 					return;
@@ -60,21 +56,39 @@ export function roster2settings(roster) {
 				const rangedProfiles = unitSelection.filter(s => s.profiles !== undefined && s.profiles[0].typeName === 'Ranged Weapons').map(fillProfile).flat();
 				const meleeProfiles = unitSelection.filter(s => s.profiles !== undefined && s.profiles[0].typeName === 'Melee Weapons').map(fillProfile).flat();
 
-				let modelProfile = { ...unitProfile };
 
-				let subUnitProfile = unitSelectionArg.profiles ?? []
 
-				subUnitProfile = subUnitProfile.filter(p => p.typeName === 'Unit')[0];
-				if (subUnitProfile !== undefined) {
-					subUnitProfile.characteristics.forEach(ch => {
-						modelProfile[ch.name] = ch.$text;
-					});
-				}
+				let modelProfile = [...rosterUnitProfiles, ...unitSelectionArg.profiles ?? []];
+				let modelCharacteristics = {};
+				let modelAbilities = [];
+				modelProfile.forEach(profile => {
+					if (profile.typeName === "Unit") {
+						profile.characteristics.forEach(ch => {
+							modelCharacteristics[ch.name] = ch.$text;
+						});
+					}
+
+					if (profile.typeName === "Abilities") {
+
+						let name = profile.name.toLowerCase();
+						if (name === 'invulnerable save') {
+							name = `${name} (${profile.characteristics[0].$text})`;
+						}
+						modelAbilities.push(name)
+					}
+				})
+				unitModelsAbilities.push(...(new Array(modelsNumber).fill(modelAbilities)));
 
 				unitModelsNames.push(...(new Array(modelsNumber).fill(unitSelectionArg.name)));
 				unitRangedWeapons.push(...(new Array(modelsNumber).fill(rangedProfiles)));
 				unitMeleeWeapons.push(...(new Array(modelsNumber).fill(meleeProfiles)));
-				unitModelsProfiles.push(...(new Array(modelsNumber).fill(modelProfile)));
+				unitModelsProfiles.push(...(new Array(modelsNumber).fill(modelCharacteristics)));
+
+				const modelRules = [...unitRules];
+				unitSelectionArg.rules?.forEach(r => {
+					modelRules.push(r.name.toLowerCase());
+				});
+				unitModelsRules.push(...(new Array(modelsNumber).fill(modelRules)));
 			});
 			let unitModelsNumber = 1;
 			if (rosterUnit.type === "unit") {
@@ -85,18 +99,16 @@ export function roster2settings(roster) {
 			modelsCounter += unitModelsNumber;
 			const result = { name: rosterUnit.name.toLowerCase(), models };
 			const category = rosterUnit.categories.map(r => r.name.toLowerCase());
-			let rosterRule = rosterUnit.rules;
 
-			const rule = rosterRule.map(r => r.name.toLowerCase());
-			rules.push(rule);
+			abilities.push(...unitModelsAbilities);
+			rules.push(...unitModelsRules);
 			categories.push(category);
 			units.push(result);
-			unitProfiles.push(unitProfile);
 			modelProfiles.push(...unitModelsProfiles);
 			modelNames.push(...unitModelsNames);
 			rangedWeapons.push(...unitRangedWeapons);
 			meleeWeapons.push(...unitMeleeWeapons);
 		});
 
-	return { units, unitProfiles, modelProfiles, categories, rules, modelNames, rangedWeapons, meleeWeapons };
+	return { units, modelProfiles, categories, rules, modelNames, rangedWeapons, meleeWeapons, abilities };
 }

@@ -132,7 +132,7 @@ body {
 }
 .unit-stats-header div, .stats div {
 	text-align: center;
-	width: 50px;
+	width: 30px;
 }
 .unit-section .model-stats.selected{
 	background: #cccccc;

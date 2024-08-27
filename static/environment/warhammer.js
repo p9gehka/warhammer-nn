@@ -52,6 +52,7 @@ function onBattlefield(position) {
 	return !isNaN(position[0]);
 }
 
+
 class Model {
 	position = [NaN, NaN];
 	deathPosition = [NaN, NaN];
@@ -60,10 +61,11 @@ class Model {
 	stamina = 0;
 	scoutMove = 0;
 	deployed = false;
-	constructor(id, unit, position, profile, category = [], rules = [], rangedWeapons) {
+	constructor(id, unit, position, profile, category = [], rules = [], abilities = [], rangedWeapons) {
 		this.id = id;
 		this.name = unit.name;
 		this.playerId = unit.playerId;
+		this.abilities = abilities;
 		this.unitProfile = {
 			"m": parseInt(profile.M),
 			"t": parseInt(profile.T),
@@ -102,7 +104,15 @@ class Model {
 			this.deployed = true;
 		}
 	}
-
+	getInvulnerableSave() {
+		const invulAbility = this.abilities.find(ability => ability.startsWith('invulnerable save'))
+		const invulShortcat = {};
+		[2,3,4,5,6].forEach(value => {
+			invulShortcat[`invulnerable save (${value}+)`] = value;
+			invulShortcat[`invulnerable save (${value}+*)`] = value;
+		});
+		return invulShortcat[invulAbility];
+	}
 	update(position) {
 		if (!this.dead) {
 			this.position = position;
@@ -207,11 +217,13 @@ export class Warhammer {
 		const usedPosition = [];
 		this.models = this.units.map((unit, unitId) => {
 			return unit.models.map(id => {
-				if (this.gameSettings.models.length !== 0 && this.gameSettings.models[id] !== undefined && this.gameSettings.models[id] !== null) {
-					return new Model(id, unit, this.gameSettings.models[id], this.gameSettings.modelProfiles[id], this.gameSettings.categories[unitId], this.gameSettings.rules[unitId], this.gameSettings.rangedWeapons[id]);
+				let modelPosition = this.gameSettings.models[id];
+				if (this.gameSettings.models.length === 0 || modelPosition === undefined || modelPosition === null) {
+					modelPosition = this.getRandomStartPosition(usedPosition)
+					usedPosition.push(modelPosition);
 				}
-				usedPosition.push(this.getRandomStartPosition(usedPosition));
-				return new Model(id, unit, usedPosition.at(-1), this.gameSettings.modelProfiles[id], this.gameSettings.categories[unitId], this.gameSettings.rules[unitId], this.gameSettings.rangedWeapons[id]);
+
+				return new Model(id, unit, modelPosition, this.gameSettings.modelProfiles[id], this.gameSettings.categories[unitId], this.gameSettings.rules[id], this.gameSettings.abilities[id], this.gameSettings.rangedWeapons[id]);
 			});
 		}).flat();
 
@@ -344,7 +356,9 @@ export class Warhammer {
 					}
 
 					const targetToughness = targetModel.unitProfile.t;
-					const targetSave = targetModel.unitProfile.sv;
+
+					
+
 					const woundDice = order.wounds[i];
 					wounds.push(woundDice);
 
@@ -354,7 +368,10 @@ export class Warhammer {
 
 					const saveDice = d6();
 					saves.push(saveDice);
-					if (saveDice >= (targetSave - weapon.ap)) {
+					let invulnerableSave = targetModel.getInvulnerableSave() ?? 7;
+					const targetSave = Math.min(targetModel.unitProfile.sv - weapon.ap, invulnerableSave);
+
+					if (saveDice >= targetSave) {
 						continue;
 					}
 					const damageValue = order.damages[i];
