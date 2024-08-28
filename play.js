@@ -160,7 +160,7 @@ async function play() {
 
 				let actionData = testAgents[testState.player].playStep().at(-1);
 				if (testState.player === 0) {
-					testActions.push(actionData);
+					testActions.push(`${actionData.index}(${actionData.estimate})`);
 				}
 				testAttempst++;
 			}
@@ -169,10 +169,12 @@ async function play() {
 			await sendDataToTelegram(rewardAveragerBuffer.buffer.filter(v => v !== null));
 			
 			await sendMessage(
-				`Frame #${frameCount}::Epsilon ${players[0].epsilon?.toFixed(3)}::averageVP${rewardAveragerLen}Best ${averageVPBest}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
-				`:${JSON.stringify(testActions)}:`
+				[
+				`Frame #${frameCount}::Epsilon ${players[0].epsilon?.toFixed(3)}::averageVP${rewardAveragerLen}Best ${averageVPBest}::${frameTimeAverager100.average().toFixed(1)} frames/s:`,
+				`:${JSON.stringify(testActions.join(','))}:`,
+				`heapMemory:${memoryUsage()['heapUsed']}`
+				].join()
 			);
-			await sendMessage(JSON.stringify(memoryUsage()));
 
 			env.reset();
 			players.forEach(agent => agent.reset());
