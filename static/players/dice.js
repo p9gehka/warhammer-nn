@@ -5,6 +5,9 @@ function d6() {
 }
 
 export function shotDice(weapon) {
+	if (weapon === undefined) {
+		return {};
+	}
 	const numberOfAttack = Number.isInteger(weapon.a) ? weapon.a : weapon.a(d6());
 	let hits = Array(numberOfAttack).fill(0).map(d6);
 	if (weapon.keywords.includes('Torrent')) {

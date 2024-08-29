@@ -78,8 +78,12 @@
 	"SPACE MARINES": "SPACE MARINES",
 	"captain in terminator armour": [40],
 	"librarian in terminator armour": [40],
+	"chaplain": [40],
 	"infernus squad": [32],
+	"intercessor squad": [32],
+	"inceptor squad": [40],
 	"terminator squad": [40],
+	"redemptor dreadnought": [90],
 
 	"DRUKHARI": "DRUKHARI",
 	"lelith hesperax": [32],
