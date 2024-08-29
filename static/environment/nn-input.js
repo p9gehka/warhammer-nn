@@ -64,6 +64,8 @@ export function getInput(state, playerState) {
 			let entities = [];
 
 			if (playerId === state.player) {
+				input[playerModelId] = [xy];
+
 				if (playerModelId >= playerState.selected) {
 					const order = Math.min(playerModelId - playerState.selected, maxModelsAtOrder - 1);
 					entities.push(Channel3Name[`Order${order}`]);
