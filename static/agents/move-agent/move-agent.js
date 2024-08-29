@@ -3,41 +3,29 @@ import { getTF } from '../../utils/get-tf.js';
 import { moveOrders } from './move-orders.js';
 import { Channel1Name } from '../../environment/nn-input.js';
 import { getInput } from '../../environment/nn-input.js';
-import { getRandomInteger } from '../../utils/index.js';
+import { eq } from '../../utils/vec2.js';
+import { RandomAgent } from '../random-agent.js';
 
 const tf = await getTF();
 
-class RandomAgent {
-	constructor() {
-		this.orders = moveOrders;
-	}
-	playStep(state) {
-		const orderIndex = getRandomInteger(0, this.orders.length);
-		return { order: this.orders[orderIndex], orderIndex, estimate: 0 };
-	}
-	getInput(state) {
-		return getInput(state)
-	}
-}
-
 export class MoveAgentBase {
-	fillAgent = new RandomAgent();
+	fillAgent = new RandomAgent(moveOrders, getInput);
 	orders = moveOrders;
 	async load() {
-		const loadPath = 'file://' + 'static/' + `agents/move-agent/.model${this.width}x${this.height}x${this.channels.length}/model.json`;
+		const loadPath = (typeof window === 'undefined' ? 'file://static/' : '') + `agents/move-agent/.model${this.width}x${this.height}x${this.channels.length}/model.json`;
 		this.onlineNetwork = await tf.loadLayersModel(loadPath);
 	}
-	playStep(state) {
+	playStep(state, playerState) {
 		if (this.onlineNetwork === undefined) {
 			return this.fillAgent.playStep(state);
 		}
 		const { orders, height, width, channels } = this;
-		const input = getInput(state);
+		const input = getInput(state, playerState);
 
 		let orderIndex = 0;
 		let estimate = 0;
-
-		if (input[Channel1Name.Stamina0].length > 0) {
+		const selected = state.models[state.players[state.player].models[playerState.selected]];
+		if (input[Channel1Name.Stamina0].some(pos => eq(pos, selected)))  {
 			orderIndex = 0;
 		} else {
 			tf.tidy(() => {
