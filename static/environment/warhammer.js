@@ -2,6 +2,7 @@ import { mul, len, sub, add, eq, scaleToLen, round } from '../utils/vec2.js'
 import { getRandomInteger } from '../utils/index.js';
 import { MissionController, Mission } from './mission.js';
 import { terrain } from '../battlefield/terrain.js';
+import { d6 } from './d6.js';
 
 const GameSequense = [
 	'DeployArmies',
@@ -18,10 +19,6 @@ export const Phase = {
 
 const phaseOrd = [Phase.Command, Phase.Movement, Phase.Reinforcements, Phase.Shooting];
 
-function d6() {
-	return getRandomInteger(1, 7);
-}
-
 export const BaseAction = {
 	NextPhase: 'NEXT_PHASE',
 	Move: 'MOVE',
@@ -31,27 +28,9 @@ export const BaseAction = {
 	Shoot: 'SHOOT',
 }
 
-function parseProfile(value) {
-	let damage = parseInt(value);
-	if (!isNaN(damage)) {
-		return damage;
-	}
-
-	const [diceCondition, tail] = value.split('+');
-	return (diceResult) => {
-		if(diceCondition === 'd3') {
-			diceResult = Math.ceil(d6Result/3);
-		}
-		let tailValue = parseInt(tail);
-		tailValue = isNaN(tailValue) ? 0 : tailValue
-		return diceResult + tailValue;
-	}
-}
-
 function onBattlefield(position) {
 	return !isNaN(position[0]);
 }
-
 
 class Model {
 	position = [NaN, NaN];
@@ -77,12 +56,12 @@ class Model {
 
 		this.rangedWeapons = rangedWeapons.map(weaponProfile  => {
 			return {
-				a: parseProfile(weaponProfile.A),
-				ap: parseInt(weaponProfile.AP),
-				bs: parseInt(weaponProfile.BS),
-				d: parseProfile(weaponProfile.D),
-				range: parseInt(weaponProfile.Range),
-				s: parseInt(weaponProfile.S),
+				a: weaponProfile.A,
+				ap: weaponProfile.AP,
+				bs: weaponProfile.BS,
+				d: weaponProfile.D,
+				range: weaponProfile.Range,
+				s: weaponProfile.S,
 				name: weaponProfile.name,
 				keywords: weaponProfile.Keywords.split(', ')
 			}
@@ -345,7 +324,7 @@ export class Warhammer {
 				const damages = [];
 				for (let i = 0; i < hits.length; i++) {
 					const hit = hits[i];
-					if (hit < weapon.bs) {
+					if (hit < parseInt(weapon.bs)) {
 						continue;
 					}
 					const aliveTargets = this.units[order.target].models.filter(modelId => !this.models[modelId].dead);
@@ -357,31 +336,30 @@ export class Warhammer {
 
 					const targetToughness = targetModel.unitProfile.t;
 
-					
 
 					const woundDice = order.wounds[i];
 					wounds.push(woundDice);
 
-					if (woundDice < this.strenghtVsToughness(weapon.s, targetToughness)) {
+					if (woundDice < this.strenghtVsToughness(parseInt(weapon.s), targetToughness)) {
 						continue;
 					}
 
 					const saveDice = d6();
 					saves.push(saveDice);
 					let invulnerableSave = targetModel.getInvulnerableSave() ?? 7;
-					const targetSave = Math.min(targetModel.unitProfile.sv - weapon.ap, invulnerableSave);
+					const targetSave = Math.min(targetModel.unitProfile.sv - parseInt(weapon.ap), invulnerableSave);
 
 					if (saveDice >= targetSave) {
 						continue;
 					}
-					const damageValue = order.damages[i];
+					const damageValue = order.damages[i].reduce((a, b) => a + b, 0) + order.constantDamage[i];
 					targetModel.inflictDamage(damageValue);
 					damages.push(damageValue);
 				}
 
 				this.scoreSecondary('scoreShootingSecondary');
 
-				return this.getState({ numberOfAttack: [hits.length], hits, wounds, saves, damages });
+				return this.getState({ attacks: order.attacks, hits, wounds, saves, damages });
 			}
 		}
 		if (order.action === BaseAction.Move && model !== undefined) {
@@ -420,8 +398,8 @@ export class Warhammer {
 		const availableTargets = [];
 		this.units[unitId].models.forEach(modelId => {
 			const possibleTarget = this.models[modelId];
-			if (!possibleTarget.dead) {
-				if (len(sub(possibleTarget.position, shooter.position)) <= weapon?.range) {
+			if (!possibleTarget.dead && weapon !== undefined) {
+				if (len(sub(possibleTarget.position, shooter.position)) <= parseInt(weapon.range)) {
 					availableTargets.push(possibleTarget.position);
 				}
 			}

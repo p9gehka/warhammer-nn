@@ -119,5 +119,8 @@
 	"shining spears": [60],
 	"striking scorpions": [25],
 	"wraithguard": [40],
-	"wraithknight": [120]
+	"wraithknight": [120],
+
+	"ORKS": "ORKS",
+	"stompa": [205]
 }

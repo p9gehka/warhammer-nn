@@ -255,12 +255,12 @@ function updateWeaponSection(state) {
 };
 
 game.onUpdateDice = (diceInfo) => {
-	const titles = ['numberOfAttack', 'hits', 'wounds', 'saves', 'damages'];
+	const titles = ['attacks', 'hits', 'wounds', 'saves', 'damages'];
 	const separator = document.createElement('div');
 	separator.classList.add('dice-separator');
 	diceSection.insertBefore(separator, diceSection.firstChild);
 
-	[diceInfo.numberOfAttack, diceInfo.hits, diceInfo.wounds, diceInfo.saves, diceInfo.damages].forEach((dices, i) => {
+	[diceInfo.attacks, diceInfo.hits, diceInfo.wounds, diceInfo.saves, diceInfo.damages].forEach((dices, i) => {
 		if (dices.length > 0) {
 			const diceTrayLine = document.createElement('div');
 			diceTrayLine.classList.add('dice-tray-line')
@@ -291,8 +291,11 @@ game.onUpdate = (state) => {
 function updateShootingQueue(state) {
 	shootingQueue.innerHTML = '';
 	if (game.started) {
-		shootingQueue.append(JSON.stringify(game.agents[state.player]._shootingQueue ?? []));
-		shootingQueue.append(JSON.stringify(game.agents[state.player]._shootingTargeting ?? []));
+		game.agents[state.player]._shootingQueue?.forEach((weaponName) => {
+			let queueLine = document.createElement('div');
+			queueLine.append(`${weaponName}: ${JSON.stringify(game.agents[state.player]._shootingTargeting[weaponName])}`);
+			shootingQueue.append(queueLine);
+		})
 	}
 }
 

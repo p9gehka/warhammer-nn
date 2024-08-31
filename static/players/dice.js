@@ -1,19 +1,51 @@
 import { getRandomInteger } from '../utils/index.js';
+import { d6 } from '../environment/d6.js';
 
-function d6() {
-	return getRandomInteger(1, 7);
+function parseProfile(value) {
+	let damage = parseInt(value);
+	if (!isNaN(damage)) {
+		return damage;
+	}
+
+	const [diceCondition, tail] = value.split('+');
+	return (diceResult) => {
+		if(diceCondition === 'd3') {
+			diceResult = Math.ceil(d6Result/3);
+		}
+		let tailValue = parseInt(tail);
+		tailValue = isNaN(tailValue) ? 0 : tailValue
+		return diceResult + tailValue;
+	}
+}
+
+function parseCharacteristic(value) {
+	let result = value[0] === 'D' ? '1' + value : value;
+	result = result.indexOf('D') === -1 ? '0D6+' + result : result;
+	result = result.indexOf('+') === -1 ? result + '+0' : result;
+	const [diceTotal, tail] = result.split('D');
+	const [dice, constant] = tail.split('+')
+	return { diceTotal: parseInt(diceTotal), constant: parseInt(constant), dice: 'd'+dice };
+}
+
+const dices = {
+	d6: d6,
+	d3: () => Math.ceil(d6()/2)
 }
 
 export function shotDice(weapon) {
 	if (weapon === undefined) {
 		return {};
 	}
-	const numberOfAttack = Number.isInteger(weapon.a) ? weapon.a : weapon.a(d6());
-	let hits = Array(numberOfAttack).fill(0).map(d6);
+
+	const { diceTotal, constant, dice } = parseCharacteristic(weapon.a);
+	const attacks = Array(diceTotal).fill(0).map(dices[dice]);
+	const attacksTotal = attacks.reduce((a, b) => a + b, 0) + constant;
+	let hits = Array(attacksTotal).fill(0).map(d6);
 	if (weapon.keywords.includes('Torrent')) {
-		 hits = Array(numberOfAttack).fill(7);
+		 hits = Array(attacksTotal).fill(7);
 	}
-	const wounds = Array(numberOfAttack).fill(0).map(d6);
-	const damages = Array(numberOfAttack).fill(0).map(() => Number.isInteger(weapon.d) ? weapon.d : weapon.d(d6()));
-	return { hits, wounds, damages, numberOfAttack };
+	const wounds = Array(attacksTotal).fill(0).map(d6);
+	const { diceTotal: damageDiceTotal, dice: damageDice, constant: constantDamage } = parseCharacteristic(weapon.d);
+	const damages = Array(attacksTotal).fill(0).map(() => Array(damageDiceTotal).fill(0).map(dices[damageDice]));
+	return { hits, wounds, damages, attacks, constantDamage: Array(attacksTotal).fill(constantDamage) };
 }

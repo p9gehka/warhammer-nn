@@ -9,6 +9,7 @@ const moveAgents = {
 	'60,44' : new MoveAgent60x44(),
 	'44,30': new MoveAgent44x30()
 }
+
 export class PlayerAgent {
 	static cascad = [MoveAgent60x44.settings]
 	_selectedModel = null;
@@ -119,7 +120,7 @@ export class PlayerAgent {
 		selectedEnvModel?.rangedWeapons.forEach((weapon, id) => {
 			if(selectedEnvModel.rangedWeaponLoaded[id] && weapon.range > maxRange) {
 				maxRangeWeaponId = id;
-				maxRange = weapon.range
+				maxRange = parseInt(weapon.range);
 			}
 		});
 
