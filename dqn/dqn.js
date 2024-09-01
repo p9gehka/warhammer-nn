@@ -33,12 +33,12 @@ export function createDeepQNetwork(numActions, h, w, c) {
 	const model = tf.sequential();
 	model.add(tf.layers.conv2d({filters: 16, kernelSize: 6, activation: 'relu', inputShape }));
 	model.add(tf.layers.batchNormalization());
-	model.add(tf.layers.conv2d({filters: 32, kernelSize: 5, activation: 'relu'}));
+	model.add(tf.layers.conv2d({filters: 32, kernelSize: 4, activation: 'relu'}));
 	model.add(tf.layers.batchNormalization());
 	model.add(tf.layers.conv2d({filters: 32, kernelSize: 4, activation: 'relu' }));
 	model.add(tf.layers.flatten());
 	model.add(tf.layers.dense({units: 512, activation: 'relu'}));
-	model.add(tf.layers.dropout({rate: 0.6}));
+	model.add(tf.layers.dropout({rate: 0.4}));
 	model.add(tf.layers.dense({units: numActions}));
 	return model;
 }
