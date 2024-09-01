@@ -129,17 +129,6 @@ async function play() {
 				}
 			}
 
-			if (averageVP > averageVPBest && vpAverager.isFull()) {
-				averageVPBest = averageVP;
-				if (savePath != null) {
-					if (!fs.existsSync(savePath)) {
-						shelljs.mkdir('-p', savePath);
-					}
-					await players[0].getOnlineNetwork()?.save(`file://${savePath}`);
-					console.log(`Saved DQN to ${savePath}`);
-				}
-			}
-
 			state = env.reset();
 			players.forEach(agent => agent.reset());
 		}
@@ -180,7 +169,8 @@ async function play() {
 			players.forEach(agent => agent.reset());
 		}
 
-		if (frameCount % 1000 === 0) {
+
+		if(replayMemory.length === replayBufferSize) {
 			if (vpAveragerBuffer === null) {
 				vpAveragerBuffer = new MovingAverager(config.rewardAveragerBufferLength);
 			}
@@ -191,17 +181,31 @@ async function play() {
 				rewardAveragerBuffer = new MovingAverager(config.rewardAveragerBufferLength);
 			}
 
-			rewardAveragerBuffer.append({ frame: frameCount, averageReward: rewardAverager.average()});
-		}
+			rewardAveragerBuffer.append({ frame: frameCount, averageReward: rewardAverager.average() });
+			const averageVP = vpAverager.average();
 
-		if(replayMemory.length === replayBufferSize) {
-			console.log(`averageVP${rewardAveragerLen}Best: ${averageVPBest}`)
+			if (averageVP > averageVPBest) {
+				averageVPBest = averageVP;
+				if (savePath != null) {
+					if (!fs.existsSync(savePath)) {
+						shelljs.mkdir('-p', savePath);
+					}
+					await players[0].getOnlineNetwork()?.save(`file://${savePath}`);
+					console.log(`Saved DQN to ${savePath}`);
+				}
+			}
+
+			console.log(`averageVP$Best: ${averageVPBest}, lastAverageLen: ${vpAverager.length}`)
 			console.time('updateMemory');
 			await replayMemory.updateServer();
 			replayMemory.clean();
 			console.timeEnd('updateMemory');
 			console.time('updateModel');
 			await tryUpdateModel();
+
+			vpAverager.empty();
+			rewardAverager.empty();
+
 			console.timeEnd('updateModel');
 		}
 		players[state.player].playStep();
