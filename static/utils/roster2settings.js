@@ -8,6 +8,14 @@ export function roster2settings(roster) {
 	const rangedWeapons = [];
 	const meleeWeapons = [];
 	let modelsCounter = 0;
+	const detachmentRules = []
+	roster.roster.forces[0].selections
+		.filter(selection => selection.name === "Detachment")
+		.forEach(detachment => {
+			detachment.selections.forEach(selection => {
+				detachmentRules.push(selection.name.toLowerCase());
+			})
+		})
 
 	roster.roster.forces[0].selections
 		.filter(selection => selection.type === "unit" || selection.type === "model")
@@ -24,7 +32,7 @@ export function roster2settings(roster) {
 			let rosterSelection = rosterUnit.selections;
 
 			let rosterUnitProfiles = rosterUnit.profiles ?? [];
-			const unitRules = rosterUnit.rules?.map(r => r.name.toLowerCase()) ?? [];
+			const unitRules = [...detachmentRules, ...rosterUnit.rules?.map(r => r.name.toLowerCase()) ?? []];
 
 			const unitModelsNames = [];
 			const unitRangedWeapons = [];

@@ -70,7 +70,7 @@ export class PlayerAgent {
 		} else if (action === BaseAction.Shoot) {
 			const shooter = playerModels[this._selectedModel];
 			const weaponId = this.env.models[shooter].rangedWeaponLoaded.findIndex(loaded => loaded);
-			const shotDiceResult = shotDice(this.env.models[shooter].rangedWeapons[weaponId]);
+			const shotDiceResult = shotDice(this.env.models[shooter].getRangedWeapon(weaponId));
 			misc = { ...shotDiceResult };
 
 			playerOrder = {
@@ -121,8 +121,9 @@ export class PlayerAgent {
 		let maxRangeWeaponId = 0;
 		let maxRange = 0;
 		const selectedEnvModel = this.env.models[playerModels[this._selectedModel]];
-		selectedEnvModel?.rangedWeapons.forEach((weapon, id) => {
-			if(selectedEnvModel.rangedWeaponLoaded[id] && weapon.range > maxRange) {
+		selectedEnvModel?.rangedWeaponLoaded.forEach((loaded, id) => {
+			const weapon = selectedEnvModel.getRangedWeapon(id);
+			if(loaded && weapon?.range > maxRange) {
 				maxRangeWeaponId = id;
 				maxRange = parseInt(weapon.range);
 			}

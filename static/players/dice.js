@@ -20,13 +20,12 @@ function parseProfile(value) {
 
 function parseCharacteristic(value) {
 	let result = value[0] === 'D' ? '1' + value : value;
-	result = result.indexOf('D') === -1 ? '0D6+' + result : result;
-	result = result.indexOf('+') === -1 ? result + '+0' : result;
+	result = result.indexOf('D') === -1 ? ('0D6+' + result) : result;
+	result = result.indexOf('+') === -1 ? (result + '+0') : result;
 	const [diceTotal, tail] = result.split('D');
-	const [dice, constant] = tail.split('+')
+	const [dice, constant] = tail.split('+');
 	return { diceTotal: parseInt(diceTotal), constant: parseInt(constant), dice: 'd'+dice };
 }
-
 
 export function shotDice(diceSequenceArg, weapon) {
 	const diceSequence = diceSequenceArg;
@@ -43,17 +42,29 @@ export function shotDice(diceSequenceArg, weapon) {
 	const attacks = Array(diceTotal).fill(0).map(dices[dice]);
 	const attacksTotal = attacks.reduce((a, b) => a + b, 0) + constant;
 	let hits = Array(attacksTotal).fill(0).map(dices.d6);
-	if (weapon.keywords.includes('Torrent')) {
+	const weaponKeywords = weapon.keywords.split(',');
+	if (weaponKeywords.includes('Torrent')) {
 		 hits = Array(attacksTotal).fill(7);
 	}
-	const wounds = Array(attacksTotal).fill(0).map(dices.d6);
+	let autowound = 0;
+	let successfulHits = hits.filter(hit => hit >= parseInt(weapon.bs)).length;
+	if (weaponKeywords.includes('Lethal Hits')) {
+		hits.forEach(hit => {
+			if (hit === 6) {
+				autowound++;
+				successfulHits--;
+			}
+		});
+	}
+	const wounds = [...Array(successfulHits).fill(0).map(dices.d6), ...Array(autowound).fill(7)];
+
 	const { diceTotal: damageDiceTotal, dice: damageDice, constant: constantDamage } = parseCharacteristic(weapon.d);
-	const damages = Array(attacksTotal).fill(0).map(() => Array(damageDiceTotal).fill(0).map(dices[damageDice]));
-	return { hits, wounds, damages, attacks, constantDamage: Array(attacksTotal).fill(constantDamage) };
+	const damages = Array(wounds).fill(0).map(() => Array(damageDiceTotal).fill(0).map(dices[damageDice]));
+	return { hits, wounds, damages, attacks, constantDamage: Array(wounds).fill(constantDamage) };
 }
 
 export class DiceTray {
-	dices = []
+	dices = [];
 
 	remove(index) {
 		this.dices.splice(index, 1); 

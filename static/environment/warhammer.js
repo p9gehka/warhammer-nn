@@ -54,7 +54,7 @@ class Model {
 			"oc": parseInt(profile.OC),
 		};
 
-		this.rangedWeapons = rangedWeapons.map(weaponProfile  => {
+		this._rangedWeapons = rangedWeapons.map(weaponProfile  => {
 			return {
 				a: weaponProfile.A,
 				ap: weaponProfile.AP,
@@ -82,6 +82,24 @@ class Model {
 		if(!isNaN(position[0])) {
 			this.deployed = true;
 		}
+	}
+	getRangedWeapon(weaponId, round = 0) {
+		if (this._rangedWeapons[weaponId] === undefined) {
+			return undefined;
+		}
+
+		let { a, ap, bs, d, range, s, name, keywords } = this._rangedWeapons[weaponId];
+		if (this.rules.includes("for the greater good")) {
+			bs = `${parseInt(bs)-1}`;
+
+			if (this.rules.includes('kauyon') && round >= 3) {
+				keywords = [keywords, 'Susteined Hits 2'].join();
+			}
+			if (this.rules.includes("mont'ka") && round <= 3) {
+				keywords = [keywords, 'Lethal Hits'].join();
+			}
+		}
+		return { a, ap, bs, d, range, s, name, keywords };
 	}
 	getInvulnerableSave() {
 		const invulAbility = this.abilities.find(ability => ability.startsWith('invulnerable save'))
@@ -312,21 +330,15 @@ export class Warhammer {
 		}
 
 		if (order.action === BaseAction.Shoot && this.units[order.target] !== undefined) {
-			const weapon = this.models[order.id].rangedWeapons[order.weaponId];
+			const weapon = this.models[order.id].getRangedWeapon(order.weaponId);
 			const weaponLoaded = this.models[order.id].rangedWeaponLoaded[order.weaponId];
 			this.models[order.id].rangedWeaponLoaded[order.weaponId] = false;
 			const visibleTargets = this.getAvailableTarget(order.id, order.weaponId, order.target);
 
 			if (weapon !== undefined && weaponLoaded && visibleTargets.length > 0) {
-				const hits = order.hits;
-				const wounds = [];
 				const saves = [];
 				const damages = [];
-				for (let i = 0; i < hits.length; i++) {
-					const hit = hits[i];
-					if (hit < parseInt(weapon.bs)) {
-						continue;
-					}
+				for (let i = 0; i < order.wounds.length; i++) {
 					const aliveTargets = this.units[order.target].models.filter(modelId => !this.models[modelId].dead);
 					const targetModel = this.models[aliveTargets[aliveTargets.length - 1]];
 
@@ -338,7 +350,6 @@ export class Warhammer {
 
 
 					const woundDice = order.wounds[i];
-					wounds.push(woundDice);
 
 					if (woundDice < this.strenghtVsToughness(parseInt(weapon.s), targetToughness)) {
 						continue;
@@ -359,7 +370,7 @@ export class Warhammer {
 
 				this.scoreSecondary('scoreShootingSecondary');
 
-				return this.getState({ diceHistory: { attacks: order.attacks, hits, wounds, saves, damages } });
+				return this.getState({ diceHistory: { attacks: order.attacks, hits: order.hits, wounds: order.wounds, saves, damages } });
 			}
 		}
 		if (order.action === BaseAction.Move && model !== undefined) {
@@ -393,7 +404,7 @@ export class Warhammer {
 
 	getAvailableTarget(shooterId, weaponId, unitId) {
 		const shooter = this.models[shooterId];
-		const weapon = shooter.rangedWeapons[weaponId];
+		const weapon = shooter.getRangedWeapon(weaponId);
 		const aliveTargets = [];
 		const availableTargets = [];
 		this.units[unitId].models.forEach(modelId => {

@@ -60,7 +60,7 @@ export class PlayerControlled {
 			}
 
 			const weaponId = this.env.gameSettings.rangedWeapons[shooter].findIndex((w, i) => w.name === weapon && this.env.models[shooter].rangedWeaponLoaded[i]);
-			const shotDiceResult = shotDice(this._diceSequence, this.env.models[shooter].rangedWeapons[weaponId]);
+			const shotDiceResult = shotDice(this._diceSequence, this.env.models[shooter].getRangedWeapon(weaponId));
 			this._diceSequence = [];
 			playerOrder = {
 				action: PlayerAction.Shoot,
