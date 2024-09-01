@@ -103,32 +103,6 @@ async function play() {
 				`(${framesPerSecond.toFixed(1)} frames/s)`
 			);
 
-			if (averageVP >= cumulativeRewardThreshold || frameCount > framesThreshold ) {
-				await lock();
-
-				if (players[0].getOnlineNetwork() !== undefined) {
-					await sendConfigMessage(players[0].getOnlineNetwork());
-				}
-				
-				await sendDataToTelegram(vpAveragerBuffer.buffer.filter(v => v !== null));
-				await sendDataToTelegram(rewardAveragerBuffer.buffer.filter(v => v !== null));
-				await sendMessage(
-					`Training done - averageVP${rewardAveragerLen}Best ${averageVPBest} cumulativeRewardThreshold ${cumulativeRewardThreshold}`
-				);
-				break;
-			}
-
-			if (savePath != null && averageVP >= cumulativeRewardThreshold) {
-				if (!fs.existsSync(savePath)) {
-					shelljs.mkdir('-p', savePath);
-				}
-
-				await players[0].getOnlineNetwork()?.save(`file://${savePath}`);
-				if (players[0].getOnlineNetwork()) {
-					console.log(`Saved DQN to ${savePath} final`);
-				}
-			}
-
 			state = env.reset();
 			players.forEach(agent => agent.reset());
 		}
@@ -197,6 +171,33 @@ async function play() {
 
 			console.log(`averageVP$Best: ${averageVPBest}, lastAverageLen: ${vpAverager.length}`)
 			console.time('updateMemory');
+
+			if (averageVPBest >= cumulativeRewardThreshold || frameCount > framesThreshold ) {
+				await lock();
+
+				if (players[0].getOnlineNetwork() !== undefined) {
+					await sendConfigMessage(players[0].getOnlineNetwork());
+				}
+				
+				await sendDataToTelegram(vpAveragerBuffer.buffer.filter(v => v !== null));
+				await sendDataToTelegram(rewardAveragerBuffer.buffer.filter(v => v !== null));
+				await sendMessage(
+					`Training done - averageVP${rewardAveragerLen}Best ${averageVP} cumulativeRewardThreshold ${cumulativeRewardThreshold}`
+				);
+				break;
+			}
+
+			if (savePath != null && averageVP >= cumulativeRewardThreshold) {
+				if (!fs.existsSync(savePath)) {
+					shelljs.mkdir('-p', savePath);
+				}
+
+				await players[0].getOnlineNetwork()?.save(`file://${savePath}`);
+				if (players[0].getOnlineNetwork()) {
+					console.log(`Saved DQN to ${savePath} final`);
+				}
+			}
+
 			await replayMemory.updateServer();
 			replayMemory.clean();
 			console.timeEnd('updateMemory');
