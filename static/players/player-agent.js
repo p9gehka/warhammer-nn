@@ -58,6 +58,7 @@ export class PlayerAgent {
 
 		const playerModels = prevState.players[this.playerId].models;
 		const round = prevState.round;
+		let misc = {};
 
 		if (this.lastRound !== round) {
 			this.env.step({ action: BaseAction.Move, vector: [0, 0], expense: 0, id: playerModels[this._selectedModel] });
@@ -69,12 +70,15 @@ export class PlayerAgent {
 		} else if (action === BaseAction.Shoot) {
 			const shooter = playerModels[this._selectedModel];
 			const weaponId = this.env.models[shooter].rangedWeaponLoaded.findIndex(loaded => loaded);
+			const shotDiceResult = shotDice(this.env.models[shooter].rangedWeapons[weaponId]);
+			misc = { ...shotDiceResult };
+
 			playerOrder = {
 				action,
 				id: shooter,
 				target: order.target,
 				weaponId,
-				...shotDice(this.env.models[shooter].rangedWeapons[weaponId]),
+				...shotDiceResult,
 			};
 
 		} else if (action === BaseAction.NextPhase && playerModels.some((modelId, playerModelId) => prevState.modelsStamina[modelId] !== 0 && playerModelId !== this._selectedModel)) {
@@ -92,7 +96,7 @@ export class PlayerAgent {
 		}
 
 		const state = this.env.step(playerOrder);
-
+		console.log({...state.misc, ...misc })
 		return [{ ...playerOrder, misc: state.misc }, state];
 	}
 

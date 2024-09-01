@@ -359,7 +359,7 @@ export class Warhammer {
 
 				this.scoreSecondary('scoreShootingSecondary');
 
-				return this.getState({ attacks: order.attacks, hits, wounds, saves, damages });
+				return this.getState({ diceHistory: { attacks: order.attacks, hits, wounds, saves, damages } });
 			}
 		}
 		if (order.action === BaseAction.Move && model !== undefined) {

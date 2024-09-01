@@ -12,6 +12,7 @@ import { getStateTensor } from '../utils/get-state-tensor.js';
 import { Game } from './game-controller/game-controller.js';
 import { roster2settings } from './utils/roster2settings.js';
 import { Mission } from './environment/mission.js';
+import { DiceTray } from './players/dice.js';
 import avatars from '../settings/avatars.json' assert { type: 'json' };
 import gameSettings from './settings/game-settings.json' assert { type: 'json' };
 import allBattlefields from './settings/battlefields.json' assert { type: 'json' };
@@ -44,7 +45,9 @@ const missionSection = document.getElementById("mission-section");
 const unitName = document.getElementById("unit-name");
 const unitSection = document.getElementById("unit-section");
 const unitStatsHeader = document.getElementById("unit-stats-header");
-const diceSection = document.getElementById("dice-section");
+const diceHistorySection = document.getElementById("dice-history-section");
+const rollDice = document.getElementById("roll-dice");
+const diceTrayElement = document.getElementById("dice-tray");
 const weaponSection = document.getElementById("weapon-section");
 const shootingQueue = document.getElementById("shooting-queue");
 
@@ -254,11 +257,11 @@ function updateWeaponSection(state) {
 
 };
 
-game.onUpdateDice = (diceInfo) => {
+game.onUpdateDiceHistory = (diceInfo) => {
 	const titles = ['attacks', 'hits', 'wounds', 'saves', 'damages'];
 	const separator = document.createElement('div');
 	separator.classList.add('dice-separator');
-	diceSection.insertBefore(separator, diceSection.firstChild);
+	diceHistorySection.insertBefore(separator, diceHistorySection.firstChild);
 
 	[diceInfo.attacks, diceInfo.hits, diceInfo.wounds, diceInfo.saves, diceInfo.damages].forEach((dices, i) => {
 		if (dices.length > 0) {
@@ -273,7 +276,7 @@ game.onUpdateDice = (diceInfo) => {
 			const titleElement = document.createElement('div');
 			titleElement.append(titles[i]);
 			diceTrayLine.append(titleElement);
-			diceSection.insertBefore(diceTrayLine, diceSection.firstChild);
+			diceHistorySection.insertBefore(diceTrayLine, diceHistorySection.firstChild);
 		}
 	});
 }
@@ -355,6 +358,29 @@ settingsRestartBtn.addEventListener('click', () => {
 closeSettingsDialog.addEventListener('click', () => {
 	settingsDialog.close();
 });
+
+const diceTray = new DiceTray();
+
+rollDice.addEventListener('click', () => {
+	diceTray.roll();
+	updateDiceTray();
+});
+
+function updateDiceTray() {
+	diceTrayElement.innerHTML = [];
+
+	diceTray.dices.forEach((value, i) => {
+		const dice = document.createElement('div');
+		function removeDice() {
+			diceTray.remove(i);
+			updateDiceTray();
+		}
+		dice.classList.add(`dice`);
+		dice.classList.add(`dice-${value}`);
+		diceTrayElement.append(dice);
+		dice.addEventListener('click', removeDice);
+	});
+}
 
 function getEntries(file, options) {
 	const fr = new FileReader();

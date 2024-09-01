@@ -37,7 +37,7 @@ export class Game {
 		this.agents = [];
 
 		this.onUpdate = () => {};
-		this.onUpdateDice = () => {};
+		this.onUpdateDiceHistory = () => {};
 
 		this.started = false;
 		this.orderHandlers = [];
@@ -219,8 +219,8 @@ export class Game {
 						this.scene.drawOrder(lastAction);
 						await new Promise(resolve => setTimeout(resolve, 50));
 					}
-					if (lastAction.misc && Object.keys(lastAction.misc).length > 0) {
-						this.onUpdateDice(lastAction.misc);
+					if (lastAction?.misc?.diceHistory) {
+						this.onUpdateDiceHistory(lastAction.misc.diceHistory);
 					}
 				}
 

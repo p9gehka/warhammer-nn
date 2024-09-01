@@ -49,3 +49,17 @@ export function shotDice(weapon) {
 	const damages = Array(attacksTotal).fill(0).map(() => Array(damageDiceTotal).fill(0).map(dices[damageDice]));
 	return { hits, wounds, damages, attacks, constantDamage: Array(attacksTotal).fill(constantDamage) };
 }
+
+export class DiceTray {
+	dices = []
+
+	remove(index) {
+		this.dices.splice(index, 1); 
+	}
+	roll() {
+		this.dices.push(d6());
+	}
+	clear() {
+		this.dices = [];
+	}
+}
