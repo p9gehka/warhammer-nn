@@ -6,6 +6,7 @@ export const PlayerAction = {
 	Select: 'SELECT',
 	SetTarget: 'SET_TARGET',
 	SelectWeapon: 'SELECT_WEAPON',
+	SetDiceSequence: 'SET_DICE_SEQUENCE',
 	...BaseAction,
 }
 
@@ -17,6 +18,10 @@ export const DeployPlayerAction = {
 
 export const shootOrder = { action: BaseAction.Shoot };
 export const nextPhaseOrder = { action: BaseAction.NextPhase };
+
+export function getSetDiceSequenceOrder(sequence) {
+	return { action: PlayerAction.SetDiceSequence, sequence };
+}
 
 export function getMoveOrders() {
 	return moveOrders.filter(order => order.action === BaseAction.Move);
@@ -40,7 +45,6 @@ export function getSetTargetOrder(id) {
 export function getPlayerOrders(phase) {
 	return [nextPhaseOrder];
 }
-
 
 export function getDeployModelOrders([x, y]) {
 	return [

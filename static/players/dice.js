@@ -27,24 +27,26 @@ function parseCharacteristic(value) {
 	return { diceTotal: parseInt(diceTotal), constant: parseInt(constant), dice: 'd'+dice };
 }
 
-const dices = {
-	d6: d6,
-	d3: () => Math.ceil(d6()/2)
-}
 
-export function shotDice(weapon) {
+export function shotDice(diceSequenceArg, weapon) {
+	const diceSequence = diceSequenceArg;
 	if (weapon === undefined) {
 		return {};
+	}
+
+	const dices = {
+		d6: () => diceSequence.shift() ?? d6(),
+		d3: () => Math.ceil(dices.d6()/2)
 	}
 
 	const { diceTotal, constant, dice } = parseCharacteristic(weapon.a);
 	const attacks = Array(diceTotal).fill(0).map(dices[dice]);
 	const attacksTotal = attacks.reduce((a, b) => a + b, 0) + constant;
-	let hits = Array(attacksTotal).fill(0).map(d6);
+	let hits = Array(attacksTotal).fill(0).map(dices.d6);
 	if (weapon.keywords.includes('Torrent')) {
 		 hits = Array(attacksTotal).fill(7);
 	}
-	const wounds = Array(attacksTotal).fill(0).map(d6);
+	const wounds = Array(attacksTotal).fill(0).map(dices.d6);
 	const { diceTotal: damageDiceTotal, dice: damageDice, constant: constantDamage } = parseCharacteristic(weapon.d);
 	const damages = Array(attacksTotal).fill(0).map(() => Array(damageDiceTotal).fill(0).map(dices[damageDice]));
 	return { hits, wounds, damages, attacks, constantDamage: Array(attacksTotal).fill(constantDamage) };

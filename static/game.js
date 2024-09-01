@@ -1,6 +1,7 @@
 import {
 	getPlayerOrders,
 	getDiscardMissionOrder,
+	getSetDiceSequenceOrder,
 	getSelectModelOrder,
 	getSelectWeaponOrder,
 	shootOrder,
@@ -201,6 +202,7 @@ function updateUnitSection(selectedUnit) {
 		unitSection.append(game.gameSettings.abilities[selectedModel].join(', ') + '; ');
 	}
 }
+
 function updateWeaponSection(state) {
 	weaponSection.innerHTML = '';
 	const selectedModel = state.players[state.player].models[game.getSelectedModel()];
@@ -305,9 +307,15 @@ function updateShootingQueue(state) {
 drawBattlefieldOptions();
 drawOrders();
 
+const diceTray = new DiceTray();
+
 startBtn.addEventListener('click', () => game.start());
 restartBtn.addEventListener('click', () => game.restart());
-shootBtn.addEventListener('click', () => game.orderResolve([shootOrder]));
+shootBtn.addEventListener('click', () => {
+	game.orderResolve([getSetDiceSequenceOrder(diceTray.dices), shootOrder]);
+	diceTray.clear();
+	updateDiceTray()
+});
 reloadBtn.addEventListener('click', () => {
 	game.reload();
 	settingsDialog.close();
@@ -359,7 +367,6 @@ closeSettingsDialog.addEventListener('click', () => {
 	settingsDialog.close();
 });
 
-const diceTray = new DiceTray();
 
 rollDice.addEventListener('click', () => {
 	diceTray.roll();

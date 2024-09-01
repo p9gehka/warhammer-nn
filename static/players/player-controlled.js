@@ -3,6 +3,7 @@ import { shotDice } from './dice.js';
 
 export class PlayerControlled {
 	_shootingQueue = [];
+	_diceSequence = [];
 	_shootingTargeting = {};
 	constructor(playerId, env) {
 		this.env = env;
@@ -59,7 +60,8 @@ export class PlayerControlled {
 			}
 
 			const weaponId = this.env.gameSettings.rangedWeapons[shooter].findIndex((w, i) => w.name === weapon && this.env.models[shooter].rangedWeaponLoaded[i]);
-			const shotDiceResult = shotDice(this.env.models[shooter].rangedWeapons[weaponId]);
+			const shotDiceResult = shotDice(this._diceSequence, this.env.models[shooter].rangedWeapons[weaponId]);
+			this._diceSequence = [];
 			playerOrder = {
 				action: PlayerAction.Shoot,
 				id: shooter,
@@ -83,6 +85,9 @@ export class PlayerControlled {
 				}
 			}
 
+			playerOrder = order;
+		} else if (action === PlayerAction.SetDiceSequence) {
+			this._diceSequence = order.sequence;
 			playerOrder = order;
 		} else {
 			playerOrder = order;
