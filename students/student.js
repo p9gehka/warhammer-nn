@@ -1,5 +1,5 @@
 import { getRandomInteger } from '../static/utils/index.js';
-import { eq, sub, len } from '../static/utils/vec2.js';
+import { eq, sub, len, div } from '../static/utils/vec2.js';
 import { Channel2Name } from '../static/environment/nn-input.js';
 import { PlayerAgent } from '../static/players/player-agent.js';
 import { BaseAction } from '../static/environment/warhammer.js';
@@ -111,9 +111,9 @@ export class Rewarder {
 			const initialPosititon = sub(state.models[this.playerId], order.vector);
 			const currentPosition = state.models[this.playerId];
 
-			const objectiveMarkers = new deployment[state.battlefield.deployment]().objective_markers;
-			const objectiveDistances = objectiveMarkers.map(deployment => len(sub(deployment, initialPosititon)) - len(sub(deployment, currentPosition)));
-			reward += objectiveDistances.reduce((a, b) => a + b, 0);
+			const center = div(state.battlefield.size, 2);
+			const centerDistanceDelta = len(sub(center, initialPosititon)) - len(sub(center, currentPosition));
+			reward += centerDistanceDelta;
 		}
 		return reward * epsilon;
 	}
