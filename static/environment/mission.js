@@ -172,7 +172,11 @@ export class MissionController {
 		}
 
 		if (this.secondary.includes(Mission.Cleanse)) {
-			const cleanseMarkers = [...(playerDeployment.deploy_markers[opponentPlayer] ?? []), ...playerDeployment.nomansland_markers];
+			const cleanseMarkers = [...playerDeployment.nomansland_markers];
+			const opponentDeploymentMarker = playerDeployment.deploy_markers[opponentPlayer];
+			if (opponentDeploymentMarker !== undefined) {
+				cleanseMarkers.push(opponentDeploymentMarker);
+			}
 			const objectiveControl = Array(cleanseMarkers.length).fill(0);
 			state.players.forEach((player, modelPlayerId) => {
 				player.models.forEach(modelId => {

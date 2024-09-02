@@ -44,7 +44,18 @@ export function roster2settings(roster) {
 				if (unitSelectionArg.type !== 'model') {
 					return;
 				}
-				const unitSelection = unitSelectionArg.selections;
+				const unitSelection = unitSelectionArg.selections.map(s => {
+					if(Array.isArray(s.profiles)) {
+						return s.profiles.map((profile) => {
+							return {
+								...s,
+								...profile,
+								profiles: [profile]
+							}
+						})
+					}
+					return [s]
+				}).flat();
 				const modelsNumber = unitSelectionArg.number;
 
 				const fillProfile = (s) => {

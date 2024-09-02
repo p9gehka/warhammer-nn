@@ -59,8 +59,8 @@ export function shotDice(diceSequenceArg, weapon) {
 	const wounds = [...Array(successfulHits).fill(0).map(dices.d6), ...Array(autowound).fill(7)];
 
 	const { diceTotal: damageDiceTotal, dice: damageDice, constant: constantDamage } = parseCharacteristic(weapon.d);
-	const damages = Array(wounds).fill(0).map(() => Array(damageDiceTotal).fill(0).map(dices[damageDice]));
-	return { hits, wounds, damages, attacks, constantDamage: Array(wounds).fill(constantDamage) };
+	const damages = Array(wounds.length).fill(0).map(() => Array(damageDiceTotal).fill(0).map(dices[damageDice]));
+	return { hits, wounds, damages, attacks, constantDamage: Array(wounds.length).fill(constantDamage) };
 }
 
 export class DiceTray {
