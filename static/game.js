@@ -51,6 +51,7 @@ const rollDice = document.getElementById("roll-dice");
 const diceTrayElement = document.getElementById("dice-tray");
 const weaponSection = document.getElementById("weapon-section");
 const shootingQueue = document.getElementById("shooting-queue");
+const armyRuleSection = document.getElementById("army-rule-section");
 
 viewCheckbox.addEventListener('change', (e) => {
 	table.classList.toggle('hidden', !e.target.checked);
@@ -291,6 +292,11 @@ game.onUpdate = (state) => {
 	updateUnitSection(game.selectedUnit);
 	updateWeaponSection(state);
 	updateShootingQueue(state);
+	updateArmyRuleSection(state);
+}
+
+function updateArmyRuleSection(state) {
+	game.getCurrentPlayer().armyRule?.render(armyRuleSection);
 }
 
 function updateShootingQueue(state) {

@@ -63,7 +63,7 @@ class Model {
 				range: weaponProfile.Range,
 				s: weaponProfile.S,
 				name: weaponProfile.name,
-				keywords: weaponProfile.Keywords.split(', ')
+				keywords: weaponProfile.Keywords.split(',')
 			}
 		});
 		this.rangedWeaponLoaded = Array(rangedWeapons.length).fill(false);
@@ -93,10 +93,10 @@ class Model {
 			bs = `${parseInt(bs)-1}`;
 
 			if (this.rules.includes('kauyon') && round >= 3) {
-				keywords = [keywords, 'Susteined Hits 2'].join();
+				keywords = [...keywords, 'Susteined Hits 2'];
 			}
 			if (this.rules.includes("mont'ka") && round <= 3) {
-				keywords = [keywords, 'Lethal Hits'].join();
+				keywords = [...keywords, 'Lethal Hits'];
 			}
 		}
 		return { a, ap, bs, d, range, s, name, keywords };

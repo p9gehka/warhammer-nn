@@ -4,6 +4,7 @@ import { MoveAgent as MoveAgent44x30 } from '../agents/move-agent/move-agent44x3
 import { ShootAgent } from '../agents/shoot-agent/shoot-agent60x44.js';
 import { Phase } from '../environment/warhammer.js';
 import { shotDice } from './dice.js';
+import { createArmyRules } from '../army-rules/army-rules.js';
 
 const moveAgents = {
 	'60,44' : new MoveAgent60x44(),
@@ -23,6 +24,7 @@ export class PlayerAgent {
 			[Phase.Movement]: moveAgents[agentKey],
 			[Phase.Shooting]: new ShootAgent(),
 		}
+		this.armyRule = createArmyRules(this.env.gameSettings.armyRule[this.playerId]);
 	}
 	async load() {
 		await this.agents[Phase.Movement].load();
@@ -70,7 +72,7 @@ export class PlayerAgent {
 		} else if (action === BaseAction.Shoot) {
 			const shooter = playerModels[this._selectedModel];
 			const weaponId = this.env.models[shooter].rangedWeaponLoaded.findIndex(loaded => loaded);
-			const shotDiceResult = shotDice(this.env.models[shooter].getRangedWeapon(weaponId));
+			const shotDiceResult = shotDice([], this.env.models[shooter].getRangedWeapon(weaponId));
 			misc = { ...shotDiceResult };
 
 			playerOrder = {
@@ -96,7 +98,6 @@ export class PlayerAgent {
 		}
 
 		const state = this.env.step(playerOrder);
-		console.log({...state.misc, ...misc })
 		return [{ ...playerOrder, misc: state.misc }, state];
 	}
 

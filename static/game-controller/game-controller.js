@@ -82,6 +82,7 @@ export class Game {
 			modelNames: [...player0Settings.modelNames, ...player1Settings.modelNames],
 			rangedWeapons: [...player0Settings.rangedWeapons, ...player1Settings.rangedWeapons],
 			meleeWeapons: [...player0Settings.meleeWeapons, ...player1Settings.meleeWeapons],
+			armyRule:[player0Settings.armyRule, player1Settings.armyRule]
 		};
 		const battlefieldSettings = { [battlefieldName]: battlefieldSettingsLS };
 
@@ -241,14 +242,17 @@ export class Game {
 		this.orderResolve([getSelectModelOrder((selectedModel + 1) % totalLength)]);
 	}
 	getSelectedModel() {
+		this.getCurrentPlayer().getState().selected;
+	}
+	getCurrentPlayer() {
 		const state = this.started ? this.env.getState() : this.deploy.getState();
 		const player = state.player;
 		if (!this.started) {
-			return this.deployPlayers[player].getState().selected;
+			return this.deployPlayers[player];
 		}
 		if (state.phase === Phase.Reinforcements) {
-			return this.reinforcementsPlayers[state.player].getState().selected;
+			return this.reinforcementsPlayers[state.player];
 		}
-		return this.agents[player].getState().selected;
+		return this.agents[player];
 	}
 }

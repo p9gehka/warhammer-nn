@@ -42,7 +42,7 @@ export function shotDice(diceSequenceArg, weapon) {
 	const attacks = Array(diceTotal).fill(0).map(dices[dice]);
 	const attacksTotal = attacks.reduce((a, b) => a + b, 0) + constant;
 	let hits = Array(attacksTotal).fill(0).map(dices.d6);
-	const weaponKeywords = weapon.keywords.split(',');
+	const weaponKeywords = weapon.keywords;
 	if (weaponKeywords.includes('Torrent')) {
 		 hits = Array(attacksTotal).fill(7);
 	}

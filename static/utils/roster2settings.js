@@ -16,7 +16,10 @@ export function roster2settings(roster) {
 				detachmentRules.push(selection.name.toLowerCase());
 			})
 		})
-
+	let armyRule = (roster.roster.forces[0].rules ?? [])[0]?.name;
+	if (armyRule === undefined && roster.roster.forces[0].catalogueName === 'Imperium - Adeptus Custodes') {
+		armyRule = "Martial Ka'tah";
+	}
 	roster.roster.forces[0].selections
 		.filter(selection => selection.type === "unit" || selection.type === "model")
 		.forEach(rosterUnit => {
@@ -129,5 +132,5 @@ export function roster2settings(roster) {
 			meleeWeapons.push(...unitMeleeWeapons);
 		});
 
-	return { units, modelProfiles, categories, rules, modelNames, rangedWeapons, meleeWeapons, abilities };
+	return { units, modelProfiles, categories, rules, modelNames, rangedWeapons, meleeWeapons, abilities, armyRule };
 }

@@ -1,5 +1,6 @@
 import { PlayerAction } from './player-orders.js';
 import { shotDice } from './dice.js';
+import { createArmyRules } from '../army-rules/army-rules.js';
 
 export class PlayerControlled {
 	_shootingQueue = [];
@@ -10,6 +11,7 @@ export class PlayerControlled {
 		this.playerId = playerId;
 		this.opponentId = (playerId+1) % 2;
 		this._selectedModel = 0;
+		this.armyRule = createArmyRules(this.env.gameSettings.armyRule[this.playerId]);
 	}
 	async playStep() {
 		const orders = await this.orderPromise;
