@@ -242,7 +242,7 @@ export class Game {
 		this.orderResolve([getSelectModelOrder((selectedModel + 1) % totalLength)]);
 	}
 	getSelectedModel() {
-		this.getCurrentPlayer().getState().selected;
+		return this.getCurrentPlayer().getState().selected;
 	}
 	getCurrentPlayer() {
 		const state = this.started ? this.env.getState() : this.deploy.getState();

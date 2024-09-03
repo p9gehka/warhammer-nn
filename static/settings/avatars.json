@@ -1,9 +1,12 @@
 {
 	"ethereal": "ethereal.png",
 	"cadre fireblade": "cadre_fireblade.png",
+	"commander in coldstar battlesuit": "commander_in_coldstar_battlesuit.png",
+	"commander in enforcer battlesuit": "commander_in_enforcer_battlesuit.png",
 	"strike team": "strike_team.png",
 	"stealth battlesuits": "stealth_battlesuits.png",
 	"ghostkeel battlesuit": "ghostkeel_battlesuit.png",
+	"hammerhead gunship": "hammerhead_gunship.png",
 
 	"captain in terminator armour": "captain_in_terminator_armour.png",
 	"librarian in terminator armour": "librarian_in_terminator_armour.png",
@@ -12,5 +15,9 @@
 	"chaplain": "chaplain.png",
 	"intercessor squad": "intercessor_squad.png",
 	"inceptor squad": "inceptor_squad.png",
-	"redemptor dreadnought": "redemptor_dreadnought.png"
+	"redemptor dreadnought": "redemptor_dreadnought.png",
+
+	"custodian guard": "custodian_guard.png",
+
+	"hive tyrant": "hive_tyrant.png"
 }

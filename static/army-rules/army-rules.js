@@ -5,6 +5,7 @@ class DefaultArmyRule {
 		this.armyRule = armyRule;
 	}
 	render(element) {
+		element.innerHTML='';
 		element.append(this.armyRule);
 	}
 }

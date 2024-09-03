@@ -92,10 +92,10 @@ class Model {
 		if (this.rules.includes("for the greater good")) {
 			bs = `${parseInt(bs)-1}`;
 
-			if (this.rules.includes('kauyon') && round >= 3) {
+			if (this.rules.includes('kauyon') && round >= 2) {
 				keywords = [...keywords, 'Susteined Hits 2'];
 			}
-			if (this.rules.includes("mont'ka") && round <= 3) {
+			if (this.rules.includes("mont'ka") && round <= 2) {
 				keywords = [...keywords, 'Lethal Hits'];
 			}
 		}

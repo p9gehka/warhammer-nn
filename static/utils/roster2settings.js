@@ -61,13 +61,29 @@ export function roster2settings(roster) {
 				}).flat();
 				const modelsNumber = unitSelectionArg.number;
 
-				const fillProfile = (s) => {
-					const weaponNumberTotal = s.number ?? 1;
+				const fillProfile = (s, weaponType) => {
+					let profiles = [];
+					let weaponNumberTotal = s.number ?? 1;
+					if(s.profiles !== undefined) {
+						profiles.push(...s.profiles.filter(p => p.typeName === weaponType))
+					}
+
+					s.selections?.forEach((selection) => {
+						if (selection.profiles !== undefined) {
+							weaponNumberTotal = selection.number ?? weaponNumberTotal;
+							profiles.push(...selection.profiles.filter(p => p.typeName === weaponType))
+						}
+					})
+					
+					if (profiles.length === 0) {
+						return [];
+					}
+
 					const weaponNumber = weaponNumberTotal === modelsNumber ? 1 : weaponNumberTotal;
 					const profile = {
-						name: s.profiles[0].name
+						name: profiles[0].name
 					};
-					s.profiles[0].characteristics.forEach(ch => {
+				 	profiles[0].characteristics.forEach(ch => {
 						profile[ch.name] = ch.$text;
 						if (ch.name === 'AP') {
 							profile[ch.name] = `-${Math.abs(parseInt(ch.$text))}`
@@ -75,10 +91,8 @@ export function roster2settings(roster) {
 					});
 					return new Array(weaponNumber).fill(profile);
 				}
-				const rangedProfiles = unitSelection.filter(s => s.profiles !== undefined && s.profiles[0].typeName === 'Ranged Weapons').map(fillProfile).flat();
-				const meleeProfiles = unitSelection.filter(s => s.profiles !== undefined && s.profiles[0].typeName === 'Melee Weapons').map(fillProfile).flat();
-
-
+				const rangedProfiles = unitSelection.map(s => fillProfile(s, 'Ranged Weapons')).flat();
+				const meleeProfiles = unitSelection.map(s => fillProfile(s, 'Melee Weapons')).flat();
 
 				let modelProfile = [...rosterUnitProfiles, ...unitSelectionArg.profiles ?? []];
 				let modelCharacteristics = {};
