@@ -14,6 +14,7 @@ import { Game } from './game-controller/game-controller.js';
 import { roster2settings } from './utils/roster2settings.js';
 import { Mission } from './environment/mission.js';
 import { DiceTray } from './players/dice.js';
+import { getArmyRulesRenderer } from './army-rules/army-rules-renderer.js'
 import avatars from '../settings/avatars.json' assert { type: 'json' };
 import gameSettings from './settings/game-settings.json' assert { type: 'json' };
 import allBattlefields from './settings/battlefields.json' assert { type: 'json' };
@@ -296,7 +297,7 @@ game.onUpdate = (state) => {
 }
 
 function updateArmyRuleSection(state) {
-	game.getCurrentPlayer().armyRule?.render(armyRuleSection);
+	getArmyRulesRenderer(game.getCurrentPlayer().armyRule).render(armyRuleSection);
 }
 
 function updateShootingQueue(state) {

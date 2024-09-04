@@ -7,6 +7,7 @@
 	"stealth battlesuits": "stealth_battlesuits.png",
 	"ghostkeel battlesuit": "ghostkeel_battlesuit.png",
 	"hammerhead gunship": "hammerhead_gunship.png",
+	"piranha": "piranha.png",
 
 	"captain in terminator armour": "captain_in_terminator_armour.png",
 	"librarian in terminator armour": "librarian_in_terminator_armour.png",
@@ -19,5 +20,6 @@
 
 	"custodian guard": "custodian_guard.png",
 
-	"hive tyrant": "hive_tyrant.png"
+	"hive tyrant": "hive_tyrant.png",
+	"haruspex": "haruspex.png"
 }

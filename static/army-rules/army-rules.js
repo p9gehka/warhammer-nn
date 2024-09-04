@@ -1,16 +1,9 @@
-const armyRules = {}
+import { ForTheGreaterGood } from './for-the-greater-good/for-the-greater-good.js';
 
-class DefaultArmyRule {
-	constructor(armyRule) {
-		this.armyRule = armyRule;
-	}
-	render(element) {
-		element.innerHTML='';
-		element.append(this.armyRule);
-	}
+export const armyRules = {
+	"For The Greater Good": ForTheGreaterGood
 }
+
 export function createArmyRules(armyRule) {
-	if (armyRules[armyRule] === undefined) {
-		return new DefaultArmyRule(armyRule);
-	}
+	return armyRules[armyRule] === undefined ? undefined : new armyRules[armyRule]();
 }

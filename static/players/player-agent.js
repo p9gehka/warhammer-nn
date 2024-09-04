@@ -4,7 +4,6 @@ import { MoveAgent as MoveAgent44x30 } from '../agents/move-agent/move-agent44x3
 import { ShootAgent } from '../agents/shoot-agent/shoot-agent60x44.js';
 import { Phase } from '../environment/warhammer.js';
 import { shotDice } from './dice.js';
-import { createArmyRules } from '../army-rules/army-rules.js';
 
 const moveAgents = {
 	'60,44' : new MoveAgent60x44(),
@@ -23,8 +22,7 @@ export class PlayerAgent {
 		this.agents = {
 			[Phase.Movement]: moveAgents[agentKey],
 			[Phase.Shooting]: new ShootAgent(),
-		}
-		this.armyRule = createArmyRules(this.env.gameSettings.armyRule[this.playerId]);
+		};
 	}
 	async load() {
 		await this.agents[Phase.Movement].load();

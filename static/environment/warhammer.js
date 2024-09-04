@@ -8,7 +8,8 @@ const GameSequense = [
 	'DeployArmies',
 	'BeginTheBattle',
 	'EndTheBattle',
-]
+];
+
 export const Phase = {
 	PreBattle: -1,
 	Command: 0,
@@ -26,6 +27,7 @@ export const BaseAction = {
 	DiscardSecondary: 'DISCARD_SECONDARY',
 	DeployModel: 'DEPLOY_MODEL',
 	Shoot: 'SHOOT',
+	Empty: 'EMPTY',
 }
 
 function onBattlefield(position) {
@@ -242,6 +244,9 @@ export class Warhammer {
 	}
 
 	step(order) {
+		if (order.action === BaseAction.Empty) {
+			return this.getState();
+		}
 		const round = this.getRound();
 		if (order.action === BaseAction.Done) {
 			this._done = true;

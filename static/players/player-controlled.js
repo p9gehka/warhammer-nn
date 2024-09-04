@@ -52,30 +52,44 @@ export class PlayerControlled {
 				delete this._shootingTargeting[weapon][shooter];
 				this._shootingQueue.shift();
 			}
-			const target = this._shootingTargeting[weapon][shooter].shift();
-			if (this._shootingTargeting[weapon][shooter].length === 0) {
-				delete this._shootingTargeting[weapon][shooter];
-			}
+			if (shooter !== undefined) {
+				const target = this._shootingTargeting[weapon][shooter].shift();
+				if (this._shootingTargeting[weapon][shooter].length === 0) {
+					delete this._shootingTargeting[weapon][shooter];
+				}
 
-			if (Object.keys(this._shootingTargeting[weapon]).length === 0) {
-				this._shootingQueue.shift();
-			}
+				if (Object.keys(this._shootingTargeting[weapon]).length === 0) {
+					this._shootingQueue.shift();
+				}
 
-			const weaponId = this.env.gameSettings.rangedWeapons[shooter].findIndex((w, i) => w.name === weapon && this.env.models[shooter].rangedWeaponLoaded[i]);
-			const shotDiceResult = shotDice(this._diceSequence, this.env.models[shooter].getRangedWeapon(weaponId));
-			this._diceSequence = [];
-			playerOrder = {
-				action: PlayerAction.Shoot,
-				id: shooter,
-				weaponId: weaponId,
-				target,
-				...shotDiceResult,
-			};
+				const weaponId = this.env.gameSettings.rangedWeapons[shooter].findIndex((w, i) => w.name === weapon && this.env.models[shooter].rangedWeaponLoaded[i]);
+				const shotDiceResult = shotDice(this._diceSequence, this.env.models[shooter].getRangedWeapon(weaponId));
+				this._diceSequence = [];
+				playerOrder = {
+					action: PlayerAction.Shoot,
+					id: shooter,
+					weaponId: weaponId,
+					target,
+					...shotDiceResult,
+				};
+			} else {
+				playerOrder = order;
+			}
 		} else if (action === PlayerAction.Move) {
 			playerOrder = { action, id: this._getPlayerSelectedModel(), vector: order.vector, expense: order.expense };
 		} else if (action === PlayerAction.SelectWeapon &&this._getPlayerSelectedModel() !== null) {
 			const weaponName = this.env.gameSettings.rangedWeapons[this._getPlayerSelectedModel()][order.id].name;
-			this._shootingQueue = this._shootingQueue.filter(v => v !== weaponName);
+			this._shootingQueue = this._shootingQueue.filter(v => {
+				if(v === weaponName) {
+					return false;
+				}
+				if (this._shootingTargeting[v] !== undefined && Object.keys(this._shootingTargeting[v]).length === 0) {
+					delete this._shootingTargeting[v];
+					return false;
+				}
+				return true;
+			});
+	
 			if (weaponName !== undefined) {
 				this._shootingQueue.push(weaponName);
 
@@ -94,6 +108,10 @@ export class PlayerControlled {
 		} else {
 			playerOrder = order;
 		}
+
+		if (this.armyRule?.waitOrder(playerOrder.action)) {
+			playerOrder = this.armyRule?.playStep(playerOrder);
+		} 
 
 		const state = this.env.step(playerOrder);
 		return [{ ...playerOrder, misc: state.misc }, state];
