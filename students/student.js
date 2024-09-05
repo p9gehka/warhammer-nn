@@ -95,7 +95,7 @@ export class Rewarder {
 		this.primaryVP = 0;
 	}
 	step(order, epsilon) {
-		let reward = -7;
+		let reward = 0;
 		const state = this.env.getState();
 
 		const { primaryVP } = state.players[this.playerId];
@@ -112,7 +112,7 @@ export class Rewarder {
 			const currentPosition = state.models[this.playerId];
 
 			const center = div(state.battlefield.size, 2);
-			const centerDistanceDelta = len(sub(center, initialPosititon)) - len(sub(center, currentPosition));
+			const centerDistanceDelta = len(sub(center, sub(currentPosition, center).map(Math.abs)))/2;
 			reward += centerDistanceDelta;
 		}
 		return reward * epsilon;
