@@ -106,15 +106,6 @@ export class Rewarder {
 	}
 	epsilonReward(order, epsilon) {
 		let reward = 0;
-		if (order.action === BaseAction.Move) {
-			const state = this.env.getState();
-			const initialPosititon = sub(state.models[this.playerId], order.vector);
-			const currentPosition = state.models[this.playerId];
-
-			const center = div(state.battlefield.size, 2);
-			const centerDistanceDelta = len(sub(center, sub(currentPosition, center).map(Math.abs)))/2;
-			reward += centerDistanceDelta;
-		}
 		return reward * epsilon;
 	}
 
@@ -123,6 +114,12 @@ export class Rewarder {
 		if (order.action === BaseAction.NextPhase) {
 			reward = (primaryVP - this.primaryVP) * 5;
 			this.primaryVP = primaryVP;
+
+			const state = this.env.getState();
+			const center = div(state.battlefield.size, 2);
+			const currentPosition = state.models[this.playerId];
+			const centerDistanceDelta = len(sub(center, sub(currentPosition, center).map(Math.abs)))/2;
+			reward += centerDistanceDelta;
 		}
 		return reward;
 	}
