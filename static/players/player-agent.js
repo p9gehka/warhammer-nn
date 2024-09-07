@@ -124,7 +124,7 @@ export class PlayerAgent {
 			const weapon = selectedEnvModel.getRangedWeapon(id);
 			if(loaded && weapon?.range > maxRange) {
 				maxRangeWeaponId = id;
-				maxRange = parseInt(weapon.range);
+				maxRange = weapon.range;
 			}
 		});
 

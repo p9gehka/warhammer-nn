@@ -34,6 +34,15 @@ function onBattlefield(position) {
 	return !isNaN(position[0]);
 }
 
+function parseCharacteristic(value) {
+	let result = value[0] === 'D' ? '1' + value : value;
+	result = result.indexOf('D') === -1 ? ('0D6+' + result) : result;
+	result = result.indexOf('+') === -1 ? (result + '+0') : result;
+	const [diceTotal, tail] = result.split('D');
+	const [dice, constant] = tail.split('+');
+	return { diceTotal: parseInt(diceTotal), constant: parseInt(constant), dice: 'd'+dice };
+}
+
 class Model {
 	position = [NaN, NaN];
 	deathPosition = [NaN, NaN];
@@ -58,12 +67,12 @@ class Model {
 
 		this._rangedWeapons = rangedWeapons.map(weaponProfile  => {
 			return {
-				a: weaponProfile.A,
-				ap: weaponProfile.AP,
-				bs: weaponProfile.BS,
-				d: weaponProfile.D,
-				range: weaponProfile.Range,
-				s: weaponProfile.S,
+				a: parseCharacteristic(weaponProfile.A),
+				ap: parseInt(weaponProfile.AP),
+				bs: parseInt(weaponProfile.BS),
+				d: parseCharacteristic(weaponProfile.D),
+				range: parseInt(weaponProfile.Range),
+				s: parseInt(weaponProfile.S),
 				name: weaponProfile.name,
 				keywords: weaponProfile.Keywords.split(',')
 			}
@@ -74,34 +83,21 @@ class Model {
 
 		this.rules.forEach(rule => {
 			if (rule.startsWith('scouts')) {
-				this.scoutMove = parseInt('scouts 9"'.split(' ')[1]);
+				this.scoutMove = parseInt(rule.split(' ')[1]);
 			}
-		})
-		this.stamina = this.scoutMove;
+		});
 		this.position = position;
+		if (onBattlefield(this.position)) {
+			this.stamina = this.scoutMove;
+		}
 		this.dead = false;
 		this.wounds = this.unitProfile.w;
 		if(!isNaN(position[0])) {
 			this.deployed = true;
 		}
 	}
-	getRangedWeapon(weaponId, round = 0) {
-		if (this._rangedWeapons[weaponId] === undefined) {
-			return undefined;
-		}
-
-		let { a, ap, bs, d, range, s, name, keywords } = this._rangedWeapons[weaponId];
-		if (this.rules.includes("for the greater good")) {
-			bs = `${parseInt(bs)-1}`;
-
-			if (this.rules.includes('kauyon') && round >= 2) {
-				keywords = [...keywords, 'Susteined Hits 2'];
-			}
-			if (this.rules.includes("mont'ka") && round <= 2) {
-				keywords = [...keywords, 'Lethal Hits'];
-			}
-		}
-		return { a, ap, bs, d, range, s, name, keywords };
+	getRangedWeapon(weaponId) {
+		return this._rangedWeapons[weaponId];
 	}
 	getInvulnerableSave() {
 		const invulAbility = this.abilities.find(ability => ability.startsWith('invulnerable save'))
@@ -353,17 +349,16 @@ export class Warhammer {
 
 					const targetToughness = targetModel.unitProfile.t;
 
-
 					const woundDice = order.wounds[i];
 
-					if (woundDice < this.strenghtVsToughness(parseInt(weapon.s), targetToughness)) {
+					if (woundDice < this.strenghtVsToughness(weapon.s, targetToughness)) {
 						continue;
 					}
 
 					const saveDice = d6();
 					saves.push(saveDice);
 					let invulnerableSave = targetModel.getInvulnerableSave() ?? 7;
-					const targetSave = Math.min(targetModel.unitProfile.sv - parseInt(weapon.ap), invulnerableSave);
+					const targetSave = Math.min(targetModel.unitProfile.sv - weapon.ap, invulnerableSave);
 
 					if (saveDice >= targetSave) {
 						continue;
@@ -415,7 +410,7 @@ export class Warhammer {
 		this.units[unitId].models.forEach(modelId => {
 			const possibleTarget = this.models[modelId];
 			if (!possibleTarget.dead && weapon !== undefined) {
-				if (len(sub(possibleTarget.position, shooter.position)) <= parseInt(weapon.range)) {
+				if (len(sub(possibleTarget.position, shooter.position)) <= weapon.range) {
 					availableTargets.push(possibleTarget.position);
 				}
 			}

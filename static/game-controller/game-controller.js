@@ -82,7 +82,8 @@ export class Game {
 			modelNames: [...player0Settings.modelNames, ...player1Settings.modelNames],
 			rangedWeapons: [...player0Settings.rangedWeapons, ...player1Settings.rangedWeapons],
 			meleeWeapons: [...player0Settings.meleeWeapons, ...player1Settings.meleeWeapons],
-			armyRule:[player0Settings.armyRule, player1Settings.armyRule]
+			armyRule:[player0Settings.armyRule, player1Settings.armyRule],
+			detachment: [player0Settings.detachment, player1Settings.detachment]
 		};
 		const battlefieldSettings = { [battlefieldName]: battlefieldSettingsLS };
 

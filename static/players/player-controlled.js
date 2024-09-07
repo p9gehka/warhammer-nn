@@ -11,7 +11,7 @@ export class PlayerControlled {
 		this.playerId = playerId;
 		this.opponentId = (playerId+1) % 2;
 		this._selectedModel = 0;
-		this.armyRule = createArmyRules(this.env.gameSettings.armyRule[this.playerId]);
+		this.armyRule = createArmyRules(this, this.env.gameSettings.armyRule[this.playerId], this.env.gameSettings.detachment[this.playerId]);
 	}
 	async playStep() {
 		const orders = await this.orderPromise;
@@ -63,14 +63,11 @@ export class PlayerControlled {
 				}
 
 				const weaponId = this.env.gameSettings.rangedWeapons[shooter].findIndex((w, i) => w.name === weapon && this.env.models[shooter].rangedWeaponLoaded[i]);
-				const shotDiceResult = shotDice(this._diceSequence, this.env.models[shooter].getRangedWeapon(weaponId));
-				this._diceSequence = [];
 				playerOrder = {
 					action: PlayerAction.Shoot,
 					id: shooter,
 					weaponId: weaponId,
 					target,
-					...shotDiceResult,
 				};
 			} else {
 				playerOrder = order;
@@ -89,7 +86,7 @@ export class PlayerControlled {
 				}
 				return true;
 			});
-	
+
 			if (weaponName !== undefined) {
 				this._shootingQueue.push(weaponName);
 
@@ -109,11 +106,23 @@ export class PlayerControlled {
 			playerOrder = order;
 		}
 
-		if (this.armyRule?.waitOrder(playerOrder.action)) {
-			playerOrder = this.armyRule?.playStep(playerOrder);
-		} 
+		const modifiers = this.armyRule?.orderModifiers(playerOrder);
+
+		if (playerOrder.action === PlayerAction.Shoot ) {
+			let weaponCharacteristics = this.env.models[playerOrder.id].getRangedWeapon(playerOrder.weaponId);
+			if (modifiers !== undefined && weaponCharacteristics !== undefined) {
+				let { a, ap, bs, d, range, s, name, keywords } = weaponCharacteristics;
+				
+				weaponCharacteristics = { a, ap, bs: bs + modifiers.bs, d, range, s, name, keywords: [...keywords, ...modifiers.keywords] };
+			}
+			const shotDiceResult = shotDice(this._diceSequence, weaponCharacteristics);
+			this._diceSequence = [];
+
+			playerOrder={...playerOrder, ...shotDiceResult };
+		}
 
 		const state = this.env.step(playerOrder);
+		this.armyRule?.afterStep(playerOrder);
 		return [{ ...playerOrder, misc: state.misc }, state];
 	}
 	_getPlayerSelectedModel() {

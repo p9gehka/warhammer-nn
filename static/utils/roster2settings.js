@@ -35,7 +35,7 @@ export function roster2settings(roster) {
 			let rosterSelection = rosterUnit.selections;
 
 			let rosterUnitProfiles = rosterUnit.profiles ?? [];
-			const unitRules = [...detachmentRules, ...rosterUnit.rules?.map(r => r.name.toLowerCase()) ?? []];
+			const unitRules = [...rosterUnit.rules?.map(r => r.name.toLowerCase()) ?? []];
 
 			const unitModelsNames = [];
 			const unitRangedWeapons = [];
@@ -105,7 +105,6 @@ export function roster2settings(roster) {
 					}
 
 					if (profile.typeName === "Abilities") {
-
 						let name = profile.name.toLowerCase();
 						if (name === 'invulnerable save') {
 							name = `${name} (${profile.characteristics[0].$text})`;
@@ -146,5 +145,5 @@ export function roster2settings(roster) {
 			meleeWeapons.push(...unitMeleeWeapons);
 		});
 
-	return { units, modelProfiles, categories, rules, modelNames, rangedWeapons, meleeWeapons, abilities, armyRule };
+	return { units, modelProfiles, categories, rules, modelNames, rangedWeapons, meleeWeapons, abilities, armyRule, detachment: detachmentRules };
 }

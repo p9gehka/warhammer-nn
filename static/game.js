@@ -100,10 +100,10 @@ function updateUnitsStrip(state) {
 
 	const orders = game.started ? game.orders : game.deployOrders;
 	state.units.forEach((unit, unitId) => {
-		
 		const li = document.createElement("LI");
 		li.tabIndex = 0;
-		li.innerHTML =`${unit.name}`;
+		li.innerHTML = unit.name;
+		li.title = unit.name;
 		li.classList.add(`player-${unit.playerId}`);
 		if (unitId === game.selectedUnit) {
 			li.classList.add(`selected`);
