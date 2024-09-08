@@ -127,5 +127,16 @@
 	"wraithknight": [120],
 
 	"ORKS": "ORKS",
-	"stompa": [205]
+	"stompa": [205],
+
+	"Thousand Sons": "Thousand Sons",
+	"magnus the red": [100],
+	"exalted sorcerer": [32],
+	"infernal master": [32],
+	"rubric marines": [32],
+
+	"CHAOS KNIGHTS": "CHAOS KNIGHTS",
+	"knight rampager": [170],
+	"war dog stalker": [100],
+	"war dog karnivore": [100]
 }

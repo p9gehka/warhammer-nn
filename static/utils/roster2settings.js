@@ -107,7 +107,22 @@ export function roster2settings(roster) {
 					if (profile.typeName === "Abilities") {
 						let name = profile.name.toLowerCase();
 						if (name === 'invulnerable save') {
-							name = `${name} (${profile.characteristics[0].$text})`;
+
+							let value = profile.characteristics[0].$text;
+							if (value.startsWith('This model has a ') && value.endsWith('invulnerable save.')) {
+								value = `${profile.characteristics[0].$text['This model has a '.length]}+`
+							}
+
+							if (value.startsWith('Models in this unit have a ') && value.endsWith('invulnerable save.')) {
+								value = `${profile.characteristics[0].$text['Models in this unit have a '.length]}+`
+							}
+							if (value.startsWith('This model has a ') && value.endsWith('invulnerable save against ranged attacks.')) {
+								value = `${profile.characteristics[0].$text['This model has a '.length]}+*`
+							}
+							if (value.startsWith('Models in this unit have a ') && value.endsWith('invulnerable save against ranged attacks.')) {
+								value = `${profile.characteristics[0].$text['Models in this unit have a '.length]}+*`
+							}
+							name = `${name} ${(value)}`;
 						}
 						modelAbilities.push(name)
 					}
