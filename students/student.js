@@ -71,7 +71,7 @@ export class Student {
 		const input = this.player.agent.getInput(prevState);
 
 		if (this.prevState !== null) {
-			let reward = this.rewarder.step(this.player.agent.orders[this.prevState[1]], this.epsilon);
+			let reward = this.rewarder.step(input, this.epsilon);
 			this.replayMemory?.append([...this.prevState, reward, false, input]);
 		}
 		const result = this.player.playTrainStep();
