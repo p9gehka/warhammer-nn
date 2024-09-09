@@ -70,17 +70,18 @@ export class Student {
 		const prevState = this.env.getState();
 		const input = this.player.agent.getInput(prevState);
 
-		if (this.prevState !== null) {
-			let reward = this.rewarder.step(this.player.agent.orders[this.prevState[1]], this.epsilon);
-			this.replayMemory?.append([...this.prevState, reward, false, input]);
+		if (this.prevMemoryState !== null && this.prevState !== undefined) {
+			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
+			this.replayMemory?.append([...this.prevMemoryState, reward, false, input]);
 		}
 		const result = this.player.playTrainStep();
-		this.prevState = [input, result[2].index];
+		this.prevMemoryState = [input, result[2].index];
+		this.prevState = prevState;
 		return result;
 	}
 
 	reset() {
-		this.prevState = null;
+		this.prevMemoryState = null;
 		this.rewarder.reset();
 		this.player.reset();
 	}
@@ -93,29 +94,28 @@ export class Rewarder {
 		this.cumulativeReward = 0;
 		this.primaryVP = 0;
 	}
-	step(order, epsilon) {
+	step(prevState, order, epsilon) {
 		let reward = 0;
 		const state = this.env.getState();
 
 		const { primaryVP } = state.players[this.playerId];
 		reward += this.primaryReward(order, primaryVP);
-		reward += this.epsilonReward(order, epsilon);
+		reward += this.epsilonReward(prevState, order, epsilon);
 		this.cumulativeReward += reward;
 		return reward;
 	}
 
-	epsilonReward(order, epsilon) {
+	epsilonReward(prevState, order, epsilon) {
 		let reward = 0;
 		if (order.action === BaseAction.Move) {
 			const state = this.env.getState();
-			const initialPosititon = sub(state.models[this.playerId], order.vector);
+			const initialPosititon = prevState.models[this.playerId];
 			const currentPosition = state.models[this.playerId];
 			const center = div(state.battlefield.size, 2);
 			const currentPositionDelta = len(sub(center, sub(currentPosition, center).map(Math.abs)));
 			const initialPosititonDelta = len(sub(center, sub(initialPosititon, center).map(Math.abs)));
 			reward += (currentPositionDelta - initialPosititonDelta);
 		}
-
 		return reward * epsilon;
 	}
 
