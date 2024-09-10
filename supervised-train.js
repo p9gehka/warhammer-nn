@@ -10,12 +10,12 @@ import gameSettings from './static/settings/game-settings.json' assert { type: '
 import allBattlefields from './static/settings/battlefields.json' assert { type: 'json' };
 
 import config from './config.json' assert { type: 'json' };
-const savePath = './models/play-dqn/';
+const savePath = './models/supervised-dqn/';
 
 let battlefields = config.battlefields.length > 0 ? filterObjByKeys(allBattlefields, config.battlefields) : allBattlefields;
 
 const tf = await getTF();
-const batchSize = 256;
+const batchSize = 25;
 const epochs = 100;
 async function train(nn) {
 	const env = new Warhammer({ gameSettings, battlefields });
@@ -23,6 +23,7 @@ async function train(nn) {
 	function getStateAndAnswer() {
 		env.reset();
 		const state = env.getState();
+		env.reset()
 		return [agent.getInput(state), agent.playStep(state).orderIndex];
 	}
 	function* getStateAndAnswerGeneratorFn() {
@@ -81,8 +82,6 @@ async function trainModelUsingFitDataset(model, dataset) {
 	};
 	await model.fitDataset(dataset, fitDatasetArgs);
 }
-
-
 
 async function main() {
 	let nn;
