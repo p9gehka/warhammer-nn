@@ -22,9 +22,13 @@ async function train(nn) {
 	const agent = new MoveAgent();
 	function getStateAndAnswer() {
 		const state = env.getState();
-		if (state.done) {
+		const { orderIndex, order } = agent.playStep(state);
+		env.step({ ...order, id: env.players[state.player].models[0] });
+
+		if (env.getState().done) {
 			env.reset();
 		}
+
 		return [agent.getInput(state), agent.playStep(state).orderIndex];
 	}
 	function* getStateAndAnswerGeneratorFn() {
@@ -35,7 +39,7 @@ async function train(nn) {
 	const myGeneratorDataset = tf.data.generator(getStateAndAnswerGeneratorFn);
 	const dataset = myGeneratorDataset.map(gameToFeaturesAndLabel)
 		.batch(batchSize);
-
+	// await myGeneratorDataset.take(2).forEachAsync(e => console.log(e))
 	const model = createDeepQNetwork(agent.orders.length, agent.width, agent.height, agent.channels.length)
 	model.add(tf.layers.softmax());
 	const opimizer = tf.train.adam(config.learningRate)
