@@ -15,7 +15,7 @@ const savePath = './models/supervised-dqn/';
 let battlefields = config.battlefields.length > 0 ? filterObjByKeys(allBattlefields, config.battlefields) : allBattlefields;
 
 const tf = await getTF();
-const batchSize = 25;
+const batchSize = 250;
 const epochs = 100;
 async function train(nn) {
 	const env = new Warhammer({ gameSettings, battlefields });
