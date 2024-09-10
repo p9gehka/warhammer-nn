@@ -113,7 +113,6 @@ async function play() {
 			const testAgents = [players[0].player, new PlayerDumb(env)]
 			let testAttempst = 0;
 			let testState = env.reset();
-			
 
 			while (!testState.done && testAttempst < 100) {
 				testState = env.getState();
@@ -130,12 +129,11 @@ async function play() {
 			await sendConfigMessage(players[0].getOnlineNetwork());
 			await sendDataToTelegram(vpAveragerBuffer.buffer.filter(v => v !== null));
 			await sendDataToTelegram(rewardAveragerBuffer.buffer.filter(v => v !== null));
-			
 			await sendMessage(
 				[
-				`Frame #${frameCount}::Epsilon ${players[0].epsilon?.toFixed(3)}::averageVP${rewardAveragerLen}Best ${averageVPBest}::${frameTimeAverager100.average().toFixed(1)} frames/s:`,
-				`:${JSON.stringify(testActions.join(','))}:`,
-				`heapMemory:${memoryUsage()['heapUsed']}`
+					`Frame #${frameCount}::Epsilon ${players[0].epsilon?.toFixed(3)}::averageVP${rewardAveragerLen}Best ${averageVPBest}::${frameTimeAverager100.average().toFixed(1)} frames/s:`,
+					`:${JSON.stringify(testActions.join(','))}:`,
+					`heapMemory:${memoryUsage()['heapUsed']}`
 				].join()
 			);
 
