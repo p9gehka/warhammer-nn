@@ -21,9 +21,10 @@ async function train(nn) {
 	const env = new Warhammer({ gameSettings, battlefields });
 	const agent = new MoveAgent();
 	function getStateAndAnswer() {
-		env.reset();
 		const state = env.getState();
-		env.reset()
+		if (state.done) {
+			env.reset();
+		}
 		return [agent.getInput(state), agent.playStep(state).orderIndex];
 	}
 	function* getStateAndAnswerGeneratorFn() {
