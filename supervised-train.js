@@ -36,10 +36,14 @@ async function train(nn) {
 			yield getStateAndAnswer();
 		}
 	}
-	const myGeneratorDataset = tf.data.generator(getStateAndAnswerGeneratorFn);
+
+	const myGeneratorDataset = tf.data.generator(getStateAndAnswerGeneratorFn).filter(e => e[1] !== 0 || Math.random() > 0.95);
 	const dataset = myGeneratorDataset.map(gameToFeaturesAndLabel)
 		.batch(batchSize);
-	// await myGeneratorDataset.take(2).forEachAsync(e => console.log(e))
+
+	// const countOrders = new Array(agent.orders.length).fill(0);
+	// await myGeneratorDataset.take(10000).forEachAsync(e => countOrders[e[1]]++);
+
 	const model = createDeepQNetwork(agent.orders.length, agent.width, agent.height, agent.channels.length)
 	model.add(tf.layers.softmax());
 	const opimizer = tf.train.adam(config.learningRate)
@@ -92,8 +96,8 @@ async function main() {
 	let nn;
 	if (fs.existsSync(`${savePath}/model.json`)) {
 		try {
-			nn = await tf.loadLayersModel(`file://${config.savePath}/model.json`);
-			console.log(`Loaded from ${config.savePath}/model.json`);
+			nn = await tf.loadLayersModel(`file://${savePath}/model.json`);
+			console.log(`Loaded from ${savePath}/model.json`);
 		} catch (e) {
 			console.log(e.message);
 		}
