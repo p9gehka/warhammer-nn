@@ -5,6 +5,7 @@ import { Warhammer } from './static/environment/warhammer.js';
 import { MoveAgent } from './static/agents/move-agent/move-center-agent.js';
 import { getStateTensor } from './static/utils/get-state-tensor.js';
 import { createDeepQNetwork } from './dqn/dqn.js';
+import { getRandomInteger } from './static/utils/index.js';
 
 import gameSettings from './static/settings/game-settings.json' assert { type: 'json' };
 import allBattlefields from './static/settings/battlefields.json' assert { type: 'json' };
@@ -21,7 +22,12 @@ async function train(nn) {
 	const env = new Warhammer({ gameSettings, battlefields });
 	const agent = new MoveAgent();
 	function getStateAndAnswer() {
-		const state = env.getState();
+		let state = env.getState();
+		if (Math.random() > 0.5) {
+			const randomOrderIndex = getRandomInteger(1, agent.orders.length);
+			env.step({ ...agent.orders[randomOrderIndex], id: env.players[state.player].models[0] });
+		}
+		state = env.getState();
 		const { orderIndex, order } = agent.playStep(state);
 		env.step({ ...order, id: env.players[state.player].models[0] });
 
@@ -40,20 +46,25 @@ async function train(nn) {
 	const myGeneratorDataset = tf.data.generator(getStateAndAnswerGeneratorFn).filter(e =>
 		(e[1] !== 0 || Math.random() > 0.98) &&
 		(e[1] !== 2 || Math.random() > 0.7) &&
+		(e[1] !== 3 || Math.random() > 0.5) &&
 		(e[1] !== 4 || Math.random() > 0.5) &&
 		(e[1] !== 9 || Math.random() > 0.7) &&
+		(e[1] !== 10 || Math.random() > 0.5) &&
 		(e[1] !== 11 || Math.random() > 0.7) &&
 		(e[1] !== 16 || Math.random() > 0.7) &&
+		(e[1] !== 17 || Math.random() > 0.7) &&
+		(e[1] !== 18 || Math.random() > 0.7) &&
 		(e[1] !== 23 || Math.random() > 0.7) &&
+		(e[1] !== 24 || Math.random() > 0.5) &&
 		(e[1] !== 25 || Math.random() > 0.7)
 	);
 	const dataset = myGeneratorDataset.map(gameToFeaturesAndLabel)
 		.batch(batchSize);
-	/*
+	
 	const countOrders = new Array(agent.orders.length).fill(0);
 	await myGeneratorDataset.take(10000).forEachAsync(e => countOrders[e[1]]++);
 	console.log(countOrders)
-	*/
+	
 	const model = createDeepQNetwork(agent.orders.length, agent.width, agent.height, agent.channels.length)
 	model.add(tf.layers.softmax());
 	const opimizer = tf.train.adam(config.learningRate)
@@ -63,7 +74,7 @@ async function train(nn) {
 		metrics: ['accuracy'],
 	});
 
-	trainModelUsingFitDataset(model, dataset);
+	//trainModelUsingFitDataset(model, dataset);
 
 	function gameToFeaturesAndLabel(record) {
 		return tf.tidy(() => {
