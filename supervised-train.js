@@ -6,6 +6,7 @@ import { MoveAgent } from './static/agents/move-agent/move-center-agent.js';
 import { getStateTensor } from './static/utils/get-state-tensor.js';
 import { createDeepQNetwork } from './dqn/dqn.js';
 import { getRandomInteger } from './static/utils/index.js';
+import { sendDataToTelegram, sendMessage, memoryUsage } from './visualization/utils.js';
 
 import gameSettings from './static/settings/game-settings.json' assert { type: 'json' };
 import allBattlefields from './static/settings/battlefields.json' assert { type: 'json' };
@@ -16,8 +17,8 @@ const savePath = './models/supervised-dqn/';
 let battlefields = config.battlefields.length > 0 ? filterObjByKeys(allBattlefields, config.battlefields) : allBattlefields;
 
 const tf = await getTF();
-const batchSize = 250;
-const epochs = 1000;
+const batchSize = 1;
+const epochs = 20;
 async function train(nn) {
 	const env = new Warhammer({ gameSettings, battlefields });
 	const agent = new MoveAgent();
@@ -26,7 +27,7 @@ async function train(nn) {
 		const { orderIndex, order } = agent.playStep(state);		
 		const selected = env.players[state.player].models[0];
 		env.step({ ...order, id: selected });
-		env.reset();	
+		env.reset();
 		env.models[selected].stamina = getRandomInteger(0, 8);
 		return [agent.getInput(state), agent.playStep(state).orderIndex];
 	}
@@ -38,7 +39,7 @@ async function train(nn) {
 
 	const myGeneratorDataset = tf.data.generator(getStateAndAnswerGeneratorFn);
 	const dataset = myGeneratorDataset.map(gameToFeaturesAndLabel)
-		.batch(batchSize).shuffle(batchSize);
+		.batch(batchSize);
 	
 	const countOrders = new Array(agent.orders.length).fill(0);
 	/*
@@ -55,7 +56,7 @@ async function train(nn) {
 		metrics: ['accuracy'],
 	});
 	model.summary();
-	trainModelUsingFitDataset(model, dataset);
+	await trainModelUsingFitDataset(model, dataset);
 
 	function gameToFeaturesAndLabel(record) {
 		return tf.tidy(() => {
@@ -65,11 +66,16 @@ async function train(nn) {
 			return {xs: features, ys: label};
 		});
 	}
+	process.exit(0);
+	return;
 }
 
 async function trainModelUsingFitDataset(model, dataset) {
 	const trainLogs = [];
 	const beginMs = performance.now();
+	const lossLogs = [];
+	const accuracyLogs = [];
+
 	const fitDatasetArgs = {
 		batchesPerEpoch: batchSize,
 		epochs: epochs,
@@ -77,10 +83,9 @@ async function trainModelUsingFitDataset(model, dataset) {
 		validationBatches: 10,
 		callbacks: {
 			onEpochEnd: async (epoch, logs) => {
-				// Plot the loss and accuracy values at the end of every training epoch.
-				const secPerEpoch =
-						(performance.now() - beginMs) / (1000 * (epoch + 1));
-				console.log(`Training model... Approximately ` + `${secPerEpoch.toFixed(4)} seconds per epoch`);
+				lossLogs.push({ epoch, val_loss: logs.val_loss });
+				accuracyLogs.push({ epoch, val_acc: logs.val_acc });
+				const secPerEpoch =(performance.now() - beginMs) / (1000 * (epoch + 1));
 				if (savePath != null) {
 					if (!fs.existsSync(savePath)) {
 						shelljs.mkdir('-p', savePath);
@@ -92,14 +97,26 @@ async function trainModelUsingFitDataset(model, dataset) {
 		}
 	};
 	await model.fitDataset(dataset, fitDatasetArgs);
+
+	await sendConfigMessage(model);
+	await sendDataToTelegram(lossLogs);
+	await sendDataToTelegram(accuracyLogs);
+}
+async function sendConfigMessage(model) {
+	await sendMessage(
+		model.layers.map( layer => `${layer.name.split('_')[0]}{${ ['filters', 'kernelSize', 'units', 'rate'].map(filter => layer[filter] ? `filter: ${layer[filter]}` : '').filter(v=>v !=='') }}` ).join('->')
+	);
+	await sendMessage(
+		`Supervised hyperparams Config batchSize:${batchSize} learningRate:${config.learningRate}`
+	);
 }
 
 async function main() {
 	let nn;
-	if (fs.existsSync(`${savePath}-loading/model.json`)) {
+	if (fs.existsSync(`${savePath}/loading/model.json`)) {
 		try {
-			nn = await tf.loadLayersModel(`file://${savePath}/model.json`);
-			console.log(`Loaded from ${savePath}-loading/model.json`);
+			nn = await tf.loadLayersModel(`file://${savePath}/loading/model.json`);
+			console.log(`Loaded from ${savePath}/loading/model.json`);
 		} catch (e) {
 			console.log(e.message);
 		}
