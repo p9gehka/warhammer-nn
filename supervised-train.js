@@ -60,11 +60,11 @@ async function train(nn) {
 	);
 	const dataset = myGeneratorDataset.map(gameToFeaturesAndLabel)
 		.batch(batchSize);
-	
+	/*
 	const countOrders = new Array(agent.orders.length).fill(0);
 	await myGeneratorDataset.take(10000).forEachAsync(e => countOrders[e[1]]++);
 	console.log(countOrders)
-	
+	*/
 	const model = createDeepQNetwork(agent.orders.length, agent.width, agent.height, agent.channels.length)
 	model.add(tf.layers.softmax());
 	const opimizer = tf.train.adam(config.learningRate)
@@ -74,7 +74,7 @@ async function train(nn) {
 		metrics: ['accuracy'],
 	});
 
-	//trainModelUsingFitDataset(model, dataset);
+	trainModelUsingFitDataset(model, dataset);
 
 	function gameToFeaturesAndLabel(record) {
 		return tf.tidy(() => {
