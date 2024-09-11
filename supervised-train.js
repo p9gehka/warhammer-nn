@@ -37,13 +37,23 @@ async function train(nn) {
 		}
 	}
 
-	const myGeneratorDataset = tf.data.generator(getStateAndAnswerGeneratorFn).filter(e => e[1] !== 0 || Math.random() > 0.95);
+	const myGeneratorDataset = tf.data.generator(getStateAndAnswerGeneratorFn).filter(e =>
+		(e[1] !== 0 || Math.random() > 0.98) &&
+		(e[1] !== 2 || Math.random() > 0.7) &&
+		(e[1] !== 4 || Math.random() > 0.5) &&
+		(e[1] !== 9 || Math.random() > 0.7) &&
+		(e[1] !== 11 || Math.random() > 0.7) &&
+		(e[1] !== 16 || Math.random() > 0.7) &&
+		(e[1] !== 23 || Math.random() > 0.7) &&
+		(e[1] !== 25 || Math.random() > 0.7)
+	);
 	const dataset = myGeneratorDataset.map(gameToFeaturesAndLabel)
 		.batch(batchSize);
-
-	// const countOrders = new Array(agent.orders.length).fill(0);
-	// await myGeneratorDataset.take(10000).forEachAsync(e => countOrders[e[1]]++);
-
+	/*
+	const countOrders = new Array(agent.orders.length).fill(0);
+	await myGeneratorDataset.take(10000).forEachAsync(e => countOrders[e[1]]++);
+	console.log(countOrders)
+	*/
 	const model = createDeepQNetwork(agent.orders.length, agent.width, agent.height, agent.channels.length)
 	model.add(tf.layers.softmax());
 	const opimizer = tf.train.adam(config.learningRate)
