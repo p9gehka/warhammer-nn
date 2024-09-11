@@ -17,24 +17,17 @@ let battlefields = config.battlefields.length > 0 ? filterObjByKeys(allBattlefie
 
 const tf = await getTF();
 const batchSize = 250;
-const epochs = 100;
+const epochs = 1000;
 async function train(nn) {
 	const env = new Warhammer({ gameSettings, battlefields });
 	const agent = new MoveAgent();
 	function getStateAndAnswer() {
-		let state = env.getState();
-		if (Math.random() > 0.5) {
-			const randomOrderIndex = getRandomInteger(1, agent.orders.length);
-			env.step({ ...agent.orders[randomOrderIndex], id: env.players[state.player].models[0] });
-		}
-		state = env.getState();
-		const { orderIndex, order } = agent.playStep(state);
-		env.step({ ...order, id: env.players[state.player].models[0] });
-
-		if (env.getState().done) {
-			env.reset();
-		}
-
+		const state = env.getState();
+		const { orderIndex, order } = agent.playStep(state);		
+		const selected = env.players[state.player].models[0];
+		env.step({ ...order, id: selected });
+		env.reset();	
+		env.models[selected].stamina = getRandomInteger(0, 8);
 		return [agent.getInput(state), agent.playStep(state).orderIndex];
 	}
 	function* getStateAndAnswerGeneratorFn() {
@@ -43,25 +36,13 @@ async function train(nn) {
 		}
 	}
 
-	const myGeneratorDataset = tf.data.generator(getStateAndAnswerGeneratorFn).filter(e =>
-		(e[1] !== 0 || Math.random() > 0.98) &&
-		(e[1] !== 2 || Math.random() > 0.7) &&
-		(e[1] !== 3 || Math.random() > 0.5) &&
-		(e[1] !== 4 || Math.random() > 0.5) &&
-		(e[1] !== 9 || Math.random() > 0.7) &&
-		(e[1] !== 10 || Math.random() > 0.5) &&
-		(e[1] !== 11 || Math.random() > 0.7) &&
-		(e[1] !== 16 || Math.random() > 0.7) &&
-		(e[1] !== 17 || Math.random() > 0.7) &&
-		(e[1] !== 18 || Math.random() > 0.7) &&
-		(e[1] !== 23 || Math.random() > 0.7) &&
-		(e[1] !== 24 || Math.random() > 0.5) &&
-		(e[1] !== 25 || Math.random() > 0.7)
-	);
+	const myGeneratorDataset = tf.data.generator(getStateAndAnswerGeneratorFn);
 	const dataset = myGeneratorDataset.map(gameToFeaturesAndLabel)
-		.batch(batchSize);
-	/*
+		.batch(batchSize).shuffle(batchSize);
+	
 	const countOrders = new Array(agent.orders.length).fill(0);
+	/*
+	console.log(agent.orders)
 	await myGeneratorDataset.take(10000).forEachAsync(e => countOrders[e[1]]++);
 	console.log(countOrders)
 	*/
@@ -73,7 +54,7 @@ async function train(nn) {
 		loss: 'categoricalCrossentropy',
 		metrics: ['accuracy'],
 	});
-
+	model.summary();
 	trainModelUsingFitDataset(model, dataset);
 
 	function gameToFeaturesAndLabel(record) {
@@ -115,10 +96,10 @@ async function trainModelUsingFitDataset(model, dataset) {
 
 async function main() {
 	let nn;
-	if (fs.existsSync(`${savePath}/model.json`)) {
+	if (fs.existsSync(`${savePath}-loading/model.json`)) {
 		try {
 			nn = await tf.loadLayersModel(`file://${savePath}/model.json`);
-			console.log(`Loaded from ${savePath}/model.json`);
+			console.log(`Loaded from ${savePath}-loading/model.json`);
 		} catch (e) {
 			console.log(e.message);
 		}
