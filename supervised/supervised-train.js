@@ -18,7 +18,7 @@ let battlefields = config.battlefields.length > 0 ? filterObjByKeys(allBattlefie
 
 const tf = await getTF();
 const batchSize = 25;
-const epochs = 100;
+const epochs = 50;
 
 function gameToFeaturesAndLabel(record) {
 	return tf.tidy(() => {
@@ -92,8 +92,8 @@ export async function trainModelUsingFitDataset(model, dataset) {
 					if (!fs.existsSync(savePath)) {
 						shelljs.mkdir('-p', savePath);
 					}
-					await model.save(`file://${savePath}`);
-					console.log(`Saved DQN to ${savePath}`);
+					//await model.save(`file://${savePath}`);
+					//console.log(`Saved DQN to ${savePath}`);
 				}
 			},
 		}
