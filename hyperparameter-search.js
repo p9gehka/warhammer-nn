@@ -2,6 +2,7 @@ import { getTF } from './static/utils/get-tf.js';
 import { trainModelUsingFitDataset, getDataset } from './supervised/supervised-train.js';
 import { MoveAgent } from './static/agents/move-agent/move-center-agent.js';
 import { createDeepQNetwork } from './dqn/dqn.js';
+import { sendMessage } from './visualization/utils.js';
 import * as hpjs from 'hyperparameters';
 
 const tf = await getTF();
@@ -30,8 +31,9 @@ const optFunction = async ({ learningRate, optimizer }, { dataset }) => {
 
 	//printint out each optimizer and its loss
 	console.log(optimizer);
-	console.log('learning rate: ', learningRate, 'loss: ', h.history.loss[h.history.loss.length - 1]);
-	return { loss: h.history.loss[h.history.loss.length - 1], status: hpjs.STATUS_OK } ;
+	console.log('learning rate: ', learningRate, 'loss: ', h.history.loss[h.history.loss.length - 1], 'accuracy: ', h.history.accuracy[h.history.accuracy.length - 1]);
+	sendMessage(`optimizer: ${optimizer} learning rate: ${learningRate}`)
+	return { accuracy: h.history.accuracy[h.history.accuracy.length - 1], status: hpjs.STATUS_OK } ;
 };
 
 const hyperTFJS = async () => {
