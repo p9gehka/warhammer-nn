@@ -22,28 +22,28 @@ export const model = tf.sequential();
 model.add(tf.layers.conv2d({
   inputShape: [44, 30, 3],
   filters: 8,
-  kernelSize: [2,8],
+  kernelSize: [8, 6],
   activation: 'relu',
 }));
-model.add(tf.layers.maxPooling2d({poolSize: [2, 2], strides:[2,2]}));
+  model.add(tf.layers.batchNormalization());
 model.add(tf.layers.conv2d({
   filters: 32,
-  kernelSize: [2,4],
+  kernelSize: [4,3],
   activation: 'relu',
 }));
-model.add(tf.layers.maxPooling2d({poolSize: [2, 2], strides:[2,2]}));
+model.add(tf.layers.batchNormalization());
 model.add(tf.layers.conv2d({
   filters: 32,
-  kernelSize: [2,4],
+  kernelSize: [4,3],
   activation: 'relu',
 }));
-model.add(tf.layers.maxPooling2d({poolSize: [2, 2], strides:[2,2]}));
+model.add(tf.layers.batchNormalization());
 model.add(tf.layers.conv2d({
    filters: 32,
-  kernelSize: [2,4],
+  kernelSize: [4,3],
   activation: 'relu',
 }));
-model.add(tf.layers.maxPooling2d({poolSize: [2, 2], strides:[1,2]}));
+model.add(tf.layers.batchNormalization());
 model.add(tf.layers.flatten());
 model.add(tf.layers.dropout({rate: 0.25}));
 model.add(tf.layers.dense({units: 2000, activation: 'relu'}));
