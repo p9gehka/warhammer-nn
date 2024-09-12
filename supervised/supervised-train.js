@@ -23,7 +23,7 @@ const epochs = 50;
 function gameToFeaturesAndLabel(record) {
 	return tf.tidy(() => {
 		const [input, orderIndex] = record;
-		const features = getStateTensor([input], MoveAgent.settings.height, MoveAgent.settings.width, MoveAgent.settings.channels).squeeze();
+		const features = getStateTensor([input], MoveAgent.settings.width,  MoveAgent.settings.height, MoveAgent.settings.channels).squeeze();
 		const label = tf.oneHot([orderIndex], MoveAgent.settings.orders.length);
 		return {xs: features, ys: label};
 	});
@@ -62,7 +62,7 @@ export async function train(nn) {
 
 	const model = createDeepQNetwork(MoveAgent.settings.orders.length, MoveAgent.settings.width, MoveAgent.settings.height, MoveAgent.settings.channels.length)
 	model.add(tf.layers.softmax());
-	const opimizer = tf.train.adam(config.learningRate)
+	const opimizer = tf.train.adamax(0.06863394)
 	model.compile({
 		optimizer: opimizer,
 		loss: 'categoricalCrossentropy',

@@ -28,10 +28,6 @@ const optFunction = async ({ learningRate, optimizer }, { dataset }) => {
 	// train model using defined data
 
 	const h = await trainModelUsingFitDataset(model, dataset);
-	console.log(h)
-	//printint out each optimizer and its loss
-	console.log(optimizer);
-	console.log('learning rate: ', learningRate, 'loss: ', h.history.loss[h.history.loss.length - 1], 'accuracy: ', h.history.val_acc[h.history.val_acc.length - 1]);
 	sendMessage(`optimizer: ${optimizer} learning rate: ${learningRate}`);
 	return { accuracy: h.history.val_acc[h.history.val_acc.length - 1], status: hpjs.STATUS_OK } ;
 };
