@@ -17,7 +17,7 @@
 import { getTF } from '../static/utils/get-tf.js';
 const tf = await getTF();
 
-export function createDeepQNetwork(numActions, h, w, c) {
+export function createDeepQNetwork(numActions, h, w, c, hyperparams=[{},{},{}]) {
 	if (!(Number.isInteger(h) && h > 0)) {
 		throw new Error(`Expected height to be a positive integer, but got ${h}`);
 	}
@@ -31,11 +31,13 @@ export function createDeepQNetwork(numActions, h, w, c) {
 	}
 	const inputShape = [h, w, c];
 	const model = tf.sequential();
-	model.add(tf.layers.conv2d({filters: 16, kernelSize: 6, activation: 'relu', inputShape }));
+
+	const [{kernelRegularizer: kernelRegularizer1}, {kernelRegularizer:kernelRegularizer2}, {kernelRegularizer: kernelRegularizer3}] = hyperparams;
+	model.add(tf.layers.conv2d({filters: 16, kernelSize: 6, activation: 'relu', inputShape, kernelRegularizer: kernelRegularizer1 }));
 	model.add(tf.layers.batchNormalization());
-	model.add(tf.layers.conv2d({filters: 32, kernelSize: 4, activation: 'relu'}));
+	model.add(tf.layers.conv2d({filters: 32, kernelSize: 4, activation: 'relu', kernelRegularizer: kernelRegularizer2}));
 	model.add(tf.layers.batchNormalization());
-	model.add(tf.layers.conv2d({filters: 32, kernelSize: 4, activation: 'relu' }));
+	model.add(tf.layers.conv2d({filters: 32, kernelSize: 4, activation: 'relu', kernelRegularizer: kernelRegularizer3 }));
 	model.add(tf.layers.flatten());
 	model.add(tf.layers.dense({units: 512, activation: 'relu'}));
 	model.add(tf.layers.dropout({rate: 0.4}));

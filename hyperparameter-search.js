@@ -15,10 +15,13 @@ const optimizers = {
 }
 
 const batchSize = 25;
-const optFunction = async ({ learningRate, optimizer }, { dataset }) => {
-	const model = createDeepQNetwork(MoveAgent.settings.orders.length, MoveAgent.settings.width, MoveAgent.settings.height, MoveAgent.settings.channels.length)
+const optFunction = async ({ kernelRegularizer1, kernelRegularizer2, kernelRegularizer3 }, { dataset }) => {
+	const model = createDeepQNetwork(
+		MoveAgent.settings.orders.length, MoveAgent.settings.width, MoveAgent.settings.height, MoveAgent.settings.channels.length,
+		[{kernelRegularizer: kernelRegularizer1}, {kernelRegularizer: kernelRegularizer2}, {kernelRegularizer: kernelRegularizer3}]
+	);
 	model.add(tf.layers.softmax());
-	const opimizer = optimizers[optimizer](learningRate);
+	const opimizer = optimizers['adam'](0.00007);
 	model.compile({
 		optimizer: opimizer,
 		loss: 'categoricalCrossentropy',
@@ -36,13 +39,14 @@ const hyperTFJS = async () => {
 	const dataset = getDataset();
 	// defining a search space we want to optimize. Using hpjs parameters here
 	const space = {
-		learningRate: hpjs.uniform(0.000001, 0.1),
-		optimizer: hpjs.choice(['sgd', 'adagrad', 'adam', 'adamax', 'rmsprop']),
+		kernelRegularizer1: hpjs.choice([undefined, 'l1l2']),
+		kernelRegularizer2: hpjs.choice([undefined, 'l1l2']),
+		kernelRegularizer3: hpjs.choice([undefined, 'l1l2'])
 	};
 
 	// finding the optimal hyperparameters using hpjs.fmin. Here, 6 is the # of times the optimization function will be called (this can be changed)
 	const trials = await hpjs.fmin(
-		optFunction, space, hpjs.search.randomSearch, 30,
+		optFunction, space, hpjs.search.randomSearch, 8,
 		{ rng: new hpjs.RandomState(654321), dataset }
 	);
 
@@ -50,8 +54,9 @@ const hyperTFJS = async () => {
 
 	//printing out data
 	console.log('trials', trials);
-	console.log('best optimizer:', opt.optimizer);
-	console.log('best learning rate:', opt.learningRate);
+	console.log('best kernelRegularizer1:', opt.kernelRegularizer1);
+	console.log('best kernelRegularizer2:', opt.kernelRegularizer2);
+	console.log('best kernelRegularizer3:', opt.kernelRegularizer3);
 }
 
 hyperTFJS();
