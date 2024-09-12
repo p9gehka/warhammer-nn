@@ -21,44 +21,36 @@ const tf = await getTF();
 export const model = tf.sequential();
 model.add(tf.layers.conv2d({
   inputShape: [44, 30, 3],
-  filters: 32,
-  kernelSize: 3,
+  filters: 8,
+  kernelSize: [2,8],
   activation: 'relu',
 }));
+model.add(tf.layers.maxPooling2d({poolSize: [2, 2], strides:[2,2]}));
 model.add(tf.layers.conv2d({
   filters: 32,
-  kernelSize: 3,
+  kernelSize: [2,4],
   activation: 'relu',
 }));
+model.add(tf.layers.maxPooling2d({poolSize: [2, 2], strides:[2,2]}));
 model.add(tf.layers.conv2d({
   filters: 32,
-  kernelSize: 3,
+  kernelSize: [2,4],
   activation: 'relu',
 }));
-model.add(tf.layers.maxPooling2d({poolSize: [2, 2]}));
+model.add(tf.layers.maxPooling2d({poolSize: [2, 2], strides:[2,2]}));
 model.add(tf.layers.conv2d({
-  filters: 32,
-  kernelSize: 3,
+   filters: 32,
+  kernelSize: [2,4],
   activation: 'relu',
 }));
-model.add(tf.layers.conv2d({
-  filters: 64,
-  kernelSize: 3,
-  activation: 'relu',
-}));
-model.add(tf.layers.conv2d({
-  filters: 64,
-  kernelSize: 3,
-  activation: 'relu',
-}));
-model.add(tf.layers.maxPooling2d({poolSize: [2, 2]}));
+model.add(tf.layers.maxPooling2d({poolSize: [2, 2], strides:[1,2]}));
 model.add(tf.layers.flatten());
 model.add(tf.layers.dropout({rate: 0.25}));
-model.add(tf.layers.dense({units: 1024, activation: 'relu'}));
+model.add(tf.layers.dense({units: 2000, activation: 'relu'}));
 model.add(tf.layers.dropout({rate: 0.5}));
 model.add(tf.layers.dense({units: 5, activation: 'softmax'}));
 
-const optimizer = 'adam';
+const optimizer = tf.train.adam(0.001);
 model.compile({
   optimizer: optimizer,
   loss: 'categoricalCrossentropy',
