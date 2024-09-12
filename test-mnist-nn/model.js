@@ -22,23 +22,19 @@ export const model = tf.sequential();
 model.add(tf.layers.conv2d({
   inputShape: [44, 30, 3],
   filters: 32,
-  kernelSize: 3,
+  kernelSize: 6,
   activation: 'relu',
 }));
+model.add(tf.layers.batchNormalization());
 model.add(tf.layers.conv2d({
   filters: 32,
-  kernelSize: 3,
+  kernelSize: 4,
   activation: 'relu',
 }));
-model.add(tf.layers.maxPooling2d({poolSize: [2, 2]}));
+model.add(tf.layers.batchNormalization());
 model.add(tf.layers.conv2d({
   filters: 64,
-  kernelSize: 3,
-  activation: 'relu',
-}));
-model.add(tf.layers.conv2d({
-  filters: 64,
-  kernelSize: 3,
+  kernelSize: 4,
   activation: 'relu',
 }));
 model.add(tf.layers.maxPooling2d({poolSize: [2, 2]}));
@@ -48,7 +44,7 @@ model.add(tf.layers.dense({units: 2000, activation: 'relu'}));
 model.add(tf.layers.dropout({rate: 0.5}));
 model.add(tf.layers.dense({units: 5, activation: 'softmax'}));
 
-const optimizer = tf.train.adam(0.001);
+const optimizer = tf.train.adam(0.0001);
 model.compile({
   optimizer: optimizer,
   loss: 'categoricalCrossentropy',
