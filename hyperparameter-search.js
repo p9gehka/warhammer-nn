@@ -47,7 +47,7 @@ const optFunction = async (params, { dataset }) => {
 };
 
 const hyperTFJS = async () => {
-	const dataset = getDataset();
+	const dataset = getDataset().batch(batchSize);
 	// defining a search space we want to optimize. Using hpjs parameters here
 	const space = {
 		kernelRegularizer1: hpjs.choice([undefined, 'l1l2']),

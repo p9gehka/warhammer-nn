@@ -48,13 +48,12 @@ export function getDataset() {
 	}
 
 	const myGeneratorDataset = tf.data.generator(getStateAndAnswerGeneratorFn).filter((e) => (e[1] !== 2 && e[1] !== 4) || Math.random()>0.4);
-	return myGeneratorDataset.map(gameToFeaturesAndLabel)
-		.batch(batchSize);
+	return myGeneratorDataset.map(gameToFeaturesAndLabel);
 }
 export async function train(nn) {
-	const dataset = getDataset();
-	const countOrders = new Array(MoveAgent.settings.orders.length).fill(0);
+	const dataset = getDataset().batch(batchSize);
 	/*
+	const countOrders = new Array(MoveAgent.settings.orders.length).fill(0);
 	console.log(MoveAgent.settings.orders)
 	await dataset.take(10000).forEachAsync(e => countOrders[e[1]]++);
 	console.log(countOrders)
