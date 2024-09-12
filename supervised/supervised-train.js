@@ -24,7 +24,7 @@ function gameToFeaturesAndLabel(record) {
 	return tf.tidy(() => {
 		const [input, orderIndex] = record;
 		const features = getStateTensor([input], MoveAgent.settings.width,  MoveAgent.settings.height, MoveAgent.settings.channels).squeeze();
-		const label = tf.oneHot([orderIndex], MoveAgent.settings.orders.length);
+		const label = tf.oneHot(tf.scalar(orderIndex, 'int32'), MoveAgent.settings.orders.length);
 		return {xs: features, ys: label};
 	});
 }
