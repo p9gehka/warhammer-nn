@@ -25,21 +25,13 @@ async function run(epochs, batchSize, modelSavePath) {
   model.summary();
 
   const dataset = getDataset().batch(batchSize);
-  await model.fitDataset(dataset, {
+  const h await model.fitDataset(dataset, {
     epochs,
     batchesPerEpoch: batchSize,
     validationData: dataset,
     validationBatches: 10,
   });
-
-  const {images: testImages, labels: testLabels} = data.getTestData();
-  const evalOutput = model.evaluate(testImages, testLabels);
-
-  console.log(
-      `\nEvaluation result:\n` +
-      `  Loss = ${evalOutput[0].dataSync()[0].toFixed(3)}; `+
-      `Accuracy = ${evalOutput[1].dataSync()[0].toFixed(3)}`);
-
+  console.log(h)
   if (modelSavePath != null) {
     await model.save(`file://${modelSavePath}`);
     console.log(`Saved model to path: ${modelSavePath}`);
