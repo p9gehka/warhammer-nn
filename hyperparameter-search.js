@@ -31,7 +31,7 @@ const optFunction = async ({ learningRate, optimizer }, { dataset }) => {
 	//printint out each optimizer and its loss
 	console.log(optimizer);
 	console.log('learning rate: ', learningRate, 'loss: ', h.history.loss[h.history.loss.length - 1]);
-	return { loss: h.history.loss[h.history.loss.length - 1], status: hpjs.STATUS_OK } ;
+	return { accuracy: h.history.accuracy[h.history.accuracy.length - 1], status: hpjs.STATUS_OK } ;
 };
 
 const hyperTFJS = async () => {
