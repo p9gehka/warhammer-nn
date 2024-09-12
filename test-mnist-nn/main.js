@@ -25,7 +25,7 @@ async function run(epochs, batchSize, modelSavePath) {
   model.summary();
 
   const dataset = getDataset().batch(batchSize);
-  const h await model.fitDataset(dataset, {
+  const h = await model.fitDataset(dataset, {
     epochs,
     batchesPerEpoch: batchSize,
     validationData: dataset,
