@@ -24,26 +24,22 @@ model.add(tf.layers.conv2d({
   filters: 32,
   kernelSize: 3,
   activation: 'relu',
-  kernelRegularizer: tf.regularizers.l1(),
 }));
 model.add(tf.layers.conv2d({
   filters: 32,
   kernelSize: 3,
   activation: 'relu',
-  kernelRegularizer: tf.regularizers.l1(),
 }));
 model.add(tf.layers.maxPooling2d({poolSize: [2, 2]}));
 model.add(tf.layers.conv2d({
   filters: 64,
   kernelSize: 3,
   activation: 'relu',
-  kernelRegularizer: tf.regularizers.l1(),
 }));
 model.add(tf.layers.conv2d({
   filters: 64,
   kernelSize: 3,
   activation: 'relu',
-  kernelRegularizer: tf.regularizers.l1(),
 }));
 model.add(tf.layers.maxPooling2d({poolSize: [2, 2]}));
 model.add(tf.layers.flatten());
