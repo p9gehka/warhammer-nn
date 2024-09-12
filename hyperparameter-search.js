@@ -15,13 +15,24 @@ const optimizers = {
 }
 
 const batchSize = 25;
-const optFunction = async ({ kernelRegularizer1, kernelRegularizer2, kernelRegularizer3 }, { dataset }) => {
+const optFunction = async (params, { dataset }) => {
+	const {
+		kernelRegularizer1, kernelRegularizer2, kernelRegularizer3, learningRate,
+		filter1, filter2, filter3,
+		kernelSize1, kernelSize2, kernelSize3,
+		units4, rate4
+	} = params;
 	const model = createDeepQNetwork(
 		MoveAgent.settings.orders.length, MoveAgent.settings.width, MoveAgent.settings.height, MoveAgent.settings.channels.length,
-		[{kernelRegularizer: kernelRegularizer1}, {kernelRegularizer: kernelRegularizer2}, {kernelRegularizer: kernelRegularizer3}]
+		[
+			{kernelRegularizer: kernelRegularizer1, filter: filter1, kernelSize: kernelSize1},
+			{kernelRegularizer: kernelRegularizer2, filter: filter2, kernelSize: kernelSize2},
+			{kernelRegularizer: kernelRegularizer3, filter: filter3, kernelSize: kernelSize3},
+			{units: units4, rate: rate4}
+		]
 	);
 	model.add(tf.layers.softmax());
-	const opimizer = optimizers['adam'](0.00007);
+	const opimizer = optimizers['adam'](learningRate);
 	model.compile({
 		optimizer: opimizer,
 		loss: 'categoricalCrossentropy',
@@ -31,7 +42,7 @@ const optFunction = async ({ kernelRegularizer1, kernelRegularizer2, kernelRegul
 	// train model using defined data
 
 	const h = await trainModelUsingFitDataset(model, dataset);
-	sendMessage(`optimizer: ${optimizer} learning rate: ${learningRate}`);
+	sendMessage(JSON.stringify(params));
 	return { accuracy: h.history.val_acc[h.history.val_acc.length - 1], status: hpjs.STATUS_OK } ;
 };
 
@@ -41,12 +52,21 @@ const hyperTFJS = async () => {
 	const space = {
 		kernelRegularizer1: hpjs.choice([undefined, 'l1l2']),
 		kernelRegularizer2: hpjs.choice([undefined, 'l1l2']),
-		kernelRegularizer3: hpjs.choice([undefined, 'l1l2'])
+		kernelRegularizer3: hpjs.choice([undefined, 'l1l2']),
+		filter1: hpjs.choice([8, 16, 32, 64]),
+		filter2: hpjs.choice([8, 16, 32, 64]),
+		filter3: hpjs.choice([8, 16, 32, 64]),
+		kernelSize1: hpjs.choice([3,4,8,12]),
+		kernelSize2: hpjs.choice([3,4,8,12]),
+		kernelSize3: hpjs.choice([3,4,8,12]),
+		learningRate: hpjs.choice([0.01, 0.001, 0.0001, 0.00001, 0.000001, 0.0000001]),
+		units4: hpjs.choice([256,512,768,1024]),
+		rate4: hpjs.choice([0.2,0.5,0.7]),
 	};
 
 	// finding the optimal hyperparameters using hpjs.fmin. Here, 6 is the # of times the optimization function will be called (this can be changed)
 	const trials = await hpjs.fmin(
-		optFunction, space, hpjs.search.randomSearch, 8,
+		optFunction, space, hpjs.search.randomSearch, 999,
 		{ rng: new hpjs.RandomState(654321), dataset }
 	);
 
