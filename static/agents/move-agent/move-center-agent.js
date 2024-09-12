@@ -44,8 +44,6 @@ export class MoveAgent extends MoveAgentBase {
 				let value = Math.sign(vector[axis]);
 				orderIndex = this.orders.findIndex(order => order.action === BaseAction.Move && order.vector[axis] === value && order.vector[(axis+1)%2] === 0)
 			}
-			console.log(this.orders)
-			console.log(orderIndex);
 		}
 
 		return { order: this.orders[orderIndex], orderIndex, estimate: 0 };
