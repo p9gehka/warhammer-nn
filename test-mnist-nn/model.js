@@ -21,27 +21,25 @@ const tf = await getTF();
 export const model = tf.sequential();
 model.add(tf.layers.conv2d({
   inputShape: [44, 30, 3],
+  filters: 8,
+  kernelSize: 8,
+  activation: 'relu',
+}));
+model.add(tf.layers.batchNormalization());
+model.add(tf.layers.conv2d({
+  filters: 32,
+  kernelSize: 4,
+  activation: 'relu',
+}));
+model.add(tf.layers.batchNormalization());
+model.add(tf.layers.conv2d({
   filters: 32,
   kernelSize: 3,
   activation: 'relu',
 }));
+ model.add(tf.layers.batchNormalization());
 model.add(tf.layers.conv2d({
-  filters: 32,
-  kernelSize: 3,
-  activation: 'relu',
-}));
-model.add(tf.layers.conv2d({
-  filters: 32,
-  kernelSize: 3,
-  activation: 'relu',
-}));
-model.add(tf.layers.conv2d({
-  filters: 64,
-  kernelSize: 3,
-  activation: 'relu',
-}));
-model.add(tf.layers.conv2d({
-  filters: 64,
+   filters: 32,
   kernelSize: 3,
   activation: 'relu',
 }));
@@ -57,3 +55,36 @@ model.compile({
   loss: 'categoricalCrossentropy',
   metrics: ['accuracy'],
 });
+
+/*
+model.add(tf.layers.conv2d({
+  inputShape: [44, 30, 3],
+  filters: 8,
+  kernelSize: [8, 6],
+  activation: 'relu',
+}));
+  model.add(tf.layers.batchNormalization());
+model.add(tf.layers.conv2d({
+  filters: 32,
+  kernelSize: [4,3],
+  activation: 'relu',
+}));
+model.add(tf.layers.batchNormalization());
+model.add(tf.layers.conv2d({
+  filters: 32,
+  kernelSize: [4,3],
+  activation: 'relu',
+}));
+ model.add(tf.layers.batchNormalization());
+model.add(tf.layers.conv2d({
+   filters: 32,
+  kernelSize: [4,3],
+  activation: 'relu',
+}));
+  model.add(tf.layers.batchNormalization());
+model.add(tf.layers.flatten());
+model.add(tf.layers.dropout({rate: 0.25}));
+model.add(tf.layers.dense({units: 2000, activation: 'relu'}));
+model.add(tf.layers.dropout({rate: 0.5}));
+model.add(tf.layers.dense({units: 5, activation: 'softmax'}));
+*/
