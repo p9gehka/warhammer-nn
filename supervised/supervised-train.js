@@ -108,9 +108,6 @@ export async function trainModelUsingFitDataset(model, dataset) {
 }
 async function sendConfigMessage(model) {
 	await sendMessage(
-		model.layers.map( layer => `${layer.name.split('_')[0]}{${ ['filters', 'kernelSize', 'units', 'rate'].map(filter => layer[filter] ? `filter: ${layer[filter]}` : '').filter(v=>v !=='') }}` ).join('->')
-	);
-	await sendMessage(
-		`Supervised hyperparams Config batchSize:${batchSize} learningRate:${config.learningRate}`
+		model.layers.map(layer => `${layer.name.split('_')[0]}{${ ['filters', 'kernelSize', 'units', 'rate'].map(filter => layer[filter] ? `filter: ${layer[filter]}` : '').filter(v=>v !=='') }}` ).join('->')
 	);
 }
