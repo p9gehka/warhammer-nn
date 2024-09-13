@@ -33,9 +33,6 @@ async function run(epochs, batchSize, savePath) {
 
     callbacks: {
       onEpochEnd: async (epoch, logs) => {
-        lossLogs.push({ epoch, val_loss: logs.val_loss });
-        accuracyLogs.push({ epoch, val_acc: logs.val_acc });
-        const secPerEpoch =(performance.now() - beginMs) / (1000 * (epoch + 1));
         if (savePath != null) {
           if (!fs.existsSync(savePath)) {
             shelljs.mkdir('-p', savePath);
@@ -55,4 +52,4 @@ async function run(epochs, batchSize, savePath) {
    }
 }
 
-run(20, 1024, './models/supervised-dqn/');
+run(20, 768, './models/supervised-dqn/');
