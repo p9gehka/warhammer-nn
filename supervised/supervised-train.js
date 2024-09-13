@@ -47,7 +47,7 @@ export function getDataset() {
 		}
 	}
 
-	const myGeneratorDataset = tf.data.generator(getStateAndAnswerGeneratorFn).filter((e) => (e[1] !== 2 && e[1] !== 4) || Math.random()>0.4);
+	const myGeneratorDataset = tf.data.generator(getStateAndAnswerGeneratorFn);
 	return myGeneratorDataset.map(gameToFeaturesAndLabel);
 }
 export async function train(nn) {

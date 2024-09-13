@@ -38,4 +38,4 @@ async function run(epochs, batchSize, modelSavePath) {
   }
 }
 
-run(20,  128, './models/supervised-dqn/');
+run(20, 2028, './models/supervised-dqn/');

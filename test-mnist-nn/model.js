@@ -42,7 +42,7 @@ model.add(tf.layers.flatten());
 model.add(tf.layers.dropout({rate: 0.25}));
 model.add(tf.layers.dense({units: 2000, activation: 'relu'}));
 model.add(tf.layers.dropout({rate: 0.5}));
-model.add(tf.layers.dense({units: 5, activation: 'softmax'}));
+model.add(tf.layers.dense({units: 29, activation: 'softmax'}));
 
 const optimizer = tf.train.adam(0.0001);
 model.compile({
