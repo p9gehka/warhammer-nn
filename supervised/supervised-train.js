@@ -51,7 +51,7 @@ export function getDataset() {
 	return myGeneratorDataset.map(gameToFeaturesAndLabel);
 }
 export async function train(nn) {
-	const dataset = getDataset().batch(batchSize);
+	const dataset = getDataset().batch(batchSize).take(1000);
 	/*
 	const countOrders = new Array(MoveAgent.settings.orders.length).fill(0);
 	console.log(MoveAgent.settings.orders)

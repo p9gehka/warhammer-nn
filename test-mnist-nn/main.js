@@ -21,7 +21,7 @@ import { getDataset } from '../supervised/supervised-train.js';
 
 const tf = await getTF();
 
-async function run(epochs, batchSize, modelSavePath) {
+async function run(epochs, batchSize, savePath) {
   model.summary();
 
   const dataset = getDataset().batch(batchSize);
@@ -30,12 +30,29 @@ async function run(epochs, batchSize, modelSavePath) {
     batchesPerEpoch: batchSize,
     validationData: dataset,
     validationBatches: 10,
+
+    callbacks: {
+      onEpochEnd: async (epoch, logs) => {
+        lossLogs.push({ epoch, val_loss: logs.val_loss });
+        accuracyLogs.push({ epoch, val_acc: logs.val_acc });
+        const secPerEpoch =(performance.now() - beginMs) / (1000 * (epoch + 1));
+        if (savePath != null) {
+          if (!fs.existsSync(savePath)) {
+            shelljs.mkdir('-p', savePath);
+          }
+          await model.save(`file://${savePath}`);
+          console.log(`Saved DQN to ${savePath}`);
+        }
+      },
+    }
   });
-  console.log(h)
-  if (modelSavePath != null) {
-    await model.save(`file://${modelSavePath}`);
-    console.log(`Saved model to path: ${modelSavePath}`);
-  }
+  if (savePath != null) {
+     if (!fs.existsSync(savePath)) {
+       shelljs.mkdir('-p', savePath);
+     }
+     await model.save(`file://${savePath}`);
+     console.log(`Saved DQN to ${savePath}`);
+   }
 }
 
-run(20, 2028, './models/supervised-dqn/');
+run(20, 1024, './models/supervised-dqn/');
