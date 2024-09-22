@@ -28,7 +28,7 @@ model.add(tf.layers.conv2d({
 }));
 model.add(tf.layers.batchNormalization());
 model.add(tf.layers.conv2d({
-  filters: 16,
+  filters: 32,
   kernelSize: 4,
   activation: 'relu',
 }));
@@ -39,7 +39,7 @@ model.add(tf.layers.conv2d({
   activation: 'relu',
 }));
 model.add(tf.layers.flatten());
-model.add(tf.layers.dense({units: 1000, activation: 'relu'}));
+model.add(tf.layers.dense({units: 512, activation: 'relu'}));
 model.add(tf.layers.dropout({rate: 0.5}));
 model.add(tf.layers.dense({units: 29, activation: 'softmax'}));
 
