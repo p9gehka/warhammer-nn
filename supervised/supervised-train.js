@@ -73,7 +73,7 @@ export async function trainModelUsingFitDataset(model, dataset, epochs, batchSiz
 		batchesPerEpoch: batchSize,
 		epochs: epochs,
 		validationData: dataset,
-		validationBatches: 10,
+		validationBatches: 30,
 	};
 	return await model.fitDataset(dataset, fitDatasetArgs);
 }

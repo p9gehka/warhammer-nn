@@ -16,34 +16,15 @@
  */
 
 import { getTF } from '../static/utils/get-tf.js';
+import { createDeepQNetwork } from '../dqn/dqn.js';
+import { MoveAgent } from '../static/agents/move-agent/move-center-agent.js';
 
 const tf = await getTF();
-export const model = tf.sequential();
+export const model = createDeepQNetwork(MoveAgent.settings.orders.length, MoveAgent.settings.width, MoveAgent.settings.height, MoveAgent.settings.channels.length)
 
-model.add(tf.layers.conv2d({
-  inputShape: [44, 30, 3],
-  filters: 16,
-  kernelSize: 6,
-  activation: 'relu',
-}));
-model.add(tf.layers.batchNormalization());
-model.add(tf.layers.conv2d({
-  filters: 32,
-  kernelSize: 4,
-  activation: 'relu',
-}));
-model.add(tf.layers.batchNormalization());
-model.add(tf.layers.conv2d({
-  filters: 32,
-  kernelSize: 4,
-  activation: 'relu',
-}));
-model.add(tf.layers.flatten());
-model.add(tf.layers.dense({units: 512, activation: 'relu'}));
-model.add(tf.layers.dropout({rate: 0.5}));
-model.add(tf.layers.dense({units: 29, activation: 'softmax'}));
+model.add(tf.layers.softmax());
 
-const optimizer = tf.train.adam(0.0001);
+const optimizer = tf.train.adam(0.00007);
 model.compile({
   optimizer: optimizer,
   loss: 'categoricalCrossentropy',
