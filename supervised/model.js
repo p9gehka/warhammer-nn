@@ -22,19 +22,19 @@ export const model = tf.sequential();
 
 model.add(tf.layers.conv2d({
   inputShape: [44, 30, 3],
-  filters: 32,
+  filters: 16,
   kernelSize: 6,
   activation: 'relu',
 }));
 model.add(tf.layers.batchNormalization());
 model.add(tf.layers.conv2d({
-  filters: 32,
+  filters: 16,
   kernelSize: 4,
   activation: 'relu',
 }));
 model.add(tf.layers.batchNormalization());
 model.add(tf.layers.conv2d({
-  filters: 64,
+  filters: 32,
   kernelSize: 4,
   activation: 'relu',
 }));
