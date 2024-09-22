@@ -50,7 +50,7 @@ export function getDataset() {
 			(e[1] !== 14 || Math.random() > 0.5)
 		);
 
-	return myGeneratorDataset//.map(gameToFeaturesAndLabel);
+	return myGeneratorDataset.map(gameToFeaturesAndLabel);
 }
 export async function train(nn) {
 	const batchSize = 25;
