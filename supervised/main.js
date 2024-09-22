@@ -28,12 +28,12 @@ async function run(epochs, batchEpochs, batchSize, savePath) {
 	const accuracyLogs = [];
 	const lossLogs = [];
 
-	for (let i = 1; i < epochs; i++) {
+	for (let i = 0; i < epochs; i++) {
 		console.log(`New Data Epochs ${i}/${epochs}`);
 		const dataset = getDataset().batch(batchSize);
 		const result = await trainModelUsingFitDataset(model, dataset, batchEpochs, batchSize);
-		result.history.val_acc.forEach((val_acc, epoch) => accuracyLogs.push({ epoch: epoch * i, val_acc }));
-		result.history.val_loss.forEach((val_loss, epoch) => lossLogs.push({ epoch: epoch * i, val_loss }));
+		result.history.val_acc.forEach((val_acc, epoch) => accuracyLogs.push({ epoch: (epoch + 1) * (i + 1), val_acc }));
+		result.history.val_loss.forEach((val_loss, epoch) => lossLogs.push({ epoch: (epoch + 1) * (i + 1), val_loss }));
 		if (savePath != null) {
 			if (!fs.existsSync(savePath)) {
 				shelljs.mkdir('-p', savePath);
