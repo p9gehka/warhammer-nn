@@ -23,15 +23,15 @@ export class MoveAgent extends MoveAgentBase {
 			let stamina = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].findIndex(v => input[`Stamina${v}`].length > 0);
 			if (x === 0 && y === 0) {
 				orderIndex = 0
-			} else if ((stamina === 2 || stamina >= 6) && x !== 0 && y !== 0) {
-				const signX = Math.sign(x);
-				const signY = Math.sign(y);
-				x = Math.abs(x);
-				x = Math.min(x >= 4 ? 4 : 2, x);
+			} else if (stamina >= 2 && Math.abs(Math.abs(x) - Math.abs(y)) <= 5) {
+				const signX = Math.sign(x) !== 0 ? Math.sign(x) : 1;
+				const signY = Math.sign(y) !== 0 ? Math.sign(y) : 1;
 				let availableStamina = Math.min(stamina >=6 ? 6 : 2, stamina);
-
-				x = distancesDiagonal.findLast((v, i) => v <= x && distancesDiagonalExpense[i]<=availableStamina);
+				x = distancesDiagonal.findLast((v, i) => distancesDiagonalExpense[i]<=availableStamina);
 				orderIndex = this.orders.findIndex(order => order.action === BaseAction.Move && eq(order.vector, [signX * x, signY * x]))
+				if (orderIndex === -1) {
+					console.log(availableStamina, x, [signX * x, signY * x]);
+				}
 			} else {
 				const axis = Math.abs(x) > Math.abs(y) ? 0 : 1;
 				let value =  Math.max(-stamina, Math.min(vector[axis], stamina))

@@ -32,10 +32,8 @@ export function getDataset() {
 		const { orderIndex, order } = agent.playStep(state);
 		const selected = env.players[state.player].models[0];
 		env.step({ ...order, id: selected });
-		if (env.getState().done) {
-			env.reset();
-		}
-		env.models[selected].stamina = getRandomInteger(0, 8);
+		env.reset();
+		env.models[selected].stamina = getRandomInteger(0, 12);
 		return [agent.getInput(state), orderIndex];
 	}
 	function* getStateAndAnswerGeneratorFn() {
@@ -45,14 +43,14 @@ export function getDataset() {
 	}
 
 	const myGeneratorDataset = tf.data.generator(getStateAndAnswerGeneratorFn).filter(e =>
-			(e[1] !== 0 || Math.random() > 0.9) &&
-			(e[1] !== 1 || Math.random() > 0.5) &&
+			(e[1] !== 0 || Math.random() > 0.5) &&
 			(e[1] !== 5 || Math.random() > 0.5) &&
-			(e[1] !== 9 || Math.random() > 0.5) &&
-			(e[1] !== 13 || Math.random() > 0.5)
+			(e[1] !== 6 || Math.random() > 0.5) &&
+			(e[1] !== 13 || Math.random() > 0.5) &&
+			(e[1] !== 14 || Math.random() > 0.5)
 		);
 
-	return myGeneratorDataset.map(gameToFeaturesAndLabel);
+	return myGeneratorDataset//.map(gameToFeaturesAndLabel);
 }
 export async function train(nn) {
 	const batchSize = 25;
@@ -60,12 +58,11 @@ export async function train(nn) {
 	const dataset = getDataset().batch(batchSize);
 	/*
 	const countOrders = new Array(MoveAgent.settings.orders.length).fill(0);
-	await getDataset().take(256).forEachAsync(e => {
-		countOrders[e[1]]++
+	await getDataset().take(250).forEachAsync(e => {
+		countOrders[e[1]]++;
 	});
-	console.log(countOrders)
+	countOrders.forEach((n, i) => console.log(MoveAgent.settings.orders[i], n))
 	*/
-
 	const model = createDeepQNetwork(MoveAgent.settings.orders.length, MoveAgent.settings.width, MoveAgent.settings.height, MoveAgent.settings.channels.length)
 	model.add(tf.layers.softmax());
 	const opimizer = tf.train.adamax(0.06863394)
