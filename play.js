@@ -31,7 +31,7 @@ async function sendConfigMessage(model) {
 	const trainerConfig = await getTrainerConfig();
 
 	await sendMessage(
-		model.layers.map( layer => `${layer.name.split('_')[0]}{${ ['filters', 'kernelSize', 'units', 'rate'].map(filter => layer[filter] ? `filter: ${layer[filter]}` : '').filter(v=>v !=='') }}` ).join('->')
+		model.layers.map(layer => `${layer.name.split('_')[0]}{${ ['filters', 'kernelSize', 'units', 'rate'].map(filter => layer[filter] ? `filter: ${layer[filter]}` : '').filter(v=>v !=='') }}` ).join('->')
 	);
 	await sendMessage(
 		`Player hyperparams Config replayBufferSize:${replayBufferSize} epsilonDecayFrames:${epsilonDecayFrames} cumulativeRewardThreshold:${cumulativeRewardThreshold}\n` +
