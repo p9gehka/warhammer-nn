@@ -32,7 +32,9 @@ export function getDataset() {
 		const { orderIndex, order } = agent.playStep(state);
 		const selected = env.players[state.player].models[0];
 		env.step({ ...order, id: selected });
-		env.reset();
+		if (env.getState().done) {
+			env.reset();
+		}
 		env.models[selected].stamina = getRandomInteger(0, 8);
 		return [agent.getInput(state), orderIndex];
 	}
@@ -43,7 +45,11 @@ export function getDataset() {
 	}
 
 	const myGeneratorDataset = tf.data.generator(getStateAndAnswerGeneratorFn).filter(e =>
-			(e[1] !== 0 || Math.random() > 0.5)
+			(e[1] !== 0 || Math.random() > 0.9) &&
+			(e[1] !== 1 || Math.random() > 0.5) &&
+			(e[1] !== 5 || Math.random() > 0.5) &&
+			(e[1] !== 9 || Math.random() > 0.5) &&
+			(e[1] !== 13 || Math.random() > 0.5)
 		);
 
 	return myGeneratorDataset.map(gameToFeaturesAndLabel);
@@ -54,7 +60,7 @@ export async function train(nn) {
 	const dataset = getDataset().batch(batchSize);
 	/*
 	const countOrders = new Array(MoveAgent.settings.orders.length).fill(0);
-	await getDataset().take(1000).forEachAsync(e => {
+	await getDataset().take(256).forEachAsync(e => {
 		countOrders[e[1]]++
 	});
 	console.log(countOrders)
