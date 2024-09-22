@@ -17,8 +17,6 @@ const savePath = '../models/supervised-dqn/';
 let battlefields = config.battlefields.length > 0 ? filterObjByKeys(allBattlefields, config.battlefields) : allBattlefields;
 
 const tf = await getTF();
-const batchSize = 25;
-const epochs = 50;
 
 function gameToFeaturesAndLabel(record) {
 	return tf.tidy(() => {
@@ -51,7 +49,9 @@ export function getDataset() {
 	return myGeneratorDataset.map(gameToFeaturesAndLabel);
 }
 export async function train(nn) {
-	const dataset = getDataset().batch(batchSize).take(1000);
+	const batchSize = 25;
+	const epochs = 50;
+	const dataset = getDataset().batch(batchSize);
 	/*
 	const countOrders = new Array(MoveAgent.settings.orders.length).fill(0);
 	console.log(MoveAgent.settings.orders)
@@ -68,10 +68,10 @@ export async function train(nn) {
 		metrics: ['accuracy'],
 	});
 	model.summary();
-	await trainModelUsingFitDataset(model, dataset);
+	await trainModelUsingFitDataset(model, dataset, epochs, batchSize);
 }
 
-export async function trainModelUsingFitDataset(model, dataset) {
+export async function trainModelUsingFitDataset(model, dataset, epochs, batchSize) {
 	const trainLogs = [];
 	const beginMs = performance.now();
 	const lossLogs = [];
@@ -91,8 +91,8 @@ export async function trainModelUsingFitDataset(model, dataset) {
 					if (!fs.existsSync(savePath)) {
 						shelljs.mkdir('-p', savePath);
 					}
-					//await model.save(`file://${savePath}`);
-					//console.log(`Saved DQN to ${savePath}`);
+					await model.save(`file://${savePath}`);
+					console.log(`Saved DQN to ${savePath}`);
 				}
 			},
 		}

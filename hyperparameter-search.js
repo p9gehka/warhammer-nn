@@ -15,6 +15,8 @@ const optimizers = {
 }
 
 const batchSize = 25;
+const epochs = 50;
+
 const optFunction = async (params, { dataset }) => {
 	const {
 		kernelRegularizer1, kernelRegularizer2, kernelRegularizer3, learningRate,
@@ -41,7 +43,7 @@ const optFunction = async (params, { dataset }) => {
 
 	// train model using defined data
 
-	const h = await trainModelUsingFitDataset(model, dataset);
+	const h = await trainModelUsingFitDataset(model, dataset, epochs, batchSize);
 	sendMessage(JSON.stringify(params));
 	return { accuracy: h.history.val_acc[h.history.val_acc.length - 1], status: hpjs.STATUS_OK } ;
 };

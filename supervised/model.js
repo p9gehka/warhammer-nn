@@ -37,9 +37,7 @@ model.add(tf.layers.conv2d({
   kernelSize: 4,
   activation: 'relu',
 }));
-model.add(tf.layers.maxPooling2d({poolSize: [2, 2]}));
 model.add(tf.layers.flatten());
-model.add(tf.layers.dropout({rate: 0.25}));
 model.add(tf.layers.dense({units: 2000, activation: 'relu'}));
 model.add(tf.layers.dropout({rate: 0.5}));
 model.add(tf.layers.dense({units: 29, activation: 'softmax'}));
