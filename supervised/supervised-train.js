@@ -29,7 +29,7 @@ export function getDataset() {
 	const agent = new MoveAgent();
 	function getStateAndAnswer() {
 		const state = env.getState();
-		const { orderIndex, order } = agent.playStep(state);		
+		const { orderIndex, order } = agent.playStep(state);
 		const selected = env.players[state.player].models[0];
 		env.step({ ...order, id: selected });
 		env.reset();
@@ -43,11 +43,7 @@ export function getDataset() {
 	}
 
 	const myGeneratorDataset = tf.data.generator(getStateAndAnswerGeneratorFn).filter(e =>
-			(e[1] !== 0 || Math.random() > 0.5) &&
-			(e[1] !== 10 || Math.random() > 0.5) &&
-			(e[1] !== 11 || Math.random() > 0.5) &&
-			(e[1] !== 24 || Math.random() > 0.5) &&
-			(e[1] !== 25 || Math.random() > 0.5)
+			(e[1] !== 0 || Math.random() > 0.5)
 		);
 
 	return myGeneratorDataset.map(gameToFeaturesAndLabel);
