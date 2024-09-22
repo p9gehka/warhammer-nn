@@ -18,15 +18,41 @@ import * as fs from 'fs';
 import { getTF } from '../static/utils/get-tf.js';
 import { model } from './model.js'
 import { getDataset, trainModelUsingFitDataset } from './supervised-train.js';
-
+import { sendDataToTelegram, sendMessage } from '../visualization/utils.js';
 const tf = await getTF();
 
-async function run(epochs, batchSize) {
+async function run(epochs, batchEpochs, batchSize, savePath) {
 	model.summary();
 
-	const dataset = getDataset().batch(batchSize);
-	await trainModelUsingFitDataset(model, dataset, epochs, batchSize);
-	 process.exit(0);
+	const accuracyLogs = [];
+	const lossLogs = [];
+
+	for (let i = 0; i < epochs; i++) {
+		const dataset = getDataset().batch(batchSize);
+		const result = await trainModelUsingFitDataset(model, dataset, batchEpochs, batchSize);
+		result.history.val_acc.forEach((val_acc, i) => accuracyLogs.push({ epoch: i, val_acc }));
+		result.history.val_loss.forEach((val_loss, i) =>  lossLogs.push({ epoch: i, val_loss }));
+	}
+
+	if (savePath != null) {
+		if (!fs.existsSync(savePath)) {
+			shelljs.mkdir('-p', savePath);
+		}
+		await model.save(`file://${savePath}`);
+		console.log(`Saved DQN to ${savePath}`);
+	}
+
+	await sendConfigMessage(model);
+	await sendDataToTelegram(lossLogs);
+	await sendDataToTelegram(accuracyLogs);
+
+	process.exit(0);
 }
 
-run(20, 768);
+async function sendConfigMessage(model) {
+	await sendMessage(
+		model.layers.map(layer => `${layer.name.split('_')[0]}{${ ['filters', 'kernelSize', 'units', 'rate'].map(filter => layer[filter] ? `filter: ${layer[filter]}` : '').filter(v=>v !=='') }}` ).join('->')
+	);
+}
+
+run(40, 20, 30, '../models/supervised-dqn/');

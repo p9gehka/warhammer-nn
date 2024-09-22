@@ -15,8 +15,9 @@
  * =============================================================================
  */
 
-import * as tf from '@tensorflow/tfjs';
+import { getTF } from '../static/utils/get-tf.js';
 
+const tf = await getTF();
 export const model = tf.sequential();
 
 model.add(tf.layers.conv2d({
@@ -38,7 +39,7 @@ model.add(tf.layers.conv2d({
   activation: 'relu',
 }));
 model.add(tf.layers.flatten());
-model.add(tf.layers.dense({units: 2000, activation: 'relu'}));
+model.add(tf.layers.dense({units: 1000, activation: 'relu'}));
 model.add(tf.layers.dropout({rate: 0.5}));
 model.add(tf.layers.dense({units: 29, activation: 'softmax'}));
 
