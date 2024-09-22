@@ -1,5 +1,3 @@
-import * as fs from 'fs';
-import shelljs from 'shelljs';
 import { getTF } from '../static/utils/get-tf.js';
 import { Warhammer } from '../static/environment/warhammer.js';
 import { MoveAgent } from '../static/agents/move-agent/move-center-agent.js';

@@ -15,6 +15,7 @@
  * =============================================================================
  */
 import * as fs from 'fs';
+import shelljs from 'shelljs';
 import { getTF } from '../static/utils/get-tf.js';
 import { model } from './model.js'
 import { getDataset, trainModelUsingFitDataset } from './supervised-train.js';
@@ -41,7 +42,6 @@ async function run(epochs, batchEpochs, batchSize, savePath) {
 			console.log(`Saved DQN to ${savePath}`);
 		}
 	}
-
 
 	await sendConfigMessage(model);
 	await sendDataToTelegram(lossLogs);
