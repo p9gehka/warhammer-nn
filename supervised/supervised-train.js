@@ -46,7 +46,7 @@ export function getDataset() {
 
 	const myGeneratorDataset = tf.data.generator(getStateAndAnswerGeneratorFn);
 
-	return myGeneratorDataset//.map(gameToFeaturesAndLabel);
+	return myGeneratorDataset.map(gameToFeaturesAndLabel);
 }
 export async function train(nn) {
 	const batchSize = 25;
