@@ -1,5 +1,5 @@
 import { MoveAgentBase } from './move-agent.js';
-import { moveOrders, distancesDiagonalExpense, distancesDiagonal } from './move-orders.js';
+import { moveOrders, /*distancesDiagonalExpense, distancesDiagonal*/ } from './move-orders.js';
 import { channels } from '../../environment/nn-input.js';
 import { Channel1Name } from '../../environment/nn-input.js';
 import { sub, eq, add, mul } from '../../utils/vec2.js'
@@ -23,7 +23,13 @@ export class MoveAgent extends MoveAgentBase {
 			let stamina = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].findIndex(v => input[`Stamina${v}`].length > 0);
 			if (x === 0 && y === 0) {
 				orderIndex = 0
-			} else if (stamina >= 2 && Math.abs(Math.abs(x) - Math.abs(y)) <= 5) {
+			} else {
+				const axis = Math.abs(x) > Math.abs(y) ? 0 : 1;
+				//let value =  Math.max(-stamina, Math.min(vector[axis], stamina))
+				let value = Math.sign(vector[axis]);
+				orderIndex = this.orders.findIndex(order => order.action === BaseAction.Move && order.vector[axis] === value && order.vector[(axis+1)%2] === 0)
+
+			} /*if (stamina >= 2 && Math.abs(Math.abs(x) - Math.abs(y)) <= 5) {
 				const signX = Math.sign(x) !== 0 ? Math.sign(x) : 1;
 				const signY = Math.sign(y) !== 0 ? Math.sign(y) : 1;
 				let availableStamina = Math.min(stamina >=6 ? 6 : 2, stamina);
@@ -32,12 +38,7 @@ export class MoveAgent extends MoveAgentBase {
 				if (orderIndex === -1) {
 					console.log(availableStamina, x, [signX * x, signY * x]);
 				}
-			} else {
-				const axis = Math.abs(x) > Math.abs(y) ? 0 : 1;
-				let value =  Math.max(-stamina, Math.min(vector[axis], stamina))
-				value = Math.abs(value) >= 6 ? Math.max(-6, Math.min(6, value)) : Math.sign(value);
-				orderIndex = this.orders.findIndex(order => order.action === BaseAction.Move && order.vector[axis] === value && order.vector[(axis+1)%2] === 0)
-			}
+			} else*/ 
 		}
 
 		return { order: this.orders[orderIndex], orderIndex, estimate: 0 };

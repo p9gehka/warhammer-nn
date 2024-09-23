@@ -32,7 +32,9 @@ export function getDataset() {
 		const { orderIndex, order } = agent.playStep(state);
 		const selected = env.players[state.player].models[0];
 		env.step({ ...order, id: selected });
-		env.reset();
+		if (env.getState().done) {
+			env.reset();
+		}
 		env.models[selected].stamina = getRandomInteger(0, 12);
 		return [agent.getInput(state), orderIndex];
 	}
@@ -42,27 +44,21 @@ export function getDataset() {
 		}
 	}
 
-	const myGeneratorDataset = tf.data.generator(getStateAndAnswerGeneratorFn).filter(e =>
-			(e[1] !== 0 || Math.random() > 0.5) &&
-			(e[1] !== 5 || Math.random() > 0.5) &&
-			(e[1] !== 6 || Math.random() > 0.5) &&
-			(e[1] !== 13 || Math.random() > 0.5) &&
-			(e[1] !== 14 || Math.random() > 0.5)
-		);
+	const myGeneratorDataset = tf.data.generator(getStateAndAnswerGeneratorFn);
 
-	return myGeneratorDataset.map(gameToFeaturesAndLabel);
+	return myGeneratorDataset//.map(gameToFeaturesAndLabel);
 }
 export async function train(nn) {
 	const batchSize = 25;
 	const epochs = 50;
 	const dataset = getDataset().batch(batchSize);
-	/*
+
 	const countOrders = new Array(MoveAgent.settings.orders.length).fill(0);
 	await getDataset().take(250).forEachAsync(e => {
 		countOrders[e[1]]++;
 	});
 	countOrders.forEach((n, i) => console.log(MoveAgent.settings.orders[i], n))
-	*/
+
 	const model = createDeepQNetwork(MoveAgent.settings.orders.length, MoveAgent.settings.width, MoveAgent.settings.height, MoveAgent.settings.channels.length)
 	model.add(tf.layers.softmax());
 	const opimizer = tf.train.adamax(0.06863394)
@@ -71,8 +67,8 @@ export async function train(nn) {
 		loss: 'categoricalCrossentropy',
 		metrics: ['accuracy'],
 	});
-	model.summary();
-	await trainModelUsingFitDataset(model, dataset, epochs, batchSize);
+	//model.summary();
+	//await trainModelUsingFitDataset(model, dataset, epochs, batchSize);
 }
 
 export async function trainModelUsingFitDataset(model, dataset, epochs, batchSize) {
