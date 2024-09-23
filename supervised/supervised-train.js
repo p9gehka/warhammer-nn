@@ -52,13 +52,13 @@ export async function train(nn) {
 	const batchSize = 25;
 	const epochs = 50;
 	const dataset = getDataset().batch(batchSize);
-
+	/*
 	const countOrders = new Array(MoveAgent.settings.orders.length).fill(0);
 	await getDataset().take(250).forEachAsync(e => {
 		countOrders[e[1]]++;
 	});
 	countOrders.forEach((n, i) => console.log(MoveAgent.settings.orders[i], n))
-
+	*/
 	const model = createDeepQNetwork(MoveAgent.settings.orders.length, MoveAgent.settings.width, MoveAgent.settings.height, MoveAgent.settings.channels.length)
 	model.add(tf.layers.softmax());
 	const opimizer = tf.train.adamax(0.06863394)
@@ -67,8 +67,8 @@ export async function train(nn) {
 		loss: 'categoricalCrossentropy',
 		metrics: ['accuracy'],
 	});
-	//model.summary();
-	//await trainModelUsingFitDataset(model, dataset, epochs, batchSize);
+	model.summary();
+	await trainModelUsingFitDataset(model, dataset, epochs, batchSize);
 }
 
 export async function trainModelUsingFitDataset(model, dataset, epochs, batchSize) {
