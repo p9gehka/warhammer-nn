@@ -18,7 +18,7 @@ const tf = await getTF();
 function gameToFeaturesAndLabel(record) {
 	return tf.tidy(() => {
 		const [input, orderIndex] = record;
-		const features = getStateTensor([input], MoveAgent.settings.width,  MoveAgent.settings.height, MoveAgent.settings.channels).squeeze();
+		const features = getStateTensor([input], MoveAgent.settings.height, MoveAgent.settings.width, MoveAgent.settings.channels).squeeze();
 		const label = tf.oneHot(tf.scalar(orderIndex, 'int32'), MoveAgent.settings.orders.length);
 		return {xs: features, ys: label};
 	});
@@ -32,9 +32,8 @@ export function getDataset() {
 		const { orderIndex, order } = agent.playStep(state);
 		const selected = env.players[state.player].models[0];
 		env.step({ ...order, id: selected });
-		if (env.getState().done) {
-			env.reset();
-		}
+
+		env.reset();
 		env.models[selected].stamina = getRandomInteger(0, 12);
 		return [agent.getInput(state), orderIndex];
 	}
