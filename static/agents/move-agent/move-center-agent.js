@@ -23,7 +23,8 @@ export class MoveAgent extends MoveAgentBase {
 			let stamina = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].findIndex(v => input[`Stamina${v}`].length > 0);
 			if (x === 0 && y === 0) {
 				orderIndex = 0
-			} else if ((stamina >= 2) && Math.abs(Math.abs(x) - Math.abs(y)) <= 7 && x !== 0 && y !== 0) {
+			/*} else if ((stamina >= 2) && Math.abs(Math.abs(x) - Math.abs(y)) <= 7 && x !== 0 && y !== 0) { */
+			  } else if ((stamina >= 2) && x === y) {
 				const signX = x !== 0 ? Math.sign(x) : 1;
 				const signY = y !== 0 ? Math.sign(y) : 1;
 				let value = Math.min(Math.abs(x), Math.abs(y));
