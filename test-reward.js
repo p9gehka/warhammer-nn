@@ -11,7 +11,7 @@ import allBattlefields from './static/settings/battlefields.json' assert { type:
 
 let battlefields = config.battlefields.length > 0 ? filterObjByKeys(allBattlefields, config.battlefields) : allBattlefields;
 
-const rewardAveragerLen = 100;
+const rewardAveragerLen = 200;
 async function play() {
 	const env = new Warhammer({ gameSettings, battlefields });
 	const players = [new PlayerAgent(0, env), new PlayerDumb(env)];
