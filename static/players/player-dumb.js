@@ -8,4 +8,6 @@ export class PlayerDumb {
 		const state = this.env.step({ action: BaseAction.NextPhase });
 		return [{ action: BaseAction.NextPhase }, state, { index: 0, estimate: 0 }];
 	}
+	reset() {}
+	load() {}
 }

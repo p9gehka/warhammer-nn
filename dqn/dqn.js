@@ -40,6 +40,8 @@ export function createDeepQNetwork(numActions, h, w, c) {
 	model.add(tf.layers.flatten());
 	model.add(tf.layers.dense({units: 1000, activation: 'relu'}));
 	model.add(tf.layers.dropout({rate: 0.5}));
+	model.add(tf.layers.dense({units: 1000, activation: 'relu'}));
+	model.add(tf.layers.dropout({rate: 0.5}))
 	model.add(tf.layers.dense({units: numActions}));
 	return model;
 }

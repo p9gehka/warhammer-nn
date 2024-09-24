@@ -29,11 +29,13 @@ async function run(epochs, batchEpochs, batchSize, savePath) {
 	const lossLogs = [];
 
 	for (let i = 0; i < epochs; i++) {
-		console.log(`New Data Epochs ${i}/${epochs}`);
+		console.log(`New Data Epoch ${i}/${epochs}`);
 		const dataset = getDataset().batch(batchSize);
 		const result = await trainModelUsingFitDataset(model, dataset, batchEpochs, batchSize);
-		result.history.val_acc.forEach((val_acc, epoch) => accuracyLogs.push({ epoch: (epoch + 1) * (i + 1), val_acc }));
-		result.history.val_loss.forEach((val_loss, epoch) => lossLogs.push({ epoch: (epoch + 1) * (i + 1), val_loss }));
+		result.history.val_acc.forEach((val_acc, i) => {
+			accuracyLogs.push({ epoch: accuracyLogs.length, val_acc });
+			lossLogs.push({ epoch: lossLogs.length, val_loss: result.history.val_loss[i] })
+		});
 		if (savePath != null) {
 			if (!fs.existsSync(savePath)) {
 				shelljs.mkdir('-p', savePath);
@@ -56,4 +58,4 @@ async function sendConfigMessage(model) {
 	);
 }
 
-run(40, 1, 300, './models/supervised-dqn/');
+run(40, 1, 200, './models/supervised-dqn/');
