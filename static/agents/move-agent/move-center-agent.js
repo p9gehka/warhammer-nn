@@ -58,7 +58,7 @@ export class MoveAgent extends MoveAgentBase {
 			} else {
 				const axis = x !== 0 ? 0 : 1;
 				let value =  Math.max(-stamina, Math.min(vector[axis], stamina))
-				value = Math.abs(value) >= 6 ? Math.max(-6, Math.min(6, value)) : Math.max(-2, Math.min(2, value));
+				value = Math.abs(value) >= 6 ? Math.max(-6, Math.min(6, value)) : Math.sign(value);
 				orderIndex = this.orders.findIndex(order => order.action === BaseAction.Move && order.vector[axis] === value && order.vector[(axis+1)%2] === 0)
 				if (orderIndex === -1) {
 					console.log(x, axis, value)

@@ -32,9 +32,10 @@ export function getDataset() {
 		const { orderIndex, order } = agent.playStep(state);
 		const selected = env.players[state.player].models[0];
 		env.step({ ...order, id: selected });
-
-		env.reset();
-		env.models[selected].stamina = getRandomInteger(0, 12);
+		if (env.getState().done || orderIndex === 0) {
+			env.reset();
+		}
+		env.models[selected].stamina = getRandomInteger(1, 12);
 		return [agent.getInput(state), orderIndex];
 	}
 	function* getStateAndAnswerGeneratorFn() {
