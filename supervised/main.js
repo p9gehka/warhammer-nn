@@ -31,7 +31,7 @@ async function run(epochs, batchEpochs, batchSize, savePath) {
 	let bestAverageVp = 0;
 	for (let i = 0; i < epochs; i++) {
 		console.log(`New Data Epoch ${i}/${epochs}`);
-		const dataset = getDataset().shuffle(1000).repeat().batch(batchSize)s;
+		const dataset = getDataset().shuffle(1000).repeat().batch(batchSize);
 		const result = await trainModelUsingFitDataset(model, dataset, batchEpochs, batchSize);
 		result.history.val_acc.forEach((val_acc, i) => {
 			accuracyLogs.push({ epoch: accuracyLogs.length, val_acc });
