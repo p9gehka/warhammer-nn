@@ -39,7 +39,7 @@ async function run(epochs, batchEpochs, batchSize, savePath) {
 		});
 
 		console.log('Get Average reward...');
-		const averageVP = await testReward(true);
+		const averageVP = await testReward(true, model);
 		console.log(`averageVP: ${averageVP}`);
 		if (averageVP > bestAverageVp && savePath != null) {
 			bestAverageVp = averageVP;
