@@ -4,6 +4,7 @@ import { MoveAgent } from '../static/agents/move-agent/move-center-agent.js';
 import { getStateTensor } from '../static/utils/get-state-tensor.js';
 import { createDeepQNetwork } from '../dqn/dqn.js';
 import { getRandomInteger } from '../static/utils/index.js';
+import { eq } from '../static/utils/vec2.js';
 
 import gameSettings from '../static/settings/game-settings.json' assert { type: 'json' };
 import allBattlefields from '../static/settings/battlefields.json' assert { type: 'json' };
@@ -24,18 +25,28 @@ function gameToFeaturesAndLabel(record) {
 	});
 }
 
+function getRandomStartPosition(exclude, battlefield) {
+	while(true) {
+		let x1 = getRandomInteger(0, 2) * battlefield.size[0];
+		let y1 = getRandomInteger(0, 2) * battlefield.size[1];
+		if (!exclude.some(pos => eq([x1, y1], pos))) {
+			return [x1, y1];
+		}
+	}
+}
+
 export function getDataset() {
-	const env = new Warhammer({ gameSettings, battlefields });
+	const env = new Warhammer({ gameSettings, battlefields, getRandomStartPosition });
 	const agent = new MoveAgent();
 	function getStateAndAnswer() {
 		const state = env.getState();
 		const { orderIndex, order } = agent.playStep(state);
 		const selected = env.players[state.player].models[0];
 		env.step({ ...order, id: selected });
-		if (env.getState().done || orderIndex === 0) {
+		if (env.getState().done) {
 			env.reset();
 		}
-		env.models[selected].stamina = getRandomInteger(1, 12);
+		env.models[selected].stamina += getRandomInteger(0, 6);
 		return [agent.getInput(state), orderIndex];
 	}
 	function* getStateAndAnswerGeneratorFn() {
