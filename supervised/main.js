@@ -18,7 +18,8 @@ import * as fs from 'fs';
 import shelljs from 'shelljs';
 import { getTF } from '../static/utils/get-tf.js';
 import { model } from './model.js'
-import { getDataset, trainModelUsingFitDataset } from './supervised-train.js';
+import { trainModelUsingFitDataset } from './supervised-train.js';
+import { getDataset } from '../static/utils/get-dataset.js';
 import { sendDataToTelegram, sendMessage } from '../visualization/utils.js';
 import { testReward } from '../tests/test-reward.js';
 const tf = await getTF();
@@ -31,7 +32,7 @@ async function run(epochs, batchEpochs, batchSize, savePath) {
 	let bestAverageVp = 0;
 	for (let i = 0; i < epochs; i++) {
 		console.log(`New Data Epoch ${i}/${epochs}`);
-		const dataset = getDataset().shuffle(1000).repeat().batch(batchSize);
+		const dataset = getDataset().shuffle(400).repeat().batch(batchSize);
 		const result = await trainModelUsingFitDataset(model, dataset, batchEpochs, batchSize);
 		result.history.val_acc.forEach((val_acc, i) => {
 			accuracyLogs.push({ epoch: accuracyLogs.length, val_acc });
@@ -64,4 +65,4 @@ async function sendConfigMessage(model) {
 	);
 }
 
-run(50, 3, 400, './models/supervised-dqn/');
+run(50, 1, 400, './models/supervised-dqn/');
