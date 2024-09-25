@@ -27,10 +27,15 @@ function gameToFeaturesAndLabel(record) {
 
 function getRandomStartPosition(exclude, battlefield) {
 	while(true) {
-		let x1 = getRandomInteger(0, 2) * battlefield.size[0];
-		let y1 = getRandomInteger(0, 2) * battlefield.size[1];
-		if (!exclude.some(pos => eq([x1, y1], pos))) {
-			return [x1, y1];
+		const axis = getRandomInteger(0, 2);
+		const edge = getRandomInteger(0, 2);
+
+		const result = [0, 0];
+		const padding = (getRandomInteger(0, 10) * (edge === 1 ? - 1 : 1));
+		result[axis]= edge * battlefield.size[axis] + padding;
+		result[(axis+1)%2] = getRandomInteger(0, battlefield.size[(axis+1)%2] + 1);
+		if (!exclude.some(pos => eq(result, pos))) {
+			return result;
 		}
 	}
 }
@@ -40,13 +45,14 @@ export function getDataset() {
 	const agent = new MoveAgent();
 	function getStateAndAnswer() {
 		const state = env.getState();
-		const { orderIndex, order } = agent.playStep(state);
 		const selected = env.players[state.player].models[0];
+		const { orderIndex, order } = agent.playStep(state);
+
 		env.step({ ...order, id: selected });
 		if (env.getState().done) {
 			env.reset();
 		}
-		env.models[selected].stamina += getRandomInteger(0, 6);
+
 		return [agent.getInput(state), orderIndex];
 	}
 	function* getStateAndAnswerGeneratorFn() {
