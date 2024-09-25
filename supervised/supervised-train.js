@@ -47,7 +47,6 @@ export function getDataset() {
 		const state = env.getState();
 		const selected = env.players[state.player].models[0];
 		const { orderIndex, order } = agent.playStep(state);
-
 		env.step({ ...order, id: selected });
 		if (env.getState().done) {
 			env.reset();
@@ -71,7 +70,7 @@ export async function train(nn) {
 	const dataset = getDataset().batch(batchSize);
 	/*
 	const countOrders = new Array(MoveAgent.settings.orders.length).fill(0);
-	await getDataset().take(250).forEachAsync(e => {
+	await getDataset().take(2000).shuffle(1000).forEachAsync(e => {
 		countOrders[e[1]]++;
 	});
 	countOrders.forEach((n, i) => console.log(MoveAgent.settings.orders[i], n))

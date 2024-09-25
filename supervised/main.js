@@ -20,6 +20,7 @@ import { getTF } from '../static/utils/get-tf.js';
 import { model } from './model.js'
 import { getDataset, trainModelUsingFitDataset } from './supervised-train.js';
 import { sendDataToTelegram, sendMessage } from '../visualization/utils.js';
+import { testReward } from '../tests/test-reward.js';
 const tf = await getTF();
 
 async function run(epochs, batchEpochs, batchSize, savePath) {
@@ -27,16 +28,21 @@ async function run(epochs, batchEpochs, batchSize, savePath) {
 
 	const accuracyLogs = [];
 	const lossLogs = [];
-
+	let bestAverageVp = 0;
 	for (let i = 0; i < epochs; i++) {
 		console.log(`New Data Epoch ${i}/${epochs}`);
-		const dataset = getDataset().batch(batchSize);
+		const dataset = getDataset().take(2000).shuffle(1000).batch(batchSize);
 		const result = await trainModelUsingFitDataset(model, dataset, batchEpochs, batchSize);
 		result.history.val_acc.forEach((val_acc, i) => {
 			accuracyLogs.push({ epoch: accuracyLogs.length, val_acc });
 			lossLogs.push({ epoch: lossLogs.length, val_loss: result.history.val_loss[i] })
 		});
-		if (savePath != null) {
+
+		console.log('Get Average reward...');
+		const averageVP = await testReward(true);
+		console.log(`averageVP: ${averageVP}`);
+		if (averageVP > bestAverageVp && savePath != null) {
+			bestAverageVp = averageVP;
 			if (!fs.existsSync(savePath)) {
 				shelljs.mkdir('-p', savePath);
 			}
@@ -58,4 +64,4 @@ async function sendConfigMessage(model) {
 	);
 }
 
-run(30, 2, 300, './models/supervised-dqn/');
+run(50, 3, 400, './models/supervised-dqn/');
