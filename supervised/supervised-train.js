@@ -31,9 +31,9 @@ function getRandomStartPosition(exclude, battlefield) {
 		const edge = getRandomInteger(0, 2);
 
 		const result = [0, 0];
-		const padding = (getRandomInteger(0, 10) * (edge === 1 ? - 1 : 1));
-		result[axis]= edge * battlefield.size[axis] + padding;
-		result[(axis+1)%2] = getRandomInteger(0, battlefield.size[(axis+1)%2] + 1);
+		const padding = (getRandomInteger(0, 7) * (edge === 1 ? - 1 : 1));
+		result[axis]= edge * battlefield.size[axis] - 1 + padding;
+		result[(axis+1)%2] = getRandomInteger(0, battlefield.size[(axis+1)%2]);
 		if (!exclude.some(pos => eq(result, pos))) {
 			return result;
 		}
