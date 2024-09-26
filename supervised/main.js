@@ -74,4 +74,4 @@ async function sendConfigMessage(model) {
 	);
 }
 
-run(50, 2, 30, './models/supervised-dqn/');
+run(30, 2, 50, './models/supervised-dqn/');
