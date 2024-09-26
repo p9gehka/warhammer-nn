@@ -53,6 +53,9 @@ async function run(epochs, batchEpochs, batchSize, savePath) {
 			await model.save(`file://${savePath}`);
 			console.log(`Saved DQN to ${savePath}`);
 		}
+		if (averageVP > 17) {
+			break;
+		}
 	}
 
 	await sendConfigMessage(model);
