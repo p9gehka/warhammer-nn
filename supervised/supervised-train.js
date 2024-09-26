@@ -10,6 +10,7 @@ export async function train(nn) {
 	const batchSize = 25;
 	const epochs = 50;
 	const dataset = getDataset().batch(batchSize);
+	const validationDataset = getDataset().batch(20);
 	/*
 	const countOrders = new Array(MoveAgent.settings.orders.length).fill(0);
 	await getDataset().take(2000).shuffle(1000).forEachAsync(e => {
@@ -26,14 +27,14 @@ export async function train(nn) {
 		metrics: ['accuracy'],
 	});
 	model.summary();
-	await trainModelUsingFitDataset(model, dataset, epochs, batchSize);
+	await trainModelUsingFitDataset(model, dataset,validationDataset, epochs, batchSize);
 }
 
-export async function trainModelUsingFitDataset(model, dataset, epochs, batchSize) {
+export async function trainModelUsingFitDataset(model, dataset, validationData, epochs, batchSize) {
 	const fitDatasetArgs = {
 		batchesPerEpoch: batchSize,
 		epochs: epochs,
-		validationData: dataset,
+		validationData,
 		validationBatches: 30,
 	};
 	return await model.fitDataset(dataset, fitDatasetArgs);

@@ -34,7 +34,8 @@ async function run(epochs, batchEpochs, batchSize, savePath) {
 	for (let i = 0; i < epochs; i++) {
 		console.log(`New Data Epoch ${i}/${epochs}`);
 		const dataset = getDataset().batch(batchSize);
-		const result = await trainModelUsingFitDataset(model, dataset, batchEpochs, batchSize);
+		const validationDataset = getDataset().batch(20);
+		const result = await trainModelUsingFitDataset(model, dataset, validationDataset, batchEpochs, batchSize);
 		result.history.val_acc.forEach((val_acc, i) => {
 			accuracyLogs.push({ epoch: accuracyLogs.length, val_acc });
 			lossLogs.push({ epoch: lossLogs.length, val_loss: result.history.val_loss[i] })
@@ -44,7 +45,7 @@ async function run(epochs, batchEpochs, batchSize, savePath) {
 		const averageVP = await testReward(true, model);
 		averageVPLogs.push({ epoch: lossLogs.length - 1, averageVP })
 
-		console.log(`averageVP: ${averageVP}`);
+		console.log(`averageVP: ${averageVP}, prevBestVp: ${bestAverageVp}`);
 		if (averageVP > bestAverageVp && savePath != null) {
 			bestAverageVp = averageVP;
 			if (!fs.existsSync(savePath)) {
@@ -73,4 +74,4 @@ async function sendConfigMessage(model) {
 	);
 }
 
-run(100, 1, 100, './models/supervised-dqn/');
+run(50, 1, 50, './models/supervised-dqn/');
