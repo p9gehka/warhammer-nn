@@ -34,7 +34,7 @@ export class PlayerAgent {
 		const prevState = this.env.getState();
 
 		if (action === BaseAction.Move) {
-			playerOrder = {action, id: this._selectedModel, vector: order.vector, expense: order.expense };
+			playerOrder = { action, id: this._selectedModel, vector: order.vector, expense: order.expense };
 		} else {
 			playerOrder = order;
 		}

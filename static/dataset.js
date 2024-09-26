@@ -13,14 +13,14 @@ const battlefield = new Battlefield(ctx, battlefieldSettings);
 await battlefield.init();
 battlefield.draw();
 
-const unitModels = Array(400).fill(0).map((v, i) => i);
-const models = Array(400).fill([NaN, NaN]);
+const unitModels = Array(50).fill(0).map((v, i) => i);
+const models = Array(50).fill([NaN, NaN]);
 const state = { units: [{ models:  unitModels }], battlefield: battlefieldSettings, models: models };
 async function start() {
 	const scene = new Scene(ctx, state);
 	await scene.init();
 	let i = 0;
-	await getRawDataset().take(400).forEachAsync(e => {
+	await getRawDataset().take(50).forEachAsync(e => {
 		models[i] = e[0][0][0];
 		countOrders[e[1]]++;
 		i++;

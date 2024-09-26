@@ -21,7 +21,7 @@ export async function testReward(silent, nn) {
 
 	if (nn === undefined) {
 		try {
-			players[0].load();
+			await players[0].load();
 		} catch(e) {
 			console.log(e.message);
 		}

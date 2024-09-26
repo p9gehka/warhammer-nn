@@ -29,10 +29,11 @@ async function run(epochs, batchEpochs, batchSize, savePath) {
 
 	const accuracyLogs = [];
 	const lossLogs = [];
+	const averageVPLogs = []
 	let bestAverageVp = 0;
 	for (let i = 0; i < epochs; i++) {
 		console.log(`New Data Epoch ${i}/${epochs}`);
-		const dataset = getDataset().shuffle(400).repeat().batch(batchSize);
+		const dataset = getDataset().batch(batchSize);
 		const result = await trainModelUsingFitDataset(model, dataset, batchEpochs, batchSize);
 		result.history.val_acc.forEach((val_acc, i) => {
 			accuracyLogs.push({ epoch: accuracyLogs.length, val_acc });
@@ -41,6 +42,8 @@ async function run(epochs, batchEpochs, batchSize, savePath) {
 
 		console.log('Get Average reward...');
 		const averageVP = await testReward(true, model);
+		averageVPLogs.push({ epoch: lossLogs.length - 1, averageVP })
+
 		console.log(`averageVP: ${averageVP}`);
 		if (averageVP > bestAverageVp && savePath != null) {
 			bestAverageVp = averageVP;
@@ -53,16 +56,18 @@ async function run(epochs, batchEpochs, batchSize, savePath) {
 	}
 
 	await sendConfigMessage(model);
+	await sendMessage(`Best AverageVp: ${bestAverageVp}`)
 	await sendDataToTelegram(lossLogs);
 	await sendDataToTelegram(accuracyLogs);
+	await sendDataToTelegram(averageVPLogs)
 
 	process.exit(0);
 }
 
 async function sendConfigMessage(model) {
 	await sendMessage(
-		model.layers.map(layer => `${layer.name.split('_')[0]}{${ ['filters', 'kernelSize', 'units', 'rate'].map(filter => layer[filter] ? `filter: ${layer[filter]}` : '').filter(v=>v !=='') }}` ).join('->')
+		model.layers.map(layer => `${layer.name.split('_')[0]}{${ ['filters', 'kernelSize', 'units', 'rate'].map(filter => layer[filter] ? `${filter}: ${layer[filter]}` : '').filter(v=>v !=='') }}` ).join('->')
 	);
 }
 
-run(50, 1, 400, './models/supervised-dqn/');
+run(4000, 1, 50, './models/supervised-dqn/');

@@ -23,37 +23,20 @@ function gameToFeaturesAndLabel(record) {
 	});
 }
 
-function getRandomStartPosition(exclude, battlefield) {
-	while(true) {
-		const axis = getRandomInteger(0, 2);
-		const edge = getRandomInteger(0, 2);
-
-		const result = [0, 0];
-		const padding = (getRandomInteger(0, 13) * (edge === 1 ? - 1 : 1));
-		result[axis]= edge * battlefield.size[axis] - 1 + padding;
-		result[(axis+1)%2] = getRandomInteger(0, battlefield.size[(axis+1)%2]);
-		if (!exclude.some(pos => eq(result, pos))) {
-			return result;
-		}
-	}
-}
 
 export function getRawDataset() {
-	const env = new Warhammer({ gameSettings, battlefields, getRandomStartPosition });
+	const env = new Warhammer({ gameSettings, battlefields });
 	const agent = new MoveAgent();
-	let nsteps = 0;
+
 	function getStateAndAnswer() {
 		const state = env.getState();
 		const selected = env.players[state.player].models[0];
 		const { orderIndex, order } = agent.playStep(state);
 		env.step({ ...order, id: selected });
-		if (nsteps === 1 || env.getState().done) {
-			env.reset();
-			env.models[selected].stamina = getRandomInteger(0, 10);
-			nsteps=0;
-		}
 		
-		nsteps++;
+		env.reset();
+		env.models[selected].stamina = getRandomInteger(0, 10);
+
 		return [agent.getInput(state), orderIndex];
 	}
 	function* getStateAndAnswerGeneratorFn() {

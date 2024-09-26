@@ -21,7 +21,7 @@ class Model extends Drawing {
 		}
 		const base = this.unitBase;
 		const radius = 1
-		this.ctx.fillStyle = this.playerId === 1 ? '#3e476b' : '#6b3e3e';
+		this.ctx.fillStyle = this.playerId === 1 ? '#3e476b' : '#6b3e3ec2';
 		this.ctx.strokeStyle = this.playerId === 1 ? 'blue' : 'red';
 		this.ctx.translate(0.5, 0.5);
 		this.fillPath(() => {
