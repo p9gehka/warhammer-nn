@@ -24,17 +24,17 @@ function gameToFeaturesAndLabel(record) {
 }
 
 export function getRandomStartPosition(exclude, battlefield) {
-	const paddingX = 0;
+	const pad = 4;
+	const paddingX = (battlefield.size[0]-battlefield.size[1] + pad) / 2;
 	const paddingY = 0;
 	while(true) {
-		let x1 = getRandomInteger(0 + paddingX, battlefield.size[0] - paddingX);
+		let x1 = getRandomInteger(0, paddingX) + (battlefield.size[1] + paddingX - pad) * getRandomInteger(0, 2);
 		let y1 = getRandomInteger(0 + paddingY, battlefield.size[1] - paddingY);
 		if (!exclude.some(pos => eq([x1, y1], pos))) {
 			return [x1, y1];
 		}
 	}
 }
-
 
 export function getRawDataset() {
 	const env = new Warhammer({ gameSettings, battlefields, getRandomStartPosition });

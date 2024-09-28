@@ -38,7 +38,7 @@ export async function run(epochs, batchesPerEpoch, savePath, nn) {
 	const accuracyLogs = [];
 	const lossLogs = [];
 	const averageVPLogs = []
-	let bestAverageVp = 0;
+	let bestVal_loss = 10000;
 
 	let dataset = getDataset().batch(batchesPerEpoch);
 
@@ -50,12 +50,12 @@ export async function run(epochs, batchesPerEpoch, savePath, nn) {
 		validationBatches: 30,
 		callbacks: {
 			onEpochEnd: async (epoch, { val_acc, val_loss }) => {
-				console.log('Get Average reward...');
-				const averageVP = await testReward(true, model);
-				console.log(`averageVP: ${averageVP}, prevBestVp: ${bestAverageVp}`);
-
-				if (averageVP > bestAverageVp && savePath != null) {
-					bestAverageVp = averageVP;
+				//console.log('Get Average reward...');
+				//const averageVP = await testReward(true, model);
+				//console.log(`averageVP: ${averageVP}, prevBestVp: ${bestVal_loss}`);
+				console.log(`prevBestLoss: ${bestVal_loss}`)
+				if (val_loss < bestVal_loss && savePath != null) {
+					bestVal_loss = val_loss;
 					if (!fs.existsSync(savePath)) {
 						shelljs.mkdir('-p', savePath);
 					}
@@ -64,7 +64,7 @@ export async function run(epochs, batchesPerEpoch, savePath, nn) {
 				}
 
 				accuracyLogs.push({ epoch, val_acc });
-				averageVPLogs.push({ epoch, averageVP });
+				//averageVPLogs.push({ epoch, averageVP });
 				lossLogs.push({ epoch, val_loss });
 			}
 		}
@@ -72,10 +72,10 @@ export async function run(epochs, batchesPerEpoch, savePath, nn) {
 
 	await model.fitDataset(dataset, fitDatasetArgs);
 	await sendConfigMessage(model);
-	await sendMessage(`Best AverageVp: ${bestAverageVp}`)
+	await sendMessage(`Best AverageVp: ${bestVal_loss}`)
 	await sendDataToTelegram(lossLogs);
 	await sendDataToTelegram(accuracyLogs);
-	await sendDataToTelegram(averageVPLogs);
+	//await sendDataToTelegram(averageVPLogs);
 }
 
 

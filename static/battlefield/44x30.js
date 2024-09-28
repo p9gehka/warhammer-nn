@@ -47,3 +47,10 @@ export class Center44x30 extends DeploymentCommon {
 	nomansland_markers = [[22, 15]];
 	objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 }
+
+export class BigCenter44x30 extends DeploymentCommon {
+	objective_marker_control_distance=15;
+	deploy_markers = [];
+	nomansland_markers = [[22, 15]];
+	objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
+}
