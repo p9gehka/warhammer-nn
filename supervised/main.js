@@ -17,14 +17,14 @@
 import * as fs from 'fs';
 import shelljs from 'shelljs';
 import { getTF } from '../static/utils/get-tf.js';
-import { model } from './model.js'
-import { trainModelUsingFitDataset } from './supervised-train.js';
+import { model as modelImport } from './model.js'
 import { getDataset } from '../static/utils/get-dataset.js';
 import { sendDataToTelegram, sendMessage } from '../visualization/utils.js';
 import { testReward } from '../tests/test-reward.js';
 const tf = await getTF();
 
-async function run(epochs, batchesPerEpoch, savePath) {
+export async function run(epochs, batchesPerEpoch, savePath, nn) {
+	const model = nn ?? modelImport;
 	model.summary();
 
 	const accuracyLogs = [];
@@ -68,14 +68,11 @@ async function run(epochs, batchesPerEpoch, savePath) {
 	await sendDataToTelegram(lossLogs);
 	await sendDataToTelegram(accuracyLogs);
 	await sendDataToTelegram(averageVPLogs);
-
-	process.exit(0);
 }
+
 
 async function sendConfigMessage(model) {
 	await sendMessage(
 		model.layers.map(layer => `${layer.name.split('_')[0]}{${ ['filters', 'kernelSize', 'units', 'rate'].map(filter => layer[filter] ? `${filter}: ${layer[filter]}` : '').filter(v=>v !=='') }}` ).join('->')
 	);
 }
-
-run(200, 50, './models/supervised-dqn/');

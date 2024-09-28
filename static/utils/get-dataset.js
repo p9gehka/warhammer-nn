@@ -24,8 +24,8 @@ function gameToFeaturesAndLabel(record) {
 }
 
 export function getRandomStartPosition(exclude, battlefield) {
-	const paddingX = 12;
-	const paddingY = 5;
+	const paddingX = 0;//7
+	const paddingY = 0;
 	while(true) {
 		let x1 = getRandomInteger(0 + paddingX, battlefield.size[0] - paddingX);
 		let y1 = getRandomInteger(0 + paddingY, battlefield.size[1] - paddingY);
@@ -34,7 +34,6 @@ export function getRandomStartPosition(exclude, battlefield) {
 		}
 	}
 }
-
 
 
 export function getRawDataset() {

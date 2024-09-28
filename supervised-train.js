@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { getTF } from './static/utils/get-tf.js';
-import { train } from './supervised/supervised-train.js';
+import { run } from './supervised/main.js';
 
 const tf = await getTF();
 const savePath = '../models/supervised-dqn/';
@@ -14,7 +14,7 @@ async function main() {
 			console.log(e.message);
 		}
 	}
-	await train(nn);
+	await run(200, 50, './models/supervised-dqn/', nn);
 	process.exit(0);
 	return;
 }
