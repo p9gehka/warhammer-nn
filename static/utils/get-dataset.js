@@ -23,9 +23,22 @@ function gameToFeaturesAndLabel(record) {
 	});
 }
 
+export function getRandomStartPosition(exclude, battlefield) {
+	const paddingX = 12;
+	const paddingY = 5;
+	while(true) {
+		let x1 = getRandomInteger(0 + paddingX, battlefield.size[0] - paddingX);
+		let y1 = getRandomInteger(0 + paddingY, battlefield.size[1] - paddingY);
+		if (!exclude.some(pos => eq([x1, y1], pos))) {
+			return [x1, y1];
+		}
+	}
+}
+
+
 
 export function getRawDataset() {
-	const env = new Warhammer({ gameSettings, battlefields });
+	const env = new Warhammer({ gameSettings, battlefields, getRandomStartPosition });
 	const agent = new MoveAgent();
 
 	function getStateAndAnswer() {
