@@ -10,8 +10,8 @@ async function main() {
 		try {
 			nn = await tf.loadLayersModel(`file://${savePath}/loading/model.json`);
 			const blockLayers = [0, 2];
+			console.log(`Block ${blockLayers.length} layers`)
 			for (let i =0; i <= blockLayers.length; i++) {
-				console.log(nn.layers[blockLayers[i]])
 				nn.layers[blockLayers[i]].trainable = false;
 			}
 
