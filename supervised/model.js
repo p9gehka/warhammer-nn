@@ -23,11 +23,3 @@ const tf = await getTF();
 export const model = createDeepQNetwork(MoveAgent.settings.orders.length, MoveAgent.settings.width, MoveAgent.settings.height, MoveAgent.settings.channels.length)
 
 model.add(tf.layers.softmax());
-
-const optimizer = tf.train.adam(0.001);
-model.compile({
-  optimizer: optimizer,
-  loss: 'categoricalCrossentropy',
-  metrics: ['accuracy'],
-});
-

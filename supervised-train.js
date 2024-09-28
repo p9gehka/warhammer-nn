@@ -10,7 +10,10 @@ async function main() {
 		try {
 			nn = await tf.loadLayersModel(`file://${savePath}/loading/model.json`);
 
-			nn.layers[0].trainable = false;
+			for (let i =0; i < 2; i++) {
+				nn.layers[i].trainable = false;
+			}
+
 			console.log(`Loaded from ${savePath}/loading/model.json`);
 		} catch (e) {
 			console.log(e.message);
