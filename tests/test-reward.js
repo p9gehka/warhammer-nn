@@ -4,6 +4,7 @@ import { filterObjByKeys } from '../static/utils/index.js';
 import { PlayerAgent } from '../static/players/player-agent.js';
 import { Rewarder } from '../students/student.js';
 import { MovingAverager } from '../moving-averager.js';
+import { getRandomStartPosition } from '../static/utils/get-dataset.js';
 
 import config from '../config.json' assert { type: 'json' };
 import gameSettings from '../static/settings/game-settings.json' assert { type: 'json' };
@@ -14,7 +15,7 @@ let battlefields = config.battlefields.length > 0 ? filterObjByKeys(allBattlefie
 const rewardAveragerLen = 200;
 
 export async function testReward(silent, nn) {
-	const env = new Warhammer({ gameSettings, battlefields });
+	const env = new Warhammer({ gameSettings, battlefields,  getRandomStartPosition });
 	const players = [new PlayerAgent(0, env), new PlayerDumb(env)];
 	players[0].agent.onlineNetwork = nn;
 	const rewarder = new Rewarder(0, env);
@@ -26,7 +27,6 @@ export async function testReward(silent, nn) {
 			console.log(e.message);
 		}
 	}
-
 
 	let state = env.reset();
 	players.forEach(player => player.reset());
