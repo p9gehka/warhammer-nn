@@ -97,4 +97,4 @@ const hyperTFJS = async (epochs, batchesPerEpoch) => {
 	console.log('best kernelSize3:', opt.kernelSize3);
 }
 
-hyperTFJS(35, 50);
+hyperTFJS(70, 50);
