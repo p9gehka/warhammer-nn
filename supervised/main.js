@@ -78,4 +78,4 @@ async function sendConfigMessage(model) {
 	);
 }
 
-run(35, 50, './models/supervised-dqn/');
+run(70, 50, './models/supervised-dqn/');
