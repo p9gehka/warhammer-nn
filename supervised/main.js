@@ -27,6 +27,14 @@ export async function run(epochs, batchesPerEpoch, savePath, nn) {
 	const model = nn ?? modelImport;
 	model.summary();
 
+	const optimizer = tf.train.adam(0.001);
+	model.compile({
+		optimizer: optimizer,
+		loss: 'categoricalCrossentropy',
+		metrics: ['accuracy'],
+	});
+
+
 	const accuracyLogs = [];
 	const lossLogs = [];
 	const averageVPLogs = []

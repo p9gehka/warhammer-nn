@@ -3,7 +3,7 @@ import { getTF } from './static/utils/get-tf.js';
 import { run } from './supervised/main.js';
 
 const tf = await getTF();
-const savePath = '../models/supervised-dqn/';
+const savePath = './models/supervised-dqn/';
 async function main() {
 	let nn;
 	if (fs.existsSync(`${savePath}/loading/model.json`)) {
