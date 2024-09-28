@@ -24,7 +24,7 @@ export const model = createDeepQNetwork(MoveAgent.settings.orders.length, MoveAg
 
 model.add(tf.layers.softmax());
 
-const optimizer = tf.train.adam(0.0001);
+const optimizer = tf.train.adam(0.001);
 model.compile({
   optimizer: optimizer,
   loss: 'categoricalCrossentropy',

@@ -24,41 +24,46 @@ import { sendDataToTelegram, sendMessage } from '../visualization/utils.js';
 import { testReward } from '../tests/test-reward.js';
 const tf = await getTF();
 
-async function run(epochs, batchEpochs, batchSize, savePath) {
+async function run(epochs, batchesPerEpoch, savePath) {
 	model.summary();
 
 	const accuracyLogs = [];
 	const lossLogs = [];
 	const averageVPLogs = []
 	let bestAverageVp = 0;
-	for (let i = 0; i < epochs; i++) {
-		console.log(`New Data Epoch ${i}/${epochs}`);
-		const dataset = getDataset().batch(batchSize);
-		const validationDataset = getDataset().batch(20);
-		const result = await trainModelUsingFitDataset(model, dataset, validationDataset, batchEpochs, batchSize);
-		result.history.val_acc.forEach((val_acc, i) => {
-			accuracyLogs.push({ epoch: accuracyLogs.length, val_acc });
-			lossLogs.push({ epoch: lossLogs.length, val_loss: result.history.val_loss[i] })
-		});
 
-		console.log('Get Average reward...');
-		const averageVP = await testReward(true, model);
-		averageVPLogs.push({ epoch: lossLogs.length - 1, averageVP })
+	//console.log(`New Data Epoch ${i}/${epochs}`);
+	let dataset = getDataset().batch(batchesPerEpoch);
 
-		console.log(`averageVP: ${averageVP}, prevBestVp: ${bestAverageVp}`);
-		if (averageVP > bestAverageVp && savePath != null) {
-			bestAverageVp = averageVP;
-			if (!fs.existsSync(savePath)) {
-				shelljs.mkdir('-p', savePath);
+	const fitDatasetArgs = {
+		batchSize: 32,
+		batchesPerEpoch,
+		epochs,
+		validationData: dataset,
+		validationBatches: 30,
+		callbacks: {
+			onEpochEnd: async (epoch, { val_acc, val_loss }) => {
+				console.log('Get Average reward...');
+				const averageVP = await testReward(true, model);
+				console.log(`averageVP: ${averageVP}, prevBestVp: ${bestAverageVp}`);
+
+				if (averageVP > bestAverageVp && savePath != null) {
+					bestAverageVp = averageVP;
+					if (!fs.existsSync(savePath)) {
+						shelljs.mkdir('-p', savePath);
+					}
+					await model.save(`file://${savePath}`);
+					console.log(`Saved DQN to ${savePath}`);
+				}
+
+				accuracyLogs.push({ epoch, val_acc });
+				averageVPLogs.push({ epoch, averageVP });
+				lossLogs.push({ epoch, val_loss });
 			}
-			await model.save(`file://${savePath}`);
-			console.log(`Saved DQN to ${savePath}`);
 		}
-		if (averageVP > 17) {
-			break;
-		}
-	}
+	};
 
+	await model.fitDataset(dataset, fitDatasetArgs);
 	await sendConfigMessage(model);
 	await sendMessage(`Best AverageVp: ${bestAverageVp}`)
 	await sendDataToTelegram(lossLogs);
@@ -74,4 +79,4 @@ async function sendConfigMessage(model) {
 	);
 }
 
-run(30, 2, 50, './models/supervised-dqn/');
+run(35, 50, './models/supervised-dqn/');
