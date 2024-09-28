@@ -1,84 +1,101 @@
 import { getTF } from './static/utils/get-tf.js';
-import { trainModelUsingFitDataset, getDataset } from './supervised/supervised-train.js';
+import { getDataset } from './static/utils/get-dataset.js';
 import { MoveAgent } from './static/agents/move-agent/move-center-agent.js';
 import { createDeepQNetwork } from './dqn/dqn.js';
-import { sendMessage } from './visualization/utils.js';
+import { sendMessage, sendDataToTelegram } from './visualization/utils.js';
+import { testReward } from './tests/test-reward.js';
 import * as hpjs from 'hyperparameters';
 
 const tf = await getTF();
-const optimizers = {
-  sgd: tf.train.sgd,
-  adagrad: tf.train.adagrad,
-  adam: tf.train.adam,
-  adamax: tf.train.adamax,
-  rmsprop: tf.train.rmsprop,
-}
 
-const batchSize = 25;
-const epochs = 50;
 
-const optFunction = async (params, { dataset }) => {
+const optFunction = async (params, { dataset, epochs, batchesPerEpoch }) => {
 	const {
-		kernelRegularizer1, kernelRegularizer2, kernelRegularizer3, learningRate,
-		filter1, filter2, filter3,
 		kernelSize1, kernelSize2, kernelSize3,
-		units4, rate4
 	} = params;
 	const model = createDeepQNetwork(
 		MoveAgent.settings.orders.length, MoveAgent.settings.width, MoveAgent.settings.height, MoveAgent.settings.channels.length,
 		[
-			{kernelRegularizer: kernelRegularizer1, filter: filter1, kernelSize: kernelSize1},
-			{kernelRegularizer: kernelRegularizer2, filter: filter2, kernelSize: kernelSize2},
-			{kernelRegularizer: kernelRegularizer3, filter: filter3, kernelSize: kernelSize3},
-			{units: units4, rate: rate4}
+			{kernelSize: kernelSize1 },
+			{kernelSize: kernelSize2 },
+			{kernelSize: kernelSize3 },
 		]
 	);
 	model.add(tf.layers.softmax());
-	const opimizer = optimizers['adam'](learningRate);
+
+	const optimizer = tf.train.adam(0.001);
 	model.compile({
-		optimizer: opimizer,
+		optimizer: optimizer,
 		loss: 'categoricalCrossentropy',
 		metrics: ['accuracy'],
 	});
 
-	// train model using defined data
+	const accuracyLogs = [];
+	const lossLogs = [];
+	const averageVPLogs = []
+	let bestAverageVp = 0;
 
-	const h = await trainModelUsingFitDataset(model, dataset, epochs, batchSize);
-	sendMessage(JSON.stringify(params));
-	return { accuracy: h.history.val_acc[h.history.val_acc.length - 1], status: hpjs.STATUS_OK } ;
+
+	const fitDatasetArgs = {
+		batchSize: 32,
+		batchesPerEpoch,
+		epochs,
+		validationData: dataset,
+		validationBatches: 30,
+		callbacks: {
+			onEpochEnd: async (epoch, { val_acc, val_loss }) => {
+				console.log('Get Average reward...');
+				const averageVP = await testReward(true, model);
+				console.log(`averageVP: ${averageVP}, prevBestVp: ${bestAverageVp}`);
+
+				if (averageVP > bestAverageVp) {
+					bestAverageVp = averageVP;
+				}
+
+				accuracyLogs.push({ epoch, val_acc });
+				averageVPLogs.push({ epoch, averageVP });
+				lossLogs.push({ epoch, val_loss });
+			}
+		}
+	};
+
+	const result = await model.fitDataset(dataset, fitDatasetArgs);
+	await sendConfigMessage(model);
+	await sendMessage(`Best AverageVp: ${bestAverageVp}`)
+	await sendDataToTelegram(lossLogs);
+	await sendDataToTelegram(accuracyLogs);
+	await sendDataToTelegram(averageVPLogs);
+
+	return { loss: result.history.loss[result.history.loss.length - 1], status: hpjs.STATUS_OK } ;
 };
 
-const hyperTFJS = async () => {
-	const dataset = getDataset().batch(batchSize);
+async function sendConfigMessage(model) {
+	await sendMessage(
+		model.layers.map(layer => `${layer.name.split('_')[0]}{${ ['filters', 'kernelSize', 'units', 'rate'].map(filter => layer[filter] ? `${filter}: ${layer[filter]}` : '').filter(v=>v !=='') }}` ).join('->')
+	);
+}
+
+const hyperTFJS = async (epochs, batchesPerEpoch) => {
+	let dataset = getDataset().batch(batchesPerEpoch);
 	// defining a search space we want to optimize. Using hpjs parameters here
 	const space = {
-		kernelRegularizer1: hpjs.choice([undefined, 'l1l2']),
-		kernelRegularizer2: hpjs.choice([undefined, 'l1l2']),
-		kernelRegularizer3: hpjs.choice([undefined, 'l1l2']),
-		filter1: hpjs.choice([8, 16, 32, 64]),
-		filter2: hpjs.choice([8, 16, 32, 64]),
-		filter3: hpjs.choice([8, 16, 32, 64]),
-		kernelSize1: hpjs.choice([3,4,8,12]),
-		kernelSize2: hpjs.choice([3,4,8,12]),
-		kernelSize3: hpjs.choice([3,4,8,12]),
-		learningRate: hpjs.choice([0.01, 0.001, 0.0001, 0.00001, 0.000001, 0.0000001]),
-		units4: hpjs.choice([256,512,768,1024]),
-		rate4: hpjs.choice([0.2,0.5,0.7]),
+		kernelSize1: hpjs.choice([[6,4], [6, 6], [4, 4]]),
+		kernelSize2: hpjs.choice([[4,3], [4, 4], [3, 3]]),
+		kernelSize3: hpjs.choice([[4,3], [4, 4], [3, 3]]),
 	};
 
 	// finding the optimal hyperparameters using hpjs.fmin. Here, 6 is the # of times the optimization function will be called (this can be changed)
 	const trials = await hpjs.fmin(
-		optFunction, space, hpjs.search.randomSearch, 999,
-		{ rng: new hpjs.RandomState(654321), dataset }
+		optFunction, space, hpjs.search.randomSearch, 3 * 3 * 3,
+		{ rng: new hpjs.RandomState(654321), dataset, epochs, batchesPerEpoch }
 	);
 
 	const opt = trials.argmin;
 
 	//printing out data
-	console.log('trials', trials);
-	console.log('best kernelRegularizer1:', opt.kernelRegularizer1);
-	console.log('best kernelRegularizer2:', opt.kernelRegularizer2);
-	console.log('best kernelRegularizer3:', opt.kernelRegularizer3);
+	console.log('best kernelSize1:', opt.kernelSize1);
+	console.log('best kernelSize2:', opt.kernelSize2);
+	console.log('best kernelSize3:', opt.kernelSize3);
 }
 
-hyperTFJS();
+hyperTFJS(35, 50);

@@ -32,7 +32,6 @@ async function run(epochs, batchesPerEpoch, savePath) {
 	const averageVPLogs = []
 	let bestAverageVp = 0;
 
-	//console.log(`New Data Epoch ${i}/${epochs}`);
 	let dataset = getDataset().batch(batchesPerEpoch);
 
 	const fitDatasetArgs = {
@@ -68,7 +67,7 @@ async function run(epochs, batchesPerEpoch, savePath) {
 	await sendMessage(`Best AverageVp: ${bestAverageVp}`)
 	await sendDataToTelegram(lossLogs);
 	await sendDataToTelegram(accuracyLogs);
-	await sendDataToTelegram(averageVPLogs)
+	await sendDataToTelegram(averageVPLogs);
 
 	process.exit(0);
 }
