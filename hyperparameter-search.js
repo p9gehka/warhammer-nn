@@ -79,13 +79,13 @@ const hyperTFJS = async (epochs, batchesPerEpoch) => {
 	// defining a search space we want to optimize. Using hpjs parameters here
 	const space = {
 		kernelSize1: hpjs.choice([[6,4], [6, 5], [5, 5]]),
-		kernelSize2: hpjs.choice([[4,3], [5, 5]]),
-		kernelSize3: hpjs.choice([[4,3], [5, 5]]),
+		kernelSize2: hpjs.choice([[4,3], [5, 5], [5, 3]]),
+		kernelSize3: hpjs.choice([[4,3], [5, 5], [5, 3]]),
 	};
 
 	// finding the optimal hyperparameters using hpjs.fmin. Here, 6 is the # of times the optimization function will be called (this can be changed)
 	const trials = await hpjs.fmin(
-		optFunction, space, hpjs.search.randomSearch, 3 * 2 * 2,
+		optFunction, space, hpjs.search.randomSearch, 3 * 3 * 3,
 		{ dataset, epochs, batchesPerEpoch }
 	);
 
