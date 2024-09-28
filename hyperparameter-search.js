@@ -10,9 +10,8 @@ const tf = await getTF();
 
 
 const optFunction = async (params, { dataset, epochs, batchesPerEpoch }) => {
-	const {
-		kernelSize1, kernelSize2, kernelSize3,
-	} = params;
+	const { kernelSize1, kernelSize2, kernelSize3 } = params;
+	console.log(params)
 	const model = createDeepQNetwork(
 		MoveAgent.settings.orders.length, MoveAgent.settings.width, MoveAgent.settings.height, MoveAgent.settings.channels.length,
 		[
