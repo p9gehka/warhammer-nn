@@ -9,6 +9,8 @@ async function main() {
 	if (fs.existsSync(`${savePath}/loading/model.json`)) {
 		try {
 			nn = await tf.loadLayersModel(`file://${savePath}/loading/model.json`);
+
+			nn.layers[0].trainable = false;
 			console.log(`Loaded from ${savePath}/loading/model.json`);
 		} catch (e) {
 			console.log(e.message);
