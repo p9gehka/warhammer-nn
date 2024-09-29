@@ -39,6 +39,7 @@ export async function run(epochs, batchesPerEpoch, savePath, nn) {
 	const lossLogs = [];
 	const averageVPLogs = []
 	let bestVal_loss = 10000;
+	let bestAverageVP = 0;
 
 	let dataset = getDataset().batch(batchesPerEpoch);
 
@@ -47,13 +48,16 @@ export async function run(epochs, batchesPerEpoch, savePath, nn) {
 		batchesPerEpoch,
 		epochs,
 		validationData: dataset,
-		validationBatches: 30,
+		validationBatches: 50,
 		callbacks: {
 			onEpochEnd: async (epoch, { val_acc, val_loss }) => {
-				//console.log('Get Average reward...');
-				//const averageVP = await testReward(true, model);
-				//console.log(`averageVP: ${averageVP}, prevBestVp: ${bestVal_loss}`);
+				console.log('Get Average reward...');
+				const averageVP = await testReward(true, model);
+				console.log(`averageVP: ${averageVP}, prevBestVp: ${bestAverageVP}`);
 				console.log(`prevBestLoss: ${bestVal_loss}`)
+				if (bestAverageVP < averageVP) {
+					bestAverageVP = averageVP;
+				}
 				if (val_loss < bestVal_loss && savePath != null) {
 					bestVal_loss = val_loss;
 					if (!fs.existsSync(savePath)) {
@@ -64,7 +68,7 @@ export async function run(epochs, batchesPerEpoch, savePath, nn) {
 				}
 
 				accuracyLogs.push({ epoch, val_acc });
-				//averageVPLogs.push({ epoch, averageVP });
+				averageVPLogs.push({ epoch, averageVP });
 				lossLogs.push({ epoch, val_loss });
 			}
 		}

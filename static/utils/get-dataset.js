@@ -24,7 +24,7 @@ function gameToFeaturesAndLabel(record) {
 }
 
 export function getRandomStartPosition(exclude, battlefield) {
-	const pad = 4;
+	const pad = -2;
 	const paddingX = (battlefield.size[0]-battlefield.size[1] + pad) / 2;
 	const paddingY = 0;
 	while(true) {
