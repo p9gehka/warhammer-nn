@@ -20,7 +20,7 @@ async function main() {
 			console.log(e.message);
 		}
 	}
-	await run(200, 50, './models/supervised-dqn/', nn);
+	await run(100, 50, './models/supervised-dqn/', nn);
 	process.exit(0);
 	return;
 }
