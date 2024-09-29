@@ -54,7 +54,7 @@ export async function run(epochs, batchesPerEpoch, savePath, nn) {
 				console.log('Get Average reward...');
 				const averageVP = await testReward(true, model);
 				console.log(`averageVP: ${averageVP}, prevBestVp: ${bestAverageVP}, prevBestLoss: ${bestVal_loss}`);
-				if (bestAverageVP > averageVP) {
+				if (bestAverageVP < averageVP) {
 					bestAverageVP = averageVP;
 					if (savePath != null) {
 						if (!fs.existsSync(savePath)) {
