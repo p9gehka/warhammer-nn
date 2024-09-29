@@ -44,7 +44,7 @@ export class MoveAgent extends MoveAgentBase {
 		return { order: this.orders[orderIndex], orderIndex, estimate: 0 };
 	}
 
-	playStep(state) {
+	_playStep(state) {
 		let orderIndex = 0;
 		const input = this.getInput(state);
 		if (input[Channel1Name.Stamina0].length > 0) {
@@ -57,6 +57,31 @@ export class MoveAgent extends MoveAgentBase {
 				orderIndex = 0
 			} else {
 				const axis = x >= 14 || x <= -13 || y === 0 ? 0 : 1;
+				let value =  Math.max(-stamina, Math.min(vector[axis], stamina))
+				value = Math.abs(value) >= 6 ? Math.max(-6, Math.min(6, value)) : Math.sign(value);
+				orderIndex = this.orders.findIndex(order => order.action === BaseAction.Move && order.vector[axis] === value && order.vector[(axis+1)%2] === 0)
+				if (orderIndex === -1) {
+					console.log(x, y, axis, value)
+				}
+			}
+		}
+
+		return { order: this.orders[orderIndex], orderIndex, estimate: 0 };
+	}
+
+	playStep(state) {
+		let orderIndex = 0;
+		const input = this.getInput(state);
+		if (input[Channel1Name.Stamina0].length > 0) {
+			orderIndex = 0;
+		} else {
+			const vector = mul(sub(input[0][0], [22, 15]), -1);
+			let [x, y] = vector;
+			let stamina = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].findIndex(v => input[`Stamina${v}`].length > 0);
+			if (x === 0 && y === 0) {
+				orderIndex = 0
+			} else {
+				const axis = y >= 7 || y <= -6|| x === 0 ? 1 : 0;
 				let value =  Math.max(-stamina, Math.min(vector[axis], stamina))
 				value = Math.abs(value) >= 6 ? Math.max(-6, Math.min(6, value)) : Math.sign(value);
 				orderIndex = this.orders.findIndex(order => order.action === BaseAction.Move && order.vector[axis] === value && order.vector[(axis+1)%2] === 0)

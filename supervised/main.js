@@ -58,13 +58,15 @@ export async function run(epochs, batchesPerEpoch, savePath, nn) {
 				if (bestAverageVP < averageVP) {
 					bestAverageVP = averageVP;
 				}
-				if (val_loss < bestVal_loss && savePath != null) {
+				if (val_loss < bestVal_loss) {
 					bestVal_loss = val_loss;
-					if (!fs.existsSync(savePath)) {
-						shelljs.mkdir('-p', savePath);
+					if (savePath != null) {
+						if (!fs.existsSync(savePath)) {
+							shelljs.mkdir('-p', savePath);
+						}
+						await model.save(`file://${savePath}`);
+						console.log(`Saved DQN to ${savePath}`);
 					}
-					await model.save(`file://${savePath}`);
-					console.log(`Saved DQN to ${savePath}`);
 				}
 
 				accuracyLogs.push({ epoch, val_acc });
@@ -79,7 +81,7 @@ export async function run(epochs, batchesPerEpoch, savePath, nn) {
 	await sendMessage(`Best AverageVp: ${bestVal_loss}`)
 	await sendDataToTelegram(lossLogs);
 	await sendDataToTelegram(accuracyLogs);
-	//await sendDataToTelegram(averageVPLogs);
+	await sendDataToTelegram(averageVPLogs);
 }
 
 
