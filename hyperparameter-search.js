@@ -10,15 +10,15 @@ const tf = await getTF();
 
 
 const optFunction = async (params, { dataset, epochs, batchesPerEpoch }) => {
-	const { units4 } = params;
+	const { filters1, filters2, filters3 } = params;
 	console.log(params)
 	const model = createDeepQNetwork(
 		MoveAgent.settings.orders.length, MoveAgent.settings.width, MoveAgent.settings.height, MoveAgent.settings.channels.length,
 		[
-			{ },
-			{},
-			{},
-			{units: units4}
+			{ filters: filters1 },
+			{ filters: filters2 },
+			{ filters: filters3 },
+			{}
 		]
 	);
 	model.add(tf.layers.softmax());
@@ -79,12 +79,14 @@ const hyperTFJS = async (epochs, batchesPerEpoch) => {
 	let dataset = getDataset().batch(batchesPerEpoch);
 	// defining a search space we want to optimize. Using hpjs parameters here
 	const space = {
-		units4: hpjs.choice([128, 256, 512, 728, 1028, 2056]),
+		filters1: hpjs.choice([16, 12, 8, 6, 4]),
+		filters2: hpjs.choice([16, 12, 8, 6, 4]),
+		filters3: hpjs.choice([16, 12, 8, 6, 4]),
 	};
 
 	// finding the optimal hyperparameters using hpjs.fmin. Here, 6 is the # of times the optimization function will be called (this can be changed)
 	const trials = await hpjs.fmin(
-		optFunction, space, hpjs.search.randomSearch, 3 * 3 * 3,
+		optFunction, space, hpjs.search.randomSearch, 5 * 5 * 5,
 		{ dataset, epochs, batchesPerEpoch }
 	);
 
@@ -96,4 +98,4 @@ const hyperTFJS = async (epochs, batchesPerEpoch) => {
 	console.log('best kernelSize3:', opt.kernelSize3);
 }
 
-hyperTFJS(200, 50);
+hyperTFJS(100, 50);
