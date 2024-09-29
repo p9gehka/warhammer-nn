@@ -53,13 +53,9 @@ export async function run(epochs, batchesPerEpoch, savePath, nn) {
 			onEpochEnd: async (epoch, { val_acc, val_loss }) => {
 				console.log('Get Average reward...');
 				const averageVP = await testReward(true, model);
-				console.log(`averageVP: ${averageVP}, prevBestVp: ${bestAverageVP}`);
-				console.log(`prevBestLoss: ${bestVal_loss}`)
-				if (bestAverageVP < averageVP) {
+				console.log(`averageVP: ${averageVP}, prevBestVp: ${bestAverageVP}, prevBestLoss: ${bestVal_loss}`);
+				if (bestAverageVP > averageVP) {
 					bestAverageVP = averageVP;
-				}
-				if (val_loss < bestVal_loss) {
-					bestVal_loss = val_loss;
 					if (savePath != null) {
 						if (!fs.existsSync(savePath)) {
 							shelljs.mkdir('-p', savePath);
@@ -67,6 +63,9 @@ export async function run(epochs, batchesPerEpoch, savePath, nn) {
 						await model.save(`file://${savePath}`);
 						console.log(`Saved DQN to ${savePath}`);
 					}
+				}
+				if (val_loss < bestVal_loss) {
+					bestVal_loss = val_loss;
 				}
 
 				accuracyLogs.push({ epoch, val_acc });
