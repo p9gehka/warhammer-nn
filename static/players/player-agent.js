@@ -47,7 +47,7 @@ export class PlayerAgent {
 		if (this.agent.onlineNetwork === undefined) {
 			return;
 		}
-		const [_, height, width] = this.agent.onlineNetwork.inputs[0].shape;
+		const [_, width, height] = this.agent.onlineNetwork.inputs[0].shape;
 		const [fieldHeight, fieldWidth] = this.env.battlefield.size;
 		if (fieldHeight !== height || fieldWidth !== width) {
 			console.warn(`!!!!Map size and Network input are inconsistent: ${[fieldHeight, fieldWidth]} !== ${[height, width]}!!!`)
