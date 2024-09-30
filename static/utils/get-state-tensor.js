@@ -40,7 +40,7 @@ export function getStateTensor1(state, h, w, channels) {
 			}
 			const enitities = state[entity].forEach(yx => {
 				/* rotate wh to hwc*/
-				buffer.set(channel[entity], n, yx[1], yx[0], i);
+				buffer.set(channel[entity], yx[1], yx[0], i);
 			});
 		}
 	});
