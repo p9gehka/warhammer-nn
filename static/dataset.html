@@ -1,0 +1,24 @@
+<head>
+	<script src="library/tfjs.min.js"></script>
+	<script type="module" src="dataset.js"></script>
+	<link rel="stylesheet" href="index.css">
+</head>
+<body>
+	<main class="main">
+		<div class="left-panel">
+			<header class="header">
+				<div id="header"></div>
+				<div class="header-controls">
+					<input type="checkbox" id="view-checkbox"/>
+					<button id="restart">Restart</button>
+				</div>
+			</header>
+			<ul id="history-list" class="history-list"></ul>
+			<ul id="orders-list" class="orders-list"></ul>
+		</div>
+		<div class="right-pane">
+			<canvas width="900" height="660" id="canvas" class="canvas"></canvas>
+			<table id="table" class="table hidden"></table>
+		</div>
+	</main>
+</body>

@@ -31,6 +31,8 @@ import {
 	SweepingRaid,
 	DisplayOfMight,
 	Empty44x30,
+	Center44x30,
+	BigCenter44x30,
 } from './44x30.js';
 
 import {
@@ -98,6 +100,8 @@ export const deployment = {
 	"sweepingRaid": SweepingRaid,
 	"displayOfMight": DisplayOfMight,
 	"empty44x30": Empty44x30,
+	"center44x30": Center44x30,
+	"bigCenter44x30": BigCenter44x30,
 
 	"smallFull1": SmallFull1,
 	"smallFull2": SmallFull2,

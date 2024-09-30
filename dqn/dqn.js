@@ -14,10 +14,18 @@
  * limitations under the License.
  * =============================================================================
  */
+/*
+ 4, 8, 12
+ 4, 12
+
+ 12, 12; 8, 12
+*/
 import { getTF } from '../static/utils/get-tf.js';
 const tf = await getTF();
 
-export function createDeepQNetwork(numActions, h, w, c) {
+const defaultHyperparams = [{}, {}, {}, {}];
+
+export function createDeepQNetwork(numActions, h, w, c, hyperParams = defaultHyperparams) {
 	if (!(Number.isInteger(h) && h > 0)) {
 		throw new Error(`Expected height to be a positive integer, but got ${h}`);
 	}
@@ -31,13 +39,13 @@ export function createDeepQNetwork(numActions, h, w, c) {
 	}
 	const inputShape = [h, w, c];
 	const model = tf.sequential();
-	model.add(tf.layers.conv2d({filters: 8, kernelSize: 6, activation: 'relu', inputShape }));
+	model.add(tf.layers.conv2d({filters: 8, kernelSize: 6, activation: 'relu', inputShape, ...hyperParams[0] }));
 	model.add(tf.layers.batchNormalization());
-	model.add(tf.layers.conv2d({filters: 16, kernelSize: 4, activation: 'relu'}));
+	model.add(tf.layers.conv2d({filters: 16, kernelSize: 4, activation: 'relu', ...hyperParams[1] }));
 	model.add(tf.layers.batchNormalization());
-	model.add(tf.layers.conv2d({filters: 16, kernelSize: 4, activation: 'relu' }));
+	model.add(tf.layers.conv2d({filters: 16, kernelSize: 4, activation: 'relu', ...hyperParams[2] }));
 	model.add(tf.layers.flatten());
-	model.add(tf.layers.dense({units: 512, activation: 'relu'}));
+	model.add(tf.layers.dense({units: 512, activation: 'relu', ...hyperParams[3] }));
 	model.add(tf.layers.dropout({rate: 0.4}));
 	model.add(tf.layers.dense({units: numActions}));
 	return model;

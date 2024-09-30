@@ -4,6 +4,25 @@ import { deployment } from '../battlefield/deployment.js';
 
 const mmToInch = mm => mm / 25.4;
 
+class Binding extends Drawing {
+	constructor(ctx, from, to, color) {
+		super();
+		this.ctx = ctx;
+		this.from = from;
+		this.to = to;
+		this.color = color;
+	}
+
+	draw() {
+		this.ctx.strokeStyle = this.color;
+		this.strokePath(() => {
+			this.ctx.moveTo(...this.from);
+			this.ctx.lineTo(...this.to);
+		});
+	}
+}
+
+
 class Model extends Drawing {
 	position = [0, 0];
 	constructor(ctx, unit, position) {
@@ -21,7 +40,7 @@ class Model extends Drawing {
 		}
 		const base = this.unitBase;
 		const radius = 1
-		this.ctx.fillStyle = this.playerId === 1 ? '#3e476b' : '#6b3e3e';
+		this.ctx.fillStyle = this.playerId === 1 ? '#3e476b' : '#6b3e3ec2';
 		this.ctx.strokeStyle = this.playerId === 1 ? 'blue' : 'red';
 		this.ctx.translate(0.5, 0.5);
 		this.fillPath(() => {
@@ -97,9 +116,10 @@ export class Battlefield extends Drawing {
 }
 
 export class Scene extends Drawing {
-	players = []
-	units = []
-	models = []
+	players = [];
+	units = [];
+	models = [];
+	bindings = [];
 	constructor(ctx, state) {
 		super();
 		this.ctx = ctx;
@@ -119,6 +139,7 @@ export class Scene extends Drawing {
 	draw() {
 		this.battlefield.draw();
 		this.models.forEach(model => model.draw());
+		this.bindings.forEach(binding => binding.draw());
 	}
 
 	drawOrder(order) {
@@ -137,12 +158,17 @@ export class Scene extends Drawing {
 		}
 	}
 
-	updateState(state) {
+	updateState(state, playerState = {}) {
 		this.battlefield.update(state.battlefield);
 		state.models.forEach((position, id) => {
 			this.models[id].update(position);
 		});
-
+		this.bindings = [];
+		if (playerState.arrows !== undefined) {
+			playerState.arrows.forEach(([start, end]) => {
+				this.bindings.push(new Binding(this.ctx, start, end, 'yellow'));
+			});
+		}
 		this.draw();
 	}
 }

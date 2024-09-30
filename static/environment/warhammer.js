@@ -60,6 +60,16 @@ class Model {
 	}
 }
 
+function getRandomStartPosition(exclude, battlefield) {
+	while(true) {
+		let x1 = getRandomInteger(0, battlefield.size[0]);
+		let y1 = getRandomInteger(0, battlefield.size[1]);
+		if (!exclude.some(pos => eq([x1, y1], pos))) {
+			return [x1, y1];
+		}
+	}
+}
+
 export class Warhammer {
 	players = [];
 	units = [];
@@ -76,6 +86,7 @@ export class Warhammer {
 		]
 		this.gameSettings = config.gameSettings;
 		this.battlefields = config.battlefields;
+		this._getRandomStartPosition = config.getRandomStartPosition ?? getRandomStartPosition
 		this.reset();
 	}
 	reset() {
@@ -120,13 +131,7 @@ export class Warhammer {
 		return this.getState();
 	}
 	getRandomStartPosition(exclude) {
-		while(true) {
-			let x1 = getRandomInteger(0, this.battlefield.size[0]);
-			let y1 = getRandomInteger(0, this.battlefield.size[1]);
-			if (!exclude.some(pos => eq([x1, y1], pos))) {
-				return [x1, y1];
-			}
-		}
+		return this._getRandomStartPosition(exclude, this.battlefield);
 	}
 
 	step(order) {
