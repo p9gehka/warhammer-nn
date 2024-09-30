@@ -58,7 +58,6 @@ app.post('/play', async (req,res) => {
 	
 		const stepInfo = players[state.player].playStep();
 		prevState[state.player] = [state, ...stepInfo]
-		
 		attempts++;
 	}
 	console.log(`cumulativeReward: ${rewarders[0].cumulativeReward} VP: ${state.players[0].primaryVP}`)

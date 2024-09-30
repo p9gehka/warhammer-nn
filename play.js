@@ -176,7 +176,7 @@ async function play() {
 				if (players[0].getOnlineNetwork() !== undefined) {
 					await sendConfigMessage(players[0].getOnlineNetwork());
 				}
-				
+
 				await sendDataToTelegram(vpAveragerBuffer.buffer.filter(v => v !== null));
 				await sendDataToTelegram(rewardAveragerBuffer.buffer.filter(v => v !== null));
 				await sendMessage(
