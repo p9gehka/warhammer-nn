@@ -1,6 +1,22 @@
 import { MoveAgentBase } from './move-agent.js';
-import { moveOrders } from './move-orders.js';
 import { Channel0, Channel1, Channel2 } from '../../environment/nn-input.js';
+
+import { angleToVec2, round, add } from '../../utils/vec2.js';
+import { BaseAction } from '../../environment/warhammer.js';
+
+/* `←``↑``→``↓``↖``↗``↘``↙`*/
+const distances = [1, 6];
+const distancesDiagonal = [1, 2, 4];
+const distancesDiagonalExpense = [2, 3, 6];
+const angles = [0, 90, 180, 270];
+
+export const moveOrders = [{ action: BaseAction.NextPhase }];
+
+angles.forEach((angle, i) => {
+	for (let distance of distances) {
+		moveOrders.push({ action: BaseAction.Move, vector: round(angleToVec2(distance, angle)), expense: distance });
+	}
+});
 
 export class MoveAgent extends MoveAgentBase {
 	static settings = { width: 44, height: 30, orders: moveOrders, channels: [Channel0, Channel1, Channel2] }

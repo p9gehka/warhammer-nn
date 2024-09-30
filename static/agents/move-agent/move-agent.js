@@ -1,6 +1,5 @@
 import { getStateTensor } from '../../utils/get-state-tensor.js';
 import { getTF } from '../../utils/get-tf.js';
-import { moveOrders } from './move-orders.js';
 import { Channel1Name } from '../../environment/nn-input.js';
 import { getInput } from '../../environment/nn-input.js';
 import { eq } from '../../utils/vec2.js';
@@ -9,8 +8,8 @@ import { RandomAgent } from '../random-agent.js';
 const tf = await getTF();
 
 export class MoveAgentBase {
-	fillAgent = new RandomAgent(moveOrders, getInput);
-	orders = moveOrders;
+	fillAgent = new RandomAgent(this.orders, getInput);
+	orders = [];
 	async load() {
 		this.onlineNetwork = await tf.loadLayersModel((typeof window === 'undefined' ? 'file://static/' : '') + this.loadPath);
 	}
