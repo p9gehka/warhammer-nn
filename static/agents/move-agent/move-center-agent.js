@@ -44,7 +44,7 @@ export class MoveAgent extends MoveAgentBase {
 		return { order: this.orders[orderIndex], orderIndex, estimate: 0 };
 	}
 
-	_playStep(state) {
+	playStep(state) {
 		let orderIndex = 0;
 		const input = this.getInput(state);
 		if (input[Channel1Name.Stamina0].length > 0) {
@@ -69,7 +69,7 @@ export class MoveAgent extends MoveAgentBase {
 		return { order: this.orders[orderIndex], orderIndex, estimate: 0 };
 	}
 
-	playStep(state) {
+	_playStep(state) {
 		let orderIndex = 0;
 		const input = this.getInput(state);
 		if (input[Channel1Name.Stamina0].length > 0) {

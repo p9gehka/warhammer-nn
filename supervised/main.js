@@ -56,6 +56,10 @@ export async function run(epochs, batchesPerEpoch, savePath, nn) {
 				console.log(`averageVP: ${averageVP}, prevBestVp: ${bestAverageVP}, prevBestLoss: ${bestVal_loss}`);
 				if (bestAverageVP < averageVP) {
 					bestAverageVP = averageVP;
+					
+				}
+				if (val_loss < bestVal_loss) {
+					bestVal_loss = val_loss;
 					if (savePath != null) {
 						if (!fs.existsSync(savePath)) {
 							shelljs.mkdir('-p', savePath);
@@ -63,9 +67,6 @@ export async function run(epochs, batchesPerEpoch, savePath, nn) {
 						await model.save(`file://${savePath}`);
 						console.log(`Saved DQN to ${savePath}`);
 					}
-				}
-				if (val_loss < bestVal_loss) {
-					bestVal_loss = val_loss;
 				}
 
 				accuracyLogs.push({ epoch, val_acc });

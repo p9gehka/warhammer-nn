@@ -24,7 +24,7 @@ function gameToFeaturesAndLabel(record) {
 }
 
 export function getRandomStartPosition(exclude, battlefield) {
-	const pad = -2;
+	const pad = -4;
 	const paddingX = (battlefield.size[0]-battlefield.size[1] + pad) / 2;
 	const paddingY = 0;
 	while(true) {
@@ -37,7 +37,7 @@ export function getRandomStartPosition(exclude, battlefield) {
 }
 
 export function getRawDataset() {
-	const env = new Warhammer({ gameSettings, battlefields, /*getRandomStartPosition*/ });
+	const env = new Warhammer({ gameSettings, battlefields, getRandomStartPosition });
 	const agent = new MoveAgent();
 
 	function getStateAndAnswer() {
