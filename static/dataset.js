@@ -4,7 +4,7 @@ import { Battlefield, Scene } from './drawing-entities/drawing-entities.js';
 import { add } from './utils/vec2.js';
 import { getStateTensor } from './utils/get-state-tensor.js';
 import { Phase } from './environment/warhammer.js';
-import { getInput, channels } from './environment/nn-input.js';
+import { getInput, channels, Channel1Name } from './environment/nn-input.js';
 
 const countOrders = new Array(MoveAgent.settings.orders.length).fill(0);
 const battlefieldSettings = { size: [MoveAgent.settings.width, MoveAgent.settings.height], objective_marker: [], ruins: [], deployment: 'center44x30' };
@@ -21,11 +21,13 @@ battlefield.draw();
 
 const unitModels = Array(100).fill(0).map((v, i) => i);
 const models = Array(100).fill([NaN, NaN]);
-const state = {  phase:Phase.Movement,player: 0, players:[{ models: unitModels, playerId: 0 }], units: [{ models: unitModels }], battlefield: battlefieldSettings, models: models, modelsStamina: Array(100).fill(0), };
+const modelsStamina = Array(100).fill(0);
+const state = {  phase:Phase.Movement,player: 0, players:[{ models: unitModels, playerId: 0 }], units: [{ models: unitModels }], battlefield: battlefieldSettings, models: models, modelsStamina };
 const arrows = []
 async function start() {
 	const scene = new Scene(ctx, state);
 	await scene.init();
+
 	let i = 0;
 	await getRawDataset().take(100).forEachAsync(e => {
 		models[i] = e[0][0][0];
@@ -34,7 +36,12 @@ async function start() {
 		} else {
 			console.log(models[i], e[1])
 		}
-
+		for (let key of Object.keys(Channel1Name)) {
+			if(e[0][key].length > 0) {
+				modelsStamina[i] = channels[1][key] * 10;
+				break;
+			}
+		}
 		countOrders[e[1]]++;
 		i++;
 	});
@@ -46,6 +53,7 @@ async function start() {
 
 
 function updateTable(state) {
+	console.log(getInput(state))
 	const data = getStateTensor([getInput(state)], ...state.battlefield.size, channels).arraySync();
 	const fragment = new DocumentFragment();
 	const nextline = Math.floor(Math.sqrt(data[0][0][0].length));

@@ -1,6 +1,6 @@
 import { Warhammer } from '../environment/warhammer.js';
-import { MoveAgent } from '../agents/move-agent/move-center-agent.js';
-import { getStateTensor } from '../utils/get-state-tensor.js';
+import { MoveAgent } from '../agents/move-agent/move-agent44x30.js';
+import { getStateTensor1 } from '../utils/get-state-tensor.js';
 import { getTF } from './get-tf.js';
 import { getRandomInteger } from './index.js';
 import { eq } from './vec2.js';
@@ -17,7 +17,7 @@ const tf = await getTF();
 function gameToFeaturesAndLabel(record) {
 	return tf.tidy(() => {
 		const [input, orderIndex] = record;
-		const features = getStateTensor([input], MoveAgent.settings.height, MoveAgent.settings.width, MoveAgent.settings.channels).squeeze();
+		const features = getStateTensor1(input, MoveAgent.settings.height, MoveAgent.settings.width, MoveAgent.settings.channels);
 		const label = tf.oneHot(tf.scalar(orderIndex, 'int32'), MoveAgent.settings.orders.length);
 		return {xs: features, ys: label};
 	});
@@ -48,8 +48,8 @@ export function getRawDataset() {
 		
 		env.reset();
 		env.models[selected].stamina = getRandomInteger(0, 10);
-
-		return [agent.getInput(state), orderIndex];
+		const input = agent.getInput(state)
+		return [input, orderIndex];
 	}
 	function* getStateAndAnswerGeneratorFn() {
 		while(true) {
