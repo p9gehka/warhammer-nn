@@ -1,5 +1,5 @@
 import { Warhammer } from '../environment/warhammer.js';
-import { MoveAgent } from '../agents/move-agent/move-agent44x30.js';
+import { MoveAgent } from '../agents/move-agent/move-center-agent.js';
 import { getStateTensor1 } from '../utils/get-state-tensor.js';
 import { getTF } from './get-tf.js';
 import { getRandomInteger } from './index.js';
@@ -14,10 +14,10 @@ let battlefields = config.battlefields.length > 0 ? filterObjByKeys(allBattlefie
 
 const tf = await getTF();
 
-function gameToFeaturesAndLabel(record) {
+export function gameToFeaturesAndLabel(record) {
 	return tf.tidy(() => {
 		const [input, orderIndex] = record;
-		const features = getStateTensor1(input, MoveAgent.settings.height, MoveAgent.settings.width, MoveAgent.settings.channels);
+		const features = getStateTensor1(input, MoveAgent.settings.width, MoveAgent.settings.height , MoveAgent.settings.channels);
 		const label = tf.oneHot(tf.scalar(orderIndex, 'int32'), MoveAgent.settings.orders.length);
 		return {xs: features, ys: label};
 	});

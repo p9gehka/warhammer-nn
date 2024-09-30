@@ -1,5 +1,5 @@
 import { MoveAgent } from './agents/move-agent/move-center-agent.js';
-import { getRawDataset } from './utils/get-dataset.js';
+import { getRawDataset, gameToFeaturesAndLabel } from './utils/get-dataset.js';
 import { Battlefield, Scene } from './drawing-entities/drawing-entities.js';
 import { add } from './utils/vec2.js';
 import { getStateTensor } from './utils/get-state-tensor.js';
@@ -23,18 +23,19 @@ const unitModels = Array(100).fill(0).map((v, i) => i);
 const models = Array(100).fill([NaN, NaN]);
 const modelsStamina = Array(100).fill(0);
 const state = {  phase:Phase.Movement,player: 0, players:[{ models: unitModels, playerId: 0 }], units: [{ models: unitModels }], battlefield: battlefieldSettings, models: models, modelsStamina };
-const arrows = []
+const arrows = [];
+let stateTensor = getStateTensor([getInput(state)], MoveAgent.settings.width, MoveAgent.settings.height, channels).squeeze();
 async function start() {
 	const scene = new Scene(ctx, state);
 	await scene.init();
 
 	let i = 0;
+
 	await getRawDataset().take(100).forEachAsync(e => {
+		stateTensor = stateTensor.add(gameToFeaturesAndLabel(e).xs);
 		models[i] = e[0][0][0];
 		if (e[1] !== 0) {
 			arrows.push([add(models[i],[0.3, 0.3]), add(add(models[i],[0.3, 0.3]), MoveAgent.settings.orders[e[1]].vector)])
-		} else {
-			console.log(models[i], e[1])
 		}
 		for (let key of Object.keys(Channel1Name)) {
 			if(e[0][key].length > 0) {
@@ -51,13 +52,11 @@ async function start() {
 }
 
 
-
 function updateTable(state) {
-	console.log(getInput(state))
-	const data = getStateTensor([getInput(state)], ...state.battlefield.size, channels).arraySync();
+	const data = stateTensor.arraySync();
 	const fragment = new DocumentFragment();
 	const nextline = Math.floor(Math.sqrt(data[0][0][0].length));
-	for(let row of data[0]) {
+	for(let row of data) {
 		const rowEl = document.createElement('TR');
 		for (let cell of row) {
 			const cellEl = document.createElement('TD');
