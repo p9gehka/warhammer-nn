@@ -1,5 +1,5 @@
 import { getRandomInteger } from '../static/utils/index.js';
-import { eq, sub, len } from '../static/utils/vec2.js';
+import { eq, sub, len, div } from '../static/utils/vec2.js';
 import { Channel2Name } from '../static/environment/nn-input.js';
 import { PlayerAgent } from '../static/players/player-agent.js';
 import { BaseAction } from '../static/environment/warhammer.js';
@@ -70,18 +70,18 @@ export class Student {
 		const prevState = this.env.getState();
 		const input = this.player.agent.getInput(prevState);
 
-		if (this.prevState !== null) {
-			this.replayMemory?.append([...this.prevState, false, input]);
+		if (this.prevMemoryState !== null && this.prevState !== undefined) {
+			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
+			this.replayMemory?.append([...this.prevMemoryState, reward, false, input]);
 		}
-		let epsilon = this.epsilon;
 		const result = this.player.playTrainStep();
-		let reward = this.rewarder.step(result[0], epsilon);
-		this.prevState = [input, result[2].index, reward];
+		this.prevMemoryState = [input, result[2].index];
+		this.prevState = prevState;
 		return result;
 	}
 
 	reset() {
-		this.prevState = null;
+		this.prevMemoryState = null;
 		this.rewarder.reset();
 		this.player.reset();
 	}
@@ -94,26 +94,27 @@ export class Rewarder {
 		this.cumulativeReward = 0;
 		this.primaryVP = 0;
 	}
-	step(order, epsilon) {
-		let reward = -7;
+	step(prevState, order, epsilon) {
+		let reward = 0;
 		const state = this.env.getState();
 
 		const { primaryVP } = state.players[this.playerId];
 		reward += this.primaryReward(order, primaryVP);
-		reward += this.epsilonReward(order, epsilon);
+		reward += this.epsilonReward(prevState, order, epsilon);
 		this.cumulativeReward += reward;
 		return reward;
 	}
-	epsilonReward(order, epsilon) {
+	epsilonReward(prevState, order, epsilon) {
 		let reward = 0;
 		if (order.action === BaseAction.Move) {
 			const state = this.env.getState();
-			const initialPosititon = sub(state.models[this.playerId], order.vector);
+			const initialPosititon = prevState.models[this.playerId];
 			const currentPosition = state.models[this.playerId];
 
-			const objectiveMarkers = new deployment[state.battlefield.deployment]().objective_markers;
-			const objectiveDistances = objectiveMarkers.map(deployment => len(sub(deployment, initialPosititon)) - len(sub(deployment, currentPosition)));
-			reward += objectiveDistances.reduce((a, b) => a + b, 0);
+			const center = div(state.battlefield.size, 2);
+			const currentPositionDelta = len(sub(center, sub(currentPosition, center).map(Math.abs)));
+			const initialPosititonDelta = len(sub(center, sub(initialPosititon, center).map(Math.abs)));
+			reward += (currentPositionDelta - initialPosititonDelta);
 		}
 		return reward * epsilon;
 	}
@@ -121,7 +122,7 @@ export class Rewarder {
 	primaryReward(order, primaryVP) {
 		let reward = 0;
 		if (order.action === BaseAction.NextPhase) {
-			reward = (primaryVP - this.primaryVP) * 5;
+			reward += (primaryVP - this.primaryVP) * 5;
 			this.primaryVP = primaryVP;
 		}
 		return reward;
