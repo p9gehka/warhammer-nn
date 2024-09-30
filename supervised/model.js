@@ -20,6 +20,6 @@ import { createDeepQNetwork } from '../dqn/dqn.js';
 import { MoveAgent } from '../static/agents/move-agent/move-center-agent.js';
 
 const tf = await getTF();
-export const model = createDeepQNetwork(MoveAgent.settings.orders.length, MoveAgent.settings.width, MoveAgent.settings.height, MoveAgent.settings.channels.length)
+export const model = createDeepQNetwork(MoveAgent.settings.orders.length, MoveAgent.settings.height, MoveAgent.settings.width, MoveAgent.settings.channels.length)
 
 model.add(tf.layers.softmax());

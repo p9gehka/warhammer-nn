@@ -17,7 +17,7 @@ const tf = await getTF();
 export function gameToFeaturesAndLabel(record) {
 	return tf.tidy(() => {
 		const [input, orderIndex] = record;
-		const features = getStateTensor1(input, MoveAgent.settings.width, MoveAgent.settings.height , MoveAgent.settings.channels);
+		const features = getStateTensor1(input, MoveAgent.settings.width, MoveAgent.settings.height, MoveAgent.settings.channels);
 		const label = tf.oneHot(tf.scalar(orderIndex, 'int32'), MoveAgent.settings.orders.length);
 		return {xs: features, ys: label};
 	});
