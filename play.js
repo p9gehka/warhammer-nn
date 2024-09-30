@@ -20,7 +20,7 @@ const savePath = './models/play-dqn/';
 
 const { cumulativeRewardThreshold, sendMessageEveryFrames, replayBufferSize, replayMemorySize, epsilonDecayFrames, framesThreshold } = config;
 
-const rewardAveragerLen = 100;
+const rewardAveragerLen = 200;
 
 let battlefields = config.battlefields.length > 0 ? filterObjByKeys(allBattlefields, config.battlefields) : allBattlefields;
 
