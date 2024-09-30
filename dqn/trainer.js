@@ -9,7 +9,7 @@ export class Trainer {
 		const { replayMemory, nn, targetNN } = config
 		this.game = cascad[0];
 		this.replayMemory = replayMemory;
-		this.onlineNetwork = nn ?? createDeepQNetwork(this.game.orders.length, this.game.height, this.game.width, this.game.channels.length);
+		this.onlineNetwork = nn ?? createDeepQNetwork(this.game.orders.length, this.game.height, this.game.width , this.game.channels.length);
 		this.targetNetwork = null;
 		/* this.targetNetwork.trainable = false not work why?? */
 	}
@@ -32,13 +32,13 @@ export class Trainer {
 		const batch = this.replayMemory.sample(batchSize);
 
 		const lossFunction = () => tf.tidy(() => {
-			const stateTensor = getStateTensor(batch.map(example => example[0]), height, width, channels);
+			const stateTensor = getStateTensor(batch.map(example => example[0]), width, height, channels);
 			const actionTensor = tf.tensor1d(batch.map(example => example[1]), 'int32');
 
 			const qs = this.onlineNetwork.apply(stateTensor, {training: true}).mul(tf.oneHot(actionTensor, orders.length)).sum(-1);
 
 			const rewardTensor = tf.tensor1d(batch.map(example => example[2]));
-			const nextStateTensor = getStateTensor(batch.map(example => example[4]), height, width, channels);
+			const nextStateTensor = getStateTensor(batch.map(example => example[4]), width, height, channels);
 
 			const nextMaxQTensor = this.targetNetwork.predict(nextStateTensor).max(-1);
 			const doneMask = tf.scalar(1).sub(
