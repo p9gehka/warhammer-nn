@@ -28,10 +28,5 @@
 		"size": [44, 30],
 		"deployment": "displayOfMight",
 		"primary_mission": "take_and_hold"
-	},
-	"empty44x30": {
-		"size": [44, 30],
-		"deployment": "empty44x30",
-		"primary_mission": "take_and_hold"
 	}
 }
