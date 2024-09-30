@@ -53,7 +53,7 @@ export class MoveAgentBase {
 
 	printStateTensor() {
 		const input = this.getInput();
-		const stateTensor = getStateTensor([input], this.width, this.height , this.channels);
+		const stateTensor = getStateTensor([input], this.width, this.height, this.channels);
 		console.log('*************************');
 		console.log(stateTensor.arraySync().map(v => v.map(c=> c.join('|')).join('\n')).join('\n'));
 		console.log('*************************');

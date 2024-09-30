@@ -41,11 +41,12 @@ app.post('/play', async (req,res) => {
 	let attempts = 0;
 	const actionsAndStates = [[state, null, state]];
 	const states = [];
+
 	let prevState = [undefined, undefined];
 	let prevStates = [[], []];
+
 	while (!state.done && attempts < 500) {
 		state = env.getState();
-
 		if (prevState[state.player] !== undefined) {
 			let reward = rewarders[state.player].step(prevState[state.player][0], prevState[state.player][1], 0.5);
 			prevStates[state.player].push([...prevState[state.player], reward]);
@@ -55,9 +56,10 @@ app.post('/play', async (req,res) => {
 			}
 			prevState[state.player] = undefined;
 		}
-	
+
 		const stepInfo = players[state.player].playStep();
 		prevState[state.player] = [state, ...stepInfo]
+
 		attempts++;
 	}
 	console.log(`cumulativeReward: ${rewarders[0].cumulativeReward} VP: ${state.players[0].primaryVP}`)

@@ -104,13 +104,13 @@ export class Rewarder {
 		this.cumulativeReward += reward;
 		return reward;
 	}
-
 	epsilonReward(prevState, order, epsilon) {
 		let reward = 0;
 		if (order.action === BaseAction.Move) {
 			const state = this.env.getState();
 			const initialPosititon = prevState.models[this.playerId];
 			const currentPosition = state.models[this.playerId];
+
 			const center = div(state.battlefield.size, 2);
 			const currentPositionDelta = len(sub(center, sub(currentPosition, center).map(Math.abs)));
 			const initialPosititonDelta = len(sub(center, sub(initialPosititon, center).map(Math.abs)));

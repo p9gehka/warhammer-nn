@@ -17,7 +17,7 @@ export class MovingAverager {
 	average() {
 		return this.buffer.reduce((x, prev) => x + prev) / this.length;
 	}
-	
+
 	empty() {
 		this.length = 0;
 		this.buffer = [];
