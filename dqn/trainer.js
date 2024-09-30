@@ -9,7 +9,7 @@ export class Trainer {
 		const { replayMemory, nn, targetNN } = config
 		this.game = cascad[0];
 		this.replayMemory = replayMemory;
-		this.onlineNetwork = nn ?? createDeepQNetwork(this.game.orders.length, this.game.width, this.game.height, this.game.channels.length);
+		this.onlineNetwork = nn ?? createDeepQNetwork(this.game.orders.length, this.game.height, this.game.width, this.game.channels.length);
 		this.targetNetwork = null;
 		/* this.targetNetwork.trainable = false not work why?? */
 	}
