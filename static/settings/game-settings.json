@@ -2,6 +2,8 @@
 	"modelNames": ["Stealth Shas'ui w/ burst cannon", "Stealth Shas'ui w/ burst cannon", "Stealth Shas'ui w/ burst cannon", "Stealth Shas'ui w/ burst cannon"],
 	"modelProfiles": [
 		{ "M":  "8\"", "OC": "1"},
+		{ "M":  "8\"", "OC": "1"},
+		{ "M":  "8\"", "OC": "1"},
 		{ "M":  "8\"", "OC": "1"}
 
 	],
@@ -12,11 +14,11 @@
 	],
 	"units": [
 		[{
-			"models": [0],
+			"models": [0, 1],
 			"name": "stealth battlesuits"
 		}],
 		[{
-			"models": [1],
+			"models": [2, 3],
 			"name": "stealth battlesuits"
 		}]
 	]
