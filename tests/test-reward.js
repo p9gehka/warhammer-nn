@@ -4,7 +4,6 @@ import { filterObjByKeys } from '../static/utils/index.js';
 import { PlayerAgent } from '../static/players/player-agent.js';
 import { Rewarder } from '../students/student.js';
 import { MovingAverager } from '../moving-averager.js';
-import { getRandomStartPosition } from '../static/utils/get-dataset.js';
 
 import config from '../config.json' assert { type: 'json' };
 import gameSettings from '../static/settings/game-settings.json' assert { type: 'json' };
@@ -77,3 +76,9 @@ export async function testReward(silent, nn) {
 	}
 	return vpAverager.average();
 }
+
+async function main() {
+	await testReward(false);
+}
+
+main();
