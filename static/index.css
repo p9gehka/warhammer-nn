@@ -24,7 +24,6 @@ body {
 }
 
 .left-panel {
-	min-width: max-content;
 	display: grid;
 	height: 100vh;
 	grid-template-rows: min-content;
@@ -70,6 +69,7 @@ body {
 
 .table {
 	width: 900px;
+	font-size: 5px;
 }
 
 .units-strip {

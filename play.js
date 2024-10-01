@@ -20,7 +20,7 @@ const savePath = './models/play-dqn/';
 
 const { cumulativeRewardThreshold, sendMessageEveryFrames, replayBufferSize, replayMemorySize, epsilonDecayFrames, framesThreshold } = config;
 
-const rewardAveragerLen = 100;
+const rewardAveragerLen = 200;
 
 let battlefields = config.battlefields.length > 0 ? filterObjByKeys(allBattlefields, config.battlefields) : allBattlefields;
 
@@ -31,7 +31,7 @@ async function sendConfigMessage(model) {
 	const trainerConfig = await getTrainerConfig();
 
 	await sendMessage(
-		model.layers.map( layer => `${layer.name.split('_')[0]}{${ ['filters', 'kernelSize', 'units', 'rate'].map(filter => layer[filter] ? `filter: ${layer[filter]}` : '').filter(v=>v !=='') }}` ).join('->')
+		model.layers.map(layer => `${layer.name.split('_')[0]}{${ ['filters', 'kernelSize', 'units', 'rate'].map(filter => layer[filter] ? `filter: ${layer[filter]}` : '').filter(v=>v !=='') }}` ).join('->')
 	);
 	await sendMessage(
 		`Player hyperparams Config replayBufferSize:${replayBufferSize} epsilonDecayFrames:${epsilonDecayFrames} cumulativeRewardThreshold:${cumulativeRewardThreshold}\n` +
@@ -103,17 +103,84 @@ async function play() {
 				`(${framesPerSecond.toFixed(1)} frames/s)`
 			);
 
-			if (averageVP >= cumulativeRewardThreshold || frameCount > framesThreshold ) {
+			state = env.reset();
+			players.forEach(agent => agent.reset());
+		}
+
+		if (state.player === 0 && players[0].getOnlineNetwork() !== undefined && frameCount % sendMessageEveryFrames === 0 && vpAveragerBuffer !== null && rewardAveragerBuffer !== null) {
+			const testActions = [];
+
+			const testAgents = [players[0].player, new PlayerDumb(env)]
+			let testAttempst = 0;
+			let testState = env.reset();
+
+			while (!testState.done && testAttempst < 100) {
+				testState = env.getState();
+				if (testState.done) {
+					break;
+				}
+
+				let actionData = testAgents[testState.player].playStep().at(-1);
+				if (testState.player === 0) {
+					testActions.push(`${actionData.index}(${actionData.estimate})`);
+				}
+				testAttempst++;
+			}
+			await sendConfigMessage(players[0].getOnlineNetwork());
+			await sendDataToTelegram(vpAveragerBuffer.buffer.filter(v => v !== null));
+			await sendDataToTelegram(rewardAveragerBuffer.buffer.filter(v => v !== null));
+			await sendMessage(
+				[
+					`Frame #${frameCount}::Epsilon ${players[0].epsilon?.toFixed(3)}::averageVP${rewardAveragerLen}Best ${averageVPBest}::${frameTimeAverager100.average().toFixed(1)} frames/s:`,
+					`:${JSON.stringify(testActions.join(','))}:`,
+					`heapMemory:${memoryUsage()['heapUsed']}`
+				].join()
+			);
+
+			env.reset();
+			players.forEach(agent => agent.reset());
+		}
+
+
+		if (replayMemory.length === replayBufferSize) {
+			if (vpAveragerBuffer === null) {
+				vpAveragerBuffer = new MovingAverager(config.rewardAveragerBufferLength);
+			}
+
+			vpAveragerBuffer.append({ frame: frameCount, averageVP: vpAverager.average()});
+
+			if (rewardAveragerBuffer === null) {
+				rewardAveragerBuffer = new MovingAverager(config.rewardAveragerBufferLength);
+			}
+
+			rewardAveragerBuffer.append({ frame: frameCount, averageReward: rewardAverager.average() });
+			const averageVP = vpAverager.average();
+
+			if (averageVP > averageVPBest) {
+				averageVPBest = averageVP;
+				if (savePath != null) {
+					if (!fs.existsSync(savePath)) {
+						shelljs.mkdir('-p', savePath);
+					}
+					await players[0].getOnlineNetwork()?.save(`file://${savePath}`);
+					console.log(`Saved DQN to ${savePath}`);
+				}
+			}
+
+			console.log(`averageVP$Best: ${averageVPBest}, lastAverageLen: ${vpAverager.length}`)
+			console.time('updateMemory');
+
+			if (averageVPBest >= cumulativeRewardThreshold || frameCount > framesThreshold ) {
 				await lock();
 
 				if (players[0].getOnlineNetwork() !== undefined) {
 					await sendConfigMessage(players[0].getOnlineNetwork());
 				}
-				
+
 				await sendDataToTelegram(vpAveragerBuffer.buffer.filter(v => v !== null));
 				await sendDataToTelegram(rewardAveragerBuffer.buffer.filter(v => v !== null));
 				await sendMessage(
-					`Training done - averageVP${rewardAveragerLen}Best ${averageVPBest} cumulativeRewardThreshold ${cumulativeRewardThreshold}`
+					`Training done - averageVP${rewardAveragerLen}Best ${averageVP} cumulativeRewardThreshold ${cumulativeRewardThreshold}`
 				);
 				break;
 			}
@@ -129,77 +196,15 @@ async function play() {
 				}
 			}
 
-			if (averageVP > averageVPBest && vpAverager.isFull()) {
-				averageVPBest = averageVP;
-				if (savePath != null) {
-					if (!fs.existsSync(savePath)) {
-						shelljs.mkdir('-p', savePath);
-					}
-					await players[0].getOnlineNetwork()?.save(`file://${savePath}`);
-					console.log(`Saved DQN to ${savePath}`);
-				}
-			}
-
-			state = env.reset();
-			players.forEach(agent => agent.reset());
-		}
-
-		if (state.player === 0 && players[0].getOnlineNetwork() !== undefined && frameCount % sendMessageEveryFrames === 0 && vpAveragerBuffer !== null && rewardAveragerBuffer !== null) {
-			const testActions = [];
-
-			const testAgents = [players[0].player, new PlayerDumb(env)]
-			let testAttempst = 0;
-			let testState = env.reset();
-			
-
-			while (!testState.done && testAttempst < 100) {
-				testState = env.getState();
-				if (testState.done) {
-					break;
-				}
-
-				let actionData = testAgents[testState.player].playStep().at(-1);
-				if (testState.player === 0) {
-					testActions.push(actionData);
-				}
-				testAttempst++;
-			}
-			await sendConfigMessage(players[0].getOnlineNetwork());
-			await sendDataToTelegram(vpAveragerBuffer.buffer.filter(v => v !== null));
-			await sendDataToTelegram(rewardAveragerBuffer.buffer.filter(v => v !== null));
-			
-			await sendMessage(
-				`Frame #${frameCount}::Epsilon ${players[0].epsilon?.toFixed(3)}::averageVP${rewardAveragerLen}Best ${averageVPBest}::${frameTimeAverager100.average().toFixed(1)} frames/s:`+
-				`:${JSON.stringify(testActions)}:`
-			);
-			await sendMessage(JSON.stringify(memoryUsage()));
-
-			env.reset();
-			players.forEach(agent => agent.reset());
-		}
-
-		if (frameCount % 1000 === 0) {
-			if (vpAveragerBuffer === null) {
-				vpAveragerBuffer = new MovingAverager(config.rewardAveragerBufferLength);
-			}
-
-			vpAveragerBuffer.append({ frame: frameCount, averageVP: vpAverager.average()});
-
-			if (rewardAveragerBuffer === null) {
-				rewardAveragerBuffer = new MovingAverager(config.rewardAveragerBufferLength);
-			}
-
-			rewardAveragerBuffer.append({ frame: frameCount, averageReward: rewardAverager.average()});
-		}
-
-		if(replayMemory.length === replayBufferSize) {
-			console.log(`averageVP${rewardAveragerLen}Best: ${averageVPBest}`)
-			console.time('updateMemory');
 			await replayMemory.updateServer();
 			replayMemory.clean();
 			console.timeEnd('updateMemory');
 			console.time('updateModel');
 			await tryUpdateModel();
+
+			vpAverager.empty();
+			rewardAverager.empty();
+
 			console.timeEnd('updateModel');
 		}
 		players[state.player].playStep();

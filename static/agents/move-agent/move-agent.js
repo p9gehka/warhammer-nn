@@ -45,7 +45,7 @@ export class MoveAgentBase {
 			orderIndex = 0;
 		} else {
 			tf.tidy(() => {
-				const inputTensor = getStateTensor([input], height, width, channels);
+				const inputTensor = getStateTensor([input], width, height, channels);
 				const prediction = this.onlineNetwork.predict(inputTensor);
 				estimate = prediction.max(-1).dataSync()[0];
 				orderIndex = prediction.argMax(-1).dataSync()[0];
@@ -57,7 +57,7 @@ export class MoveAgentBase {
 
 	printStateTensor() {
 		const input = this.getInput();
-		const stateTensor = getStateTensor([input], this.height, this.width, this.channels);
+		const stateTensor = getStateTensor([input], this.width, this.height, this.channels);
 		console.log('*************************');
 		console.log(stateTensor.arraySync().map(v => v.map(c=> c.join('|')).join('\n')).join('\n'));
 		console.log('*************************');

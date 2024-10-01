@@ -1,22 +1,28 @@
 export class MovingAverager {
 	constructor(bufferLength) {
-		this.buffer = [];
-		this._full = false;
-		for (let i = 0; i < bufferLength; ++i) {
-			this.buffer.push(null);
-		}
+		this.bufferLength = bufferLength;
+		this.empty();
 	}
 	isFull() {
-		if(this._fill) { return true };
-		this._fill = this.buffer.every(v=> v !== null);
-		return this._fill;
+		return this.length === this.bufferLength
 	}
 	append(x) {
 		this.buffer.shift();
 		this.buffer.push(x);
+		if (this.length < this.bufferLength) {
+			this.length++;
+		}
 	}
 
 	average() {
-		return this.buffer.reduce((x, prev) => x + prev) / this.buffer.length;
+		return this.buffer.reduce((x, prev) => x + prev) / this.length;
+	}
+
+	empty() {
+		this.length = 0;
+		this.buffer = [];
+		for (let i = 0; i < this.bufferLength; ++i) {
+			this.buffer.push(null);
+		}
 	}
 }
