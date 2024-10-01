@@ -48,9 +48,9 @@ app.post('/play', async (req,res) => {
 		state = env.getState();
 
 		if (prevState[state.player] !== undefined) {
-			let reward = rewarders[state.player].step(prevState[state.player][0], prevState[state.player][1], 0.5);
+			let reward = rewarders[state.player].step(prevState[state.player][0], prevState[state.player][2], 0.5);
 			prevStates[state.player].push([...prevState[state.player], reward]);
-			if (prevState[state.player][1].action === 'NEXT_PHASE') {
+			if (prevState[state.player][2].action === 'NEXT_PHASE') {
 				actionsAndStates.push(...prevStates[state.player]);
 				prevStates[state.player] = [];
 			}

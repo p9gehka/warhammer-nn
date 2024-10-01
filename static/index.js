@@ -16,7 +16,11 @@ const vpPlayer2Element = document.getElementById('player-2-vp');
 
 ctx.scale(canvas.width / 60, canvas.height / 44);
 
-const model = await tf.loadLayersModel(`/agents/move-agent/.model44x30x4_nmodels/model.json`);
+let model;
+try {
+	model = await tf.loadLayersModel(`/agents/move-agent/.model44x30x4/model.json`);
+} catch (e) {}
+
 const battlefield = new Battlefield(ctx, { size: [0, 0], objective_marker: [], ruins: [] });
 await battlefield.init();
 battlefield.draw();
@@ -73,7 +77,9 @@ function setState(e) {
 async function updatePredictions(state, input) {
 	ordersList.innerHTML = '';
 	const orders = moveOrders;
-
+	if (model === undefined) {
+		return;
+	}
 	const [_, height, width] = model.input.shape;
 	window.tf.tidy(() => {
 		const predictions = model.predict(getStateTensor([input], width, height, channels)).dataSync();
