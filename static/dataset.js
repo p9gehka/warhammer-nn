@@ -4,7 +4,7 @@ import { Battlefield, Scene } from './drawing-entities/drawing-entities.js';
 import { add } from './utils/vec2.js';
 import { getStateTensor } from './utils/get-state-tensor.js';
 import { Phase, Warhammer } from './environment/warhammer.js';
-import { getInput, channels, Channel1Name } from './environment/nn-input.js';
+import { getInput, channels, Channel1Name, Channel3Name  } from './environment/nn-input.js';
 import { getRandomInteger } from './utils/index.js';
 
 import allBattlefields from '../settings/battlefields.json' assert { type: 'json' };
@@ -26,12 +26,14 @@ const battlefield = new Battlefield(ctx, battlefieldSettings);
 await battlefield.init();
 battlefield.draw();
 
-const unitModels = Array(100).fill(0).map((v, i) => i);
-const models = Array(100).fill([NaN, NaN]);
-const modelsStamina = Array(100).fill(0);
+const numberOfExamples = 50;
+const unitModels = Array(numberOfExamples).fill(0).map((v, i) => i);
+const models = Array(numberOfExamples).fill([NaN, NaN]);
+const modelsStamina = Array(numberOfExamples).fill(0);
 const state = { phase:Phase.Movement,player: 0, players:[{ models: unitModels, playerId: 0 }], units: [{ models: unitModels }], battlefield: battlefieldSettings, models: models, modelsStamina };
-const arrows = [];
 let stateTensor = getStateTensor([getInput(state, {selected: 0})], MoveAgent.settings.width, MoveAgent.settings.height, channels).squeeze();
+const arrows = [];
+const states = [];
 
 async function start() {
 	const scene = new Scene(ctx, state);
@@ -40,9 +42,10 @@ async function start() {
 	await scene.init();
 
 	let i = 0;
-	await getRawDataset(env).take(100).forEachAsync(e => {
-		stateTensor = stateTensor.add(gameToFeaturesAndLabel(e).xs);
-		models[i] = e[0][0][0];
+	await getRawDataset(env).take(numberOfExamples).forEachAsync(e => {
+		states.push(e[0])
+		stateTensor = stateTensor.maximum(gameToFeaturesAndLabel(e).xs);
+		models[i] = e[0][Channel3Name.Order0][0];
 		if (e[1] !== 0) {
 			arrows.push([add(models[i],[0.3, 0.3]), add(add(models[i],[0.3, 0.3]), MoveAgent.settings.orders[e[1]].vector)])
 		}

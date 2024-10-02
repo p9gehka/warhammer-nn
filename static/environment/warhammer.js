@@ -103,12 +103,14 @@ export class Warhammer {
 
 		const usedPosition = [];
 		this.models = this.units.map((unit, unitId) => {
+			let lastPosition = null;
 			return unit.models.map(id => {
 				if (this.gameSettings.models.length !== 0 && this.gameSettings.models[id] !== undefined && this.gameSettings.models[id] !== null) {
 					return new Model(id, unit, this.gameSettings.models[id], this.gameSettings.modelProfiles[id]);
 				}
-				usedPosition.push(this.getRandomStartPosition(usedPosition));
-				return new Model(id, unit, usedPosition.at(-1), this.gameSettings.modelProfiles[id]);
+				usedPosition.push(this.getRandomStartPosition(usedPosition, lastPosition));
+				lastPosition = usedPosition.at(-1);
+				return new Model(id, unit, lastPosition, this.gameSettings.modelProfiles[id]);
 			});
 		}).flat();
 
@@ -120,13 +122,22 @@ export class Warhammer {
 		});
 		return this.getState();
 	}
-	getRandomStartPosition(exclude) {
+	getRandomStartPosition(exclude, lastPosition) {
+		let tries = 0;
 		while(true) {
-			let x = getRandomInteger(0, this.battlefield.size[0]);
-			let y = getRandomInteger(0, this.battlefield.size[1]);
-			if (!exclude.some(pos => eq([x, y], pos))) {
+			let x, y;
+			if (lastPosition === null) {
+				x = getRandomInteger(0, this.battlefield.size[0]);
+				y = getRandomInteger(0, this.battlefield.size[1]);
+			} else {
+				const padding = Math.floor(tries / 4)
+				x = lastPosition[0] + getRandomInteger(0, 6 + padding) - (3 + Math.floor(padding/2));
+				y = lastPosition[1] + getRandomInteger(0, 6 + padding) - (3 + Math.floor(padding/2));
+			}
+			if (!exclude.some(pos => eq([x, y], pos)) && 0 <= x && x < this.battlefield.size[0] && 0 <= y && y < this.battlefield.size[1]) {
 				return [x, y];
 			}
+			tries++;
 		}
 	}
 

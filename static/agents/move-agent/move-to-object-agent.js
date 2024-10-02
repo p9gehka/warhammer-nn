@@ -14,24 +14,29 @@ export class MoveAgent extends MoveAgentBase {
 	load() {}
 
 	playStep(state, playerState) {
-		let orderIndex = 0;
 		const input = this.getInput(state, playerState);
+		return this.playStepByInput(input);
+	}
+
+	playStepByInput(input) {
+		let orderIndex = 0;
 		const selected = input[Channel3Name.Order0][0];
 
 		if (input[Channel1Name.Stamina0].some(pos => eq(pos, selected))) {
 			orderIndex = 0;
 		} else {
-
 			let vector = [100,100];
-
-			input[Channel2Name.ObjectiveMarker].forEach((object) => {
-				const objectVector = mul(sub(selected, object), -1)
-				if (len(objectVector) < len(vector)) {
-					vector = objectVector
-				}
+			Object.values(Channel2Name).forEach(objectaName => {
+				input[objectaName].forEach(object => {
+					const objectVector = mul(sub(selected, object), -1);
+					if (len(objectVector) < len(vector)) {
+						vector = objectVector;
+					}
+				})
 			})
+			
 			let [x, y] = vector;
-			let stamina = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].findIndex(v => input[`Stamina${v}`].findIndex(pos => eq(pos, selected)) !== -1);
+			let stamina = Object.values(Channel1Name).findIndex(v => input[v].findIndex(pos => eq(pos, selected)) !== -1);
 
 			if ((stamina === 0) || x === 0 && y === 0) {
 				orderIndex = 0;

@@ -9,7 +9,8 @@ export const Channel1 = {};
 
 [0,1,2,3,4,5,6,7,8,9,10].forEach(v => { Channel1[`Stamina${v}`] = v / 10; });
 
-export const Channel2 = { ObjectiveMarker: 1 };
+export const Channel2 = {};
+[1,2,3,4,5].forEach(v => { Channel2[`ObjectiveMarker${v}`] = v/5 })
 export const Channel3 = {};
 
 const maxModelsAtOrder = 10;
@@ -39,22 +40,29 @@ export function getInput(state, playerState) {
 	if (deployment[memoKey] !== undefined && objectiveMemoized[memoKey] === undefined) {
 		objectiveMemoized[memoKey] = [];
 		const currentDeployment = new deployment[memoKey]();
-		currentDeployment.objective_markers.forEach(([x, y]) => {
+		currentDeployment.objective_markers.forEach(([x, y], objectIndex) => {
 			const delta = currentDeployment.objective_marker_control_distance;
+			objectiveMemoized[memoKey][objectIndex] = []
 			for(let i = -delta; i <= delta; i++) {
 				for(let ii = -delta; ii <= delta; ii++) {
 					if (len([i, ii]) <= delta) {
-						 objectiveMemoized[memoKey].push([x + i, y + ii]);
+						const objectx = x + i;
+						const objecty = y + ii;
+						if (0 <= objectx && objectx < state.battlefield.size[0] && 0 <= objecty && objecty < state.battlefield.size[1]) {
+							objectiveMemoized[memoKey][objectIndex].push([objectx, objecty]);
+						}
 					}
 				}
 			}
 		});
 	}
 
-	let objectiveMarkerInput = objectiveMemoized[memoKey].filter(([x, y]) => 0 <= x && x < state.battlefield.size[0] && 0 <= y && y < state.battlefield.size[1]);
 
 	const input = emptyInput();
-	input[Channel2Name.ObjectiveMarker] = objectiveMarkerInput;
+
+	objectiveMemoized[memoKey].forEach((coords, i) => {
+		input[Channel2Name[`ObjectiveMarker${i+1}`]] = coords;
+	})
 
 	state.players.forEach((player, playerId) => {
 		player.models.forEach((gameModelId, playerModelId) => {

@@ -36,9 +36,9 @@ export function getRandomStartPosition(exclude, battlefield) {
 	}
 }
 
-export function getRawDataset(argenv) {
+export function getRawDataset(argenv, argagent) {
 	const env = argenv ?? new Warhammer({ gameSettings, battlefields });
-	const agent = new MoveAgent();
+	const agent = argagent ?? new MoveAgent();
 
 	function getStateAndAnswer() {
 		const state = env.getState();
