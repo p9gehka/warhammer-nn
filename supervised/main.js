@@ -68,7 +68,7 @@ export async function run(epochs, batchesPerEpoch, savePath, nn) {
 	await sendMessage(`Best AverageVp: ${bestVal_loss}`)
 	await sendDataToTelegram(lossLogs);
 	await sendDataToTelegram(accuracyLogs);
-	await sendDataToTelegram(averageVPLogs);
+	//await sendDataToTelegram(averageVPLogs);
 }
 
 
