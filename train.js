@@ -13,7 +13,7 @@ import config from './config.json' assert { type: 'json' };
 
 const tf = await getTF();
 
-const { replayBufferSize, gamma, repeatBatchTraining, learningRate } = config;
+const { replayBufferSize, gamma, repeatBatchTraining, learningRate, freezeLayers } = config;
 
 async function train(nn) {
 	const replayMemory = new ReplayMemoryClient(replayBufferSize);
@@ -59,6 +59,12 @@ async function main() {
 		try {
 			nn = await tf.loadLayersModel(`file://${config.savePath}/model.json`);
 			console.log(`Loaded from ${config.savePath}/model.json`);
+			const freezeLayers = [0];
+			console.log(`Freese layers - ${freezeLayers} `)
+			for (let i =0; i <= freezeLayers.length; i++) {
+				nn.layers[freezeLayers[i]].trainable = false;
+			}
+
 		} catch (e) {
 			console.log(e.message);
 		}

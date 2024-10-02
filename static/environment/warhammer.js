@@ -192,8 +192,12 @@ export class Warhammer {
 			model.decreaseStamina(order.expense);
 			const newPosition = add(model.position, vectorToMove);
 			const [x, y] = newPosition;
+
 			if(0 <= x && x < this.battlefield.size[0] && 0 <= y && y < this.battlefield.size[1]) {
-				model.update(newPosition);
+				const newPositionBusy = this.models.some(model => model.playerId === this.getPlayer() && !model.dead && eq(model.position, newPosition));
+				if (!newPositionBusy) {
+					model.update(newPosition);
+				}
 			}
 		}
 
