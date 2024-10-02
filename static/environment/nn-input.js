@@ -4,7 +4,7 @@ import { deployment } from  '../battlefield/deployment.js';
 
 //{ Empty: 0 }
 export const Channel0 = {};
-[0,1,2,3,4,5,6,7,8,9].forEach(v => { Channel0[v] = 1 });
+new Array(17).fill(0).forEach((_, v) => { Channel0[v] = 1 });
 export const Channel1 = {};
 
 [0,1,2,3,4,5,6,7,8,9,10].forEach(v => { Channel1[`Stamina${v}`] = v / 10; });
@@ -12,7 +12,7 @@ export const Channel1 = {};
 export const Channel2 = { ObjectiveMarker: 1 };
 export const Channel3 = {};
 
-const maxModelsAtOrder = 4;
+const maxModelsAtOrder = 10;
 new Array(maxModelsAtOrder).fill(0).forEach((_, v) => { Channel3[`Order${v}`] = (v + 1) / maxModelsAtOrder; });
 
 export const Channel0Name = {}, Channel1Name = {}, Channel2Name = {}, Channel3Name = {};

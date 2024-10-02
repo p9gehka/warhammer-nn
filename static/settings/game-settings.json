@@ -1,31 +1,53 @@
 {
-	"modelNames": ["Stealth Shas'ui w/ burst cannon", "Stealth Shas'ui w/ burst cannon", "Stealth Shas'ui w/ burst cannon", "Stealth Shas'ui w/ burst cannon"],
-	"modelProfiles": [
-		{ "M":  "8\"", "OC": "1"},
-		{ "M":  "8\"", "OC": "1"},
-		{ "M":  "8\"", "OC": "1"},
-		{ "M":  "8\"", "OC": "1"},
-		{ "M":  "8\"", "OC": "1"},
-		{ "M":  "8\"", "OC": "1"}
-
-	],
-	"models": [null, null, null, null, null, null, null, null],
-	"unitProfiles": [
-		{ "M":  "8\"", "OC": "1"},
-		{ "M":  "8\"", "OC": "1"},
-		{ "M":  "8\"", "OC": "1"},
-		{ "M":  "8\"", "OC": "1"},
-		{ "M":  "8\"", "OC": "1"},
-		{ "M":  "8\"", "OC": "1"}
-	],
+	"modelNames": ["Cadre Fireblade", "Ethereal", "Fire Warrior Shas'ui", "Fire Warrior w/ pulse rifle", "Fire Warrior w/ pulse rifle", "Fire Warrior w/ pulse rifle", "Fire Warrior w/ pulse rifle", "Fire Warrior w/ pulse rifle", "Fire Warrior w/ pulse rifle", "Fire Warrior w/ pulse rifle", "Fire Warrior w/ pulse rifle", "Fire Warrior w/ pulse rifle", "Stealth Shas'vre", "Stealth Shas'ui w/ burst cannon", "Stealth Shas'ui w/ burst cannon", "Ghostkeel Battlesuit", "Cadre Fireblade", "Ethereal", "Fire Warrior Shas'ui", "Fire Warrior w/ pulse rifle", "Fire Warrior w/ pulse rifle", "Fire Warrior w/ pulse rifle", "Fire Warrior w/ pulse rifle", "Fire Warrior w/ pulse rifle", "Fire Warrior w/ pulse rifle", "Fire Warrior w/ pulse rifle", "Fire Warrior w/ pulse rifle", "Fire Warrior w/ pulse rifle", "Stealth Shas'vre", "Stealth Shas'ui w/ burst cannon", "Stealth Shas'ui w/ burst cannon", "Ghostkeel Battlesuit"],
+	"modelProfiles": [ {"M": "6\"","T": "3","SV": "4+","W": "3","LD": "7+","OC": "1"},
+  {"M": "6\"","T": "3","SV": "5+","W": "3","LD": "6+","OC": "1"},
+  {"M": "6\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "2"},
+  {"M": "6\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "2"},
+  {"M": "6\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "2"},
+  {"M": "6\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "2"},
+  {"M": "6\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "2"},
+  {"M": "6\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "2"},
+  {"M": "6\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "2"},
+  {"M": "6\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "2"},
+  {"M": "6\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "2"},
+  {"M": "6\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "2"},
+  {"M": "8\"","T": "4","SV": "3+","W": "2","LD": "7+","OC": "1"},
+  {"M": "8\"","T": "4","SV": "3+","W": "2","LD": "7+","OC": "1"},
+  {"M": "8\"","T": "4","SV": "3+","W": "2","LD": "7+","OC": "1"},
+  {"M": "10\"","T": "8","SV": "2+","W": "12","LD": "7+","OC": "3"},
+  {"M": "6\"","T": "3","SV": "4+","W": "3","LD": "7+","OC": "1"},
+    {"M": "6\"","T": "3","SV": "5+","W": "3","LD": "6+","OC": "1"},
+    {"M": "6\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "2"},
+    {"M": "6\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "2"},
+    {"M": "6\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "2"},
+    {"M": "6\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "2"},
+    {"M": "6\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "2"},
+    {"M": "6\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "2"},
+    {"M": "6\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "2"},
+    {"M": "6\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "2"},
+    {"M": "6\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "2"},
+    {"M": "6\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "2"},
+    {"M": "8\"","T": "4","SV": "3+","W": "2","LD": "7+","OC": "1"},
+    {"M": "8\"","T": "4","SV": "3+","W": "2","LD": "7+","OC": "1"},
+    {"M": "8\"","T": "4","SV": "3+","W": "2","LD": "7+","OC": "1"},
+    {"M": "10\"","T": "8","SV": "2+","W": "12","LD": "7+","OC": "3"}
+],
+	"models": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
 	"units": [
-		[{
-			"models": [0, 1, 2],
-			"name": "stealth battlesuits"
-		}],
-		[{
-			"models": [3, 4, 5],
-			"name": "stealth battlesuits"
-		}]
+		[
+		  {"name": "cadre fireblade", "models": [0]},
+		  { "name": "ethereal", "models": [1] },
+		  { "name": "strike team", "models": [2,3,4,5,6,7,8,9,10,11 ]},
+		  { "name": "stealth battlesuits", "models": [12,13,14 ]},
+		  { "name": "ghostkeel battlesuit", "models": [15]}
+		],
+		[
+		  {"name": "cadre fireblade", "models": [16]},
+		  { "name": "ethereal", "models": [17] },
+		  { "name": "strike team", "models": [18,19,20,21,22,23,24,25,26,27 ]},
+		  { "name": "stealth battlesuits", "models": [28,29,30 ]},
+		  { "name": "ghostkeel battlesuit", "models": [31]}
+		]
 	]
 }
