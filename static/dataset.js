@@ -31,7 +31,7 @@ const models = Array(100).fill([NaN, NaN]);
 const modelsStamina = Array(100).fill(0);
 const state = { phase:Phase.Movement,player: 0, players:[{ models: unitModels, playerId: 0 }], units: [{ models: unitModels }], battlefield: battlefieldSettings, models: models, modelsStamina };
 const arrows = [];
-let stateTensor = getStateTensor([getInput(state)], MoveAgent.settings.width, MoveAgent.settings.height, channels).squeeze();
+let stateTensor = getStateTensor([getInput(state, {selected: 0})], MoveAgent.settings.width, MoveAgent.settings.height, channels).squeeze();
 
 async function start() {
 	const scene = new Scene(ctx, state);

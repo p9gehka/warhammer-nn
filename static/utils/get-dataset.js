@@ -42,13 +42,14 @@ export function getRawDataset(argenv) {
 
 	function getStateAndAnswer() {
 		const state = env.getState();
-		const selected = env.players[state.player].models[0];
-		const { orderIndex, order } = agent.playStep(state);
+		const { models } = env.players[state.player];
+		const selected = models[getRandomInteger(0, models.length)];
+		const { orderIndex, order } = agent.playStep(state, { selected });
 		env.step({ ...order, id: selected });
 
 		env.reset();
 		env.models[selected].stamina = getRandomInteger(0, 10);
-		const input = agent.getInput(state)
+		const input = agent.getInput(state, { selected })
 		return [input, orderIndex];
 	}
 	function* getStateAndAnswerGeneratorFn() {

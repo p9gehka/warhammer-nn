@@ -76,9 +76,3 @@ export async function testReward(silent, nn) {
 	}
 	return vpAverager.average();
 }
-
-async function main() {
-	await testReward(false);
-}
-
-main();
