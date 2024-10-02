@@ -9,7 +9,6 @@ import { filterObjByKeys } from './static/utils/index.js';
 import gameSettings from './static/settings/game-settings.json' assert { type: 'json' };
 import allBattlefields from './static/settings/battlefields.json' assert { type: 'json' };
 
-
 import config from './config.json' assert { type: 'json' };
 import * as tf from '@tensorflow/tfjs-node';
 
@@ -26,6 +25,7 @@ app.use(express.static(__dirname + '/static'));
 
 app.get('/', (req,res) => res.sendFile('static/index.html', { root: __dirname }));
 app.get('/game', (req,res) => res.sendFile('static/game.html', { root: __dirname }));
+app.get('/dataset', (req,res) => res.sendFile('static/dataset.html', { root: __dirname }));
 
 app.post('/play', async (req,res) => {
 	const env = new Warhammer({ gameSettings, battlefields });
