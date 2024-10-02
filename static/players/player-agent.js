@@ -1,5 +1,5 @@
 import { BaseAction } from '../environment/warhammer.js';
-import { MoveAgent } from '../agents/move-agent/move-to-object-agent.js';
+import { MoveAgent } from '../agents/move-agent/move-agent44x30.js';
 
 export class PlayerAgent {
 	static cascad = [MoveAgent.settings]
