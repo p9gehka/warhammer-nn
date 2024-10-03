@@ -33,13 +33,13 @@ export class MissionController {
 			});
 		});
 
-		this.startTurnObjectiveControl = objectiveControl
+		this.startTurnObjectiveControl = objectiveControl;
 	}
 	scorePrimaryVP(state, profiles) {
 		const turn = state.turn;
 		const round = Math.floor(turn / 2);
 		const objectiveControlReward = 5;
-		console.log(this.startTurnObjectiveControl)
+
 		return Math.min(this.startTurnObjectiveControl.filter(oc => oc > 0).length * objectiveControlReward, 15);
 	}
 }

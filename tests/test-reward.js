@@ -2,6 +2,7 @@ import { Warhammer } from '../static/environment/warhammer.js';
 import { PlayerDumb } from '../static/players/player-dumb.js';
 import { filterObjByKeys } from '../static/utils/index.js';
 import { PlayerAgent } from '../static/players/player-agent.js';
+import { PlayerEasy } from '../static/players/player-easy.js';
 import { Rewarder } from '../students/student.js';
 import { MovingAverager } from '../moving-averager.js';
 
