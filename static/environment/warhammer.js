@@ -66,7 +66,6 @@ export class Warhammer {
 	models = [];
 	phase = Phase.Movement;
 	turn = 0;
-	started = false;
 	objectiveControlReward = 5;
 	totalRounds = 5;
 	lastMovedModelId = null;
@@ -85,7 +84,6 @@ export class Warhammer {
 
 		this.phase = Phase.Movement;
 		this.turn = 0;
-		this.started = false;
 		let unitCounter = 0;
 
 		const units = this.gameSettings.units.map(
@@ -142,12 +140,6 @@ export class Warhammer {
 	}
 
 	step(order) {
-		if (!this.started) {
-			this.started = true;
-			this.missions[this.getPlayer()].startTurn(this.getState(), this.models.map(m => m.unitProfile));
-			this.players[0].primaryVP += this.scorePrimaryVP();
-		}
-
 		if (this.done()) {
 			return this.getState();
 		}
