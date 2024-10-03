@@ -144,6 +144,7 @@ export class Warhammer {
 	step(order) {
 		if (!this.started) {
 			this.started = true;
+			this.missions[this.getPlayer()].startTurn(this.getState(), this.models.map(m => m.unitProfile));
 			this.players[0].primaryVP += this.scorePrimaryVP();
 		}
 
