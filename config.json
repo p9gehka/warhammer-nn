@@ -9,7 +9,7 @@
 	"repeatBatchTraining": 5,
 	"batchSize": 64,
 	"gamma": 0.99,
-	"freezeLayers": [0],
+	"freezeLayers": [],
 
 	"cumulativeRewardThreshold": 4,
 	"epsilonDecayFrames": 5e5,

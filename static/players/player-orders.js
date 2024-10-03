@@ -9,6 +9,6 @@ export const PlayerAction = {
 export { moveOrders };
 export const playerOrders = [...moveOrders];
 
-Array(2).fill(0).map((_, id) => {
+Array(4).fill(0).map((_, id) => {
 	playerOrders.push({ action: PlayerAction.Select, id });
 });
