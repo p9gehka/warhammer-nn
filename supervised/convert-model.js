@@ -1,6 +1,6 @@
 import { getTF } from '../static/utils/get-tf.js';
 import { createDeepQNetwork, copyWeights } from '../dqn/dqn.js';
-import { MoveAgent } from '../static/agents/move-agent/move-center-agent.js';
+import { MoveAgent } from '../static/agents/move-agent/move-agent44x30.js';
 const tf = await getTF();
 
 async function main() {
