@@ -4,7 +4,8 @@ import { deployment } from  '../battlefield/deployment.js';
 
 //{ Empty: 0 }
 export const Channel0 = {};
-new Array(17).fill(0).forEach((_, v) => { Channel0[v] = 1 });
+new Array(17).fill(0).forEach((_, v) => { Channel0[`PlayerModel${v}`] = 1 });
+new Array(17).fill(0).forEach((_, v) => { Channel0[`OpponentModel${v}`] = 0.5 });
 export const Channel1 = {};
 
 [0,1,2,3,4,5,6,7,8,9,10].forEach(v => { Channel1[`Stamina${v}`] = v / 10; });
@@ -72,7 +73,7 @@ export function getInput(state, playerState) {
 			let entities = [];
 
 			if (playerId === state.player) {
-				input[playerModelId] = [xy];
+				input[`PlayerModel${playerModelId}`] = [xy];
 
 				if (playerModelId >= playerState.selected) {
 					const order = Math.min(playerModelId - playerState.selected, maxModelsAtOrder - 1);
@@ -83,6 +84,8 @@ export function getInput(state, playerState) {
 					const stamina = Math.min(state.modelsStamina[gameModelId], 10);
 					entities.push(Channel1Name[`Stamina${stamina}`]);
 				}
+			} else {
+				input[`OpponentModel${playerModelId}`] = [xy];
 			}
 
 			entities.forEach(entity => {

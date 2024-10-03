@@ -38,8 +38,11 @@ body {
 .info-cell {
 	background: aqua;
 }
-.model-cell {
-	background: sienna;
+.player-model-cell {
+	background: red;
+}
+.opponent-model-cell {
+	background: blue;
 }
 .player-0 {
 	background: rgba(255, 0, 0, 0.2);

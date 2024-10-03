@@ -101,8 +101,10 @@ function updateTable(state, input) {
 			const cellEl = document.createElement('TD');
 			cellEl.innerHTML = cell.map((v, i) => v.toFixed(1) + ((i === nextline) ? '\n' : ',')).join('');
 			rowEl.appendChild(cellEl);
-			if (cell[0] !== 0) {
-				cellEl.classList.add('model-cell');
+			if (cell[0] === 1) {
+				cellEl.classList.add('player-model-cell');
+			} else if (cell[0] === 0.5) {
+				cellEl.classList.add('opponent-model-cell');
 			} else if (cell.some(v => v !== 0)) {
 				cellEl.classList.add('info-cell');
 			}

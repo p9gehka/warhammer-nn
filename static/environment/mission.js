@@ -25,7 +25,7 @@ export class MissionController {
 				objectiveMarkers.forEach((markerPosition, i) => {
 					const modelPosition = state.models[modelId];
 					if (len(sub(modelPosition, markerPosition)) <= deploy.objective_marker_control_distance) {
-						const ocSign = modelPlayerId === activePlayerId ? 1 : 0;
+						const ocSign = modelPlayerId === activePlayerId ? 1 : -1;
 						const oc = profiles[modelId].oc * ocSign;
 						objectiveControl[i] += oc;
 					}
@@ -39,7 +39,7 @@ export class MissionController {
 		const turn = state.turn;
 		const round = Math.floor(turn / 2);
 		const objectiveControlReward = 5;
-
+		console.log(this.startTurnObjectiveControl)
 		return Math.min(this.startTurnObjectiveControl.filter(oc => oc > 0).length * objectiveControlReward, 15);
 	}
 }
