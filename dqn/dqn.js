@@ -60,12 +60,6 @@ export function copyWeights(destNetwork, srcNetwork) {
     originalDestNetworkTrainable = destNetwork.trainable;
     destNetwork.trainable = srcNetwork.trainable;
   }
-  let originalDestLayersTrainable=[]
-
-	destNetwork.layers.forEach((layer, i) => {
-		originalDestLayersTrainable[i] = layer.trainable;
-		layer.trainable = srcNetwork.layers[i].trainable;
-	});
 
   destNetwork.setWeights(srcNetwork.getWeights());
 
@@ -78,8 +72,4 @@ export function copyWeights(destNetwork, srcNetwork) {
   if (originalDestNetworkTrainable != null) {
     destNetwork.trainable = originalDestNetworkTrainable;
   }
-
-  originalDestLayersTrainable.forEach((trainable, i) => {
-  	destNetwork.layers[i].trainable = trainable;
-  });
 }

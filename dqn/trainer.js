@@ -18,11 +18,10 @@ export class Trainer {
 		this.targetNetwork = await tf.models.modelFromJSON({
 			modelTopology: this.onlineNetwork.toJSON(null, false)
 		});
-		const freezeLayers = [0, 1, 2, 3, 4, 5, 6, 7, 8];
-		for (let i =0; i < freezeLayers.length; i++) {
-			this.targetNetwork.layers[freezeLayers[i]].trainable = false;
-		}
 		this.copyWeights();
+
+		this.targetNetwork.trainable = false;
+		this.onlineNetwork.trainable = true;
 	}
 	copyWeights() {
 		copyWeights(this.targetNetwork, this.onlineNetwork);
