@@ -11,7 +11,6 @@ export class Trainer {
 		this.replayMemory = replayMemory;
 		this.onlineNetwork = nn ?? createDeepQNetwork(this.game.orders.length, this.game.height, this.game.width, this.game.channels.length);
 		this.targetNetwork = null;
-		/* this.targetNetwork.trainable = false not work why?? */
 	}
 	async createTargetNetwork() {
 		this.targetNetwork?.dispose();
@@ -20,8 +19,8 @@ export class Trainer {
 		});
 		this.copyWeights();
 
-		this.targetNetwork.trainable = false;
-		this.onlineNetwork.trainable = true;
+		//this.targetNetwork.trainable = false;
+		//this.onlineNetwork.trainable = true;
 	}
 	copyWeights() {
 		copyWeights(this.targetNetwork, this.onlineNetwork);
