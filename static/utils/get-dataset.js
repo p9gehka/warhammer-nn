@@ -40,16 +40,21 @@ export function getRawDataset(argenv, argagent) {
 	const env = argenv ?? new Warhammer({ gameSettings, battlefields });
 	const agent = argagent ?? new MoveAgent();
 
-	function getStateAndAnswer() {
-		const state = env.getState();
-		const { models } = env.players[state.player];
-		const selected = models[getRandomInteger(0, models.length)];
-		const { orderIndex, order } = agent.playStep(state, { selected });
+	function getStateAndAnswer() {	
+		env.reset();
+		env.turn = getRandomInteger(0, 10);
+		let state = env.getState();
+		const { models: playerModels } = env.players[state.player];
+		const playerModelSelected = getRandomInteger(0, playerModels.length);
+		const selected = playerModels[playerModelSelected];
+		env.models[selected].stamina = getRandomInteger(0, 10);
+
+		state = env.getState();
+
+		const { orderIndex, order } = agent.playStep(state, { selected: playerModelSelected });
 		env.step({ ...order, id: selected });
 
-		env.reset();
-		env.models[selected].stamina = getRandomInteger(0, 10);
-		const input = agent.getInput(state, { selected })
+		const input = agent.getInput(state, { selected: playerModelSelected })
 		return [input, orderIndex];
 	}
 	function* getStateAndAnswerGeneratorFn() {
