@@ -33,7 +33,7 @@ export class MissionController {
 			});
 		});
 
-		this.startTurnObjectiveControl = objectiveControl
+		this.startTurnObjectiveControl = objectiveControl;
 	}
 	scorePrimaryVP(state, profiles) {
 		const turn = state.turn;
