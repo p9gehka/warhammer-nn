@@ -113,6 +113,7 @@ export class Rewarder {
 	}
 	epsilonReward(prevState, order, epsilon) {
 		let reward = 0;
+		return 0;
 		if (order.action === BaseAction.Move) {
 			const state = this.env.getState();
 			const playerState = this.player.getState();
