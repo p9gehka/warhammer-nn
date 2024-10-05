@@ -19,6 +19,9 @@ export class Trainer {
 			modelTopology: this.onlineNetwork.toJSON(null, false)
 		});
 		this.copyWeights();
+
+		this.targetNetwork.trainable = false;
+		this.onlineNetwork.trainable = true;
 	}
 	copyWeights() {
 		copyWeights(this.targetNetwork, this.onlineNetwork);

@@ -59,9 +59,8 @@ async function main() {
 		try {
 			nn = await tf.loadLayersModel(`file://${config.savePath}/model.json`);
 			console.log(`Loaded from ${config.savePath}/model.json`);
-			const freezeLayers = [0];
 			console.log(`Freese layers - ${freezeLayers} `)
-			for (let i =0; i <= freezeLayers.length; i++) {
+			for (let i =0; i < freezeLayers.length; i++) {
 				nn.layers[freezeLayers[i]].trainable = false;
 			}
 

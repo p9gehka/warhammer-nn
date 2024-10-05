@@ -25,7 +25,8 @@ export class MoveAgentBase {
 	fillAgent = new RandomAgent();
 	orders = moveOrders;
 	async load() {
-		const loadPath = 'file://' + 'static/' + `agents/move-agent/.model${this.width}x${this.height}x${this.channels.length}/model.json`;
+		const staticPath = typeof window !== 'undefined' ? '/' : 'file://' + 'static/';
+		const loadPath = staticPath + `agents/move-agent/.model${this.width}x${this.height}x${this.channels.length}/model.json`;
 		this.onlineNetwork = await tf.loadLayersModel(loadPath);
 	}
 	playStep(state, playerState) {
