@@ -17,7 +17,7 @@
 import { getTF } from '../static/utils/get-tf.js';
 const tf = await getTF();
 
-export function createDeepQNetwork(numActions, h, w, c) {
+export function createDeepQNetwork(numActions, h, w, c, { addSoftmaxLayer }) {
 	if (!(Number.isInteger(h) && h > 0)) {
 		throw new Error(`Expected height to be a positive integer, but got ${h}`);
 	}
@@ -43,7 +43,11 @@ export function createDeepQNetwork(numActions, h, w, c) {
 	const concatinate = tf.layers.concatenate().apply([conv2dOut, inputDense]);
 	let mlp = tf.layers.dense({units: 768, activation: 'relu'}).apply(concatinate);
 	mlp = tf.layers.dropout({ rate: 0.5 }).apply(mlp);
-	const output = tf.layers.dense({units: numActions}).apply(mlp);
+	let output = tf.layers.dense({units: numActions}).apply(mlp);
+
+	if (addSoftmaxLayer) {
+		output = tf.layers.softmax().apply(output)
+	}
 	const model = tf.model({ inputs: [inputConv2d, inputDense], outputs: output });
 
 	return model;

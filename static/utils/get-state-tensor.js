@@ -33,7 +33,9 @@ export function getStateTensor(state, h, w, channels) {
 export function getStateTensor1(state, h, w, channels) {
 	const c = channels.length;
 	/* rotate wh to hwc*/
-	let buffer = tf.buffer([w, h, c]);
+
+	const img2Buffer = tf.buffer([w, h, c]);
+	const roundBuffer = tf.buffer([5]);
 
 	channels.forEach((channel, i) => {
 		for (let entity in channel) {
@@ -42,9 +44,10 @@ export function getStateTensor1(state, h, w, channels) {
 			}
 			const enitities = state[entity].forEach(yx => {
 				/* rotate wh to hwc*/
-				buffer.set(channel[entity], yx[1], yx[0], i);
+				img2Buffer.set(channel[entity], yx[1], yx[0], i);
 			});
 		}
 	});
-	return [buffer.toTensor(), tf.oneHot([state.round], 5)];
+	roundBuffer.set(1, state.round);
+	return [img2Buffer.toTensor(), roundBuffer.toTensor()];
 }

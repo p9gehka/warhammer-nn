@@ -42,7 +42,9 @@ async function start() {
 	await scene.init();
 
 	let i = 0;
-	await getRawDataset(env).take(numberOfExamples).forEachAsync(e => {
+	const moveAgent = new MoveAgent();
+	await moveAgent.load();
+	await getRawDataset(env, moveAgent).take(numberOfExamples).forEachAsync(e => {
 		states.push(e[0])
 		stateTensor = stateTensor.maximum(gameToFeaturesAndLabel(e).xs[0]);
 		models[i] = e[0][Channel3Name.Order0][0];
