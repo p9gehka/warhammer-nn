@@ -88,7 +88,7 @@ export class Student {
 	awarding() {
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {
 			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
-			this.replayMemory?.append([...this.prevMemoryState, reward, true, input]);
+			this.replayMemory?.append([...this.prevMemoryState, reward, true, null]);
 		}
 	}
 }
