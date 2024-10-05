@@ -17,7 +17,7 @@
 import { getTF } from '../static/utils/get-tf.js';
 const tf = await getTF();
 
-export function createDeepQNetwork(numActions, h, w, c, { addSoftmaxLayer }) {
+export function createDeepQNetwork(numActions, h, w, c, { addSoftmaxLayer } = { addSoftmaxLayer: false}) {
 	if (!(Number.isInteger(h) && h > 0)) {
 		throw new Error(`Expected height to be a positive integer, but got ${h}`);
 	}
