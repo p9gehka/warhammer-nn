@@ -1,0 +1,19 @@
+
+{
+        "syncEveryEpoch": 512, / 400
+        "saveEveryEpoch": 30,
+        "learningRate": 7e-5,
+
+        "repeatBatchTraining": 1,
+        "batchSize": 64, / 128
+        "gamma": 0.99,
+
+        "cumulativeRewardThreshold": 4,
+        "epsilonDecayFrames": 4e5,
+        "rewardAveragerBufferLength": 1500,
+        "replayBufferSize": 2e3,
+        "replayMemorySize": 18e3,
+        "sendMessageEveryFrames": 1e6,
+        "framesThreshold": 1e6,
+        "battlefields": []
+}
