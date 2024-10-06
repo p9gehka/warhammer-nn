@@ -29,6 +29,8 @@ export function createDeepQNetwork(numActions, h, w, c) {
 				`Expected numActions to be a integer greater than 1, ` +
 				`but got ${numActions}`);
 	}
+	const totalRounds = 5;
+	const inputShape = [h, w, c];
 
 	const inputConv2d = tf.input({shape: inputShape});
 	const inputDense = tf.input({shape: [totalRounds]});
