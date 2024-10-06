@@ -70,7 +70,7 @@ async function updatePredictions(state) {
 	ordersList.innerHTML = '';
 	const orders = playerOrders;
 
-	const [_, height, width] = model.input.shape;
+	const [_, height, width] = model.input[0].shape;
 	window.tf.tidy(() => {
 		const predictions = model.predict(getStateTensor([getInput(state)], width, height, channels)).dataSync();
 		orders.forEach((order, i) => {
