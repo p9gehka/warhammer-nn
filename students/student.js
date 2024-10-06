@@ -113,7 +113,7 @@ export class Rewarder {
 	}
 	epsilonReward(prevState, order, epsilon) {
 		let reward = 0;
-		return 0;
+
 		if (order.action === BaseAction.Move) {
 			const state = this.env.getState();
 			const playerState = this.player.getState();
@@ -126,7 +126,7 @@ export class Rewarder {
 			const initialPosititonDelta = len(sub(center, sub(initialPosititon, center).map(Math.abs)));
 			reward += (currentPositionDelta - initialPosititonDelta);
 		}
-		return reward;
+		return reward * epsilon;
 	}
 
 	primaryReward(order, primaryVP) {
