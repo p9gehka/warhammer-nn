@@ -79,6 +79,7 @@ async function play() {
 		state = env.getState();
 
 		if (state.done) {
+			players.forEach(agent => agent.awarding());
 			const currentFrameCount = frameCount - frameCountPrev; 
 			const currentT = new Date().getTime();
 			const framesPerSecond = currentFrameCount / (currentT - t) * 1e3;

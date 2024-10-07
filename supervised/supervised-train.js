@@ -12,10 +12,10 @@ async function main() {
 	if (fs.existsSync(`${savePath}/loading/model.json`)) {
 		try {
 			nn = await tf.loadLayersModel(`file://${savePath}/loading/model.json`);
-			const blockLayers = [0, 2];
-			console.log(`Block ${blockLayers.length} layers`)
-			for (let i =0; i <= blockLayers.length; i++) {
-				nn.layers[blockLayers[i]].trainable = false;
+			const freezeLayers = [0, 2];
+			console.log(`Block ${freezeLayers.length} layers`)
+			for (let i =0; i <= freezeLayers.length; i++) {
+				nn.layers[freezeLayers[i]].trainable = false;
 			}
 
 			console.log(`Loaded from ${savePath}/loading/model.json`);
