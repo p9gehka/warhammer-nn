@@ -96,5 +96,7 @@ export function getInput(state, playerState) {
 			});
 		});
 	});
+
+	input.round = state.round;
 	return input;
 }

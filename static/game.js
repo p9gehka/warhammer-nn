@@ -92,7 +92,7 @@ function drawOrders() {
 }
 
 function updateTable(state, input) {
-	const data = getStateTensor([input], ...state.battlefield.size, channels).arraySync();
+	const data = getStateTensor([input], ...state.battlefield.size, channels)[0].arraySync();
 	const fragment = new DocumentFragment();
 	const nextline = Math.floor(Math.sqrt(data[0][0][0].length)) - 1;
 	for(let row of data[0]) {
