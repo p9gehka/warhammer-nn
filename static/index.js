@@ -80,7 +80,7 @@ async function updatePredictions(state, input) {
 	if (model === undefined) {
 		return;
 	}
-	const [_, height, width] = model.input.shape;
+	const [_, height, width] = model.input[0].shape;
 	window.tf.tidy(() => {
 		const predictions = model.predict(getStateTensor([input], width, height, channels)).dataSync();
 		orders.forEach((order, i) => {
@@ -129,7 +129,7 @@ viewCheckbox.addEventListener('change', (e) => {
 });
 
 function updateTable(state, input) {
-	const data = getStateTensor([input], ...state.battlefield.size, channels).arraySync();
+	const data = getStateTensor([input], ...state.battlefield.size, channels)[0].arraySync();
 	const fragment = new DocumentFragment();
 	const nextline = Math.floor(Math.sqrt(data[0][0][0].length)) - 1;
 	for(let row of data[0]) {

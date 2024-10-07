@@ -26,14 +26,14 @@ async function train(nn) {
 	let epoch = 0;
 
 	while (true) {
-		for (let i = 0; i < repeatBatchTraining ; i++) {
-			trainer.trainOnReplayBatch(config.batchSize, gamma, optimizer);
-			console.log(`epoch: ${epoch} replay ${i + 1}`);
-		}
-
 		if (epoch % config.syncEveryEpoch === 0) { /* sync не произойдет */
 			trainer.copyWeights();
 			console.log('Sync\'ed weights from online network to target network');
+		}
+
+		for (let i = 0; i < repeatBatchTraining ; i++) {
+			trainer.trainOnReplayBatch(config.batchSize, gamma, optimizer);
+			console.log(`epoch: ${epoch} replay ${i + 1}`);
 		}
 
 		if (epoch % config.saveEveryEpoch === 0) {
@@ -60,8 +60,11 @@ async function main() {
 			nn = await tf.loadLayersModel(`file://${config.savePath}/model.json`);
 			console.log(`Loaded from ${config.savePath}/model.json`);
 			console.log(`Freese layers - ${freezeLayers} `)
-			for (let i =0; i < freezeLayers.length; i++) {
-				nn.layers[freezeLayers[i]].trainable = false;
+			for (let i = 0; i < nn.layers.length; i++) {
+				const layer = nn.layers[i];
+				if (freezeLayers.includes(layer.name)) {
+					layer.trainable = false;
+				}
 			}
 
 		} catch (e) {

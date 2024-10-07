@@ -84,6 +84,13 @@ export class Student {
 		this.rewarder.reset();
 		this.player.reset();
 	}
+
+	awarding() {
+		if (this.prevMemoryState !== null && this.prevState !== undefined) {
+			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
+			this.replayMemory?.append([...this.prevMemoryState, reward, true, null]);
+		}
+	}
 }
 
 export class Rewarder {
@@ -106,6 +113,7 @@ export class Rewarder {
 	}
 	epsilonReward(prevState, order, epsilon) {
 		let reward = 0;
+
 		if (order.action === BaseAction.Move) {
 			const state = this.env.getState();
 			const playerState = this.player.getState();
