@@ -46,7 +46,7 @@ async function start() {
 	await moveAgent.load();
 	await getRawDataset(env, moveAgent).take(numberOfExamples).forEachAsync(e => {
 		states.push(e[0])
-		stateTensor = stateTensor.maximum(gameToFeaturesAndLabel(e).xs[0]);
+		stateTensor = stateTensor.maximum(gameToFeaturesAndLabel(e).xs.input1);
 		models[i] = e[0][Channel3Name.Order0][0];
 		if (e[1] !== 0) {
 			arrows.push([add(models[i],[0.3, 0.3]), add(add(models[i],[0.3, 0.3]), MoveAgent.settings.orders[e[1]].vector)])
