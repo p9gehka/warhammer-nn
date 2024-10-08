@@ -23,9 +23,7 @@ export function createSLNetwork(numActions, h, w, c) {
 
 	let conv2dOut = tf.layers.flatten().apply(conv2d);
 	const concatinate = tf.layers.concatenate().apply([conv2dOut, inputDense]);
-	let mlp = tf.layers.dense({units: 768, activation: 'relu'}).apply(concatinate);
-	mlp = tf.layers.dropout({ rate: 0.5 }).apply(mlp);
-	let output = tf.layers.dense({units: numActions, activation: 'softmax'}).apply(mlp);
+	let output = tf.layers.dense({units: numActions, activation: 'softmax'}).apply(concatinate);
 	
 	const model = tf.model({ inputs: [inputConv2d, inputDense], outputs: output });
 
