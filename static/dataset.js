@@ -6,6 +6,7 @@ import { getStateTensor } from './utils/get-state-tensor.js';
 import { Phase, Warhammer } from './environment/warhammer.js';
 import { getInput, channels, Channel1Name, Channel3Name  } from './environment/nn-input.js';
 import { getRandomInteger } from './utils/index.js';
+import { updateTable2 as updateTable } from './gui/update-table.js';
 
 import allBattlefields from '../settings/battlefields.json' assert { type: 'json' };
 import gameSettings from './settings/game-settings.json' assert { type: 'json' };
@@ -61,29 +62,8 @@ async function start() {
 		i++;
 	});
 	scene.updateState(state, {arrows});
-	updateTable(state);
+	updateTable(state, stateTensor, table);
 	countOrders.forEach((n, i) => console.log(MoveAgent.settings.orders[i], n))
-}
-
-
-function updateTable(state) {
-	const data = stateTensor.arraySync();
-	const fragment = new DocumentFragment();
-	const nextline = Math.floor(Math.sqrt(data[0][0][0].length));
-	for(let row of data) {
-		const rowEl = document.createElement('TR');
-		for (let cell of row) {
-			const cellEl = document.createElement('TD');
-			cellEl.innerHTML = cell.map((v, i) => v.toFixed(1) + ((i === nextline) ? '\n' : ',')).join('');
-			rowEl.appendChild(cellEl);
-			if (cell.some(v => v !== 0)) {
-				cellEl.classList.add('info-cell');
-			}
-		}
-		fragment.appendChild(rowEl)
-	}
-	table.innerHTML = '';
-	table.appendChild(fragment);
 }
 
 viewCheckbox.addEventListener('change', (e) => {
