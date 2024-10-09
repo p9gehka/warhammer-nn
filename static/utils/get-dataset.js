@@ -19,7 +19,7 @@ export function gameToFeaturesAndLabel(record) {
 		const [input, orderIndex] = record;
 		const features = getStateTensor1(input, MoveAgent.settings.width, MoveAgent.settings.height, MoveAgent.settings.channels);
 		const label = tf.oneHot(tf.scalar(orderIndex, 'int32'), MoveAgent.settings.orders.length);
-		return { xs: { 'sl-input1': features[0], input1: features[1] }, ys: label};
+		return { xs: { input1: features[0], input2: features[1] }, ys: label};
 	});
 }
 
