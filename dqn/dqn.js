@@ -17,7 +17,7 @@
 import { getTF } from '../static/utils/get-tf.js';
 const tf = await getTF();
 
-export function createDeepQNetwork(numActions, h, w, c, { addSoftmaxLayer } = { addSoftmaxLayer: false}) {
+export function createDeepQNetwork(numActions, h, w, c, { addSoftmaxLayer, inputTransfer, conv2dForTransfer } = { addSoftmaxLayer: false}) {
 	if (!(Number.isInteger(h) && h > 0)) {
 		throw new Error(`Expected height to be a positive integer, but got ${h}`);
 	}
@@ -31,11 +31,9 @@ export function createDeepQNetwork(numActions, h, w, c, { addSoftmaxLayer } = { 
 	}
 	const totalRounds = 5
 	const inputShape = [h, w, c];
-	const inputConv2d = tf.input({shape: inputShape});
 	const inputDense = tf.input({shape: [totalRounds]});
-	let conv2d = tf.layers.conv2d({ filters: 8, kernelSize: 6, activation: 'relu'}).apply(inputConv2d);
-	conv2d = tf.layers.batchNormalization().apply(conv2d);
-	conv2d = tf.layers.conv2d({ filters: 16, kernelSize: 4, activation: 'relu' }).apply(conv2d);
+
+	let conv2d = tf.layers.conv2d({ filters: 16, kernelSize: 4, activation: 'relu'}).apply(conv2dForTransfer);
 	conv2d = tf.layers.batchNormalization().apply(conv2d);
 	conv2d = tf.layers.conv2d({ filters: 16, kernelSize: 4, activation: 'relu'}).apply(conv2d);
 
@@ -48,7 +46,7 @@ export function createDeepQNetwork(numActions, h, w, c, { addSoftmaxLayer } = { 
 	if (addSoftmaxLayer) {
 		output = tf.layers.softmax().apply(output)
 	}
-	const model = tf.model({ inputs: [inputConv2d, inputDense], outputs: output });
+	const model = tf.model({ inputs: [inputTransfer, inputDense], outputs: output });
 
 	return model;
 }

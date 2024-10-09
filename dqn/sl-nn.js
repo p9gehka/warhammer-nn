@@ -15,9 +15,12 @@ export function createSLNetwork(numActions, h, w, c) {
 	}
 	const totalRounds = 5
 	const inputShape = [h, w, c];
-	const inputConv2d = tf.input({shape: inputShape});
+	const inputConv2d = tf.input({shape: inputShape, name: 'sl-input1'});
 	const inputDense = tf.input({shape: [totalRounds]});
-	let conv2d = tf.layers.conv2d({ filters: 8, kernelSize: 6, activation: 'relu'}).apply(inputConv2d);
+  let conv2d = tf.layers.conv2d({ filters: 8, kernelSize: 4, activation: 'relu', name: 'sl-conv2d1' }).apply(inputConv2d);
+  conv2d = tf.layers.batchNormalization({ name: 'sl-batchNormalisation1' }).apply(conv2d);
+  conv2d = tf.layers.conv2d({ filters: 8, kernelSize: 4, activation: 'relu',  name: 'sl-conv2d2' }).apply(conv2d);
+  conv2d = tf.layers.batchNormalization({ name: 'sl-batchNormalisation2' }).apply(conv2d);
 
 	let conv2dOut = tf.layers.flatten().apply(conv2d);
 	const concatinate = tf.layers.concatenate().apply([conv2dOut, inputDense]);
