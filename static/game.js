@@ -103,7 +103,7 @@ function updateTable(state, input) {
 			rowEl.appendChild(cellEl);
 			if (cell[0] === 1) {
 				cellEl.classList.add('player-model-cell');
-			} else if (cell[0] === 0.5) {
+			} else if (cell[4] === 1) {
 				cellEl.classList.add('opponent-model-cell');
 			} else if (cell.some(v => v !== 0)) {
 				cellEl.classList.add('info-cell');
