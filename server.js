@@ -5,6 +5,7 @@ import { Warhammer } from './static/environment/warhammer.js';
 import { PlayerAgent } from './static/players/player-agent.js';
 import { Rewarder } from './students/student.js';
 import { filterObjByKeys } from './static/utils/index.js';
+import { PlayerEasy } from './static/players/player-easy.js';
 
 import gameSettings from './static/settings/game-settings.json' assert { type: 'json' };
 import allBattlefields from './static/settings/battlefields.json' assert { type: 'json' };
@@ -29,7 +30,7 @@ app.get('/dataset', (req,res) => res.sendFile('static/dataset.html', { root: __d
 
 app.post('/play', async (req,res) => {
 	const env = new Warhammer({ gameSettings, battlefields });
-	const players = [new PlayerAgent(0, env), new PlayerAgent(1, env)];
+	const players = [new PlayerAgent(0, env), new PlayerEasy(1, env)];
 	const rewarders = [new Rewarder(env, players[0]), new Rewarder(env, players[1])];
 	try {
 		await Promise.all(players.map(player => player.load()));

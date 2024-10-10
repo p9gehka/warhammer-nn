@@ -4,21 +4,21 @@ import { run } from './main.js';
 
 import config from './config.json' assert { type: 'json' };
 
-const { epochs, batchesPerEpoch, savePath } = config;
+const { epochs, batchesPerEpoch, savePath, freezeLayers } = config;
 const tf = await getTF();
 
 async function main() {
 	let nn;
-	if (fs.existsSync(`${savePath}/loading/model.json`)) {
+	if (fs.existsSync(`${process.argv[2]}/loading/model.json`)) {
 		try {
-			nn = await tf.loadLayersModel(`file://${savePath}/loading/model.json`);
-			const freezeLayers = [0, 2];
-			console.log(`Block ${freezeLayers.length} layers`)
-			for (let i =0; i <= freezeLayers.length; i++) {
-				nn.layers[freezeLayers[i]].trainable = false;
-			}
+			nn = await tf.loadLayersModel(`file://${process.argv[2]}/model.json`);
+			console.log(`Block ${freezeLayers} layers`)
+			console.log(`Loaded from ${process.argv[2]}/model.json`);
+			console.log(`Freese layers - ${freezeLayers} `)
 
-			console.log(`Loaded from ${savePath}/loading/model.json`);
+			freezeLayers.forEach(layerName => {
+				nn.getLayer(layerName).trainable = false
+			});
 		} catch (e) {
 			console.log(e.message);
 		}
