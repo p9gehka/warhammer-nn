@@ -62,6 +62,7 @@ async function main() {
 			console.log(`Freese layers - ${freezeLayers} `)
 			for (let i = 0; i < nn.layers.length; i++) {
 				const layer = nn.layers[i];
+				console.log(layer.name);
 				if (freezeLayers.includes(layer.name)) {
 					layer.trainable = false;
 				}
