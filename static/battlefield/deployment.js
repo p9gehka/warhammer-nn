@@ -30,6 +30,12 @@ import {
 	ScorchedEarth,
 	SweepingRaid,
 	DisplayOfMight,
+	ClashOfPatrolsHalf,
+	ArcheothechRecoveryHalf,
+	ForwardOutpostHalf,
+	ScorchedEarthHalf,
+	SweepingRaidHalf,
+	DisplayOfMightHalf,
 	Empty44x30,
 } from './44x30.js';
 
@@ -97,6 +103,12 @@ export const deployment = {
 	"scorchedEarth": ScorchedEarth,
 	"sweepingRaid": SweepingRaid,
 	"displayOfMight": DisplayOfMight,
+	"clashOfPatrolsHalf": ClashOfPatrolsHalf,
+	"archeothechRecoveryHalf": ArcheothechRecoveryHalf,
+	"forwardOutpostHalf": ForwardOutpostHalf,
+	"scorchedEarthHalf": ScorchedEarthHalf,
+	"sweepingRaidHalf": SweepingRaidHalf,
+	"displayOfMightHalf": DisplayOfMightHalf,
 	"empty44x30": Empty44x30,
 
 	"smallFull1": SmallFull1,
