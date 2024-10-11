@@ -8,10 +8,10 @@
 	"models": [],
 	"units": [
 		[
-			{ "name": "stealth battlesuits", "models": [0] }
+			{ "name": "stealth battlesuits", "models": [0] },
+			{ "name": "stealth battlesuits", "models": [1] }
 		],
 		[
-			{ "name": "stealth battlesuits", "models": [1] },
 			{ "name": "stealth battlesuits", "models": [2] }
 		]
 	]
