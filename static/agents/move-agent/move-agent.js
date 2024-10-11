@@ -4,25 +4,14 @@ import { moveOrders } from './move-orders.js';
 import { Channel1Name, Channel3Name } from '../../environment/nn-input.js';
 import { getInput } from '../../environment/nn-input.js';
 import { getRandomInteger } from '../../utils/index.js';
+import { RandomAgent } from '../random-agent.js';
 import { eq } from '../../utils/vec2.js';
 
 const tf = await getTF();
 
-class RandomAgent {
-	constructor() {
-		this.orders = moveOrders;
-	}
-	playStep(state) {
-		const orderIndex = getRandomInteger(0, this.orders.length);
-		return { order: this.orders[orderIndex], orderIndex, estimate: 0 };
-	}
-	getInput(state, playerState) {
-		return getInput(state, playerState)
-	}
-}
 
 export class MoveAgentBase {
-	fillAgent = new RandomAgent();
+	fillAgent = new RandomAgent(this.orders, getInput);
 	orders = moveOrders;
 	async load() {
 		const staticPath = typeof window !== 'undefined' ? '/' : 'file://' + 'static/';
