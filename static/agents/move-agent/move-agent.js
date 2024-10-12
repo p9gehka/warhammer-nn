@@ -11,8 +11,10 @@ const tf = await getTF();
 
 
 export class MoveAgentBase {
-	fillAgent = new RandomAgent(this.orders, getInput);
 	orders = moveOrders;
+	constructor() {
+		this.fillAgent = new RandomAgent(this.orders, getInput);
+	}
 	async load() {
 		const staticPath = typeof window !== 'undefined' ? '/' : 'file://' + 'static/';
 		const loadPath = staticPath + `agents/move-agent/.model${this.width}x${this.height}x${this.channels.length}/model.json`;
