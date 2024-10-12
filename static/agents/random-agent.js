@@ -12,4 +12,5 @@ export class RandomAgent {
 	getInput(state) {
 		return this.getInputFunction(state)
 	}
+	load() {}
 }

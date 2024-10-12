@@ -1,6 +1,7 @@
 import { BaseAction } from '../environment/warhammer.js';
 import { MoveAgent } from '../agents/move-agent/move-agent44x30.js';
 import { ShootAgent } from '../agents/shoot-agent/shoot-agent44x30.js';
+import { DumbAgent } from '../agents/dumb-agent.js';
 import { Phase } from '../environment/warhammer.js';
 
 export class PlayerAgent {
@@ -13,11 +14,12 @@ export class PlayerAgent {
 		this._selectedModel = 0;
 		this.agents = {
 			[Phase.Movement]: new MoveAgent(),
-			[Phase.Shooting]: new ShootAgent(),
+			[Phase.Shooting]: new DumbAgent(),
 		};
 	}
 	async load() {
-		await this.agent.load();
+		await this.agents[Phase.Movement].load();
+		await this.agents[Phase.Shooting].load();
 	}
 	reset() {
 		this.checkSize();
@@ -75,14 +77,16 @@ export class PlayerAgent {
 	}
 
 	checkSize() {
-		if (this.agent.onlineNetwork === undefined) {
-			return;
-		}
-		const [_, width, height] = this.agent.onlineNetwork.inputs[0].shape;
-		const [fieldHeight, fieldWidth] = this.env.battlefield.size;
-		if (fieldHeight !== height || fieldWidth !== width) {
-			console.warn(`!!!!Map size and Network input are inconsistent: ${[fieldHeight, fieldWidth]} !== ${[height, width]}!!!`)
-		}
+		[this.agents[Phase.Movement], this.agents[Phase.Shooting]].forEach(agent => {
+			if (agent.onlineNetwork === undefined) {
+				return;
+			}
+			const [_, width, height] = agent.onlineNetwork.inputs[0].shape;
+			const [fieldHeight, fieldWidth] = this.env.battlefield.size;
+			if (fieldHeight !== height || fieldWidth !== width) {
+				console.warn(`!!!!Map size and Network input are inconsistent: ${[fieldHeight, fieldWidth]} !== ${[height, width]}!!!`)
+			}
+		});
 	}
 	selectNextModel(state) {
 		const playerModels = state.players[this.playerId].models;

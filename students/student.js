@@ -2,7 +2,7 @@ import { getRandomInteger } from '../static/utils/index.js';
 import { eq, sub, len, div } from '../static/utils/vec2.js';
 import { Channel2Name, Channel3Name } from '../static/environment/nn-input.js';
 import { PlayerAgent } from '../static/players/player-agent.js';
-import { BaseAction } from '../static/environment/warhammer.js';
+import { BaseAction, Phase } from '../static/environment/warhammer.js';
 import { deployment } from '../static/battlefield/deployment.js';
 
 export class StudentAgent extends PlayerAgent {
@@ -62,11 +62,16 @@ export class Student {
 	}
 
 	playStep() {
+		const prevState = this.env.getState();
+		if (prevState.phase !== Phase.Movement) {
+			return this.player.playStep();
+		}
+
 		this.frameCount++;
 		this.epsilon = this.frameCount >= this.epsilonDecayFrames ?
 			this.epsilonFinal :
 			this.epsilonInit + this.epsilonIncrement_ * this.frameCount;
-		const prevState = this.env.getState();
+		
 		const input = this.player.agent.getInput(prevState, this.player.getState());
 
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {

@@ -4,10 +4,12 @@ import { mul, len, sub, add, eq, scaleToLen, round } from '../utils/vec2.js'
 import { getRandomInteger } from '../utils/index.js';
 
 export const Phase = {
-	Movement: 0,
+	Command: 0,
+	Movement: 1,
+	Shooting: 2,
 }
 
-const phaseOrd = [Phase.Movement];
+const phaseOrd = [Phase.Command, Phase.Movement, Phase.Shooting];
 
 export const BaseAction = {
 	NextPhase: 'NEXT_PHASE',
@@ -144,20 +146,27 @@ export class Warhammer {
 			return this.getState();
 		}
 
+		const currentPlayerId = this.getPlayer();
 		if (order.action === BaseAction.NextPhase) {
-			this.missions[this.getPlayer()].startTurn(this.getState(), this.models.map(m => m.unitProfile));
-			this.players[this.getPlayer()].primaryVP += this.scorePrimaryVP();
-
+			if (this.phase === Phase.Command) {
+				this.missions[this.getPlayer()].startTurn(this.getState(), this.models.map(m => m.unitProfile));
+				this.players[this.getPlayer()].primaryVP += this.scorePrimaryVP();
+			}
 			this.lastMovedModelId = null;
 			this.models.forEach(model => model.updateAvailableToMove(false));
+		}
+		/*Before*/
 
+		if (order.action === BaseAction.NextPhase) {
 			if (this.phase === phaseOrd.at(-1)) {
 				this.turn++;
 			}
+
 			this.phase = phaseOrd[(this.phase + 1) % phaseOrd.length];
 		}
 
-		const currentPlayerId = this.getPlayer();
+		/*After*/
+		
 		if (order.action === BaseAction.NextPhase) {
 			if (this.phase === Phase.Movement) {
 				this.models.forEach((model) => {
