@@ -6,25 +6,23 @@ import { BaseAction } from '../static/environment/warhammer.js';
 import { deployment } from '../static/battlefield/deployment.js';
 
 export class StudentAgent extends PlayerAgent {
-	playTrainStep(epsilon) {
+	playTrainStep(temperature) {
 		const prevState = this.env.getState();
 		let orderIndex;
-		let estimate = 0;
-		const input = this.agent.getInput(prevState, this.getState());
+		const input = this.agent.getInput(prevState, this.getState(temperature));
 		const selected = input[Channel3Name.Order0][0];
-
-		if (Math.random() < epsilon) {
-			orderIndex = getRandomInteger(0, this.agent.orders.length);
-		} else {
-			let { orderIndex: stepOrderIndex, estimate } = this.agent.playStep(prevState, this.getState());
-			orderIndex = stepOrderIndex;
-		}
+		let { orderIndex: stepOrderIndex, estimate } = this.agent.playStep(prevState, this.getState(temperature));
+		orderIndex = stepOrderIndex;
 
 		const order = this.agent.orders[orderIndex];
 
 		let [order_, state] = this.step(order);
 
 		return [order_, state, { index: orderIndex, estimate: estimate.toFixed(3) }];
+	}
+
+	getState(temperature) {
+		return { ...super.getState(), temperature }
 	}
 }
 
@@ -40,7 +38,7 @@ export class Student {
 
 		this.replayMemory = replayMemory ?? null;
 		this.frameCount = 0;
-		this.epsilonInit = epsilonInit ?? 0.5;
+		this.epsilonInit = epsilonInit ?? 1;
 		this.epsilonFinal = epsilonFinal ?? 0.01;
 		this.epsilonDecayFrames = epsilonDecayFrames ?? 1e6;
 		this.epsilonIncrement_ = (this.epsilonFinal - this.epsilonInit) / this.epsilonDecayFrames;
@@ -50,6 +48,7 @@ export class Student {
 
 		this.setOnlineNetwork(nn);
 		this.rewarder = new Rewarder(this.env, this.player);
+		this.temperatureDelta = 1000;
 	}
 	setOnlineNetwork(nn) {
 		this.player.agent.onlineNetwork = nn;
@@ -66,6 +65,8 @@ export class Student {
 		this.epsilon = this.frameCount >= this.epsilonDecayFrames ?
 			this.epsilonFinal :
 			this.epsilonInit + this.epsilonIncrement_ * this.frameCount;
+		this.temperature = 1 + this.epsilon * this.temperatureDelta;
+
 		const prevState = this.env.getState();
 		const input = this.player.agent.getInput(prevState, this.player.getState());
 
@@ -73,7 +74,7 @@ export class Student {
 			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
 			this.replayMemory?.append([...this.prevMemoryState, reward, false, input]);
 		}
-		const result = this.player.playTrainStep(this.epsilon);
+		const result = this.player.playTrainStep(this.temperature);
 		this.prevMemoryState = [input, result[2].index];
 		this.prevState = prevState;
 		return result;

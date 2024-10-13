@@ -104,7 +104,7 @@ async function play() {
 				`Frame #${frameCount}: ` +
 				`cumulativeVP${rewardAveragerLen}=${averageVP.toFixed(1)}; ` +
 				`cumulativeReward${rewardAveragerLen}=${averageReward.toFixed(1)}; ` +
-				`(epsilon=${players[0].epsilon?.toFixed(3)}) ` +
+				`(temperature=${players[0].temperature?.toFixed(3)}) ` +
 				`(${framesPerSecond.toFixed(1)} frames/s)`
 			);
 

@@ -85,6 +85,6 @@ export class PlayerAgent {
 	}
 
 	getState() {
-		return { selected: this._selectedModel };
+		return { selected: this._selectedModel, temperature: 1 };
 	}
 }

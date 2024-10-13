@@ -49,7 +49,7 @@ export class MoveAgentBase {
 				const inputTensor = getStateTensor([input], width, height, channels);
 				const prediction = this.onlineNetwork.predict(inputTensor);
 				estimate = prediction.max(-1).dataSync()[0];
-				orderIndex = prediction.argMax(-1).dataSync()[0];
+				orderIndex = tf.multinomial(tf.div(prediction, playerState.temperature), 1).dataSync()[0];
 			});
 		}
 
