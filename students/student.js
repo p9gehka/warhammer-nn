@@ -21,7 +21,7 @@ export class StudentAgent extends PlayerAgent {
 		return [order_, state, { index: orderIndex, estimate: estimate.toFixed(3) }];
 	}
 
-	getState(temperature) {
+	getState(temperature = 1) {
 		return { ...super.getState(), temperature }
 	}
 }

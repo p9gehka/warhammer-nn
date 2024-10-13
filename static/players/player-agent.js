@@ -21,8 +21,11 @@ export class PlayerAgent {
 	}
 	playStep() {
 		const prevState = this.env.getState();
-
-		const { orderIndex, order, estimate } = this.agent.playStep(prevState, this.getState());
+		const playerState = this.getState();
+		if (playerState.temperature === undefined) {
+			console.trace()
+		}
+		const { orderIndex, order, estimate } = this.agent.playStep(prevState,  playerState);
 
 		let [order_, state] = this.step(order);
 
