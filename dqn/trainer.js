@@ -19,8 +19,7 @@ export class Trainer {
 		});
 		this.copyWeights();
 
-		//this.targetNetwork.trainable = false;
-		//this.onlineNetwork.trainable = true;
+		this.targetNetwork.trainable = false;
 	}
 	copyWeights() {
 		copyWeights(this.targetNetwork, this.onlineNetwork);
