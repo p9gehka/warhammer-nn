@@ -52,7 +52,7 @@ export class Student {
 		this.rewarder = new Rewarder(this.env, this.player);
 	}
 	setOnlineNetwork(nn) {
-		this.player.agent.onlineNetwork = nn;
+		this.player.agents[Phase.Movement].onlineNetwork = nn;
 	}
 	getOnlineNetwork(nn) {
 		return this.player.agent.onlineNetwork;
