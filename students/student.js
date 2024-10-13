@@ -72,10 +72,10 @@ export class Student {
 			this.epsilonFinal :
 			this.epsilonInit + this.epsilonIncrement_ * this.frameCount;
 		
-		const input = this.player.agent.getInput(prevState, this.player.getState());
+		const input = this.player.agents[prevState.phase].getInput(prevState, this.player.getState());
 
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {
-			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
+			let reward = this.rewarder.step(this.prevState, this.player.agents[this.prevState.phase].orders[this.prevMemoryState[1]], this.epsilon);
 			this.replayMemory?.append([...this.prevMemoryState, reward, false, input]);
 		}
 		const result = this.player.playTrainStep();
@@ -92,7 +92,7 @@ export class Student {
 
 	awarding() {
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {
-			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
+			let reward = this.rewarder.step(this.prevState, this.player.agents[this.prevState.phase].orders[this.prevMemoryState[1]], this.epsilon);
 			this.replayMemory?.append([...this.prevMemoryState, reward, true, null]);
 		}
 	}
