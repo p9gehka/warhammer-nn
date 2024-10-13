@@ -8,19 +8,21 @@ import { deployment } from '../static/battlefield/deployment.js';
 export class StudentAgent extends PlayerAgent {
 	playTrainStep() {
 		const prevState = this.env.getState();
+		const agent = this.agents[prevState.phase];
 		let orderIndex;
 		let estimate = 0;
-		const input = this.agent.getInput(prevState, this.getState());
+
+		const input = agent.getInput(prevState, this.getState());
 		const selected = input[Channel3Name.Order0][0];
 
 		if (Math.random() < this.epsilon) {
-			orderIndex = getRandomInteger(0, this.agent.orders.length);
+			orderIndex = getRandomInteger(0, agent.orders.length);
 		} else {
-			let { orderIndex: stepOrderIndex, estimate } = this.agent.playStep(prevState, this.getState());
+			let { orderIndex: stepOrderIndex, estimate } = agent.playStep(prevState, this.getState());
 			orderIndex = stepOrderIndex;
 		}
 
-		const order = this.agent.orders[orderIndex];
+		const order = agent.orders[orderIndex];
 
 		let [order_, state] = this.step(order);
 
