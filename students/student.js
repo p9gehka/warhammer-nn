@@ -55,7 +55,7 @@ export class Student {
 		this.player.agents[Phase.Movement].onlineNetwork = nn;
 	}
 	getOnlineNetwork(nn) {
-		return this.player.agent.onlineNetwork;
+		return this.player.agents[Phase.Movement].onlineNetwork;
 	}
 	getCumulativeReward() {
 		return this.rewarder.cumulativeReward;
