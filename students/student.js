@@ -48,7 +48,7 @@ export class Student {
 
 		this.setOnlineNetwork(nn);
 		this.rewarder = new Rewarder(this.env, this.player);
-		this.temperatureDelta = 1000;
+		this.temperatureDelta = 100;
 	}
 	setOnlineNetwork(nn) {
 		this.player.agent.onlineNetwork = nn;
