@@ -19,7 +19,7 @@ import config from './config.json' assert { type: 'json' };
 
 const savePath = './models/play-dqn/';
 
-const { cumulativeRewardThreshold, sendMessageEveryFrames, replayBufferSize, replayMemorySize, epsilonDecayFrames, framesThreshold } = config;
+const { cumulativeRewardThreshold, sendMessageEveryFrames, replayBufferSize, replayMemorySize, epsilonDecayFrames, framesThreshold, epsilonInit } = config;
 
 const rewardAveragerLen = 200;
 
