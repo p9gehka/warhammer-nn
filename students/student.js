@@ -65,7 +65,7 @@ export class Student {
 		this.epsilon = this.frameCount >= this.epsilonDecayFrames ?
 			this.epsilonFinal :
 			this.epsilonInit + this.epsilonIncrement_ * this.frameCount;
-		this.temperature = 1 + this.epsilon * this.temperatureDelta;
+		this.temperature = this.epsilon * this.temperatureDelta;
 
 		const prevState = this.env.getState();
 		const input = this.player.agent.getInput(prevState, this.player.getState());
