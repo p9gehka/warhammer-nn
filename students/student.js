@@ -6,14 +6,14 @@ import { BaseAction } from '../static/environment/warhammer.js';
 import { deployment } from '../static/battlefield/deployment.js';
 
 export class StudentAgent extends PlayerAgent {
-	playTrainStep() {
+	playTrainStep(epsilon) {
 		const prevState = this.env.getState();
 		let orderIndex;
 		let estimate = 0;
 		const input = this.agent.getInput(prevState, this.getState());
 		const selected = input[Channel3Name.Order0][0];
 
-		if (Math.random() < this.epsilon) {
+		if (Math.random() < epsilon) {
 			orderIndex = getRandomInteger(0, this.agent.orders.length);
 		} else {
 			let { orderIndex: stepOrderIndex, estimate } = this.agent.playStep(prevState, this.getState());
@@ -73,7 +73,7 @@ export class Student {
 			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
 			this.replayMemory?.append([...this.prevMemoryState, reward, false, input]);
 		}
-		const result = this.player.playTrainStep();
+		const result = this.player.playTrainStep(this.epsilon);
 		this.prevMemoryState = [input, result[2].index];
 		this.prevState = prevState;
 		return result;
@@ -107,7 +107,7 @@ export class Rewarder {
 
 		const { primaryVP } = state.players[this.playerId];
 		reward += this.primaryReward(order, primaryVP);
-		reward += this.epsilonReward(prevState, order, epsilon);
+		// reward += this.epsilonReward(prevState, order, epsilon);
 		this.cumulativeReward += reward;
 		return reward;
 	}
