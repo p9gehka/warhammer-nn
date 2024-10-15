@@ -19,20 +19,27 @@ new Array(maxModelsAtOrder).fill(0).forEach((_, v) => { Channel3[`Order${v}`] = 
 export const Channel4 = {};
 new Array(17).fill(0).forEach((_, v) => { Channel4[`OpponentModel${v}`] = 1 });
 
-export const Channel0Name = {}, Channel1Name = {}, Channel2Name = {}, Channel3Name = {}, Channel4Name = {};
+export const Channel5 = { Selected: 1 }
+export const Channel0Name = {}, Channel1Name = {}, Channel2Name = {}, Channel3Name = {}, Channel4Name = {}, Channel5Name = {};
 
 Object.keys(Channel0).forEach(name => Channel0Name[name] = name);
 Object.keys(Channel1).forEach(name => Channel1Name[name] = name);
 Object.keys(Channel2).forEach(name => Channel2Name[name] = name);
 Object.keys(Channel3).forEach(name => Channel3Name[name] = name);
 Object.keys(Channel4).forEach(name => Channel4Name[name] = name);
+Object.keys(Channel5).forEach(name => Channel5Name[name] = name);
 
-export const channels = [Channel0, Channel1, Channel2, Channel3, Channel4];
+export const channels = [Channel0, Channel1, Channel2, Channel3, Channel4, Channel5];
 export function emptyInput() {
 	const input = {};
-	[...Object.keys(Channel0Name), ...Object.keys(Channel1Name), ...Object.keys(Channel2Name), ...Object.keys(Channel3Name), ...Object.keys(Channel4Name)].forEach(name => {
-		input[name] = [];
-	});
+	[
+		...Object.keys(Channel0Name),
+		...Object.keys(Channel1Name),
+		...Object.keys(Channel2Name),
+		...Object.keys(Channel3Name),
+		...Object.keys(Channel4Name),
+		...Object.keys(Channel5Name)
+	].forEach(name =>input[name] = []);
 	return input;
 }
 
@@ -78,14 +85,16 @@ export function getInput(state, playerState) {
 			if (playerId === state.player) {
 				input[Channel0Name[`PlayerModel${playerModelId}`]] = [xy];
 
-				if (playerModelId >= playerState.selected) {
-					const order = Math.min(playerModelId - playerState.selected, maxModelsAtOrder - 1);
-					entities.push(Channel3Name[`Order${order}`]);
-				}
-
 				if (state.phase == Phase.Movement) {
 					const stamina = Math.min(state.modelsStamina[gameModelId], 10);
 					entities.push(Channel1Name[`Stamina${stamina}`]);
+				}
+
+				const order = Math.min(playerModelId, maxModelsAtOrder);
+				entities.push(Channel3Name[`Order${order}`]);
+
+				if (playerState.selected === playerModelId) {
+					entities.push(Channel5Name.Selected);
 				}
 			} else {
 				input[Channel4Name[`OpponentModel${playerModelId}`]] = [xy];
