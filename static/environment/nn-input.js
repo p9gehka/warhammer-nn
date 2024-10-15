@@ -19,7 +19,9 @@ new Array(maxModelsAtOrder).fill(0).forEach((_, v) => { Channel3[`Order${v}`] = 
 export const Channel4 = {};
 new Array(17).fill(0).forEach((_, v) => { Channel4[`OpponentModel${v}`] = 1 });
 
-export const Channel5 = { Selected: 1 }
+export const Channel5 = {}
+new Array(maxModelsAtOrder).fill(0).forEach((_, v) => { Channel5[`BaseOrder${v}`] = (v + 1) / maxModelsAtOrder; });
+
 export const Channel0Name = {}, Channel1Name = {}, Channel2Name = {}, Channel3Name = {}, Channel4Name = {}, Channel5Name = {};
 
 Object.keys(Channel0).forEach(name => Channel0Name[name] = name);
@@ -90,12 +92,14 @@ export function getInput(state, playerState) {
 					entities.push(Channel1Name[`Stamina${stamina}`]);
 				}
 
-				const order = Math.min(playerModelId, maxModelsAtOrder);
-				entities.push(Channel3Name[`Order${order}`]);
-
-				if (playerState.selected === playerModelId) {
-					entities.push(Channel5Name.Selected);
+				if (playerModelId >= playerState.selected) {
+					const order = Math.min(playerModelId - playerState.selected, maxModelsAtOrder - 1);
+					entities.push(Channel3Name[`Order${order}`]);
 				}
+
+				const baseOrder = Math.min(playerModelId, maxModelsAtOrder - 1);
+				entities.push(Channel5Name[`BaseOrder${baseOrder}`]);
+
 			} else {
 				input[Channel4Name[`OpponentModel${playerModelId}`]] = [xy];
 			}
