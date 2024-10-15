@@ -41,10 +41,12 @@ export class Trainer {
 			const rewardTensor = tf.tensor1d(batch.map(example => example[2]));
 			const nextStateTensor = getStateTensor(batch.map(example => example[4]), width, height, channels);
 
-			const nextMaxQTensor = this.targetNetwork.predict(nextStateTensor).max(-1);
+			const nextActionTensor = this.onlineNetwork.predict(nextStateTensor).argMax(-1).oneHot(orders.length);
+			const targetQTensor = this.targetNetwork.predict(nextStateTensor).mul(nextActionTensor).sum(-1)
+
 			const doneMask = tf.scalar(1).sub(
 				tf.tensor1d(batch.map(example => example[3])).asType('float32'));
-			const targetQs = rewardTensor.add(nextMaxQTensor.mul(doneMask).mul(gamma));
+			const targetQs = rewardTensor.add(targetQTensor.mul(doneMask).mul(gamma));
 			return tf.losses.meanSquaredError(targetQs, qs);
 		});
 
