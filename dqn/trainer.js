@@ -34,20 +34,20 @@ export class Trainer {
 
 		const lossFunction = () => tf.tidy(() => {
 			const stateTensor = getStateTensor(batch.map(example => example[0]), width, height, channels);
-			const actionTensor = tf.tensor1d(batch.map(example => example[1]), 'int32');
-
-			const qs = this.onlineNetwork.apply(stateTensor, {training: true}).mul(tf.oneHot(actionTensor, orders.length)).sum(-1);
-
-			const rewardTensor = tf.tensor1d(batch.map(example => example[2]));
 			const nextStateTensor = getStateTensor(batch.map(example => example[4]), width, height, channels);
-
-			const nextActionTensor = this.onlineNetwork.predict(nextStateTensor).argMax(-1).oneHot(orders.length);
-			const targetQTensor = this.targetNetwork.predict(nextStateTensor).mul(nextActionTensor).sum(-1)
-
+			const actionTensor = tf.tensor1d(batch.map(example => example[1]), 'int32');
+			const rewardTensor = tf.tensor1d(batch.map(example => example[2]));
 			const doneMask = tf.scalar(1).sub(
 				tf.tensor1d(batch.map(example => example[3])).asType('float32'));
-			const targetQs = rewardTensor.add(targetQTensor.mul(doneMask).mul(gamma));
-			return tf.losses.meanSquaredError(targetQs, qs);
+			const qs = this.onlineNetwork.apply(stateTensor, {training: true}).mul(tf.oneHot(actionTensor, orders.length)).sum(-1);
+
+			const onlineActions = this.onlineNetwork.apply(nextStateTensor, {training: false}).argMax(-1);
+			const nextQPreds = this.targetNetwork.apply(nextStateTensor, {training: false});
+
+			const maxNextQPreds = nextQPreds.mul(onlineActions.oneHot(orders.length)).sum(-1);
+			const maxQTargets = rewardTensor.add(maxNextQPreds.mul(doneMask).mul(gamma))
+			
+			return tf.losses.meanSquaredError(maxQTargets, qs);
 		});
 
 		// Calculate the gradients of the loss function with repsect to the weights
