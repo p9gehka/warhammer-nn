@@ -41,7 +41,8 @@ export class Trainer {
 				tf.tensor1d(batch.map(example => example[3])).asType('float32'));
 			const qs = this.onlineNetwork.apply(stateTensor, {training: true}).mul(tf.oneHot(actionTensor, orders.length)).sum(-1);
 
-			const onlineActions = this.onlineNetwork.apply(nextStateTensor, {training: false}).argMax(-1);
+			const actPreds = this.onlineNetwork.apply(nextStateTensor, {training: false});
+			const onlineActions = actPreds.argMax(-1);
 			const nextQPreds = this.targetNetwork.apply(nextStateTensor, {training: false});
 
 			const maxNextQPreds = nextQPreds.mul(onlineActions.oneHot(orders.length)).sum(-1);
