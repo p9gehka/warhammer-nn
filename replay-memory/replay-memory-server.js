@@ -1,5 +1,5 @@
 import express from 'express';
-import { ReplayMemory } from './replay-memory-by-key.js';
+import { ReplayMemory } from './replay-memory.js';
 import hash from 'object-hash';
 import config from '../config.json' assert { type: 'json' };
 const { replayMemorySize } = config;
@@ -25,7 +25,7 @@ app.post('/append', (req,res) => {
 		res.sendStatus(423);
 		return;
 	}
-	req.body.buffer.forEach((item) => replayMemory.append(item, hash.MD5({ ...item[0], orderIndex: item[1] })));
+	req.body.buffer.forEach(item => replayMemory.append(item));
 	console.log(`Memory updated, size: ${replayMemory.length}`);
 	res.sendStatus(200);
 });

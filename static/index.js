@@ -2,6 +2,7 @@ import { Battlefield, Scene } from './drawing-entities/drawing-entities.js';
 import { moveOrders } from './players/player-orders.js';
 import { getInput, channels } from '../environment/nn-input.js';
 import { getStateTensor } from '../utils/get-state-tensor.js';
+import { updateTable } from './gui/update-table.js';
 
 const startBtn = document.getElementById('start');
 const canvas = document.getElementById("canvas")
@@ -18,7 +19,7 @@ ctx.scale(canvas.width / 60, canvas.height / 44);
 
 let model;
 try {
-	model = await tf.loadLayersModel(`/agents/move-agent/.model44x30x4/model.json`);
+	model = await tf.loadLayersModel(`/agents/move-agent/.model44x30x5/model.json`);
 } catch (e) {}
 
 const battlefield = new Battlefield(ctx, { size: [0, 0], objective_marker: [], ruins: [] });
@@ -69,7 +70,7 @@ function setState(e) {
 		scene.drawOrder(order);
 		const input = getInput(prevState, playerState);
 		updatePredictions(prevState, input);
-		updateTable(prevState, input);
+		updateTable(prevState, input, table);
 		updateUnitsStrip(state);
 	}
 }
@@ -127,25 +128,3 @@ viewCheckbox.addEventListener('change', (e) => {
 	table.classList.toggle('hidden', !e.target.checked);
 	canvas.classList.toggle('hidden', e.target.checked);
 });
-
-function updateTable(state, input) {
-	const data = getStateTensor([input], ...state.battlefield.size, channels)[0].arraySync();
-	const fragment = new DocumentFragment();
-	const nextline = Math.floor(Math.sqrt(data[0][0][0].length)) - 1;
-	for(let row of data[0]) {
-		const rowEl = document.createElement('TR');
-		for (let cell of row) {
-			const cellEl = document.createElement('TD');
-			cellEl.innerHTML = cell.map((v, i) => v.toFixed(1) + ((i === nextline) ? '\n' : ',')).join('');
-			rowEl.appendChild(cellEl);
-			if (cell[0] !== 0) {
-				cellEl.classList.add('model-cell');
-			} else if (cell.some(v => v !== 0)) {
-				cellEl.classList.add('info-cell');
-			}
-		}
-		fragment.appendChild(rowEl)
-	}
-	table.innerHTML = '';
-	table.appendChild(fragment);
-}

@@ -13,6 +13,7 @@
 
 	"cumulativeRewardThreshold": 4,
 	"epsilonDecayFrames": 5e5,
+	"epsilonInit": 0.5,
 	"rewardAveragerBufferLength": 1500,
 	"replayBufferSize": 2e3,
 	"replayMemorySize": 1e4,
