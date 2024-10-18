@@ -1,7 +1,9 @@
 {
-	"memoryAddress": "",
-	"loadPath": "",
-	"savePath": "",
+	"memoryAddress2": "http://192.168.0.104:3000",
+	"memoryAddress": "http://127.0.0.1:3000",
+	"loadPath": "file://./models/play-dqn/model.json",
+	"loadPath2": "http://192.168.0.104/dqn-share/model.json",
+	"savePath": "/Users/p9gehka/Hobies/warhammer/warhammer-nn/models/play-dqn",
 
 	"syncEveryEpoch": 1000,
 	"saveEveryEpoch": 30,
@@ -17,6 +19,7 @@
 	"epsilonInit": 0.5,
 	"rewardAveragerBufferLength": 3000,
 	"replayBufferSize": 1024,
+	"replayBufferSizePlayer": 8e3,
 	"replayMemorySize": 18e3,
 	"sendMessageEveryFrames": 1e6,
 	"framesThreshold": 30e6,
