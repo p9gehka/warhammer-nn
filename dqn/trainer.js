@@ -2,10 +2,8 @@ import { getTF } from '../static/utils/get-tf.js';
 import { getStateTensor } from '../static/utils/get-state-tensor.js';
 import { createDeepQNetwork } from '../dqn/dqn.js';
 import { copyWeights } from '../dqn/dqn.js';
-//import hash from 'object-hash';
 const tf = await getTF();
 
-//const heap = {};
 export class Trainer {
 	constructor(cascad, config = {}) {
 		const { replayMemory, nn, targetNN } = config
@@ -32,25 +30,13 @@ export class Trainer {
 		if (this.replayMemory === null) {
 			throw new Error(`trainOnReplayBatch without replayMemory`);
 		}
-		const batch = this.replayMemory.sample(batchSize);
+		const [batch, indeces] = this.replayMemory.sample(batchSize);
 
-		for (let i = 0; i < repeatBatchTraining ; i++) {
-			console.log(`replay ${i + 1}`);
-			/*
-			
+		for (let i = 0; i < repeatBatchTraining; i++) {
+			if (repeatBatchTraining > 1) {
+				console.log(`replay ${i + 1}`);
+			}
 
-			batch.forEach(item => {
-				const key = hash.MD5({ ...item[0], orderIndex: item[1] })
-				if (heap[key] === undefined){
-					heap[key] = 0;
-				}
-
-				heap[key]++;
-				if (heap[key] > 1) {
-					console.log(key, heap[key]);
-				}
-			})
-			*/
 			const lossFunction = () => tf.tidy(() => {
 				const stateTensor = getStateTensor(batch.map(example => example[0]), width, height, channels);
 
@@ -67,8 +53,8 @@ export class Trainer {
 
 				const maxNextQPreds = nextQPreds.mul(onlineActions.oneHot(orders.length)).sum(-1);
 				const maxQTargets = rewardTensor.add(maxNextQPreds.mul(doneMask).mul(gamma))
-				
-				return tf.losses.meanSquaredError(maxQTargets, qs);
+				this.replayMemory.updatePriorities(indeces, maxQTargets.sub(qs).abs().dataSync());
+				return tf.losses.meanSquaredError(qs, maxQTargets);
 			});
 
 			// Calculate the gradients of the loss function with repsect to the weights
