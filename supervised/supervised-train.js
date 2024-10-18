@@ -9,7 +9,7 @@ const tf = await getTF();
 
 async function main() {
 	let nn;
-	if (fs.existsSync(`${process.argv[2]}/loading/model.json`)) {
+	if (fs.existsSync(`${process.argv[2]}/model.json`)) {
 		try {
 			nn = await tf.loadLayersModel(`file://${process.argv[2]}/model.json`);
 			console.log(`Block ${freezeLayers} layers`)

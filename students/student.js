@@ -6,7 +6,7 @@ import { BaseAction, Phase } from '../static/environment/warhammer.js';
 import { deployment } from '../static/battlefield/deployment.js';
 
 export class StudentAgent extends PlayerAgent {
-	playTrainStep() {
+	playTrainStep(epsilon) {
 		const prevState = this.env.getState();
 		const agent = this.agents[prevState.phase];
 		let orderIndex;
@@ -15,7 +15,7 @@ export class StudentAgent extends PlayerAgent {
 		const input = agent.getInput(prevState, this.getState());
 		const selected = input[Channel3Name.Order0][0];
 
-		if (Math.random() < this.epsilon) {
+		if (Math.random() < epsilon) {
 			orderIndex = getRandomInteger(0, agent.orders.length);
 		} else {
 			let { orderIndex: stepOrderIndex, estimate } = agent.playStep(prevState, this.getState());
@@ -80,7 +80,7 @@ export class Student {
 			let reward = this.rewarder.step(this.prevState, this.player.agents[this.prevState.phase].orders[this.prevMemoryState[1]], this.epsilon);
 			this.replayMemory?.append([...this.prevMemoryState, reward, false, input]);
 		}
-		const result = this.player.playTrainStep();
+		const result = this.player.playTrainStep(this.epsilon);
 		this.prevMemoryState = [input, result[2].index];
 		this.prevState = prevState;
 		return result;
