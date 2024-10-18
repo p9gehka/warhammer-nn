@@ -19,7 +19,7 @@ import config from './config.json' assert { type: 'json' };
 
 const savePath = './models/play-dqn/';
 
-const { cumulativeRewardThreshold, sendMessageEveryFrames, replayBufferSize, replayMemorySize, epsilonDecayFrames, framesThreshold, epsilonInit } = config;
+const { cumulativeRewardThreshold, sendMessageEveryFrames, replayBufferSize, replayBufferSizePlayer, epsilonDecayFrames, framesThreshold, epsilonInit } = config;
 
 const rewardAveragerLen = 200;
 
@@ -35,7 +35,7 @@ async function sendConfigMessage(model) {
 		model.layers.map(layer => `${layer.name.split('_')[0]}{${ ['filters', 'kernelSize', 'units', 'rate'].map(filter => layer[filter] ? `filter: ${layer[filter]}` : '').filter(v=>v !=='') }}` ).join('->')
 	);
 	await sendMessage(
-		`Player hyperparams Config replayBufferSize:${replayBufferSize} epsilonDecayFrames:${epsilonDecayFrames} cumulativeRewardThreshold:${cumulativeRewardThreshold}\n` +
+		`Player hyperparams Config replayBufferSize:${replayBufferSizePlayers} epsilonDecayFrames:${epsilonDecayFrames} cumulativeRewardThreshold:${cumulativeRewardThreshold}\n` +
 		`Trainer hyperparams replayMemorySize: ${trainerConfig.replayMemorySize} replayBufferSize:${trainerConfig.replayBufferSize} learningRate:${trainerConfig.learningRate} syncEveryEpoch:${trainerConfig.syncEveryEpoch} saveEveryEpoch:${trainerConfig.saveEveryEpoch} batchSize:${trainerConfig.batchSize}`
 	);
 	configMessageSended = true;
@@ -44,7 +44,7 @@ async function sendConfigMessage(model) {
 async function play() {
 	const env = new Warhammer({ gameSettings, battlefields });
 
-	const replayMemory = new ReplayMemoryClient(replayBufferSize);
+	const replayMemory = new ReplayMemoryClient(replayBufferSizePlayer);
 	const players = [new Student(0, env, { replayMemory, epsilonDecayFrames: config.epsilonDecayFrames, epsilonInit: epsilonInit }), new PlayerEasy(1, env)];
 
 	async function tryUpdateModel() {
@@ -147,7 +147,7 @@ async function play() {
 		}
 
 
-		if (replayMemory.length === replayBufferSize) {
+		if (replayMemory.length === replayBufferSizePlayer) {
 			if (vpAveragerBuffer === null) {
 				vpAveragerBuffer = new MovingAverager(config.rewardAveragerBufferLength);
 			}
