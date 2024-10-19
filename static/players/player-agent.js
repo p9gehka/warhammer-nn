@@ -10,12 +10,16 @@ export class PlayerAgent {
 	constructor(playerId, env) {
 		this.env = env;
 		this.playerId = playerId;
-		this.enemyId = (playerId+1) % 2;
+		this.opponentId = (playerId+1) % 2;
 		this._selectedModel = 0;
 		this.agents = {
 			[Phase.Movement]: new MoveAgent(),
-			[Phase.Shooting]: new DumbAgent(),
+			[Phase.Shooting]: new ShootAgent(),
 		};
+		this.steps = {
+			[Phase.Movement]: (order) => this.moveStep(order),
+			[Phase.Shooting]: (order) => this.shootStep(order),
+		}
 	}
 	async load() {
 		await this.agents[Phase.Movement].load();
@@ -40,12 +44,17 @@ export class PlayerAgent {
 			estimate = 0;
 		}
 
-		let [order_, state] = this.step(order);
-
+		let [order_, state] = prevState.phase in this.steps ? this.steps[prevState.phase](order) : this.defaultStep(order);
 		return [order_, state, { index: orderIndex, estimate: estimate.toFixed(3) }];
 
 	}
-	step(order) {
+	defaultStep(order) {
+		const state = this.env.step(order);
+
+		return [{ ...order, misc: state.misc }, state];
+	}
+
+	moveStep(order) {
 		let playerOrder;
 		const { action } = order;
 		const prevState = this.env.getState();
@@ -76,6 +85,35 @@ export class PlayerAgent {
 		return [{ ...playerOrder, misc: state.misc }, state];
 	}
 
+	shootStep(order) {
+		let playerOrder;
+		const { action } = order;
+		const prevState = this.env.getState();
+
+		const playerModels = prevState.players[this.playerId].models;
+
+		if (action === BaseAction.Shoot) {
+			const shooter = playerModels[this._selectedModel];
+			playerOrder = {
+				action,
+				id: shooter,
+				target: order.target,
+			};
+		} else if (action === BaseAction.NextPhase && playerModels.some((modelId, playerModelId) => prevState.availableToShoot.includes(modelId) && playerModelId !== this._selectedModel)) {
+			this._selectedModel = this.selectNextModel(prevState);
+			playerOrder = { action: BaseAction.Shoot, id: playerModels[this._selectedModel], target: -1 };
+		} else {
+			playerOrder = order;
+		}
+
+		if (playerOrder.action === BaseAction.NextPhase) {
+			this._selectedModel = this.selectNextModel(prevState);
+		}
+
+		const state = this.env.step(playerOrder);
+		return [{ ...playerOrder, misc: state.misc }, state];
+	}
+
 	checkSize() {
 		[this.agents[Phase.Movement], this.agents[Phase.Shooting]].forEach(agent => {
 			if (agent.onlineNetwork === undefined) {
@@ -99,10 +137,32 @@ export class PlayerAgent {
 				break;
 			}
 		}
+
 		return newSelectedModel;
 	}
 
 	getState() {
-		return { selected: this._selectedModel };
+		const state = this.env.getState();
+		const playerModels = state.players[this.playerId].models;
+		const visibleOpponentUnits = [];
+		let maxRangeWeaponId = 0;
+		let maxRange = 0;
+
+		const selectedEnvModel = this.env.models[playerModels[this._selectedModel]];
+		selectedEnvModel?.rangedWeaponLoaded.forEach((loaded, id) => {
+			const weapon = selectedEnvModel.getRangedWeapon(id);
+			if(loaded && weapon?.range > maxRange) {
+				maxRangeWeaponId = id;
+				maxRange = weapon.range;
+			}
+		});
+
+		state.players[this.opponentId].units.forEach(unit => {
+			if (this.env.getAvailableTarget(playerModels[this._selectedModel], maxRangeWeaponId, unit.id).length > 0) {
+				visibleOpponentUnits.push(unit.id);
+			}
+		});
+
+		return { selected: this._selectedModel, visibleOpponentUnits: visibleOpponentUnits };
 	}
 }

@@ -123,6 +123,8 @@ export class Scene extends Drawing {
 		super();
 		this.ctx = ctx;
 		this.players = state.players;
+		this.player = state.player;
+
 		this.units = state.units;
 		this.battlefield = new Battlefield(ctx, state.battlefield);
 		this.models = state.units.map(unit => {
@@ -145,20 +147,25 @@ export class Scene extends Drawing {
 		if (order === null) {
 			return;
 		}
+
+		const opponentId = (this.player+1) % 2;
 		if (order.action === "SHOOT") {
-			if (!this.models[order.id].position || !order?.misc?.targetPosition) {
+			const targetUnitModels = this.players[opponentId].units[order.target]?.models?.filter(modelId => !isNaN(this.models[modelId].position[0])) ?? [];
+			const targetPosition = this.models[targetUnitModels[0]]?.position;
+			if (!this.models[order.id].position || targetPosition === undefined) {
 				return;
 			}
 			this.ctx.strokeStyle = "orange";
 			this.strokePath(() => {
 				this.ctx.moveTo(...this.models[order.id].position);
-				this.ctx.lineTo(...order.misc.targetPosition);
+				this.ctx.lineTo(...targetPosition);
 			});
 		}
 	}
 
 	updateState(state, playerState = {}) {
 		this.battlefield.update(state.battlefield);
+		this.players = state.players;
 		state.models.forEach((position, id) => {
 			this.models[id].update(position);
 		});

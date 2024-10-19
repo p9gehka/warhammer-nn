@@ -102,7 +102,6 @@ export function getInput(state, playerState) {
 				}
 			} else {
 				input[Channel4Name[`OpponentModel${playerModelId}`]] = [xy];
-				input[ChannelShootPriorityName[`ChannelShootPriority${playerModelId}`]] = [xy];
 			}
 
 			entities.forEach(entity => {
@@ -112,6 +111,14 @@ export function getInput(state, playerState) {
 				input[entity].push(xy);
 			});
 		});
+		if (playerId !== state.player) {
+			player.units.forEach((unit, playerUnitId) => {
+				unit.models.forEach(gameModelId => {
+					const xy = state.models[gameModelId];
+					input[ChannelShootPriorityName[`ChannelShootPriority${playerUnitId}`]] = [xy];
+				});
+			});
+		}
 	});
 
 	input.round = state.round;

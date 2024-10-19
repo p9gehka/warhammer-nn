@@ -12,13 +12,13 @@ export class ShootAgentBase {
 		const { visibleOpponentUnits, selected } = playerState;
 		let orderIndex = 0;
 		const selectedModelId = state.players[state.player].models[selected]
+
 		if (state.availableToShoot.includes(selectedModelId) && visibleOpponentUnits.length > 0) {
-			const unitIndex = getRandomInteger(0, visibleOpponentUnits.length);
-			if (shootOrders[orderIndex] !== undefined) {
-				orderIndex = visibleOpponentUnits[unitIndex] + 1;
+			const unitIndex = getRandomInteger(0, visibleOpponentUnits.length) + 1;
+			if (shootOrders[unitIndex] !== undefined) {
+				orderIndex = unitIndex;
 			}
 		}
-
 		return { order: shootOrders[orderIndex], orderIndex, estimate: 0 };
 	}
 }
