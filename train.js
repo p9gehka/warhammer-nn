@@ -30,8 +30,11 @@ async function train(nn) {
 			trainer.copyWeights();
 			console.log('Sync\'ed weights from online network to target network');
 		}
-		console.log(`epoch: ${epoch}`);
-		trainer.trainOnReplayBatch(config.batchSize, gamma, optimizer, repeatBatchTraining);
+
+		for (let i = 0; i < repeatBatchTraining ; i++) {
+			trainer.trainOnReplayBatch(config.batchSize, gamma, optimizer);
+			console.log(`epoch: ${epoch} replay ${i + 1}`);
+		}
 
 		if (epoch % config.saveEveryEpoch === 0) {
 			if (!fs.existsSync(config.savePath)) {
