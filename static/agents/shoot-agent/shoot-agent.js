@@ -1,7 +1,7 @@
 import { shootOrders } from './shoot-orders.js';
 import { RandomAgent } from '../random-agent.js';
 import { getInput } from '../../environment/nn-input.js';
-import { getRandomInteger } from '../../utils/index.js';
+import { getRandomInteger, argMax } from '../../utils/index.js';
 
 export class ShootAgentBase {
 	fillAgent = new RandomAgent(shootOrders, getInput);
@@ -14,7 +14,7 @@ export class ShootAgentBase {
 		const selectedModelId = state.players[state.player].models[selected]
 
 		if (state.availableToShoot.includes(selectedModelId) && visibleOpponentUnits.length > 0) {
-			const unitIndex = getRandomInteger(0, visibleOpponentUnits.length) + 1;
+			const unitIndex = argMax(visibleOpponentUnits) + 1;
 			if (shootOrders[unitIndex] !== undefined) {
 				orderIndex = unitIndex;
 			}
