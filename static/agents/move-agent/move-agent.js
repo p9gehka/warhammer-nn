@@ -33,7 +33,7 @@ export class MoveAgentBase {
 		let orderIndex = 0;
 		let estimate = 0;
 
-		if (input[Channel1Name.Stamina0].some(pos => eq(pos, selected))) {
+		if (input[Channel1Name.Stamina0].some(pos => eq(pos, selected)) || isNaN(selected[0])) {
 			orderIndex = 0;
 		} else {
 			tf.tidy(() => {

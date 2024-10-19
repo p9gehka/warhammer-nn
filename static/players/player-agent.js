@@ -81,7 +81,6 @@ export class PlayerAgent {
 		}
 
 		const state = this.env.step(playerOrder);
-
 		return [{ ...playerOrder, misc: state.misc }, state];
 	}
 
@@ -94,10 +93,14 @@ export class PlayerAgent {
 
 		if (action === BaseAction.Shoot) {
 			const shooter = playerModels[this._selectedModel];
+			const weaponId = 0;
+			const shotDiceResult = new Array(this.env.models[shooter].getRangedWeapon(weaponId).a.constant * 2).fill(6)
 			playerOrder = {
 				action,
 				id: shooter,
-				target: order.target,
+				target: prevState.players[this.opponentId].units[order.target].gameId,
+				weaponId,
+				shotDiceResult
 			};
 		} else if (action === BaseAction.NextPhase && playerModels.some((modelId, playerModelId) => prevState.availableToShoot.includes(modelId) && playerModelId !== this._selectedModel)) {
 			this._selectedModel = this.selectNextModel(prevState);

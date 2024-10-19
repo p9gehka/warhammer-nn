@@ -66,8 +66,7 @@ async function start () {
 function setState(e) {
 	if (e.target.dataset.indexNumber) {
 		const [prevState, playerState, order, state] = actionAndStates[e.target.dataset.indexNumber];
-		scene.updateState(state);
-		scene.drawOrder(order);
+		scene.updateState(state, {}, order);
 		const input = getInput(prevState, playerState);
 		updatePredictions(prevState, input);
 		updateTable(prevState, input, table);

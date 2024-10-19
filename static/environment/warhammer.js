@@ -39,6 +39,7 @@ class Model {
 		this.unitProfile = {
 			"m": parseInt(profile.M),
 			"oc": parseInt(profile.OC),
+			"w": parseInt(profile.W)
 		};
 
 		this._rangedWeapons = rangedWeapons.map(weaponProfile  => {
@@ -96,6 +97,16 @@ class Model {
 		this.stamina = 0;
 		this.dead = true;
 		this.position = [NaN, NaN]
+	}
+
+	inflictDamage(value) {
+		if (this.dead) {
+			return;
+		}
+		this.wounds -= value;
+		if (this.wounds <= 0) {
+			this.kill();
+		}
 	}
 }
 
@@ -234,12 +245,16 @@ export class Warhammer {
 				this.models[this.lastShootedModelId].updateAvailableToShoot(false);
 			}
 			this.lastShootedModelId = order.id;
-			console.log('Shooot Order')
-			console.log(order)
 		}
 
 		if (order.action === BaseAction.Shoot && this.units[order.target] !== undefined) {
 			this.models[this.lastShootedModelId].updateAvailableToShoot(false);
+			const aliveTargets = this.units[order.target].models.filter(modelId => !this.models[modelId].dead);
+			const targetModel = this.models[aliveTargets[aliveTargets.length - 1]];
+			const damageValue = 100;
+			if (targetModel !== undefined) {
+				targetModel.inflictDamage(damageValue);
+			}
 		}
 
 		if (order.action === BaseAction.Move && model !== undefined) {
@@ -286,9 +301,7 @@ export class Warhammer {
 	getPlayer() { return this.turn % 2; }
 
 	done() {
-		const ids = this.models.filter(model => !model.dead).map(model => model.playerId);
-
-		return this.turn > (this.totalRounds * 2) - 1 || new Set(ids).size === 1;
+		return this.turn > (this.totalRounds * 2) - 1;
 	}
 	end() {
 		this.turn = (this.totalRounds * 2);

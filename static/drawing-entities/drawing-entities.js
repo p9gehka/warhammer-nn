@@ -34,7 +34,7 @@ class Model extends Drawing {
 	}
 
 	draw() {
-		if (isNaN(this.position[0])) {
+		if (this.position[0] === null) {
 			return;
 		}
 		const base = this.unitBase;
@@ -148,35 +148,37 @@ export class Scene extends Drawing {
 			return;
 		}
 
-		const opponentId = (this.player+1) % 2;
 		if (order.action === "SHOOT") {
-			const targetUnitModels = this.players[opponentId].units[order.target]?.models?.filter(modelId => !isNaN(this.models[modelId].position[0])) ?? [];
+			const targetUnitModels = this.units[order.target]?.models?.filter(modelId => this.models[modelId].position[0] !== null) ?? [];
 			const targetPosition = this.models[targetUnitModels[0]]?.position;
 			if (!this.models[order.id].position || targetPosition === undefined) {
 				return;
 			}
-			this.ctx.strokeStyle = "orange";
-			this.strokePath(() => {
-				this.ctx.moveTo(...this.models[order.id].position);
-				this.ctx.lineTo(...targetPosition);
-			});
+			this.bindings.push(new Binding(this.ctx, this.models[order.id].position, targetPosition, 'orange'));
 		}
 	}
 
-	updateState(state, playerState = {}) {
+	updateState(state, playerState = {}, order) {
 		this.battlefield.update(state.battlefield);
 		this.players = state.players;
-		state.models.forEach((position, id) => {
-			this.models[id].update(position);
-		});
-
+		this.units = state.units;
 		this.bindings = [];
+
+		if (order) {
+			this.drawOrder(order);
+		}
+
 		if (playerState.arrows !== undefined) {
 			playerState.arrows.forEach(([start, end]) => {
 				this.bindings.push(new Binding(this.ctx, start, end, 'yellow'));
 			});
 		}
-	
+
+		state.models.forEach((position, id) => {
+			this.models[id].update(position);
+		});
+
+		
 		this.draw();
 	}
 }
