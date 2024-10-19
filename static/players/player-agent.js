@@ -158,7 +158,7 @@ export class PlayerAgent {
 		});
 
 		state.players[this.opponentId].units.forEach(unit => {
-			if (this.env.getAvailableTarget(playerModels[this._selectedModel], maxRangeWeaponId, unit.id).length > 0) {
+			if (this.env.getAvailableTarget(playerModels[this._selectedModel], maxRangeWeaponId, unit.gameId).length > 0) {
 				visibleOpponentUnits.push(unit.id);
 			}
 		});

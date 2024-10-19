@@ -127,8 +127,8 @@ export class Warhammer {
 		let unitCounter = 0;
 
 		const units = this.gameSettings.units.map(
-			(playerUnits, playerId) => playerUnits.map(unit => {
-				const result = ({...unit, playerId, id: unitCounter });
+			(playerUnits, playerId) => playerUnits.map((unit, id) => {
+				const result = ({...unit, playerId, id, gameId: unitCounter });
 				unitCounter++;
 				return result;
 			})
@@ -234,8 +234,8 @@ export class Warhammer {
 				this.models[this.lastShootedModelId].updateAvailableToShoot(false);
 			}
 			this.lastShootedModelId = order.id;
-			//console.log('SHooot Order')
-			//console.log(order)
+			console.log('Shooot Order')
+			console.log(order)
 		}
 
 		if (order.action === BaseAction.Shoot && this.units[order.target] !== undefined) {
@@ -282,7 +282,6 @@ export class Warhammer {
 		});
 		return availableTargets;
 	}
-
 
 	getPlayer() { return this.turn % 2; }
 

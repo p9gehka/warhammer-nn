@@ -11,12 +11,12 @@ export class ShootAgentBase {
 	playStep(state, playerState) {
 		const { visibleOpponentUnits, selected } = playerState;
 		let orderIndex = 0;
-		const selectedModelId = state.players[state.player].models[selected]
+		const selectedModelId = state.players[state.player].models[selected];
 
 		if (state.availableToShoot.includes(selectedModelId) && visibleOpponentUnits.length > 0) {
-			const unitIndex = argMax(visibleOpponentUnits) + 1;
-			if (shootOrders[unitIndex] !== undefined) {
-				orderIndex = unitIndex;
+			const unitIndex = visibleOpponentUnits[argMax(visibleOpponentUnits)];
+			if (shootOrders[unitIndex + 1] !== undefined) {
+				orderIndex = unitIndex + 1;
 			}
 		}
 		return { order: shootOrders[orderIndex], orderIndex, estimate: 0 };

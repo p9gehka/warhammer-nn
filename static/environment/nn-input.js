@@ -112,10 +112,10 @@ export function getInput(state, playerState) {
 			});
 		});
 		if (playerId !== state.player) {
-			player.units.forEach((unit, playerUnitId) => {
+			player.units.forEach(unit => {
 				unit.models.forEach(gameModelId => {
 					const xy = state.models[gameModelId];
-					input[ChannelShootPriorityName[`ChannelShootPriority${playerUnitId}`]] = [xy];
+					input[ChannelShootPriorityName[`ChannelShootPriority${unit.id}`]] = [xy];
 				});
 			});
 		}
