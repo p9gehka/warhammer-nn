@@ -30,7 +30,6 @@ async function train(nn) {
 			trainer.copyWeights();
 			console.log('Sync\'ed weights from online network to target network');
 		}
-
 		for (let i = 0; i < repeatBatchTraining ; i++) {
 			trainer.trainOnReplayBatch(config.batchSize, gamma, optimizer);
 			console.log(`epoch: ${epoch} replay ${i + 1}`);

@@ -108,7 +108,7 @@ export class Rewarder {
 
 		const { primaryVP } = state.players[this.playerId];
 		reward += this.primaryReward(order, primaryVP);
-		// reward += this.epsilonReward(prevState, order, epsilon);
+		reward += this.epsilonReward(prevState, order, epsilon);
 		this.cumulativeReward += reward;
 		return reward;
 	}
