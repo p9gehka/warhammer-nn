@@ -19,7 +19,7 @@ import config from './config.json' assert { type: 'json' };
 
 const savePath = './models/play-dqn/';
 
-const { cumulativeRewardThreshold, sendMessageEveryFrames, replayBufferSize, replayMemorySize, epsilonDecayFrames, framesThreshold, epsilonInit } = config;
+const { cumulativeRewardThreshold, sendMessageEveryFrames, replayBufferSize, replayMemorySize, temperatureDecayFrames, framesThreshold, temperatureInit } = config;
 
 const rewardAveragerLen = 200;
 
@@ -35,7 +35,7 @@ async function sendConfigMessage(model) {
 		model.layers.map(layer => `${layer.name.split('_')[0]}{${ ['filters', 'kernelSize', 'units', 'rate'].map(filter => layer[filter] ? `filter: ${layer[filter]}` : '').filter(v=>v !=='') }}` ).join('->')
 	);
 	await sendMessage(
-		`Player hyperparams Config replayBufferSize:${replayBufferSize} epsilonDecayFrames:${epsilonDecayFrames} cumulativeRewardThreshold:${cumulativeRewardThreshold}\n` +
+		`Player hyperparams Config replayBufferSize:${replayBufferSize} temperatureDecayFrames:${temperatureDecayFrames} cumulativeRewardThreshold:${cumulativeRewardThreshold}\n` +
 		`Trainer hyperparams replayMemorySize: ${trainerConfig.replayMemorySize} replayBufferSize:${trainerConfig.replayBufferSize} learningRate:${trainerConfig.learningRate} syncEveryEpoch:${trainerConfig.syncEveryEpoch} saveEveryEpoch:${trainerConfig.saveEveryEpoch} batchSize:${trainerConfig.batchSize}`
 	);
 	configMessageSended = true;
@@ -45,7 +45,7 @@ async function play() {
 	const env = new Warhammer({ gameSettings, battlefields });
 
 	const replayMemory = new ReplayMemoryClient(replayBufferSize);
-	const players = [new Student(0, env, { replayMemory, epsilonDecayFrames: config.epsilonDecayFrames, epsilonInit: epsilonInit }), new PlayerEasy(1, env)];
+	const players = [new Student(0, env, { replayMemory, temperatureDecayFrames: config.temperatureDecayFrames, temperatureInit: temperatureInit }), new PlayerEasy(1, env)];
 
 	async function tryUpdateModel() {
 		try {
@@ -104,7 +104,7 @@ async function play() {
 				`Frame #${frameCount}: ` +
 				`cumulativeVP${rewardAveragerLen}=${averageVP.toFixed(1)}; ` +
 				`cumulativeReward${rewardAveragerLen}=${averageReward.toFixed(1)}; ` +
-				`(epsilon=${players[0].epsilon?.toFixed(3)}) ` +
+				`(temperature=${players[0].temperature?.toFixed(3)}) ` +
 				`(${framesPerSecond.toFixed(1)} frames/s)`
 			);
 
@@ -136,7 +136,7 @@ async function play() {
 			await sendDataToTelegram(rewardAveragerBuffer.buffer.filter(v => v !== null));
 			await sendMessage(
 				[
-					`Frame #${frameCount}::Epsilon ${players[0].epsilon?.toFixed(3)}::averageVP${rewardAveragerLen}Best ${averageVPBest}::${frameTimeAverager100.average().toFixed(1)} frames/s:`,
+					`Frame #${frameCount}::Temperature ${players[0].temperature?.toFixed(3)}::averageVP${rewardAveragerLen}Best ${averageVPBest}::${frameTimeAverager100.average().toFixed(1)} frames/s:`,
 					`:${JSON.stringify(testActions.join(','))}:`,
 					`heapMemory:${memoryUsage()['heapUsed']}`
 				].join()

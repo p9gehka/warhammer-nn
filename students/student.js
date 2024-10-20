@@ -6,25 +6,23 @@ import { BaseAction } from '../static/environment/warhammer.js';
 import { deployment } from '../static/battlefield/deployment.js';
 
 export class StudentAgent extends PlayerAgent {
-	playTrainStep(epsilon) {
+	playTrainStep(temperature) {
 		const prevState = this.env.getState();
 		let orderIndex;
-		let estimate = 0;
-		const input = this.agent.getInput(prevState, this.getState());
+		const input = this.agent.getInput(prevState, this.getState(temperature));
 		const selected = input[Channel3Name.Order0][0];
-
-		if (Math.random() < epsilon) {
-			orderIndex = getRandomInteger(0, this.agent.orders.length);
-		} else {
-			let { orderIndex: stepOrderIndex, estimate } = this.agent.playStep(prevState, this.getState());
-			orderIndex = stepOrderIndex;
-		}
+		let { orderIndex: stepOrderIndex, estimate } = this.agent.playStep(prevState, this.getState(temperature));
+		orderIndex = stepOrderIndex;
 
 		const order = this.agent.orders[orderIndex];
 
 		let [order_, state] = this.step(order);
 
 		return [order_, state, { index: orderIndex, estimate: estimate.toFixed(3) }];
+	}
+
+	getState(temperature = 1) {
+		return { ...super.getState(), temperature }
 	}
 }
 
@@ -35,16 +33,17 @@ export class Student {
 	autoNext = true;
 
 	constructor(playerId, env, config = {}) {
-		const { replayMemory, nn, epsilonInit, epsilonFinal, epsilonDecayFrames } = config
+		const { replayMemory, nn, temperatureInit, temperatureFinal, temperatureDecayFrames } = config
 		this.env = env;
 
 		this.replayMemory = replayMemory ?? null;
 		this.frameCount = 0;
-		this.epsilonInit = epsilonInit ?? 0.5;
-		this.epsilonFinal = epsilonFinal ?? 0.01;
-		this.epsilonDecayFrames = epsilonDecayFrames ?? 1e6;
-		this.epsilonIncrement_ = (this.epsilonFinal - this.epsilonInit) / this.epsilonDecayFrames;
-		this.epsilon = this.epsilonInit;
+		this.temperatureInit = temperatureInit ?? 1;
+		this.temperatureFinal = temperatureFinal ?? 1;
+		this.temperatureDelta = this.temperatureInit - this.temperatureFinal
+		this.temperatureDecayFrames = temperatureDecayFrames ?? 1e6;
+		this.temperatureIncrement_ = (this.temperatureFinal - this.temperatureDelta) / this.temperatureDecayFrames;
+		this.temperature = this.temperatureInit;
 		this.playerId = playerId;
 		this.player = new StudentAgent(playerId, env);
 
@@ -63,17 +62,18 @@ export class Student {
 
 	playStep() {
 		this.frameCount++;
-		this.epsilon = this.frameCount >= this.epsilonDecayFrames ?
-			this.epsilonFinal :
-			this.epsilonInit + this.epsilonIncrement_ * this.frameCount;
+		this.temperature = Math.max(this.frameCount >= this.temperatureDecayFrames ?
+			this.temperatureFinal :
+			this.temperatureInit + this.temperatureIncrement_ * this.frameCount, 1);
+
 		const prevState = this.env.getState();
 		const input = this.player.agent.getInput(prevState, this.player.getState());
 
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {
-			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
+			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.temperature / 200);
 			this.replayMemory?.append([...this.prevMemoryState, reward, false, input]);
 		}
-		const result = this.player.playTrainStep(this.epsilon);
+		const result = this.player.playTrainStep(this.temperature);
 		this.prevMemoryState = [input, result[2].index];
 		this.prevState = prevState;
 		return result;
@@ -87,7 +87,7 @@ export class Student {
 
 	awarding() {
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {
-			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
+			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.temperature / 200);
 			this.replayMemory?.append([...this.prevMemoryState, reward, true, null]);
 		}
 	}
