@@ -33,22 +33,22 @@ export class Student {
 	autoNext = true;
 
 	constructor(playerId, env, config = {}) {
-		const { replayMemory, nn, epsilonInit, epsilonFinal, epsilonDecayFrames } = config
+		const { replayMemory, nn, temperatureInit, temperatureFinal, temperatureDecayFrames } = config
 		this.env = env;
 
 		this.replayMemory = replayMemory ?? null;
 		this.frameCount = 0;
-		this.epsilonInit = epsilonInit ?? 1;
-		this.epsilonFinal = epsilonFinal ?? 0.01;
-		this.epsilonDecayFrames = epsilonDecayFrames ?? 1e6;
-		this.epsilonIncrement_ = (this.epsilonFinal - this.epsilonInit) / this.epsilonDecayFrames;
-		this.epsilon = this.epsilonInit;
+		this.temperatureInit = temperatureInit ?? 1;
+		this.temperatureFinal = temperatureFinal ?? 1;
+		this.temperatureDelta = this.temperatureInit - this.temperatureFinal
+		this.temperatureDecayFrames = temperatureDecayFrames ?? 1e6;
+		this.temperatureIncrement_ = (this.temperatureFinal - this.temperatureDelta) / this.temperatureDecayFrames;
+		this.temperature = this.temperatureInit;
 		this.playerId = playerId;
 		this.player = new StudentAgent(playerId, env);
 
 		this.setOnlineNetwork(nn);
 		this.rewarder = new Rewarder(this.env, this.player);
-		this.temperatureDelta = 100;
 	}
 	setOnlineNetwork(nn) {
 		this.player.agent.onlineNetwork = nn;
@@ -62,16 +62,15 @@ export class Student {
 
 	playStep() {
 		this.frameCount++;
-		this.epsilon = this.frameCount >= this.epsilonDecayFrames ?
-			this.epsilonFinal :
-			this.epsilonInit + this.epsilonIncrement_ * this.frameCount;
-		this.temperature = this.epsilon * this.temperatureDelta;
+		this.temperature = Math.max(this.frameCount >= this.temperatureDecayFrames ?
+			this.temperatureFinal :
+			this.temperatureInit + this.temperatureIncrement_ * this.frameCount, 1);
 
 		const prevState = this.env.getState();
 		const input = this.player.agent.getInput(prevState, this.player.getState());
 
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {
-			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
+			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.temperature / 200);
 			this.replayMemory?.append([...this.prevMemoryState, reward, false, input]);
 		}
 		const result = this.player.playTrainStep(this.temperature);
@@ -88,7 +87,7 @@ export class Student {
 
 	awarding() {
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {
-			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
+			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.temperature / 200);
 			this.replayMemory?.append([...this.prevMemoryState, reward, true, null]);
 		}
 	}

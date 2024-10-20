@@ -13,8 +13,8 @@
 	"freezeLayers": [],
 
 	"cumulativeRewardThreshold": 60,
-	"epsilonDecayFrames": 1e6,
-	"epsilonInit": 0.5,
+	"temperatureDecayFrames": 1e6,
+	"temperatureInit": 1000,
 	"rewardAveragerBufferLength": 3000,
 	"replayBufferSize": 8e3,
 	"replayMemorySize": 18e3,
