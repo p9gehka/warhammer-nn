@@ -3,6 +3,7 @@ import { PlayerDumb } from '../static/players/player-dumb.js';
 import { filterObjByKeys } from '../static/utils/index.js';
 import { PlayerAgent } from '../static/players/player-agent.js';
 import { PlayerEasy } from '../static/players/player-easy.js';
+import { PlayerEasyShoot } from '../static/players/player-easy-shoot.js';
 import { Rewarder } from '../students/student.js';
 import { MovingAverager } from '../moving-averager.js';
 
@@ -16,7 +17,7 @@ const rewardAveragerLen = 200;
 
 export async function testReward(silent, nn) {
 	const env = new Warhammer({ gameSettings, battlefields });
-	const players = [new PlayerEasy(0, env), new PlayerEasy(1, env)];
+	const players = [new PlayerEasyShoot(0, env), new PlayerEasy(1, env)];
 	if (nn !== undefined) {
 		players[0] = new PlayerAgent(0, env);
 	}
