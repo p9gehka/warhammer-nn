@@ -11,12 +11,10 @@
 	"units": [
 		[
 			{ "name": "stealth battlesuits", "models": [0] },
-			{ "name": "stealth battlesuits", "models": [1] },
-			{ "name": "stealth battlesuits", "models": [2] }
+			{ "name": "stealth battlesuits", "models": [1] }
 		],
 		[
-			{ "name": "stealth battlesuits", "models": [3] },
-			{ "name": "stealth battlesuits", "models": [4] }
+			{ "name": "stealth battlesuits", "models": [2] }
 		]
 	]
 }
