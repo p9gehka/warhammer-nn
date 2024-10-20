@@ -2,10 +2,9 @@ import { getTF } from '../static/utils/get-tf.js';
 import { getStateTensor } from '../static/utils/get-state-tensor.js';
 import { createDeepQNetwork } from '../dqn/dqn.js';
 import { copyWeights } from '../dqn/dqn.js';
-//import hash from 'object-hash';
+
 const tf = await getTF();
 
-//const heap = {};
 export class Trainer {
 	constructor(cascad, config = {}) {
 		const { replayMemory, nn, targetNN } = config
@@ -26,7 +25,7 @@ export class Trainer {
 	copyWeights() {
 		copyWeights(this.targetNetwork, this.onlineNetwork);
 	}
-	trainOnReplayBatch(batchSize, gamma, optimizer, repeatBatchTraining) {
+	trainOnReplayBatch(batchSize, gamma, optimizer) {
 		// Get a batch of examples from the replay buffer.
 		const { width, height, orders, channels } = this.game;
 		if (this.replayMemory === null) {
