@@ -24,7 +24,7 @@ export class StudentAgent extends PlayerAgent {
 
 		const order = agent.orders[orderIndex];
 
-		let [order_, state] = this.step(order);
+		let [order_, state] = this.steps[prevState.phase](order);
 
 		return [order_, state, { index: orderIndex, estimate: estimate.toFixed(3) }];
 	}
