@@ -6,6 +6,7 @@ import { PlayerAgent } from './static/players/player-agent.js';
 import { Rewarder } from './students/student.js';
 import { filterObjByKeys } from './static/utils/index.js';
 import { PlayerEasy } from './static/players/player-easy.js';
+import { PlayerEasyShoot } from './static/players/player-easy-shoot.js';
 
 import gameSettings from './static/settings/game-settings.json' assert { type: 'json' };
 import allBattlefields from './static/settings/battlefields.json' assert { type: 'json' };

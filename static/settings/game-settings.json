@@ -21,22 +21,11 @@
 	"units": [
 		[
 			{ "name": "stealth battlesuits", "models": [0] },
-			{ "name": "stealth battlesuits", "models": [1] },
-			{ "name": "stealth battlesuits", "models": [2] }
+			{ "name": "stealth battlesuits", "models": [1] }
 		],
 		[
-			{ "name": "stealth battlesuits", "models": [3] },
-			{ "name": "stealth battlesuits", "models": [4] },
-			{ "name": "stealth battlesuits", "models": [5] },
-			{ "name": "stealth battlesuits", "models": [6] },
-			{ "name": "stealth battlesuits", "models": [7] },
-			{ "name": "stealth battlesuits", "models": [8] },
-			{ "name": "stealth battlesuits", "models": [9] },
-			{ "name": "stealth battlesuits", "models": [10] },
-			{ "name": "stealth battlesuits", "models": [11] },
-			{ "name": "stealth battlesuits", "models": [12] },
-			{ "name": "stealth battlesuits", "models": [13] },
-			{ "name": "stealth battlesuits", "models": [14] }
+			{ "name": "stealth battlesuits", "models": [2] },
+			{ "name": "stealth battlesuits", "models": [3] }
 		]
 	],
 	"rangedWeapons": [
