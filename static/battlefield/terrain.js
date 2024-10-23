@@ -9,6 +9,11 @@ import {
 
 import {
 	ArkunashaRuins,
+	FedrasTemple,
+	DalitCity,
+	AgrellanFavelas,
+	FirecastOutpost,
+	StantionFortress
 } from './terrain44x30.js';
 
 class Empty extends Terrain {
@@ -26,4 +31,9 @@ export const terrain = {
 	"geeseValdas10-12": GeeseValdas1012,
 	"geeseValdas13-15": GeeseValdas1315,
 	"arkunasha-ruins": ArkunashaRuins,
+	"fedras-temple": FedrasTemple,
+	"dalit-city": DalitCity,
+	"agrellan-favelas": AgrellanFavelas,
+	"firecast-outpost": FirecastOutpost,
+	"stantion-fortress": StantionFortress,
 }
