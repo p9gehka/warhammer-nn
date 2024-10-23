@@ -125,13 +125,15 @@ export class Rewarder {
 			const state = this.env.getState();
 			const playerState = this.player.getState();
 			const selected = state.players[this.playerId].models[playerState.selected];
-			const initialPosititon = sub(state.models[selected], order.vector);
-			const currentPosition = state.models[selected];
+			if (!isNaN(state.models[selected][0])) {
+				const initialPosititon = sub(state.models[selected], order.vector);
+				const currentPosition = state.models[selected];
 
-			const center = div(state.battlefield.size, 2);
-			const currentPositionDelta = len(sub(center, sub(currentPosition, center).map(Math.abs)));
-			const initialPosititonDelta = len(sub(center, sub(initialPosititon, center).map(Math.abs)));
-			reward += (currentPositionDelta - initialPosititonDelta);
+				const center = div(state.battlefield.size, 2);
+				const currentPositionDelta = len(sub(center, sub(currentPosition, center).map(Math.abs)));
+				const initialPosititonDelta = len(sub(center, sub(initialPosititon, center).map(Math.abs)));
+				reward += (currentPositionDelta - initialPosititonDelta);
+			}
 		}
 		return reward * epsilon;
 	}

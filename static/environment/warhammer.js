@@ -1,5 +1,5 @@
 import { MissionController} from './mission.js';
-
+import { terrain } from '../battlefield/terrain.js';
 import { mul, len, sub, add, eq, scaleToLen, round } from '../utils/vec2.js'
 import { getRandomInteger } from '../utils/index.js';
 
@@ -295,7 +295,7 @@ export class Warhammer {
 				}
 			}
 		});
-		return availableTargets;
+		return (new terrain[this.battlefield.terrain]).filterVisibleFrom(availableTargets, shooter.position);
 	}
 
 	getPlayer() { return this.turn % 2; }

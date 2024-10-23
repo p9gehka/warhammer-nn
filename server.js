@@ -31,7 +31,7 @@ app.get('/dataset', (req,res) => res.sendFile('static/dataset.html', { root: __d
 
 app.post('/play', async (req,res) => {
 	const env = new Warhammer({ gameSettings, battlefields });
-	const players = [new PlayerAgent(0, env), new PlayerEasy(1, env)];
+	const players = [new PlayerAgent(0, env), new  PlayerEasyShoot(1, env)];
 	const rewarders = [new Rewarder(env, players[0]), new Rewarder(env, players[1])];
 	try {
 		await Promise.all(players.map(player => player.load()));
