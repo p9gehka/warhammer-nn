@@ -1,5 +1,6 @@
 import { Drawing } from './drawing.js';
 import { deployment } from '../battlefield/deployment.js';
+import { terrain } from '../battlefield/terrain.js';
 
 const mmToInch = mm => mm / 25.4;
 
@@ -99,6 +100,19 @@ export class Battlefield extends Drawing {
 			});
 		}
 
+		/*runis*/
+
+		if (this.battlefield.terrain) {
+			(new terrain[this.battlefield.terrain]).getDrawings().forEach(({ methods, args, fillStyle }) => {
+				this.ctx.fillStyle = fillStyle;
+				this.fillPath(() => { 
+					 methods.forEach((method, i) => {
+					 	this.ctx[method](...args[i]);
+					 });
+				});
+			});
+		}
+
 		/*dots*/
 		this.ctx.translate(0.5, 0.5);
 		this.ctx.fillStyle = '#b4dfb4';
@@ -111,6 +125,8 @@ export class Battlefield extends Drawing {
 		});
 
 		this.ctx.translate(-0.5, -0.5);
+
+
 	}
 }
 
