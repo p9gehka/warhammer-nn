@@ -19,7 +19,6 @@ app.get('/', (req,res) => {
 });
 
 
-
 app.post('/append', (req,res) => {
 	if (locked) {
 		res.sendStatus(423);
@@ -46,6 +45,21 @@ app.get('/sample', (req,res) => {
 		return;
 	}
 	res.json({ buffer: replayMemory.sample(batchSize) });
+});
+
+app.get('/get', (req,res) => {
+	const from_ = parseInt(req.query.from);
+	const perPage = parseInt(req.query.perPage);
+
+	if (isNaN(from_) || isNaN(perPage)) {
+		res.sendStatus(400);
+		return;
+	}
+	res.json({ buffer: replayMemory.buffer.slice(from_, from_ + perPage) });
+});
+
+app.get('/key-counter', (req,res) => {
+	res.json(replayMemory.keyCounter);
 });
 
 app.get('/config', (req,res) => res.json(config));

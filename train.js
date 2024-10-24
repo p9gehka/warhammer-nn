@@ -61,7 +61,7 @@ async function main() {
 			console.log(`Freese layers - ${freezeLayers} `)
 
 			freezeLayers.forEach(layerName => {
-				nn.getLayer(layerName).trainable = false
+				nn.getLayer(layerName).trainable = false;
 			});
 		} catch (e) {
 			console.log(e.message);
