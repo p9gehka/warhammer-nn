@@ -4,26 +4,17 @@ import { moveOrders } from './move-orders.js';
 import { Channel1Name, Channel3Name } from '../../environment/nn-input.js';
 import { getInput } from '../../environment/nn-input.js';
 import { getRandomInteger } from '../../utils/index.js';
+import { RandomAgent } from '../random-agent.js';
 import { eq } from '../../utils/vec2.js';
 
 const tf = await getTF();
 
-class RandomAgent {
-	constructor() {
-		this.orders = moveOrders;
-	}
-	playStep(state) {
-		const orderIndex = getRandomInteger(0, this.orders.length);
-		return { order: this.orders[orderIndex], orderIndex, estimate: 0 };
-	}
-	getInput(state, playerState) {
-		return getInput(state, playerState)
-	}
-}
 
 export class MoveAgentBase {
-	fillAgent = new RandomAgent();
 	orders = moveOrders;
+	constructor() {
+		this.fillAgent = new RandomAgent(this.orders, getInput);
+	}
 	async load() {
 		const staticPath = typeof window !== 'undefined' ? '/' : 'file://' + 'static/';
 		const loadPath = staticPath + `agents/move-agent/.model${this.width}x${this.height}x${this.channels.length}/model.json`;
@@ -42,7 +33,7 @@ export class MoveAgentBase {
 		let orderIndex = 0;
 		let estimate = 0;
 
-		if (input[Channel1Name.Stamina0].some(pos => eq(pos, selected))) {
+		if (input[Channel1Name.Stamina0].some(pos => eq(pos, selected)) || isNaN(selected[0])) {
 			orderIndex = 0;
 		} else {
 			tf.tidy(() => {

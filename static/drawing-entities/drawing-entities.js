@@ -34,7 +34,7 @@ class Model extends Drawing {
 	}
 
 	draw() {
-		if (isNaN(this.position[0])) {
+		if (this.position[0] === null) {
 			return;
 		}
 		const base = this.unitBase;
@@ -123,6 +123,8 @@ export class Scene extends Drawing {
 		super();
 		this.ctx = ctx;
 		this.players = state.players;
+		this.player = state.player;
+
 		this.units = state.units;
 		this.battlefield = new Battlefield(ctx, state.battlefield);
 		this.models = state.units.map(unit => {
@@ -145,31 +147,38 @@ export class Scene extends Drawing {
 		if (order === null) {
 			return;
 		}
+
 		if (order.action === "SHOOT") {
-			if (!this.models[order.id].position || !order?.misc?.targetPosition) {
+			const targetUnitModels = this.units[order.target]?.models?.filter(modelId => this.models[modelId].position[0] !== null) ?? [];
+			const targetPosition = this.models[targetUnitModels[0]]?.position;
+			if (!this.models[order.id].position || targetPosition === undefined) {
 				return;
 			}
-			this.ctx.strokeStyle = "orange";
-			this.strokePath(() => {
-				this.ctx.moveTo(...this.models[order.id].position);
-				this.ctx.lineTo(...order.misc.targetPosition);
-			});
+			this.bindings.push(new Binding(this.ctx, this.models[order.id].position, targetPosition, 'orange'));
 		}
 	}
 
-	updateState(state, playerState = {}) {
+	updateState(state, playerState = {}, order) {
 		this.battlefield.update(state.battlefield);
-		state.models.forEach((position, id) => {
-			this.models[id].update(position);
-		});
-
+		this.players = state.players;
+		this.units = state.units;
 		this.bindings = [];
+
+		if (order) {
+			this.drawOrder(order);
+		}
+
 		if (playerState.arrows !== undefined) {
 			playerState.arrows.forEach(([start, end]) => {
 				this.bindings.push(new Binding(this.ctx, start, end, 'yellow'));
 			});
 		}
-	
+
+		state.models.forEach((position, id) => {
+			this.models[id].update(position);
+		});
+
+		
 		this.draw();
 	}
 }
