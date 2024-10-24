@@ -315,6 +315,7 @@ export class Warhammer {
 			players: this.players,
 			units: this.units,
 			models: this.models.map(model => model.position),
+			dead: this.models.filter(model => model.dead).map(model => model.id),
 			modelsStamina: this.models.map(model => model.stamina),
 			availableToShoot: this.models.filter(model => model.isAvailableToShoot()).map(model => model.id),
 			phase: this.phase,

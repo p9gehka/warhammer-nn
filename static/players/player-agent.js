@@ -33,6 +33,12 @@ export class PlayerAgent {
 	playStep() {
 		const prevState = this.env.getState();
 		let order, orderIndex, estimate;
+
+		const playerModels = prevState.players[this.playerId].models;
+		if (isNaN(prevState.models[playerModels[this._selectedModel]][0])) {
+			this._selectedModel = this.selectNextModel(prevState);
+		}
+
 		if (prevState.phase in this.agents) {
 			const result = this.agents[prevState.phase].playStep(prevState, this.getState());
 			orderIndex = result.orderIndex;
@@ -65,6 +71,10 @@ export class PlayerAgent {
 		if (this.lastRound !== round) {
 			this.env.step({ action: BaseAction.Move, vector: [0, 0], expense: 0, id: playerModels[this._selectedModel] });
 			this.lastRound = round;
+		}
+
+		if (isNaN(prevState.models[playerModels[this._selectedModel]][0])) {
+			this._selectedModel = this.selectNextModel(prevState);
 		}
 
 		if (action === BaseAction.Move) {
