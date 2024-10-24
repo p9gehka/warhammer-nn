@@ -12,12 +12,12 @@ async function main() {
 	if (fs.existsSync(`${process.argv[2]}/model.json`)) {
 		try {
 			nn = await tf.loadLayersModel(`file://${process.argv[2]}/model.json`);
-			console.log(`Block ${freezeLayers} layers`)
+			console.log(`Block ${freezeLayers} layers`);
 			console.log(`Loaded from ${process.argv[2]}/model.json`);
-			console.log(`Freese layers - ${freezeLayers} `)
+			console.log(`Freese layers - ${freezeLayers} `);
 
 			freezeLayers.forEach(layerName => {
-				nn.getLayer(layerName).trainable = false
+				nn.getLayer(layerName).trainable = false;
 			});
 		} catch (e) {
 			console.log(e.message);
