@@ -9,21 +9,21 @@ export class StudentAgent extends PlayerAgent {
 	playTrainStep(epsilon) {
 		const prevState = this.env.getState();
 		const agent = this.agents[prevState.phase];
-		let orderIndex;
-		let estimate = 0;
-
-		const input = agent.getInput(prevState, this.getState());
-		const selected = input[Channel3Name.Order0][0];
+		let order, orderIndex, estimate = 0;
+		if (!this.isSelectedOnField()) {
+			this._selectedModel = this.selectNextModel(prevState);
+		}
 
 		if (Math.random() < epsilon) {
 			orderIndex = getRandomInteger(0, agent.orders.length);
+		} else if (agent !== undefined && this.isSelectedOnField()) {
+			const result = agent.playStep(prevState, this.getState());
+			orderIndex = result.orderIndex;
+			estimate = result.estimate;
 		} else {
-			let { orderIndex: stepOrderIndex, estimate } = agent.playStep(prevState, this.getState());
-			orderIndex = stepOrderIndex;
+			orderIndex = 0;
 		}
-
-		const order = agent.orders[orderIndex];
-
+		order = agent.orders[orderIndex];
 		let [order_, state] = this.steps[prevState.phase](order);
 
 		return [order_, state, { index: orderIndex, estimate: estimate.toFixed(3) }];
