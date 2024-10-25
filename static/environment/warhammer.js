@@ -197,28 +197,31 @@ export class Warhammer {
 		let unitCounter = 0;
 
 		const units = this.gameSettings.units.map(
-			(playerUnits, playerId) => playerUnits.map(unit => {
-				const result = ({...unit, playerId, id: unitCounter });
+			(playerUnits, playerId) => playerUnits.map((unit, id) => {
+				const result = ({...unit, playerId, id, gameId: unitCounter });
 				unitCounter++;
 				return result;
-			})
+			});
 		);
 		this.players = [
 			{ units: units[0], models: units[0].map(unit => unit.models).flat(), primaryVP: 0, secondaryVP: 0 },
 			{ units: units[1], models: units[1].map(unit => unit.models).flat(), primaryVP: 0, secondaryVP: 0 }
 		];
 		this.units = units.flat();
-
 		const usedPosition = [];
-		this.models = this.units.map((unit, unitId) => {
-			return unit.models.map(id => {
-				let modelPosition = this.gameSettings.models[id];
-				if (this.gameSettings.models.length === 0 || modelPosition === undefined || modelPosition === null) {
-					modelPosition = this.getRandomStartPosition(usedPosition)
-					usedPosition.push(modelPosition);
-				}
 
-				return new Model(id, unit, modelPosition, this.gameSettings.modelProfiles[id], this.gameSettings.categories[unitId], this.gameSettings.rules[id], this.gameSettings.abilities[id], this.gameSettings.rangedWeapons[id]);
+		this.models = this.units.map((unit, unitId) => {
+			let lastPosition = undefined;
+			return unit.models.map(id => {
+				
+				if (this.gameSettings.models.length !== 0 && this.gameSettings.models[id] !== undefined && this.gameSettings.models[id] !== null) {
+					usedPosition.push(this.gameSettings.models[id]);
+					lastPosition = usedPosition.at(-1);
+					return new Model(id, unit, this.gameSettings.models[id], this.gameSettings.modelProfiles[id], this.gameSettings.categories[unitId], this.gameSettings.rules[id], this.gameSettings.abilities[id], this.gameSettings.rangedWeapons[id]);
+				}
+				usedPosition.push(this.getRandomStartPosition(usedPosition, lastPosition));
+				lastPosition = usedPosition.at(-1);
+				return new Model(id, unit, lastPosition, this.gameSettings.modelProfiles[id], this.gameSettings.categories[unitId], this.gameSettings.rules[id], this.gameSettings.abilities[id], this.gameSettings.rangedWeapons[id]);
 			});
 		}).flat();
 
@@ -229,13 +232,24 @@ export class Warhammer {
 
 		return this.getState();
 	}
-	getRandomStartPosition(exclude) {
+
+	getRandomStartPosition(exclude, lastPosition) {
+		let tries = 0;
+
 		while(true) {
-			let x1 = getRandomInteger(0, this.battlefield.size[0]);
-			let y1 = getRandomInteger(0, this.battlefield.size[1]);
-			if (!exclude.some(pos => eq([x1, y1], pos))) {
-				return [x1, y1];
+			let x, y;
+			if (lastPosition === undefined) {
+				x = getRandomInteger(0, this.battlefield.size[0]);
+				y = getRandomInteger(0, this.battlefield.size[1]);
+			} else {
+				const padding = Math.floor(tries / 4)
+				x = lastPosition[0] + getRandomInteger(0, 6 + padding) - (3 + Math.floor(padding/2));
+				y = lastPosition[1] + getRandomInteger(0, 6 + padding) - (3 + Math.floor(padding/2));
 			}
+			if (!exclude.some(pos => eq([x, y], pos)) && 0 <= x && x < this.battlefield.size[0] && 0 <= y && y < this.battlefield.size[1]) {
+				return [x, y];
+			}
+			tries++;
 		}
 	}
 
@@ -386,7 +400,10 @@ export class Warhammer {
 			const newPosition = add(model.position, vectorToMove);
 			const [x, y] = newPosition;
 			if(0 <= x && x < this.battlefield.size[0] && 0 <= y && y < this.battlefield.size[1]) {
-				model.update(newPosition);
+				const newPositionBusy = this.models.some(model => eq(model.position, newPosition));
+				if (!newPositionBusy) {
+					model.update(newPosition);
+				}
 			}
 		}
 		if (order.action === BaseAction.DiscardSecondary) {

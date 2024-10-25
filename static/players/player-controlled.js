@@ -35,7 +35,7 @@ export class PlayerControlled {
 			if (weaponField[selectedModel] === undefined) {
 				weaponField[selectedModel] = [];
 			}
-			weaponField[selectedModel].push(this.env.players[this.opponentId].units[order.id].id);
+			weaponField[selectedModel].push(this.env.players[this.opponentId].units[order.id].gameId);
 			if (weaponField[selectedModel].length > this.env.gameSettings.rangedWeapons[selectedModel].filter(v=> v.name === selectedWeapon).length) {
 				weaponField[selectedModel].shift();
 			}

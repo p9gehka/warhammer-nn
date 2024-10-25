@@ -23,7 +23,7 @@ export class ForTheGreaterGood {
 		}
 
 		const guidedUnit = state.players[this.player.playerId].units.find(unit => unit.models.includes(Number(Object.keys(targeting)[0])));
-		this.observers[observerUnit.id] = guidedUnit.id;
+		this.observers[observerUnit.gameId] = guidedUnit.gameId;
 	}
 
 	orderModifiers({ action, id }) {
@@ -34,7 +34,7 @@ export class ForTheGreaterGood {
 		const shooterUnit = state.players[this.player.playerId].units.find(unit => unit.models.includes(Number(id)));
 		let bs = 0;
 		let keywords = []
-		if (Object.values(this.observers).includes(shooterUnit.id)) {
+		if (Object.values(this.observers).includes(shooterUnit.gameId)) {
 			bs = -1;
 
 			const rules = []

@@ -2,6 +2,7 @@ import { BaseAction } from '../environment/warhammer.js';
 import { MoveAgent as MoveAgent60x44 } from '../agents/move-agent/move-agent60x44.js';
 import { MoveAgent as MoveAgent44x30 } from '../agents/move-agent/move-agent44x30.js';
 import { ShootAgent } from '../agents/shoot-agent/shoot-agent60x44.js';
+import { ShootInHightIdAgent } from '../agents/shoot-agent/shoot-in-hight-id-agent.js';
 import { Phase } from '../environment/warhammer.js';
 import { shotDice } from './dice.js';
 
@@ -21,8 +22,12 @@ export class PlayerAgent {
 		const agentKey = env.battlefield.size.join();
 		this.agents = {
 			[Phase.Movement]: moveAgents[agentKey],
-			[Phase.Shooting]: new ShootAgent(),
+			[Phase.Shooting]: new ShootInHightIdAgent(),
 		};
+		this.steps = {
+			[Phase.Movement]: (order) => this.moveStep(order),
+			[Phase.Shooting]: (order) => this.shootStep(order),
+		}
 	}
 	async load() {
 		await this.agents[Phase.Movement].load();
@@ -30,13 +35,20 @@ export class PlayerAgent {
 	}
 	reset() {
 		this.checkSize();
-		this.lastRound = -1
+		this.lastRound = -1;
 		this._selectedModel = 0;
 	}
-	async playStep() {
+
+	playStep() {
 		const prevState = this.env.getState();
-		let orderIndex, order, estimate;
-		if (prevState.phase in this.agents) {
+		let order, orderIndex, estimate;
+
+		const playerModels = prevState.players[this.playerId].models;
+		if (!this.isSelectedOnField()) {
+			this._selectedModel = this.selectNextModel(prevState);
+		}
+
+		if (prevState.phase in this.agents && this.isSelectedOnField()) {
 			const result = this.agents[prevState.phase].playStep(prevState, this.getState());
 			orderIndex = result.orderIndex;
 			order = result.order;
@@ -47,43 +59,75 @@ export class PlayerAgent {
 			estimate = 0;
 		}
 
-		let [order_, state] = this.step(order);
+		let [order_, state] = prevState.phase in this.steps ? this.steps[prevState.phase](order) : this.defaultStep(order);
 		return [order_, state, { index: orderIndex, estimate: estimate.toFixed(3) }];
+
+	}
+	defaultStep(order) {
+		const state = this.env.step(order);
+
+		return [{ ...order, misc: state.misc }, state];
 	}
 
-	step(order) {
+	isSelectedOnField() {
+		const state = this.env.getState();
+		const playerModels = state.players[this.playerId].models;
+		return !isNaN(state.models[playerModels[this._selectedModel]][0]);
+	}
+
+	moveStep(order) {
 		let playerOrder;
 		const { action } = order;
 		const prevState = this.env.getState();
 
 		const playerModels = prevState.players[this.playerId].models;
 		const round = prevState.round;
-		let misc = {};
 
 		if (this.lastRound !== round) {
 			this.env.step({ action: BaseAction.Move, vector: [0, 0], expense: 0, id: playerModels[this._selectedModel] });
 			this.lastRound = round;
 		}
 
+		if (isNaN(prevState.models[playerModels[this._selectedModel]][0])) {
+			this._selectedModel = this.selectNextModel(prevState);
+		}
+
 		if (action === BaseAction.Move) {
 			playerOrder = {action, id: playerModels[this._selectedModel], vector: order.vector, expense: order.expense };
-		} else if (action === BaseAction.Shoot) {
+		} else if (action === BaseAction.NextPhase && playerModels.some((modelId, playerModelId) => prevState.modelsStamina[modelId] !== 0 && playerModelId !== this._selectedModel)){
+			this._selectedModel = this.selectNextModel(prevState);
+			playerOrder = { action: BaseAction.Move, vector: [0, 0], expense: 0, id: playerModels[this._selectedModel] };
+		} else {
+			playerOrder = order;
+		}
+
+		if (playerOrder.action === BaseAction.NextPhase) {
+			this._selectedModel = this.selectNextModel(prevState);
+		}
+
+		const state = this.env.step(playerOrder);
+		return [{ ...playerOrder, misc: state.misc }, state];
+	}
+
+	shootStep(order) {
+		let playerOrder;
+		const { action } = order;
+		const prevState = this.env.getState();
+
+		const playerModels = prevState.players[this.playerId].models;
+
+		if (action === BaseAction.Shoot) {
 			const shooter = playerModels[this._selectedModel];
 			const weaponId = this.env.models[shooter].rangedWeaponLoaded.findIndex(loaded => loaded);
 			const shotDiceResult = shotDice([], this.env.models[shooter].getRangedWeapon(weaponId));
-			misc = { ...shotDiceResult };
 
 			playerOrder = {
 				action,
 				id: shooter,
-				target: order.target,
+				target: prevState.players[this.opponentId].units[order.target].gameId,
 				weaponId,
 				...shotDiceResult,
 			};
-
-		} else if (action === BaseAction.NextPhase && playerModels.some((modelId, playerModelId) => prevState.modelsStamina[modelId] !== 0 && playerModelId !== this._selectedModel)) {
-			this._selectedModel = this.selectNextModel(prevState);
-			playerOrder = { action: BaseAction.Move, vector: [0, 0], expense: 0, id: playerModels[this._selectedModel] };
 		} else if (action === BaseAction.NextPhase && playerModels.some((modelId, playerModelId) => prevState.availableToShoot.includes(modelId) && playerModelId !== this._selectedModel)) {
 			this._selectedModel = this.selectNextModel(prevState);
 			playerOrder = { action: BaseAction.Shoot, id: playerModels[this._selectedModel], target: -1 };
@@ -99,6 +143,18 @@ export class PlayerAgent {
 		return [{ ...playerOrder, misc: state.misc }, state];
 	}
 
+	checkSize() {
+		[this.agents[Phase.Movement], this.agents[Phase.Shooting]].forEach(agent => {
+			if (agent.onlineNetwork === undefined) {
+				return;
+			}
+			const [_, width, height] = agent.onlineNetwork.inputs[0].shape;
+			const [fieldHeight, fieldWidth] = this.env.battlefield.size;
+			if (fieldHeight !== height || fieldWidth !== width) {
+				console.warn(`!!!!Map size and Network input are inconsistent: ${[fieldHeight, fieldWidth]} !== ${[height, width]}!!!`)
+			}
+		});
+	}
 	selectNextModel(state) {
 		const playerModels = state.players[this.playerId].models;
 		const twicePlayerModels = [...playerModels, ...playerModels];
@@ -129,21 +185,11 @@ export class PlayerAgent {
 		});
 
 		state.players[this.opponentId].units.forEach(unit => {
-			if (this.env.getAvailableTarget(playerModels[this._selectedModel], maxRangeWeaponId, unit.id).length > 0) {
+			if (this.env.getAvailableTarget(playerModels[this._selectedModel], maxRangeWeaponId, unit.gameId).length > 0) {
 				visibleOpponentUnits.push(unit.id);
 			}
 		});
-		return { selected: this._selectedModel, visibleOpponentUnits: visibleOpponentUnits };
-	}
 
-	checkSize() {
-		if (this.agent.onlineNetwork === undefined) {
-			return;
-		}
-		const [_, width, height] = this.agent.onlineNetwork.inputs[0].shape;
-		const [fieldHeight, fieldWidth] = this.env.battlefield.size;
-		if (fieldHeight !== height || fieldWidth !== width) {
-			console.warn(`!!!!Map size and Network input are inconsistent: ${[fieldHeight, fieldWidth]} !== ${[height, width]}!!!`)
-		}
+		return { selected: this._selectedModel, visibleOpponentUnits: visibleOpponentUnits };
 	}
 }

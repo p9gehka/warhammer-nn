@@ -56,4 +56,7 @@ export class Terrain {
 	convertRectancleToTriangles([A,B,C,D]) {
 		return [A, B, C, C, D, A]
 	}
+	getRectangleFootpintsAsTriangles() {
+		return this.rectangleFootprints.map(([A,B,C,D]) => [[A, B, C], [C, D, A]])
+	}
 }

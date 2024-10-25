@@ -19,4 +19,16 @@ export class Triangle {
 		const hasPos = (a > 0) || (b > 0) || (c > 0);
 		return !(hasNeg && hasPos);
 	}
+
+	getAllPoints() {
+		const points = [];
+		for (let x = Math.min(this.x1, this.x2, this.x3); x < Math.max(this.x1, this.x2, this.x3); x++) {
+			for (let y = Math.min(this.y1, this.y2, this.y3); y < Math.max(this.y1, this.y2, this.y3); y++) {
+				if (this.include(x, y)) {
+					points.push([x, y]);
+				}
+			}
+		}
+		return points;
+	}
 }
