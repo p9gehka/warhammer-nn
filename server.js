@@ -26,6 +26,7 @@ app.use(express.static(__dirname + '/static'));
 app.get('/', (req,res) => res.sendFile('static/index.html', { root: __dirname }));
 app.get('/presentation', (req,res) => res.sendFile('static/presentation.html', { root: __dirname }));
 app.get('/game', (req,res) => res.sendFile('static/game.html', { root: __dirname }));
+app.get('/dataset', (req,res) => res.sendFile('static/dataset.html', { root: __dirname }));
 
 app.post('/play', async (req,res) => {
 	const env = new Warhammer({ gameSettings, battlefields });

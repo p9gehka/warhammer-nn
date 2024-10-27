@@ -29,3 +29,22 @@ export function getStateTensor(state, h, w, channels) {
 	}
 	return [img2Buffer.toTensor(), roundBuffer.toTensor()];
 }
+
+export function getStateTensor1(state, h, w, channels) {
+	const c = channels.length;
+	/* rotate wh to hwc*/
+	let buffer = tf.buffer([w, h, c]);
+
+	channels.forEach((channel, i) => {
+		for (let entity in channel) {
+			if (state[entity] === undefined) {
+				return;
+			}
+			const enitities = state[entity].forEach(yx => {
+				/* rotate wh to hwc*/
+				buffer.set(channel[entity], yx[1], yx[0], i);
+			});
+		}
+	});
+	return buffer.toTensor();
+}

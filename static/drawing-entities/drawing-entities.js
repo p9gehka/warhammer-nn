@@ -49,9 +49,8 @@ class Model extends Drawing {
 		}
 		const base = this.unitBase;
 		const radius = 1
-		this.ctx.fillStyle = this.playerId === 1 ? '#3e476b' : '#6b3e3e';
+		this.ctx.fillStyle = this.playerId === 1 ? '#3e476b' : '#6b3e3ec2';
 		this.ctx.strokeStyle = this.playerId === 1 ? 'blue' : 'red';
-		this.ctx.translate(0.5, 0.5);
 
 		if (this.avatar !== undefined) {
 			this.ctx.drawImage(this.avatar, this.position[0] - mmToInch(base[0] / 2), this.position[1] -  mmToInch(base[0] / 2), mmToInch(base[0]), mmToInch(base[0]));
@@ -72,8 +71,6 @@ class Model extends Drawing {
 				this.ctx.ellipse(this.position[0], this.position[1], mmToInch((base[0] / 2) + 8), mmToInch((base[0] / 2) + 8), 0, 0, 2 * Math.PI);
 			});
 		}
-
-		this.ctx.translate(-0.5, -0.5);
 	}
 	update(position, selected) {
 		this.selected = selected;
@@ -137,7 +134,6 @@ export class Battlefield extends Drawing {
 		}
 
 		/*dots*/
-		this.ctx.translate(0.5, 0.5);
 		this.ctx.fillStyle = '#b4dfb4';
 		this.fillPath(() => {
 			for (let i = 0; i < sceneSize[0]; i++) {
@@ -146,8 +142,6 @@ export class Battlefield extends Drawing {
 				}
 			}
 		});
-
-		this.ctx.translate(-0.5, -0.5);
 	}
 }
 
@@ -262,14 +256,12 @@ export class Scene extends Drawing {
 		}
 	}
 	drawOrders(orders) {
-		this.ctx.translate(0.5, 0.5);
 		this.fillPath(() => {
 			this.ctx.fillStyle = '#00000050';
 			orders.forEach(([x1, y1]) => {
 				this.ctx.rect(x1 - 0.5, y1 - 0.5, 1, 1);
 			});
 		});
-		this.ctx.translate(-0.5, -0.5);
 	}
 	updateState(state, playerState = {}, gameControllerState = {}) {
 		this.battlefield.update(state.battlefield);
@@ -318,6 +310,7 @@ export class Scene extends Drawing {
 				}
 			}
 		}
+
 		this.draw();
 	}
 }
