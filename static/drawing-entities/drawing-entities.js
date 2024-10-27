@@ -42,14 +42,12 @@ class Model extends Drawing {
 		const radius = 1
 		this.ctx.fillStyle = this.playerId === 1 ? '#3e476b' : '#6b3e3ec2';
 		this.ctx.strokeStyle = this.playerId === 1 ? 'blue' : 'red';
-		this.ctx.translate(0.5, 0.5);
 		this.fillPath(() => {
 			this.ctx.ellipse(this.position[0], this.position[1], mmToInch(base[0] / 2), mmToInch(base[0] / 2), 0, 0, 2 * Math.PI);
 		});
 		this.strokePath(() => {
 			this.ctx.ellipse(this.position[0], this.position[1], mmToInch(base[0] / 2), mmToInch(base[0] / 2), 0, 0, 2 * Math.PI);
 		});
-		this.ctx.translate(-0.5, -0.5);
 
 	}
 	update(position) {
@@ -114,7 +112,6 @@ export class Battlefield extends Drawing {
 		}
 
 		/*dots*/
-		this.ctx.translate(0.5, 0.5);
 		this.ctx.fillStyle = '#b4dfb4';
 		this.fillPath(() => {
 			for (let i = 0; i < sceneSize[0]; i++) {
@@ -123,10 +120,6 @@ export class Battlefield extends Drawing {
 				}
 			}
 		});
-
-		this.ctx.translate(-0.5, -0.5);
-
-
 	}
 }
 
