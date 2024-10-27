@@ -6,6 +6,8 @@ import { PlayerAgent } from '../players/player-agent.js'
 import { getSetTargetOrder, doneOrder, getSelectModelOrder, getMoveOrders } from '../players/player-orders.js';
 
 import battlefields from './battlefields.json' assert { type: 'json' };
+import player0Settings from './game-settings-p0-full.json' assert { type: 'json' };
+import player1Settings  from './game-settings-p1-full.json' assert { type: 'json' };
 
 export class Game {
 	constructor(canvas) {
@@ -15,7 +17,6 @@ export class Game {
 		this.scene = null;
 		this.env = null;
 		this.orderResolve;
-		this.orderPromise = new Promise((resolve) => this.orderResolve = resolve);
 
 		this.agents = [];
 
@@ -29,14 +30,6 @@ export class Game {
 	}
 
 	async runDeploy() {
-		const settingsLSPlayer1 = localStorage.getItem('game-settings-player1');
-		const settingsLSPlayer2 = localStorage.getItem('game-settings-player2');
-		if (!settingsLSPlayer1 || !settingsLSPlayer2) {
-			return;
-		}
-
-		const player0Settings = JSON.parse(settingsLSPlayer1);
-		const player1Settings = JSON.parse(settingsLSPlayer2);
 
 		this.gameSettings = {
 			units: [player0Settings.units, player1Settings.units],
@@ -77,24 +70,22 @@ export class Game {
 		if (this.started) {
 			return;
 		}
-		this.orderResolve([doneOrder]);
-		this.orderPromise = new Promise((resolve) => this.orderResolve = resolve);
 		this.started = true;
 
 		this.env = new Warhammer({ gameSettings: this.envGameSetting, battlefields });
+
 		this.scene = new Scene(this.ctx, this.env.getState(), this.gameSettings);
 		this.scene.init();
+		
 		this.agents = [new PlayerAgent(0, this.env), new PlayerAgent(1, this.env)];
-		await this.agents[1].load()
+		await this.agents[1].load();
+		await this.agents[0].load();
 		this.play();
 	}
 
 	restart() {
-		this.orderResolve([doneOrder]);
-		this.orderPromise = new Promise((resolve) => this.orderResolve = resolve);
 		this.agents.forEach(agent => agent.reset());
 		this.env?.reset();
-		this.play();
 	}
 	async play() {
 		while(true) {
@@ -105,12 +96,16 @@ export class Game {
 			this.orderHandlers = [];
 
 			if (state.done) {
-				break;
+				this.restart()
 			} else {
 				const [lastAction] = await this.agents[state.player].playStep();
 
 				this.scene.drawOrder(lastAction);
-				await new Promise(resolve => setTimeout(resolve, 50));
+
+				await new Promise(resolve => setTimeout(resolve, 100));
+				if (lastAction.action === 'NEXT_PHASE') {
+					await new Promise(resolve => setTimeout(resolve, 1000));
+				}
 				if (lastAction?.misc?.diceHistory) {
 					this.onUpdateDiceHistory(lastAction.misc.diceHistory);
 				}
@@ -121,11 +116,8 @@ export class Game {
 		return this.getCurrentPlayer().getState().selected;
 	}
 	getCurrentPlayer() {
-		const state = this.started ? this.env.getState() : this.deploy.getState();
+		const state = this.env.getState() 
 		const player = state.player;
-		if (!this.started) {
-			return this.deployPlayers[player];
-		}
 		return this.agents[player];
 	}
 }

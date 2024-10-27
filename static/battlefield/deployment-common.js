@@ -38,4 +38,7 @@ export class DeploymentCommon {
 	include(id, position) {
 		return this.deployment_zone[id].include?.include(...position) && !this.deployment_zone[id].exclude?.include(...position);
 	}
+	getPoints() {
+		return this.deployment_zone.map(deployment => deployment.include?.getAllPoints() ?? [])
+	}
 }

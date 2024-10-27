@@ -151,11 +151,44 @@ export class Battlefield extends Drawing {
 	}
 }
 
+class Animation extends Drawing {
+	constructor(ctx, fromPoint, toPoint) {
+		super();
+		this.ctx = ctx;
+		this.fromPoint = fromPoint;
+		this.toPoint = toPoint;
+		this.isFinished = false;
+	}
+	frame(timestamp) {
+		const toTarget = sub(this.toPoint, this.fromPoint);
+		if (this.start === undefined) {
+			this.start = timestamp
+		}
+		if (timestamp - this.start > 400) {
+			this.end();
+		}
+		this.ctx.fillStyle = "orange";
+		const bullet = add(this.fromPoint, scaleToLen(toTarget, len(toTarget) * (timestamp - this.start) /400));
+
+		this.fillPath(() => {
+			this.ctx.ellipse(bullet[0], bullet[1], 0.3, 0.3, 0, 0, 2 * Math.PI);
+		});
+
+		if (this.isFinished || len(sub(this.toPoint, bullet)) >= len(toTarget)) {
+			return;
+		}
+	}
+	end() {
+		this.isFinished = true;
+	}
+}
 export class Scene extends Drawing {
 	players = [];
 	units = [];
 	models = [];
 	bindings = [];
+	animations = [];
+	prevAnimationTimeStamp = 0;
 	constructor(ctx, state, gameSettings) {
 		super();
 		this.ctx = ctx;
@@ -166,6 +199,7 @@ export class Scene extends Drawing {
 			return unit.models.map(id => new Model(ctx, unit, state.models[id]));
 		}).flat();
 		this.gameSettings = gameSettings;
+
 	}
 
 	async init() {
@@ -177,11 +211,41 @@ export class Scene extends Drawing {
 		this.battlefield.draw();
 		this.models.forEach(model => model.draw());
 		this.bindings.forEach(binding => binding.draw());
-	}
+
+		const animationFrame = (timestamp) => {
+			if (timestamp - this.prevAnimationTimeStamp < 30) {
+				requestAnimationFrame(animationFrame);
+				return
+			}
+			this.prevAnimationTimeStamp = timestamp;
+			this.battlefield.draw();
+			this.models.forEach(model => model.draw());
+			this.bindings.forEach(binding => binding.draw());
+			
+			this.animations.forEach(animation => {
+				if (animation.isFinished) {
+					return;
+				}
+				animation.frame(timestamp);
+			})
+			requestAnimationFrame(animationFrame);
+
+		}
+		if (this.animations.length > 0) {
+			requestAnimationFrame(animationFrame);
+		}
+}
 
 	drawOrder(order) {
+		console.log(order)
 		if (order === null) {
 			return;
+		}
+		if (order.ation === "NEXT_PHASE") {
+			this.animations.forEach(animation => {
+				animation.end();
+			});
+			this.animation = [];
 		}
 		if (order.action === "SHOOT" && this.units[order.target] !== undefined) {
 			let targetPosition;
@@ -194,11 +258,7 @@ export class Scene extends Drawing {
 			if (!this.models[order.id].position || targetPosition === undefined) {
 				return;
 			}
-			this.ctx.strokeStyle = "orange";
-			this.strokePath(() => {
-				this.ctx.moveTo(...this.models[order.id].position);
-				this.ctx.lineTo(...targetPosition);
-			});
+			this.animations.push(new Animation(this.ctx, this.models[order.id].position, targetPosition));
 		}
 	}
 	drawOrders(orders) {

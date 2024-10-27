@@ -14,7 +14,6 @@ import { Game } from './presentation-controller.js';
 import { roster2settings } from '../utils/roster2settings.js';
 import { Mission } from '../environment/mission.js';
 import { DiceTray } from '../players/dice.js';
-import { getArmyRulesRenderer } from '../army-rules/army-rules-renderer.js'
 import avatars from '../settings/avatars.json' assert { type: 'json' };
 import gameSettings from '../settings/game-settings.json' assert { type: 'json' };
 import allBattlefields from './battlefields.json' assert { type: 'json' };
@@ -23,18 +22,13 @@ import config from '../game.config.json' assert { type: 'json' };
 
 
 const startBtn = document.getElementById('start');
-const restartBtn = document.getElementById('restart');
 const settingsRestartBtn = document.getElementById('settings-restart');
 const shootBtn = document.getElementById('shoot');
 const canvas = document.getElementById("canvas")
-const viewCheckbox = document.getElementById("view-checkbox");
-const orderViewCheckbox = document.getElementById("order-view-checkbox");
 
-const table = document.getElementById("table");
 const ordersSection = document.getElementById("orders-section");
 const fullOrdersList = document.getElementById("full-orders-list");
 const headerInfo = document.getElementById("header-info");
-const nextPhaseBtn = document.getElementById("next-phase-button");
 const settingsDialog = document.getElementById("settings-dialog");
 const closeSettingsDialog = document.getElementById("close-settings-dialog");
 const unitsStrip = document.getElementById("units-strip");
@@ -42,27 +36,15 @@ const loadRosterInputPlayer1 = document.getElementById("load-roster-player1");
 const loadRosterInputPlayer2 = document.getElementById("load-roster-player2");
 
 const battlefieldSelect = document.getElementById("battlefield-select");
-const reloadBtn = document.getElementById("game-reload");
 const missionSection = document.getElementById("mission-section");
 const unitName = document.getElementById("unit-name");
 const unitSection = document.getElementById("unit-section");
 const unitStatsHeader = document.getElementById("unit-stats-header");
 const diceHistorySection = document.getElementById("dice-history-section");
-const rollDice = document.getElementById("roll-dice");
 const diceTrayElement = document.getElementById("dice-tray");
 const weaponSection = document.getElementById("weapon-section");
-const shootingQueue = document.getElementById("shooting-queue");
-const armyRuleSection = document.getElementById("army-rule-section");
 
-viewCheckbox.addEventListener('change', (e) => {
-	table.classList.toggle('hidden', !e.target.checked);
-	canvas.classList.toggle('hidden', e.target.checked);
-});
 
-orderViewCheckbox.addEventListener('change', (e) => {
-	fullOrdersList.classList.toggle('hidden', !e.target.checked);
-	ordersSection.classList.toggle('hidden', e.target.checked);
-})
 
 function updateHeader(state) {
 	let phaseName = ['Command', 'Movement', 'Reinforcements', 'Shooting'][state.phase] ?? 'Deploy';
@@ -74,25 +56,6 @@ function updateHeader(state) {
 	headerInfo.innerHTML = `Round: ${state.round}, Phase: ${phaseName}`;
 }
 
-function updateTable(state) {
-	const data = getStateTensor([getInput(state, { selected: game.getSelectedModel()})], ...state.battlefield.size, channels)[0].arraySync();
-	const fragment = new DocumentFragment();
-	const nextline = Math.floor(Math.sqrt(data[0][0][0].length));
-	for(let row of data[0]) {
-		const rowEl = document.createElement('TR');
-		for (let cell of row) {
-			const cellEl = document.createElement('TD');
-			cellEl.innerHTML = cell.map((v, i) => v.toFixed(1) + ((i === nextline) ? '\n' : ',')).join('');
-			rowEl.appendChild(cellEl);
-			if (cell.some(v => v !== 0)) {
-				cellEl.classList.add('info-cell');
-			}
-		}
-		fragment.appendChild(rowEl);
-	}
-	table.innerHTML = '';
-	table.appendChild(fragment);
-}
 
 function updateUnitsStrip(state) {
 	unitsStrip.innerHTML = '';
@@ -133,18 +96,7 @@ function updateSecondaryMission(state) {
 	missionSection.innerHTML = '';
 	state.secondaryMissions.forEach((missions, playerId) => {
 		const playerBlock = document.createElement("div");
-		playerBlock.append(`Player${playerId}: ${state.players[playerId].primaryVP}/${state.players[playerId].secondaryVP}`);
-		missions.forEach((mission, missionIndex) => {
-			const missionEl = document.createElement("div");
-			const button = document.createElement("button");
-			missionEl.innerHTML = mission;
-			if(state.phase === Phase.Command && state.player === playerId) {
-				button.innerHTML = 'X';
-				missionEl.append(button);
-				button.addEventListener('click', () => game.orderResolve([getDiscardMissionOrder(missionIndex)]));
-			}
-			playerBlock.append(missionEl);
-		});
+		playerBlock.append(`Player${playerId}: ${state.players[playerId].primaryVP}`);
 		missionSection.append(playerBlock);
 	});
 }
@@ -286,29 +238,11 @@ game.onUpdateDiceHistory = (diceInfo) => {
 }
 
 game.onUpdate = (state) => {
-	updateTable(state);
 	updateHeader(state);
 	updateUnitsStrip(state);
 	updateSecondaryMission(state);
 	updateUnitSection(game.selectedUnit);
 	updateWeaponSection(state);
-	updateShootingQueue(state);
-	updateArmyRuleSection(state);
-}
-
-function updateArmyRuleSection(state) {
-	getArmyRulesRenderer(game.getCurrentPlayer().armyRule).render(armyRuleSection);
-}
-
-function updateShootingQueue(state) {
-	shootingQueue.innerHTML = '';
-	if (game.started) {
-		game.agents[state.player]._shootingQueue?.forEach((weaponName) => {
-			let queueLine = document.createElement('div');
-			queueLine.append(`${weaponName}: ${JSON.stringify(game.agents[state.player]._shootingTargeting[weaponName])}`);
-			shootingQueue.append(queueLine);
-		})
-	}
 }
 
 drawBattlefieldOptions();
@@ -317,16 +251,6 @@ drawOrders();
 const diceTray = new DiceTray();
 
 startBtn.addEventListener('click', () => game.start());
-restartBtn.addEventListener('click', () => game.restart());
-shootBtn.addEventListener('click', () => {
-	game.orderResolve([getSetDiceSequenceOrder(diceTray.dices), shootOrder]);
-	diceTray.clear();
-	updateDiceTray()
-});
-reloadBtn.addEventListener('click', () => {
-	game.reload();
-	settingsDialog.close();
-});
 
 function drawOrders() {
 	getPlayerOrders().forEach((order, i) => {
@@ -350,35 +274,6 @@ battlefieldSelect.addEventListener('change', (e) => {
 	localStorage.setItem('battlefield-name', battlefieldSelect.selectedOptions[0].value);
 });
 
-nextPhaseBtn.addEventListener('click', () => {
-	game.orderResolve([nextPhaseOrder]);
-});
-
-document.addEventListener('keydown', (e) => {
-	if(e.code === 'Space') {
-		e.preventDefault();
-		game.orderResolve([nextPhaseOrder]);
-	}
-
-	if(e.code === 'Tab') {
-		e.preventDefault();
-		game.selectNextModel();
-	}
-});
-
-settingsRestartBtn.addEventListener('click', () => {
-	settingsDialog.showModal();
-});
-
-closeSettingsDialog.addEventListener('click', () => {
-	settingsDialog.close();
-});
-
-
-rollDice.addEventListener('click', () => {
-	diceTray.roll();
-	updateDiceTray();
-});
 
 function updateDiceTray() {
 	diceTrayElement.innerHTML = [];
@@ -401,25 +296,3 @@ function getEntries(file, options) {
 	fr.readAsText(file);
 	return new Promise(resolve => fr.onload = (e) => resolve(JSON.parse(e.target.result)));
 }
-
-loadRosterInputPlayer1.addEventListener('change', async (e) => {
-	var file = e.target.files[0];
-	if (!file) {
-		return;
-	}
-
-	const entries = await getEntries(file);
-	const settings = roster2settings(entries);
-	localStorage.setItem('game-settings-player1', JSON.stringify(settings));
-});
-
-loadRosterInputPlayer2.addEventListener('change', async (e) => {
-	var file = e.target.files[0];
-	if (!file) {
-		return;
-	}
-
-	const entries = await getEntries(file);
-	const settings = roster2settings(entries);
-	localStorage.setItem('game-settings-player2', JSON.stringify(settings));
-});

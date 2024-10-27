@@ -1,0 +1,112 @@
+{
+    "units": [
+        {
+            "name": "stealth battlesuits",
+            "models": [
+                0
+            ]
+        },
+        {
+            "name": "stealth battlesuits",
+            "models": [
+                1
+            ]
+        }
+    ],
+    "modelProfiles": [
+        {
+            "M": "8\"",
+            "T": "4",
+            "SV": "3+",
+            "W": "2",
+            "LD": "7+",
+            "OC": "1"
+        },
+        {
+            "M": "8\"",
+            "T": "4",
+            "SV": "3+",
+            "W": "2",
+            "LD": "7+",
+            "OC": "1"
+        }
+    ],
+    "categories": [
+        [
+            "infantry",
+            "fly",
+            "battlesuit",
+            "stealth",
+            "faction: t'au empire"
+        ],
+         [
+            "infantry",
+            "fly",
+            "battlesuit",
+            "stealth",
+            "faction: t'au empire"
+        ]
+    ],
+    "rules": [[], []],
+    "modelNames": [
+        "Stealth Shas'vre",
+        "Stealth Shas'vre"
+    ],
+    "rangedWeapons": [
+        [
+            {
+                "name": "Burst cannon",
+                "Range": "18\"",
+                "A": "4",
+                "BS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Burst cannon",
+                "Range": "18\"",
+                "A": "4",
+                "BS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ]
+    ],
+    "meleeWeapons": [
+        [
+            {
+                "name": "Close combat weapon",
+                "Range": "Melee",
+                "A": "3",
+                "WS": "4+",
+                "S": "3",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Close combat weapon",
+                "Range": "Melee",
+                "A": "3",
+                "WS": "4+",
+                "S": "3",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ]
+    ],
+    "abilities": [[]],
+    "armyRule": "For The Greater Good",
+    "detachment": [
+        "kauyon"
+    ]
+}
