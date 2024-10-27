@@ -1,4 +1,5 @@
 import { getLineIntersection } from '../utils/planimatrics/index.js';
+import { eq } from '../utils/vec2.js';
 
 function getCratersDrawing(x, y, radius) {
 	const args = [[ x, y, radius, radius, 0, 0, 2 * Math.PI]];
@@ -40,7 +41,8 @@ export class Terrain {
 		for (let footprintEdge of footprints) {
 			let intersections = 0;
 			for (let i = 0; i < footprintEdge.length; i++) {
-				if (getLineIntersection(visibilityLine, [footprintEdge[i], footprintEdge[(i+1) % footprintEdge.length]]) !== null) {
+				const intercestion = getLineIntersection(visibilityLine, [footprintEdge[i], footprintEdge[(i+1) % footprintEdge.length]])
+				if (intercestion !== null && !eq(intercestion, point1) && !eq(intercestion, point2)) {
 					intersections++;
 				}
 				if (intersections >= 2) {
