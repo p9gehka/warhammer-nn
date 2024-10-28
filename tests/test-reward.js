@@ -17,7 +17,7 @@ const rewardAveragerLen = 200;
 
 export async function testReward(silent, nn) {
 	const env = new Warhammer({ gameSettings, battlefields });
-	const players = [new PlayerEasyShoot(0, env), new PlayerEasyShoot(1, env)];
+	const players = [new PlayerEasy(0, env), new PlayerEasy(1, env)];
 	if (nn !== undefined) {
 		players[0] = new PlayerAgent(0, env);
 	}
