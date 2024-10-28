@@ -6,8 +6,8 @@ import { PlayerAgent } from '../players/player-agent.js'
 import { getSetTargetOrder, doneOrder, getSelectModelOrder, getMoveOrders } from '../players/player-orders.js';
 
 import battlefields from './battlefields.json' assert { type: 'json' };
-import player0Settings from './game-settings-p0-full.json' assert { type: 'json' };
-import player1Settings  from './game-settings-p1-full.json' assert { type: 'json' };
+import player0Settings from './game-settings-p0.json' assert { type: 'json' };
+import player1Settings  from './game-settings-p1.json' assert { type: 'json' };
 
 export class Game {
 	constructor(canvas) {

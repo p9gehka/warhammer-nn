@@ -1,91 +1,181 @@
 {
     "units": [
         {
-            "name": "stealth battlesuits",
+            "name": "chaplain",
             "models": [
                 0
             ]
         },
         {
-            "name": "stealth battlesuits",
+            "name": "intercessor squad",
             "models": [
                 1
+            ]
+        },
+        {
+            "name": "inceptor squad",
+            "models": [
+                2
+            ]
+        },
+        {
+            "name": "redemptor dreadnought",
+            "models": [
+                3
             ]
         }
     ],
     "modelProfiles": [
         {
-            "M": "8\"",
+            "M": "6\"",
+            "T": "4",
+            "SV": "3+",
+            "W": "4",
+            "LD": "5+",
+            "OC": "1"
+        },
+        {
+            "M": "6\"",
             "T": "4",
             "SV": "3+",
             "W": "2",
-            "LD": "7+",
+            "LD": "6+",
+            "OC": "2"
+        },
+        {
+            "M": "10\"",
+            "T": "6",
+            "SV": "3+",
+            "W": "3",
+            "LD": "6+",
             "OC": "1"
         },
         {
             "M": "8\"",
-            "T": "4",
-            "SV": "3+",
-            "W": "2",
-            "LD": "7+",
-            "OC": "1"
+            "T": "10",
+            "SV": "2+",
+            "W": "12",
+            "LD": "6+",
+            "OC": "4"
         }
     ],
-    "categories": [
-        [
-            "infantry",
-            "fly",
-            "battlesuit",
-            "stealth",
-            "faction: t'au empire"
-        ],
-         [
-            "infantry",
-            "fly",
-            "battlesuit",
-            "stealth",
-            "faction: t'au empire"
-        ]
-    ],
-    "rules": [[], []],
+    "categories": [[],[],[],[]],
+    "rules": [[],[],[],[],[],[],[],[],[],[]],
     "modelNames": [
-        "Stealth Shas'vre",
-        "Stealth Shas'vre"
+        "Chaplain",
+        "Intercessor Sergeant",
+        "Inceptor Sergeant",
+        "Redemptor Dreadnought"
     ],
     "rangedWeapons": [
         [
             {
-                "name": "Burst cannon",
+                "name": "Absolvor Bolt Pistol",
                 "Range": "18\"",
-                "A": "4",
-                "BS": "4+",
+                "A": "1",
+                "BS": "3+",
                 "S": "5",
-                "AP": "-0",
-                "D": "1",
-                "Keywords": "-"
+                "AP": "-1",
+                "D": "2",
+                "Keywords": "Pistol"
             }
         ],
         [
             {
-                "name": "Burst cannon",
-                "Range": "18\"",
-                "A": "4",
-                "BS": "4+",
+                "name": "Bolt Pistol",
+                "Range": "12\"",
+                "A": "1",
+                "BS": "3+",
+                "S": "4",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Pistol"
+            },
+            {
+                "name": "Bolt Rifle",
+                "Range": "24\"",
+                "A": "2",
+                "BS": "3+",
+                "S": "4",
+                "AP": "-1",
+                "D": "1",
+                "Keywords": "Assault, Heavy"
+            }
+        ],
+        [],
+        [
+            {
+                "name": "Icarus Rocket Pod",
+                "Range": "24\"",
+                "A": "D3",
+                "BS": "3+",
+                "S": "8",
+                "AP": "-1",
+                "D": "2",
+                "Keywords": "Anti-fly 2+"
+            },
+            {
+                "name": "➤ Macro Plasma Incinerator - Standard",
+                "Range": "36\"",
+                "A": "D6+1",
+                "BS": "3+",
+                "S": "8",
+                "AP": "-3",
+                "D": "2",
+                "Keywords": "Blast"
+            },
+            {
+                "name": "➤ Macro Plasma Incinerator - Supercharge",
+                "Range": "36\"",
+                "A": "D6+1",
+                "BS": "3+",
+                "S": "9",
+                "AP": "-4",
+                "D": "3",
+                "Keywords": "Blast, Hazardous"
+            },
+            {
+                "name": "Onslaught Gatling Cannon",
+                "Range": "24\"",
+                "A": "8",
+                "BS": "3+",
                 "S": "5",
                 "AP": "-0",
                 "D": "1",
-                "Keywords": "-"
+                "Keywords": "Devastating Wounds"
+            },
+            {
+                "name": "Twin Fragstorm Grenade Launcher",
+                "Range": "18\"",
+                "A": "D6",
+                "BS": "3+",
+                "S": "4",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Blast, Twin-linked"
             }
         ]
     ],
     "meleeWeapons": [
         [
             {
-                "name": "Close combat weapon",
+                "name": "Crozius Arcanum",
+                "Range": "Melee",
+                "A": "5",
+                "WS": "2+",
+                "S": "6",
+                "AP": "-1",
+                "D": "2",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Close Combat Weapon",
                 "Range": "Melee",
                 "A": "3",
-                "WS": "4+",
-                "S": "3",
+                "WS": "3+",
+                "S": "4",
                 "AP": "-0",
                 "D": "1",
                 "Keywords": "-"
@@ -93,20 +183,30 @@
         ],
         [
             {
-                "name": "Close combat weapon",
+                "name": "Close Combat Weapon",
                 "Range": "Melee",
                 "A": "3",
-                "WS": "4+",
-                "S": "3",
+                "WS": "3+",
+                "S": "4",
                 "AP": "-0",
                 "D": "1",
                 "Keywords": "-"
             }
+        ],
+        [
+            {
+                "name": "Redemptor Fist",
+                "Range": "Melee",
+                "A": "5",
+                "WS": "3+",
+                "S": "12",
+                "AP": "-2",
+                "D": "3",
+                "Keywords": "-"
+            }
         ]
     ],
-    "abilities": [[]],
-    "armyRule": "For The Greater Good",
-    "detachment": [
-        "kauyon"
-    ]
+    "abilities": [[],[],[],[],[],[],[],[],[],[]],
+    "armyRule": "Oath of Moment",
+    "detachment": ["gladius task force"]
 }
