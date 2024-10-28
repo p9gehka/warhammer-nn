@@ -12,7 +12,7 @@ export class PlayerEasyShoot extends PlayerAgent {
 		super(...args);
 		this.agents = {
 			[Phase.Movement]: new MoveToObject(),
-			[Phase.Shooting]: new  ShootAgent()
+			[Phase.Shooting]: new ShootAgent()
 		}
 	}
 	setAgent(agent) {

@@ -14,7 +14,7 @@ export class PlayerAgent {
 		this._selectedModel = 0;
 		this.agents = {
 			[Phase.Movement]: new MoveAgent(),
-			[Phase.Shooting]: new ShootAgent(),
+			[Phase.Shooting]: new DumbAgent(),
 		};
 		this.steps = {
 			[Phase.Movement]: (order) => this.moveStep(order),
