@@ -6,7 +6,7 @@ import { Triangle } from '../utils/planimatrics/triangle.js';
 
 //{ Empty: 0 }
 export const Channel0 = {};
-new Array(17).fill(0).forEach((_, v) => { Channel0[`PlayerModel${v}`] = 1 });
+new Array(17).fill(0).forEach((_, v) => { Channel0[`PlayerModel${v}`] = (v + 1) / 17 });
 export const Channel1 = {};
 
 [0,1,2,3,4,5,6,7,8,9,10].forEach(v => { Channel1[`Stamina${v}`] = v / 10; });
@@ -22,7 +22,7 @@ export const Channel4 = {};
 new Array(17).fill(0).forEach((_, v) => { Channel4[`OpponentModel${v}`] = 1 });
 
 export const ChannelShootPriority = {};
-new Array(17).fill(0).forEach((_, v) => { ChannelShootPriority[`ChannelShootPriority${v}`] = (v + 1) / maxModelsAtOrder;  });
+new Array(5).fill(0).forEach((_, v) => { ChannelShootPriority[`ChannelShootPriority${v}`] = (v + 1) / 5;  });
 
 
 export const ChannelTerrain = { Footprint: 1 };
@@ -103,7 +103,7 @@ export function getInput(state, playerState) {
 	state.players.forEach((player, playerId) => {
 		player.models.forEach((gameModelId, playerModelId) => {
 			const xy = state.models[gameModelId];
-			if (xy === null) { return; }
+			if (xy === null || isNaN(xy[0])) { return; }
 
 			let entities = [];
 
