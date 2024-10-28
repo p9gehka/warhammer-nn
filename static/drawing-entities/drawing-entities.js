@@ -183,6 +183,7 @@ export class Scene extends Drawing {
 	bindings = [];
 	animations = [];
 	prevAnimationTimeStamp = 0;
+	animate = false;
 	constructor(ctx, state, gameSettings) {
 		super();
 		this.ctx = ctx;
@@ -207,7 +208,7 @@ export class Scene extends Drawing {
 		this.bindings.forEach(binding => binding.draw());
 
 		const animationFrame = (timestamp) => {
-			if (timestamp - this.prevAnimationTimeStamp < 30) {
+			if (timestamp - this.prevAnimationTimeStamp < 15) {
 				requestAnimationFrame(animationFrame);
 				return
 			}
@@ -222,10 +223,14 @@ export class Scene extends Drawing {
 				}
 				animation.frame(timestamp);
 			})
-			requestAnimationFrame(animationFrame);
-
+			if (this.animations.length > 0) {
+				requestAnimationFrame(animationFrame);
+			} else {
+				this.animate = false;
+			}
 		}
-		if (this.animations.length > 0) {
+		if (this.animations.length > 0 && !this.animate) {
+			this.animate = true;
 			requestAnimationFrame(animationFrame);
 		}
 }
