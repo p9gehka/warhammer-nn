@@ -21,8 +21,7 @@ export class MoveAgent extends MoveAgentBase {
 	playStepByInput(input) {
 		let orderIndex = 0;
 		const selected = input[Channel3Name.Order0][0];
-
-		if (input[Channel1Name.Stamina0].some(pos => eq(pos, selected))) {
+		if (input[Channel1Name.Stamina0].some(pos => eq(pos, selected)) || isNaN(selected[0])) {
 			orderIndex = 0;
 		} else {
 			let vector = [100,100];

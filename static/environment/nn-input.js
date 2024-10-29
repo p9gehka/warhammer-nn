@@ -19,18 +19,31 @@ new Array(maxModelsAtOrder).fill(0).forEach((_, v) => { Channel3[`Order${v}`] = 
 export const Channel4 = {};
 new Array(17).fill(0).forEach((_, v) => { Channel4[`OpponentModel${v}`] = 1 });
 
-export const Channel0Name = {}, Channel1Name = {}, Channel2Name = {}, Channel3Name = {}, Channel4Name = {};
+export const ChannelShootPriority = {};
+new Array(17).fill(0).forEach((_, v) => { ChannelShootPriority[`ChannelShootPriority${v}`] = (v + 1) / maxModelsAtOrder;  });
+
+
+export const Channel0Name = {}, Channel1Name = {}, Channel2Name = {}, Channel3Name = {}, Channel4Name = {}, ChannelShootPriorityName = {};
 
 Object.keys(Channel0).forEach(name => Channel0Name[name] = name);
 Object.keys(Channel1).forEach(name => Channel1Name[name] = name);
 Object.keys(Channel2).forEach(name => Channel2Name[name] = name);
 Object.keys(Channel3).forEach(name => Channel3Name[name] = name);
 Object.keys(Channel4).forEach(name => Channel4Name[name] = name);
+Object.keys(ChannelShootPriority).forEach(name => ChannelShootPriorityName[name] = name)
 
-export const channels = [Channel0, Channel1, Channel2, Channel3, Channel4];
+
+export const channels = [Channel0, Channel1, Channel2, Channel3, Channel4, ChannelShootPriority];
 export function emptyInput() {
 	const input = {};
-	[...Object.keys(Channel0Name), ...Object.keys(Channel1Name), ...Object.keys(Channel2Name), ...Object.keys(Channel3Name), ...Object.keys(Channel4Name)].forEach(name => {
+	[
+		...Object.keys(Channel0Name),
+		...Object.keys(Channel1Name),
+		...Object.keys(Channel2Name),
+		...Object.keys(Channel3Name),
+		...Object.keys(Channel4Name),
+		...Object.keys(ChannelShootPriority),
+	].forEach(name => {
 		input[name] = [];
 	});
 	return input;
@@ -98,6 +111,14 @@ export function getInput(state, playerState) {
 				input[entity].push(xy);
 			});
 		});
+		if (playerId !== state.player) {
+			player.units.forEach(unit => {
+				unit.models.forEach(gameModelId => {
+					const xy = state.models[gameModelId];
+					input[ChannelShootPriorityName[`ChannelShootPriority${unit.id}`]] = [xy];
+				});
+			});
+		}
 	});
 
 	input.round = state.round;

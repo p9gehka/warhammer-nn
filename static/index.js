@@ -19,7 +19,7 @@ ctx.scale(canvas.width / 60, canvas.height / 44);
 
 let model;
 try {
-	model = await tf.loadLayersModel(`/agents/move-agent/.model44x30x5/model.json`);
+	model = await tf.loadLayersModel(`/agents/move-agent/.model44x30x6/model.json`);
 } catch (e) {}
 
 const battlefield = new Battlefield(ctx, { size: [0, 0], objective_marker: [], ruins: [] });
@@ -66,8 +66,7 @@ async function start () {
 function setState(e) {
 	if (e.target.dataset.indexNumber) {
 		const [prevState, playerState, order, state] = actionAndStates[e.target.dataset.indexNumber];
-		scene.updateState(state);
-		scene.drawOrder(order);
+		scene.updateState(state, {}, order);
 		const input = getInput(prevState, playerState);
 		updatePredictions(prevState, input);
 		updateTable(prevState, input, table);

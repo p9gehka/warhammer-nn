@@ -23,7 +23,7 @@ export class MoveAgent extends MoveAgentBase {
 		const selected = input[Channel3Name.Order0][0];
 		const opponentModels = Object.values(Channel4Name).map(channelKey => input[channelKey][0]).filter(v => v !== undefined);
 		const objectsCoords = Object.values(Channel2Name).map(channelKey => input[channelKey]).filter(v => v.length !== 0);
-		if (input[Channel1Name.Stamina0].some(pos => eq(pos, selected))) {
+		if (input[Channel1Name.Stamina0].some(pos => eq(pos, selected)) || isNaN(selected[0])) {
 			orderIndex = 0;
 		} else {
 			let opponentToObjectLen = Array(objectsCoords.length).fill(0).map(() => 1000);

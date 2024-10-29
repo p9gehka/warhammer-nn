@@ -4,35 +4,66 @@ import { mul, len, sub, add, eq, scaleToLen, round } from '../utils/vec2.js'
 import { getRandomInteger } from '../utils/index.js';
 
 export const Phase = {
-	Movement: 0,
+	Command: 0,
+	Movement: 1,
+	Shooting: 2,
 }
 
-const phaseOrd = [Phase.Movement];
+const phaseOrd = [Phase.Command, Phase.Movement, Phase.Shooting];
 
 export const BaseAction = {
 	NextPhase: 'NEXT_PHASE',
 	Move: 'MOVE',
+	Shoot: 'SHOOT',
+}
+
+function parseCharacteristic(value) {
+	let result = value[0] === 'D' ? '1' + value : value;
+	result = result.indexOf('D') === -1 ? ('0D6+' + result) : result;
+	result = result.indexOf('+') === -1 ? (result + '+0') : result;
+	const [diceTotal, tail] = result.split('D');
+	const [dice, constant] = tail.split('+');
+	return { diceTotal: parseInt(diceTotal), constant: parseInt(constant), dice: 'd'+dice };
 }
 
 class Model {
 	position = [NaN, NaN];
 	wound = 0;
 	dead = true;
+	stamina = 0;
 
-	constructor(id, unit, position, profile) {
+	constructor(id, unit, position, profile, rangedWeapons) {
 		this.id = id;
 		this.name = unit.name;
 		this.playerId = unit.playerId;
 		this.unitProfile = {
 			"m": parseInt(profile.M),
 			"oc": parseInt(profile.OC),
+			"w": parseInt(profile.W)
 		};
+
+		this._rangedWeapons = rangedWeapons.map(weaponProfile  => {
+			return {
+				a: parseCharacteristic(weaponProfile.A),
+				ap: parseInt(weaponProfile.AP),
+				bs: parseInt(weaponProfile.BS),
+				d: parseCharacteristic(weaponProfile.D),
+				range: parseInt(weaponProfile.Range),
+				s: parseInt(weaponProfile.S),
+				name: weaponProfile.name,
+			}
+		});
+		this.rangedWeaponLoaded = Array(rangedWeapons.length).fill(false);
 
 		this.stamina = 0;
 		this.position = position;
 		this.dead = false;
 		this.wounds = this.unitProfile.w;
 		this.deployed = !isNaN(position[0]);
+	}
+
+	getRangedWeapon(weaponId) {
+		return this._rangedWeapons[weaponId];
 	}
 
 	update(position) {
@@ -49,14 +80,33 @@ class Model {
 		this.stamina = Math.max(0, this.stamina - value);
 	}
 
+	updateAvailableToShoot(value) {
+		if (!isNaN(this.position[0])) {
+			this.rangedWeaponLoaded = this.rangedWeaponLoaded.map(_=> value)
+		}
+	}
+	isAvailableToShoot() {
+		return this.rangedWeaponLoaded.some(v=>v);
+	}
+
 	kill() {
 		if (this.dead) {
 			return;
 		}
-		this.wound = 0;
+		this.wounds = 0;
 		this.stamina = 0;
 		this.dead = true;
-		this.position = [NaN, NaN];
+		this.position = [NaN, NaN]
+	}
+
+	inflictDamage(value) {
+		if (this.dead) {
+			return;
+		}
+		this.wounds -= value;
+		if (this.wounds <= 0) {
+			this.kill();
+		}
 	}
 }
 
@@ -64,11 +114,12 @@ export class Warhammer {
 	players = [];
 	units = [];
 	models = [];
-	phase = Phase.Movement;
+	phase = phaseOrd[0];
 	turn = 0;
 	objectiveControlReward = 5;
 	totalRounds = 5;
-	lastMovedModelId = null;
+	lastMovedModelId = undefined;
+	lastShootedModelId = undefined;
 	constructor(config) {
 		this.missions = [
 			new MissionController('TakeAndHold', 'ChillingRain'),
@@ -87,8 +138,8 @@ export class Warhammer {
 		let unitCounter = 0;
 
 		const units = this.gameSettings.units.map(
-			(playerUnits, playerId) => playerUnits.map(unit => {
-				const result = ({...unit, playerId, id: unitCounter });
+			(playerUnits, playerId) => playerUnits.map((unit, id) => {
+				const result = ({...unit, playerId, id, gameId: unitCounter });
 				unitCounter++;
 				return result;
 			})
@@ -108,7 +159,7 @@ export class Warhammer {
 				}
 				usedPosition.push(this.getRandomStartPosition(usedPosition, lastPosition));
 				lastPosition = usedPosition.at(-1);
-				return new Model(id, unit, lastPosition, this.gameSettings.modelProfiles[id]);
+				return new Model(id, unit, lastPosition, this.gameSettings.modelProfiles[id], this.gameSettings.rangedWeapons[id]);
 			});
 		}).flat();
 
@@ -144,25 +195,42 @@ export class Warhammer {
 			return this.getState();
 		}
 
+		const currentPlayerId = this.getPlayer();
 		if (order.action === BaseAction.NextPhase) {
-			this.missions[this.getPlayer()].startTurn(this.getState(), this.models.map(m => m.unitProfile));
-			this.players[this.getPlayer()].primaryVP += this.scorePrimaryVP();
-
-			this.lastMovedModelId = null;
+			if (this.phase === Phase.Command) {
+				this.missions[this.getPlayer()].startTurn(this.getState(), this.models.map(m => m.unitProfile));
+				this.players[this.getPlayer()].primaryVP += this.scorePrimaryVP();
+			}
+			this.lastMovedModelId = undefined;
 			this.models.forEach(model => model.updateAvailableToMove(false));
+			this.models.forEach(model => model.updateAvailableToShoot(false));
+		}
+		/*Before*/
 
+		if (order.action === BaseAction.NextPhase) {
 			if (this.phase === phaseOrd.at(-1)) {
 				this.turn++;
 			}
+
 			this.phase = phaseOrd[(this.phase + 1) % phaseOrd.length];
 		}
 
-		const currentPlayerId = this.getPlayer();
+		/*After*/
+		
 		if (order.action === BaseAction.NextPhase) {
+			let nextPlayerId = this.getPlayer();
 			if (this.phase === Phase.Movement) {
 				this.models.forEach((model) => {
-					if (model.playerId === currentPlayerId) {
+					if (model.playerId === nextPlayerId) {
 						model.updateAvailableToMove(true);
+					}
+				});
+			}
+
+			if (this.phase === Phase.Shooting) {
+				this.models.forEach((model) => {
+					if (model.playerId === nextPlayerId) {
+						model.updateAvailableToShoot(true);
 					}
 				});
 			}
@@ -172,8 +240,25 @@ export class Warhammer {
 
 		const model = this.models[order.id];
 
+		if (order.action === BaseAction.Shoot) {
+			if (this.lastShootedModelId !== undefined && this.lastShootedModelId !== order.id) {
+				this.models[this.lastShootedModelId].updateAvailableToShoot(false);
+			}
+			this.lastShootedModelId = order.id;
+		}
+
+		if (order.action === BaseAction.Shoot && this.units[order.target] !== undefined) {
+			this.models[this.lastShootedModelId].updateAvailableToShoot(false);
+			const aliveTargets = this.units[order.target].models.filter(modelId => !this.models[modelId].dead);
+			const targetModel = this.models[aliveTargets[aliveTargets.length - 1]];
+			const damageValue = 100;
+			if (targetModel !== undefined) {
+				targetModel.inflictDamage(damageValue);
+			}
+		}
+
 		if (order.action === BaseAction.Move && model !== undefined) {
-			if (this.lastMovedModelId !== null && this.lastMovedModelId !== order.id) {
+			if (this.lastMovedModelId !== undefined && this.lastMovedModelId !== order.id) {
 				this.models[this.lastMovedModelId].updateAvailableToMove(false);
 			}
 			this.lastMovedModelId = order.id;
@@ -197,12 +282,26 @@ export class Warhammer {
 		return this.getState();
 	}
 
+	getAvailableTarget(shooterId, weaponId, unitId) {
+		const shooter = this.models[shooterId];
+		const weapon = shooter.getRangedWeapon(weaponId);
+		const aliveTargets = [];
+		const availableTargets = [];
+		this.units[unitId].models.forEach(modelId => {
+			const possibleTarget = this.models[modelId];
+			if (!possibleTarget.dead && weapon !== undefined) {
+				if (len(sub(possibleTarget.position, shooter.position)) <= weapon.range) {
+					availableTargets.push(possibleTarget.position);
+				}
+			}
+		});
+		return availableTargets;
+	}
+
 	getPlayer() { return this.turn % 2; }
 
 	done() {
-		const ids = this.models.filter(model => !model.dead).map(model => model.playerId);
-
-		return this.turn > (this.totalRounds * 2) - 1 || new Set(ids).size === 1;
+		return this.turn > (this.totalRounds * 2) - 1;
 	}
 	end() {
 		this.turn = (this.totalRounds * 2);
@@ -217,6 +316,7 @@ export class Warhammer {
 			units: this.units,
 			models: this.models.map(model => model.position),
 			modelsStamina: this.models.map(model => model.stamina),
+			availableToShoot: this.models.filter(model => model.isAvailableToShoot()).map(model => model.id),
 			phase: this.phase,
 			player: this.getPlayer(),
 			done: this.done(),

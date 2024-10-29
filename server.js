@@ -1,11 +1,12 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { Warhammer } from './static/environment/warhammer.js';
+import { Warhammer, Phase } from './static/environment/warhammer.js';
 import { PlayerAgent } from './static/players/player-agent.js';
 import { Rewarder } from './students/student.js';
 import { filterObjByKeys } from './static/utils/index.js';
 import { PlayerEasy } from './static/players/player-easy.js';
+import { PlayerEasyShoot } from './static/players/player-easy-shoot.js';
 
 import gameSettings from './static/settings/game-settings.json' assert { type: 'json' };
 import allBattlefields from './static/settings/battlefields.json' assert { type: 'json' };
@@ -51,11 +52,10 @@ app.post('/play', async (req,res) => {
 		if (prevState[state.player] !== undefined) {
 			let reward = rewarders[state.player].step(prevState[state.player][0], prevState[state.player][2], 0.5);
 			prevStates[state.player].push([...prevState[state.player], reward]);
-			if (prevState[state.player][2].action === 'NEXT_PHASE') {
+			if (prevState[state.player][2].action === 'NEXT_PHASE' && state.phase === Phase.Command) {
 				actionsAndStates.push(...prevStates[state.player]);
 				prevStates[state.player] = [];
 			}
-			prevState[state.player] = undefined;
 		}
 
 		const stepInfo = players[state.player].playStep();

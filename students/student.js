@@ -2,27 +2,29 @@ import { getRandomInteger } from '../static/utils/index.js';
 import { eq, sub, len, div } from '../static/utils/vec2.js';
 import { Channel2Name, Channel3Name } from '../static/environment/nn-input.js';
 import { PlayerAgent } from '../static/players/player-agent.js';
-import { BaseAction } from '../static/environment/warhammer.js';
+import { BaseAction, Phase } from '../static/environment/warhammer.js';
 import { deployment } from '../static/battlefield/deployment.js';
 
 export class StudentAgent extends PlayerAgent {
 	playTrainStep(epsilon) {
 		const prevState = this.env.getState();
+		const agent = this.agents[prevState.phase];
 		let orderIndex;
 		let estimate = 0;
-		const input = this.agent.getInput(prevState, this.getState());
+
+		const input = agent.getInput(prevState, this.getState());
 		const selected = input[Channel3Name.Order0][0];
 
 		if (Math.random() < epsilon) {
-			orderIndex = getRandomInteger(0, this.agent.orders.length);
+			orderIndex = getRandomInteger(0, agent.orders.length);
 		} else {
-			let { orderIndex: stepOrderIndex, estimate } = this.agent.playStep(prevState, this.getState());
+			let { orderIndex: stepOrderIndex, estimate } = agent.playStep(prevState, this.getState());
 			orderIndex = stepOrderIndex;
 		}
 
-		const order = this.agent.orders[orderIndex];
+		const order = agent.orders[orderIndex];
 
-		let [order_, state] = this.step(order);
+		let [order_, state] = this.steps[prevState.phase](order);
 
 		return [order_, state, { index: orderIndex, estimate: estimate.toFixed(3) }];
 	}
@@ -52,25 +54,30 @@ export class Student {
 		this.rewarder = new Rewarder(this.env, this.player);
 	}
 	setOnlineNetwork(nn) {
-		this.player.agent.onlineNetwork = nn;
+		this.player.agents[Phase.Movement].onlineNetwork = nn;
 	}
 	getOnlineNetwork(nn) {
-		return this.player.agent.onlineNetwork;
+		return this.player.agents[Phase.Movement].onlineNetwork;
 	}
 	getCumulativeReward() {
 		return this.rewarder.cumulativeReward;
 	}
 
 	playStep() {
+		const prevState = this.env.getState();
+		if (prevState.phase !== Phase.Movement) {
+			return this.player.playStep();
+		}
+
 		this.frameCount++;
 		this.epsilon = this.frameCount >= this.epsilonDecayFrames ?
 			this.epsilonFinal :
 			this.epsilonInit + this.epsilonIncrement_ * this.frameCount;
-		const prevState = this.env.getState();
-		const input = this.player.agent.getInput(prevState, this.player.getState());
+		
+		const input = this.player.agents[prevState.phase].getInput(prevState, this.player.getState());
 
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {
-			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
+			let reward = this.rewarder.step(this.prevState, this.player.agents[this.prevState.phase].orders[this.prevMemoryState[1]], this.epsilon);
 			this.replayMemory?.append([...this.prevMemoryState, reward, false, input]);
 		}
 		const result = this.player.playTrainStep(this.epsilon);
@@ -87,7 +94,7 @@ export class Student {
 
 	awarding() {
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {
-			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
+			let reward = this.rewarder.step(this.prevState, this.player.agents[this.prevState.phase].orders[this.prevMemoryState[1]], this.epsilon);
 			this.replayMemory?.append([...this.prevMemoryState, reward, true, null]);
 		}
 	}
