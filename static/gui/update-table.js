@@ -15,7 +15,9 @@ export function updateTable(state, input, table) {
 				cellEl.classList.add('player-model-cell');
 			} else if (cell[4] === 1) {
 				cellEl.classList.add('opponent-model-cell');
-			} else if (cell.some(v => v !== 0)) {
+			} else if (cell[2] !== 0) {
+				cellEl.classList.add('object-cell');
+			}  else if (cell.some(v => v !== 0)) {
 				cellEl.classList.add('info-cell');
 			}
 		}
@@ -39,6 +41,8 @@ export function updateTable2(state, stateTensor, table) {
 				cellEl.classList.add('player-model-cell');
 			} else if (cell[4] === 1) {
 				cellEl.classList.add('opponent-model-cell');
+			} else if (cell[2] !== 0) {
+				cellEl.classList.add('object-cell');
 			} else if (cell.some(v => v !== 0)) {
 				cellEl.classList.add('info-cell');
 			}

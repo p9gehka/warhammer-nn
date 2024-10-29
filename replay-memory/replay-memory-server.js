@@ -8,7 +8,7 @@ const replayMemory = new ReplayMemory(replayMemorySize);
 const app = express();
 
 let locked = false;
-app.use(express.json({ limit: '50mb' }));
+app.use(express.json({ limit: '200mb' }));
 
 app.get('/', (req,res) => {
 	if (locked) {

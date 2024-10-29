@@ -5,6 +5,7 @@ import shelljs from 'shelljs';
 import { Warhammer } from './static/environment/warhammer.js';
 import { PlayerDumb } from './static/players/player-dumb.js';
 import { PlayerEasy } from './static/players/player-easy.js';
+import { PlayerEasyShoot } from './static/players/player-easy-shoot.js';
 import { ReplayMemoryClient } from './replay-memory/replay-memory-client.js';
 import { sendDataToTelegram, sendMessage, memoryUsage } from './visualization/utils.js';
 import { MovingAverager } from './moving-averager.js';
@@ -45,7 +46,7 @@ async function play() {
 	const env = new Warhammer({ gameSettings, battlefields });
 
 	const replayMemory = new ReplayMemoryClient(replayBufferSize);
-	const players = [new Student(0, env, { replayMemory, epsilonDecayFrames: config.epsilonDecayFrames, epsilonInit: epsilonInit }), new PlayerEasy(1, env)];
+	const players = [new Student(0, env, { replayMemory, epsilonDecayFrames: config.epsilonDecayFrames, epsilonInit: epsilonInit }), new  PlayerEasyShoot(1, env)];
 
 	async function tryUpdateModel() {
 		try {

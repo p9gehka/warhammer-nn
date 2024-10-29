@@ -19,7 +19,7 @@ ctx.scale(canvas.width / 60, canvas.height / 44);
 
 let model;
 try {
-	model = await tf.loadLayersModel(`/agents/move-agent/.model44x30x6/model.json`);
+	model = await tf.loadLayersModel(`/agents/move-agent/.model44x30x7/model.json`);
 } catch (e) {}
 
 const battlefield = new Battlefield(ctx, { size: [0, 0], objective_marker: [], ruins: [] });
@@ -38,6 +38,10 @@ async function start () {
 	});
 
 	actionAndStates = await response.json();
+	actionAndStates.forEach(([prevState, playerState, order, state, nnInfo, reward]) => {
+		prevState.dead.forEach(modelId => { prevState.models[modelId] = [NaN,NaN]; });
+		state.dead.forEach(modelId => { state.models[modelId] = [NaN,NaN]; });
+	})
 	const [initState] = actionAndStates[0];
 
 	scene = new Scene(ctx, initState);

@@ -9,21 +9,21 @@ export class StudentAgent extends PlayerAgent {
 	playTrainStep(epsilon) {
 		const prevState = this.env.getState();
 		const agent = this.agents[prevState.phase];
-		let orderIndex;
-		let estimate = 0;
-
-		const input = agent.getInput(prevState, this.getState());
-		const selected = input[Channel3Name.Order0][0];
+		let order, orderIndex, estimate = 0;
+		if (!this.isSelectedOnField()) {
+			this._selectedModel = this.selectNextModel(prevState);
+		}
 
 		if (Math.random() < epsilon) {
 			orderIndex = getRandomInteger(0, agent.orders.length);
+		} else if (agent !== undefined && this.isSelectedOnField()) {
+			const result = agent.playStep(prevState, this.getState());
+			orderIndex = result.orderIndex;
+			estimate = result.estimate;
 		} else {
-			let { orderIndex: stepOrderIndex, estimate } = agent.playStep(prevState, this.getState());
-			orderIndex = stepOrderIndex;
+			orderIndex = 0;
 		}
-
-		const order = agent.orders[orderIndex];
-
+		order = agent.orders[orderIndex];
 		let [order_, state] = this.steps[prevState.phase](order);
 
 		return [order_, state, { index: orderIndex, estimate: estimate.toFixed(3) }];
@@ -125,13 +125,15 @@ export class Rewarder {
 			const state = this.env.getState();
 			const playerState = this.player.getState();
 			const selected = state.players[this.playerId].models[playerState.selected];
-			const initialPosititon = sub(state.models[selected], order.vector);
-			const currentPosition = state.models[selected];
+			if (!isNaN(state.models[selected][0])) {
+				const initialPosititon = sub(state.models[selected], order.vector);
+				const currentPosition = state.models[selected];
 
-			const center = div(state.battlefield.size, 2);
-			const currentPositionDelta = len(sub(center, sub(currentPosition, center).map(Math.abs)));
-			const initialPosititonDelta = len(sub(center, sub(initialPosititon, center).map(Math.abs)));
-			reward += (currentPositionDelta - initialPosititonDelta);
+				const center = div(state.battlefield.size, 2);
+				const currentPositionDelta = len(sub(center, sub(currentPosition, center).map(Math.abs)));
+				const initialPosititonDelta = len(sub(center, sub(initialPosititon, center).map(Math.abs)));
+				reward += (currentPositionDelta - initialPosititonDelta);
+			}
 		}
 		return reward * epsilon;
 	}

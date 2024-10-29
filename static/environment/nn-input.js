@@ -1,6 +1,8 @@
 import { Phase } from './warhammer.js';
 import { len } from '../utils/vec2.js';
 import { deployment } from  '../battlefield/deployment.js';
+import { terrain } from  '../battlefield/terrain.js';
+import { Triangle } from '../utils/planimatrics/triangle.js';
 
 //{ Empty: 0 }
 export const Channel0 = {};
@@ -23,17 +25,21 @@ export const ChannelShootPriority = {};
 new Array(17).fill(0).forEach((_, v) => { ChannelShootPriority[`ChannelShootPriority${v}`] = (v + 1) / maxModelsAtOrder;  });
 
 
-export const Channel0Name = {}, Channel1Name = {}, Channel2Name = {}, Channel3Name = {}, Channel4Name = {}, ChannelShootPriorityName = {};
+export const ChannelTerrain = { Footprint: 1 };
+
+
+export const Channel0Name = {}, Channel1Name = {}, Channel2Name = {}, Channel3Name = {}, Channel4Name = {}, ChannelShootPriorityName = {}, ChannelTerrainName = {};
 
 Object.keys(Channel0).forEach(name => Channel0Name[name] = name);
 Object.keys(Channel1).forEach(name => Channel1Name[name] = name);
 Object.keys(Channel2).forEach(name => Channel2Name[name] = name);
 Object.keys(Channel3).forEach(name => Channel3Name[name] = name);
 Object.keys(Channel4).forEach(name => Channel4Name[name] = name);
-Object.keys(ChannelShootPriority).forEach(name => ChannelShootPriorityName[name] = name)
+Object.keys(ChannelShootPriority).forEach(name => ChannelShootPriorityName[name] = name);
+Object.keys(ChannelTerrain).forEach(name => ChannelTerrainName[name] = name);
 
 
-export const channels = [Channel0, Channel1, Channel2, Channel3, Channel4, ChannelShootPriority];
+export const channels = [Channel0, Channel1, Channel2, Channel3, Channel4, ChannelShootPriority, ChannelTerrain];
 export function emptyInput() {
 	const input = {};
 	[
@@ -42,7 +48,8 @@ export function emptyInput() {
 		...Object.keys(Channel2Name),
 		...Object.keys(Channel3Name),
 		...Object.keys(Channel4Name),
-		...Object.keys(ChannelShootPriority),
+		...Object.keys(ChannelShootPriorityName),
+		...Object.keys(ChannelTerrainName)
 	].forEach(name => {
 		input[name] = [];
 	});
@@ -50,9 +57,10 @@ export function emptyInput() {
 }
 
 const objectiveMemoized = {};
-
+const terrainMemoized = {};
 export function getInput(state, playerState) {
 	const memoKey = state.battlefield.deployment;
+	const terrainMemoKey = state.battlefield.terrain;
 
 	if (deployment[memoKey] !== undefined && objectiveMemoized[memoKey] === undefined) {
 		objectiveMemoized[memoKey] = [];
@@ -74,12 +82,23 @@ export function getInput(state, playerState) {
 		});
 	}
 
+	if (terrain[terrainMemoKey] !== undefined && terrainMemoized[terrainMemoKey] === undefined) {
+		terrainMemoized[terrainMemoKey] = [];
+
+		const currentTerrain = new terrain[terrainMemoKey]();
+		currentTerrain.getRectangleFootpintsAsTriangles().forEach((triangles) => {
+			triangles.forEach(([A,B,C]) => {
+				terrainMemoized[terrainMemoKey].push(...(new Triangle(...A, ...B, ...C)).getAllPoints());
+			});
+		});
+	}
 
 	const input = emptyInput();
 
 	objectiveMemoized[memoKey].forEach((coords, i) => {
 		input[Channel2Name[`ObjectiveMarker${i+1}`]] = coords;
-	})
+	});
+	input[ChannelTerrainName.Footprint] = terrainMemoized[terrainMemoKey];
 
 	state.players.forEach((player, playerId) => {
 		player.models.forEach((gameModelId, playerModelId) => {
