@@ -1,38 +1,48 @@
 {
     "units": [
         {
-            "name": "chaplain",
-            "models": [
-                0
-            ]
-        },
-        {
             "name": "intercessor squad",
             "models": [
-                1
+                0, 1, 2
             ]
         },
         {
             "name": "inceptor squad",
             "models": [
-                2
+                3,4,5
             ]
         },
         {
+            "name": "chaplain",
+            "models": [
+                6
+            ]
+        },
+       
+        {
             "name": "redemptor dreadnought",
             "models": [
-                3
+                7
             ]
         }
     ],
     "modelProfiles": [
+
         {
             "M": "6\"",
             "T": "4",
             "SV": "3+",
-            "W": "4",
-            "LD": "5+",
-            "OC": "1"
+            "W": "2",
+            "LD": "6+",
+            "OC": "2"
+        },
+        {
+            "M": "6\"",
+            "T": "4",
+            "SV": "3+",
+            "W": "2",
+            "LD": "6+",
+            "OC": "2"
         },
         {
             "M": "6\"",
@@ -48,6 +58,30 @@
             "SV": "3+",
             "W": "3",
             "LD": "6+",
+            "OC": "1"
+        },
+        {
+            "M": "10\"",
+            "T": "6",
+            "SV": "3+",
+            "W": "3",
+            "LD": "6+",
+            "OC": "1"
+        },
+        {
+            "M": "10\"",
+            "T": "6",
+            "SV": "3+",
+            "W": "3",
+            "LD": "6+",
+            "OC": "1"
+        },
+        {
+            "M": "6\"",
+            "T": "4",
+            "SV": "3+",
+            "W": "4",
+            "LD": "5+",
             "OC": "1"
         },
         {
@@ -70,27 +104,17 @@
     "rangedWeapons": [
         [
             {
-                "name": "Absolvor Bolt Pistol",
-                "Range": "18\"",
-                "A": "1",
+                "name": "Bolt Rifle",
+                "Range": "24\"",
+                "A": "2",
                 "BS": "3+",
-                "S": "5",
+                "S": "4",
                 "AP": "-1",
-                "D": "2",
-                "Keywords": "Pistol"
+                "D": "1",
+                "Keywords": "Assault, Heavy"
             }
         ],
         [
-            {
-                "name": "Bolt Pistol",
-                "Range": "12\"",
-                "A": "1",
-                "BS": "3+",
-                "S": "4",
-                "AP": "-0",
-                "D": "1",
-                "Keywords": "Pistol"
-            },
             {
                 "name": "Bolt Rifle",
                 "Range": "24\"",
@@ -102,7 +126,66 @@
                 "Keywords": "Assault, Heavy"
             }
         ],
-        [],
+        [
+            {
+                "name": "Bolt Rifle",
+                "Range": "24\"",
+                "A": "2",
+                "BS": "3+",
+                "S": "4",
+                "AP": "-1",
+                "D": "1",
+                "Keywords": "Assault, Heavy"
+            }
+        ],
+        [
+            {
+                "name": "Bolt Rifle",
+                "Range": "24\"",
+                "A": "2",
+                "BS": "3+",
+                "S": "4",
+                "AP": "-1",
+                "D": "1",
+                "Keywords": "Assault, Heavy"
+            }
+        ],
+        [
+            {
+                "name": "Bolt Rifle",
+                "Range": "24\"",
+                "A": "2",
+                "BS": "3+",
+                "S": "4",
+                "AP": "-1",
+                "D": "1",
+                "Keywords": "Assault, Heavy"
+            }
+        ],
+        [
+            {
+                "name": "Bolt Rifle",
+                "Range": "24\"",
+                "A": "2",
+                "BS": "3+",
+                "S": "4",
+                "AP": "-1",
+                "D": "1",
+                "Keywords": "Assault, Heavy"
+            }
+        ],
+        [
+            {
+                "name": "Absolvor Bolt Pistol",
+                "Range": "18\"",
+                "A": "1",
+                "BS": "3+",
+                "S": "5",
+                "AP": "-1",
+                "D": "2",
+                "Keywords": "Pistol"
+            }
+        ],
         [
             {
                 "name": "Icarus Rocket Pod",

@@ -1,33 +1,33 @@
 {
     "units": [
         {
-            "name": "cadre fireblade",
-            "models": [
-                0
-            ]
-        },
-        {
-            "name": "ethereal",
-            "models": [
-                1
-            ]
-        },
-        {
             "name": "strike team",
             "models": [
-                2
+                0,1,2
             ]
         },
         {
             "name": "stealth battlesuits",
             "models": [
-                3
+                3,4,5
+            ]
+        },
+        {
+            "name": "cadre fireblade",
+            "models": [
+                6
+            ]
+        },
+        {
+            "name": "ethereal",
+            "models": [
+                7
             ]
         },
         {
             "name": "ghostkeel battlesuit",
             "models": [
-                4
+                8
             ]
         }
     ],
@@ -36,17 +36,17 @@
             "M": "6\"",
             "T": "3",
             "SV": "4+",
-            "W": "3",
+            "W": "1",
             "LD": "7+",
-            "OC": "1"
+            "OC": "2"
         },
         {
             "M": "6\"",
             "T": "3",
-            "SV": "5+",
-            "W": "3",
-            "LD": "6+",
-            "OC": "1"
+            "SV": "4+",
+            "W": "1",
+            "LD": "7+",
+            "OC": "2"
         },
         {
             "M": "6\"",
@@ -62,6 +62,38 @@
             "SV": "3+",
             "W": "2",
             "LD": "7+",
+            "OC": "1"
+        },
+        {
+            "M": "8\"",
+            "T": "4",
+            "SV": "3+",
+            "W": "2",
+            "LD": "7+",
+            "OC": "1"
+        },
+        {
+            "M": "8\"",
+            "T": "4",
+            "SV": "3+",
+            "W": "2",
+            "LD": "7+",
+            "OC": "1"
+        },
+        {
+            "M": "6\"",
+            "T": "3",
+            "SV": "4+",
+            "W": "3",
+            "LD": "7+",
+            "OC": "1"
+        },
+        {
+            "M": "6\"",
+            "T": "3",
+            "SV": "5+",
+            "W": "3",
+            "LD": "6+",
             "OC": "1"
         },
         {
@@ -85,28 +117,29 @@
     "rangedWeapons": [
         [
             {
-                "name": "Fireblade pulse rifle",
+                "name": "Pulse rifle",
                 "Range": "30\"",
-                "A": "1",
-                "BS": "3+",
-                "S": "5",
-                "AP": "-0",
-                "D": "2",
-                "Keywords": "Rapid Fire 1"
-            }
-        ],
-        [],
-        [
-            {
-                "name": "Pulse pistol",
-                "Range": "12\"",
                 "A": "1",
                 "BS": "4+",
                 "S": "5",
                 "AP": "-0",
                 "D": "1",
-                "Keywords": "Pistol"
-            },
+                "Keywords": "Rapid Fire 1"
+            }
+        ],
+        [
+            {
+                "name": "Pulse rifle",
+                "Range": "30\"",
+                "A": "1",
+                "BS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Rapid Fire 1"
+            }
+        ],
+        [
             {
                 "name": "Pulse rifle",
                 "Range": "30\"",
@@ -130,6 +163,43 @@
                 "Keywords": "Melta 2"
             }
         ],
+        [
+            {
+                "name": "Burst cannon",
+                "Range": "18\"",
+                "A": "4",
+                "BS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Burst cannon",
+                "Range": "18\"",
+                "A": "4",
+                "BS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Fireblade pulse rifle",
+                "Range": "30\"",
+                "A": "1",
+                "BS": "3+",
+                "S": "5",
+                "AP": "-0",
+                "D": "2",
+                "Keywords": "Rapid Fire 1"
+            }
+        ],
+        [],
         [
             {
                 "name": "Twin fusion blaster",
