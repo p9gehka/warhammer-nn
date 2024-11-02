@@ -26,7 +26,7 @@ angles.forEach((angle, i) => {
 	*/
 });
 export class MoveAgent extends MoveAgentBase {
-	static settings = { width: 44, height: 30, orders: moveOrders, channels: [Channel0, Channel1, Channel2, Channel3, Channel4, ChannelShootPriority, ChannelTerrain] }
+	static settings = { width: 44, height: 30, orders: moveOrders, channels: [Channel0, Channel1, Channel2, Channel3, Channel4] }
 	width = MoveAgent.settings.width;
 	height = MoveAgent.settings.height;
 	channels = MoveAgent.settings.channels;
