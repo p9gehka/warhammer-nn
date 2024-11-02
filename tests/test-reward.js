@@ -20,6 +20,7 @@ export async function testReward(silent, nn) {
 	if (nn !== undefined) {
 		players[0] = new PlayerAgent(0, env);
 	}
+	players[0].agent.onlineNetwork = nn;
 	const rewarder = new Rewarder(env, players[0]);
 
 	if (nn === undefined) {
