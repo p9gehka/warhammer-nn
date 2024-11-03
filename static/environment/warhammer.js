@@ -2,6 +2,7 @@ import { MissionController} from './mission.js';
 
 import { mul, len, sub, add, eq, scaleToLen, round } from '../utils/vec2.js'
 import { getRandomInteger } from '../utils/index.js';
+import { deployment } from '../battlefield/deployment.js';
 
 export const Phase = {
 	Movement: 0,
@@ -100,13 +101,17 @@ export class Warhammer {
 		this.units = units.flat();
 
 		const usedPosition = [];
+		this.deploymentZonePoints = (new deployment[this.battlefield.deployment]).getPoints();
 		this.models = this.units.map((unit, unitId) => {
-			let lastPosition = null;
+			let lastPosition = undefined;
 			return unit.models.map(id => {
+				
 				if (this.gameSettings.models.length !== 0 && this.gameSettings.models[id] !== undefined && this.gameSettings.models[id] !== null) {
-					return new Model(id, unit, this.gameSettings.models[id], this.gameSettings.modelProfiles[id]);
+					usedPosition.push(this.gameSettings.models[id]);
+					lastPosition = usedPosition.at(-1);
+					return new Model(id, unit, this.gameSettings.models[id]);
 				}
-				usedPosition.push(this.getRandomStartPosition(usedPosition, lastPosition));
+				usedPosition.push(this.getRandomStartPosition(unit.playerId, usedPosition, lastPosition));
 				lastPosition = usedPosition.at(-1);
 				return new Model(id, unit, lastPosition, this.gameSettings.modelProfiles[id]);
 			});
@@ -120,13 +125,13 @@ export class Warhammer {
 		});
 		return this.getState();
 	}
-	getRandomStartPosition(exclude, lastPosition) {
+	getRandomStartPosition(playerId, exclude, lastPosition) {
 		let tries = 0;
+		const deploymentPoints = this.deploymentZonePoints[playerId];
 		while(true) {
 			let x, y;
-			if (lastPosition === null) {
-				x = getRandomInteger(0, this.battlefield.size[0]);
-				y = getRandomInteger(0, this.battlefield.size[1]);
+			if (lastPosition === undefined) {
+				[x, y] = deploymentPoints[getRandomInteger(0, deploymentPoints.length)];
 			} else {
 				const padding = Math.floor(tries / 4)
 				x = lastPosition[0] + getRandomInteger(0, 6 + padding) - (3 + Math.floor(padding/2));
