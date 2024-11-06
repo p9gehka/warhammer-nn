@@ -15,6 +15,25 @@ export const BaseAction = {
 	Move: 'MOVE',
 }
 
+function getRandomStartPositionDefault(env, playerId, exclude, lastPosition) {
+	let tries = 0;
+	const deploymentPoints = env.deploymentZonePoints[playerId];
+	while(true) {
+		let x, y;
+		if (lastPosition === undefined) {
+			[x, y] = deploymentPoints[getRandomInteger(0, deploymentPoints.length)];
+		} else {
+			const padding = Math.floor(tries / 4)
+			x = lastPosition[0] + getRandomInteger(0, 6 + padding) - (3 + Math.floor(padding/2));
+			y = lastPosition[1] + getRandomInteger(0, 6 + padding) - (3 + Math.floor(padding/2));
+		}
+		if (!exclude.some(pos => eq([x, y], pos)) && 0 <= x && x < env.battlefield.size[0] && 0 <= y && y < env.battlefield.size[1]) {
+			return [x, y];
+		}
+		tries++;
+	}
+}
+
 class Model {
 	position = [NaN, NaN];
 	wound = 0;
@@ -77,6 +96,8 @@ export class Warhammer {
 		]
 		this.gameSettings = config.gameSettings;
 		this.battlefields = config.battlefields;
+		this._getStartPosition = config.getStartPosition ?? getRandomStartPositionDefault;
+
 		this.reset();
 	}
 	reset() {
@@ -111,7 +132,7 @@ export class Warhammer {
 					lastPosition = usedPosition.at(-1);
 					return new Model(id, unit, this.gameSettings.models[id]);
 				}
-				usedPosition.push(this.getRandomStartPosition(unit.playerId, usedPosition, lastPosition));
+				usedPosition.push(this.getStartPosition(this, unit.playerId, usedPosition, lastPosition));
 				lastPosition = usedPosition.at(-1);
 				return new Model(id, unit, lastPosition, this.gameSettings.modelProfiles[id]);
 			});
@@ -125,23 +146,9 @@ export class Warhammer {
 		});
 		return this.getState();
 	}
-	getRandomStartPosition(playerId, exclude, lastPosition) {
-		let tries = 0;
-		const deploymentPoints = this.deploymentZonePoints[playerId];
-		while(true) {
-			let x, y;
-			if (lastPosition === undefined) {
-				[x, y] = deploymentPoints[getRandomInteger(0, deploymentPoints.length)];
-			} else {
-				const padding = Math.floor(tries / 4)
-				x = lastPosition[0] + getRandomInteger(0, 6 + padding) - (3 + Math.floor(padding/2));
-				y = lastPosition[1] + getRandomInteger(0, 6 + padding) - (3 + Math.floor(padding/2));
-			}
-			if (!exclude.some(pos => eq([x, y], pos)) && 0 <= x && x < this.battlefield.size[0] && 0 <= y && y < this.battlefield.size[1]) {
-				return [x, y];
-			}
-			tries++;
-		}
+
+	getStartPosition(...args) {
+		return this._getStartPosition(...args);
 	}
 
 	step(order) {
