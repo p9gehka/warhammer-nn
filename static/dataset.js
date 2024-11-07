@@ -27,7 +27,7 @@ const battlefield = new Battlefield(ctx, battlefieldSettings);
 await battlefield.init();
 battlefield.draw();
 
-const numberOfExamples = 100;
+const numberOfExamples = 1;
 const unitModels = Array(numberOfExamples).fill(0).map((v, i) => i);
 const models = Array(numberOfExamples).fill([NaN, NaN]);
 const modelsStamina = Array(numberOfExamples).fill(0);

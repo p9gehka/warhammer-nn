@@ -6,7 +6,7 @@ import { sub, eq, add, mul, len } from '../../utils/vec2.js'
 import { BaseAction } from '../../environment/warhammer.js';
 
 export class MoveAgent extends MoveAgentBase {
-	static settings = { width: 44, height: 30, orders: moveOrders, channels: channels }
+	static settings = { width: 60, height: 44, orders: moveOrders, channels: channels }
 	width = MoveAgent.settings.width;
 	height = MoveAgent.settings.height;
 	channels = MoveAgent.settings.channels;
