@@ -1,5 +1,5 @@
 import { Warhammer } from '../environment/warhammer.js';
-import { MoveAgent } from '../agents/move-agent/move-to-object-agent.js';
+import { MoveAgent } from '../agents/move-agent/move-agent60x44.js';
 import { getStateTensor1 } from '../utils/get-state-tensor.js';
 import { getTF } from './get-tf.js';
 import { getRandomInteger } from './index.js';
