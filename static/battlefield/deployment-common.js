@@ -3,6 +3,7 @@ export class DeploymentCommon {
 	include_triangle = [];
 	include_rect = [];
 	exclude_circle = [];
+	exclude_rect = [];
 	objective_markers = [];
 	deploy_markers = [];
 	getObjectDrawing(position, radius) {
@@ -27,6 +28,10 @@ export class DeploymentCommon {
 				methods: ['ellipse'],
 				args: [[...circle, circle[2], 0, 0, 2 * Math.PI]]
 			});
+		});
+
+		this.exclude_rect.forEach((deployment) => {
+			deployments.push({ strokeStyle: 'green', methods: ['rect'], args: [deployment] })
 		});
 		const objectiveMarkers = this.objective_markers.map(
 			(position, i) => this.getObjectDrawing(position, this.objective_marker_control_distance)

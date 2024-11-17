@@ -1,20 +1,6 @@
 import { Terrain } from './terrain-common.js';
+import { baseVerticalRuin, baseHorisontalRuin, thinVerticalRuin, thinHorisontalRuin } from './terrain-helper.js';
 
-function baseVerticalRuin(x, y) {
-	return [[0, 0], [6, 0], [6, 10], [0, 10]].map(([x1, y1]) => [x1 + x, y1 + y]);
-}
-
-function baseHorisontalRuin(x, y) {
-	return [[0, 0], [0, 6], [10, 6], [10, 0]].map(([x1, y1]) => [x1 + x, y1 + y]);
-}
-
-function thinVerticalRuin(x, y) {
-	return [[0, 0], [4, 0], [4, 6], [0, 6]].map(([x1, y1]) => [x1 + x, y1 + y]);
-}
-
-function thinHorisontalRuin(x, y) {
-	return [[0, 0], [0, 4], [6, 4], [6, 0]].map(([x1, y1]) => [x1 + x, y1 + y]);
-}
 
 export class ArkunashaRuins extends Terrain {
 	rectangleFootprints = [

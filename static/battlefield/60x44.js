@@ -24,7 +24,7 @@ export class DawnOfWar extends DeploymentCommon {
 		this.nomansland_markers = [[10, 22], [30, 22], [50, 22]];
 		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 
-		this.include_rect = [[0, 34, 60, 10], [0, 0, 60, 10]];
+		this.include_rect = [[0, 32, 60, 12], [0, 0, 60, 12]];
 		this.deployment_zone = [0, 1].map(i => {
 			return { include: new Rect(...this.include_rect[i]) };
 		});
@@ -66,12 +66,27 @@ export class SweepingEngagement extends DeploymentCommon {
 	constructor() {
 		super();
 		this.deploy_markers = [[18, 38], [42, 6]];
-		this.nomansland_markers = [[10, 14], [30, 22], [50, 30]];
+		this.nomansland_markers = [[10, 18], [30, 22], [50, 26]];
 		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
-		this.include_triangle = [[[0, 22], [60, 44], [0, 44]], [[0, 0], [60, 0], [60, 22]]];
 
+		this.include_rect = [[0, 30, 60, 14], [0, 0, 60, 14]];
+		this.exclude_rect = [[30, 30, 30, 6], [0, 8, 30, 6]];
 		this.deployment_zone = [0, 1].map(i => {
-			return { include: new Triangle(...this.include_triangle[i].flat()) }
+			return { include: new Rect(...this.include_rect[i]), exclude: new Rect(...this.exclude_rect[i]) };
+		});
+	}
+}
+
+export class TippingPoint extends DeploymentCommon {
+	constructor() {
+		super();
+		this.deploy_markers = [[14, 34], [46, 10]];
+		this.nomansland_markers = [[22, 8], [30, 22], [38, 36]];
+		this.objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
+		this.include_rect = [[0, 0, 20, 44], [40, 0, 20, 44]];
+		this.exclude_rect = [[12, 0, 8, 22], [40, 22, 8, 22]];
+		this.deployment_zone = [0, 1].map(i => {
+			return { include: new Rect(...this.include_rect[i]), exclude: new Rect(...this.exclude_rect[i]) };
 		});
 	}
 }

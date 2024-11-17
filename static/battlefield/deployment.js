@@ -4,6 +4,7 @@ import {
 	HammerAndAnvil,
 	SearchAndDestroy,
 	SweepingEngagement,
+	TippingPoint,
 } from './60x44.js';
 
 import {
@@ -55,6 +56,7 @@ export const deployment = {
 	"hammerAndAnvil": HammerAndAnvil,
 	"searchAndDestroy": SearchAndDestroy,
 	"sweepingEngagement": SweepingEngagement,
+	"tippingPoint": TippingPoint,
 
 	"clashOfPatrols": ClashOfPatrols,
 	"archeothechRecovery": ArcheothechRecovery,

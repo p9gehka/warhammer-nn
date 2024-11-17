@@ -223,6 +223,7 @@ export class Scene extends Drawing {
 				}
 				animation.frame(timestamp);
 			})
+			this.animations = this.animations.filter(animation => !animation.isFinished);
 			if (this.animations.length > 0) {
 				requestAnimationFrame(animationFrame);
 			} else {

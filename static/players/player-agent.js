@@ -124,7 +124,7 @@ export class PlayerAgent {
 			playerOrder = {
 				action,
 				id: shooter,
-				target: prevState.players[this.opponentId].units[order.target].gameId,
+				target: prevState.players[this.opponentId].units[order.target].gameId ?? -1,
 				weaponId,
 				...shotDiceResult,
 			};

@@ -27,7 +27,7 @@ export class ForTheGreaterGood {
 	}
 
 	orderModifiers({ action, id }) {
-		if (action !== PlayerAction.Shoot) {
+		if (action !== PlayerAction.Shoot || id === undefined) {
 			return {};
 		}
 		const state = this.player.env.getState();

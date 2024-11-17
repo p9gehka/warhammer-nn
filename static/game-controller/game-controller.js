@@ -1,7 +1,7 @@
 import { Battlefield, Scene } from '../drawing-entities/drawing-entities.js';
 import { Warhammer, Phase } from '../environment/warhammer.js'
 import { Deploy, DeployEnvironment } from '../environment/deploy.js'
-import { add, eq, len } from '../utils/vec2.js'
+import { add, sub, eq, len } from '../utils/vec2.js'
 import { PlayerControlled } from '../players/player-controlled.js';
 import { PlayerAgent } from '../players/player-agent.js'
 import { getDeployModelOrders, getSetTargetOrder, doneOrder, getSelectModelOrder, getMoveOrders } from '../players/player-orders.js';
@@ -13,16 +13,16 @@ export class Game {
 		canvas.addEventListener('mousedown', (e) => { event.preventDefault(); })
 		canvas.addEventListener('click', (event) => {
 			const rect = canvas.getBoundingClientRect()
-			const x = Math.round((((event.clientX - rect.left) * 60) / canvas.width) - 0.5);
-			const y = Math.round((((event.clientY - rect.top) * 44) / canvas.height) - 0.5);
+			const x = Math.round(((event.clientX - rect.left) * 60) / canvas.width);
+			const y = Math.round(((event.clientY - rect.top) * 44) / canvas.height);
 			this.selectHandler([x, y]);
 		});
 
 		canvas.addEventListener('contextmenu', (event) => {
 			event.preventDefault();
 			const rect = canvas.getBoundingClientRect();
-			const x = Math.round((((event.clientX - rect.left) * 60) / canvas.width) - 0.5);
-			const y = Math.round((((event.clientY - rect.top) * 44) / canvas.height) - 0.5);
+			const x = Math.round(((event.clientX - rect.left) * 60) / canvas.width);
+			const y = Math.round(((event.clientY - rect.top) * 44) / canvas.height);
 			this.orderHandlers?.forEach((orderHandler) => { orderHandler([x, y]) });
 		});
 

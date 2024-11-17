@@ -4,7 +4,13 @@ import {
 	GeeseValdas46,
 	GeeseValdas79,
 	GeeseValdas1012,
-	GeeseValdas1315
+	GeeseValdas1315,
+	GeeseValdasII_b,
+	GeeseValdasII_e,
+	GeeseValdasII_i,
+	GeeseValdasII_o,
+	GeeseValdasII_r,
+	GeeseValdasII_s,
 } from './terrain60x44.js';
 
 import {
@@ -30,6 +36,12 @@ export const terrain = {
 	"geeseValdas7-9": GeeseValdas79,
 	"geeseValdas10-12": GeeseValdas1012,
 	"geeseValdas13-15": GeeseValdas1315,
+	"geeseValdasII-b": GeeseValdasII_b,
+	"geeseValdasII-e": GeeseValdasII_e,
+	"geeseValdasII-i": GeeseValdasII_i,
+	"geeseValdasII-o": GeeseValdasII_o,
+	"geeseValdasII-r": GeeseValdasII_r,
+	"geeseValdasII-s": GeeseValdasII_s,
 	"arkunasha-ruins": ArkunashaRuins,
 	"fedras-temple": FedrasTemple,
 	"dalit-city": DalitCity,

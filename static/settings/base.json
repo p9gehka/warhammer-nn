@@ -9,7 +9,9 @@
 	"commander farsight": [60],
 	"commander in coldstar battlesuit": [60],
 	"commander in enforcer battlesuit": [60],
-
+	"kroot flesh shaper": [32],
+	"kroot lone-spear": [40],
+	"kroot farstalkers": [28],
 	"strike team": [25],
 	"breacher team": [25],
 	"pathfinder team": [25],
@@ -24,7 +26,8 @@
 	"hammerhead gunship": [150],
 	"devilfish": [150],
 	"sky ray gunship": [150],
-	
+	"tiger shark": [170],
+
 	"riptide battlesuit": [120],
 	"r'varna battlesuit": [120],
 	"krootox riders": [40],
@@ -36,9 +39,11 @@
 
 	"IMPERIAL KNIGHTS": "IMPERIAL KNIGHTS",
 	"canis rex": [170],
+	"cerastus knight atrapos": [170],
 	"cerastus knight lancer": [170],
 	"cerastus knight castigator": [170],
 	"knight warden": [170],
+	"knight valiant": [170],
 	"armiger helverin": [100],
 	"armiger warglaive": [100],
 
@@ -89,6 +94,18 @@
 	"techmarine": [40],
 	"land raider crusader": [160],
 	"black templars repulsor executioner": [150],
+
+	"astorath": [32],
+	"chief librarian mephiston": [32],
+	"commander dante": [32],
+	"lemartes": [32],
+	"captain": [32],
+	"assault intercessor squad": [32],
+	"assault intercessors with jump packs": [32],
+	"death company marines with jump packs": [32],
+	"sanguinary guard": [40],
+	"vindicator": [150],
+	"impulsor": [150],
 
 	"DRUKHARI": "DRUKHARI",
 	"lelith hesperax": [32],

@@ -1,4 +1,6 @@
 import { Terrain } from './terrain-common.js';
+import { footprint10x7, footprint5x2, footprint2x2, footprintRotatedDegrees } from './terrain-helper.js';
+
 
 export class GeeseValdas13 extends Terrain {
 	rectangleFootprints = [
@@ -96,10 +98,131 @@ export class GeeseValdas1315 extends Terrain {
 		[ [ 47, 41 ], [ 41, 41 ], [ 41, 31 ] ],
 		[ [ 56, 30 ], [ 50, 31 ], [ 48, 21 ] ],
 		[ [ 40, 23 ], [ 35, 25 ], [ 30, 16 ] ]
-	];
+	];	
 	containers = [
 		[[25, 9], [27, 10], [26, 17], [24, 16]],
 		[[ 35, 35 ],[ 33, 34 ],[ 34, 27 ],[ 36, 28 ]]
 	];
 	craters = [[17, 18], [33, 10], [ 43, 26 ], [ 27, 34 ]];
 }
+
+
+export class GeeseValdasII_b extends Terrain {
+	rectangleFootprints = [
+		footprint10x7(5, 13, 0),
+		footprint10x7(15, 35, -30),
+		footprint10x7(21, 20, 5),
+		footprint10x7(24, 7),
+		footprint5x2(11, 28),
+
+		footprint10x7(55,31, 180),
+		footprint10x7(45,9, 150),
+		footprint10x7(39,24, 185),
+		footprint10x7(36,37, 180),
+		footprint5x2(49, 16, 180),
+	];
+	craters = [[12, 3], [34, 10], [48, 41], [26, 34]];
+}
+
+
+
+export class GeeseValdasII_e extends Terrain {
+	rectangleFootprints = [
+		footprint10x7(8, 7, -5),
+		footprint10x7(11, 23),
+		footprint10x7(24, 14, 20),
+		footprint10x7(32, 4, 18),
+		footprint5x2(21, 6, 26),
+		footprint2x2(19, 10, 25),
+
+		footprint10x7(52,37, 175),
+		footprint10x7(49,21, 180),
+		footprint10x7(36,30, 200),
+		footprint10x7(28,40, 198),
+		footprint5x2(39,38, 206),
+		footprint2x2(41, 34, 205)
+	];
+	craters = [[19, 18], [17, 41], [41,26], [43,3]];
+}
+
+export class GeeseValdasII_i extends Terrain {
+	rectangleFootprints = [
+		footprint10x7(7, 22, -28),
+		footprint10x7(15, 33, -33),
+		footprint10x7(20, 22, -35),
+		footprint5x2(16, 9),
+		footprint2x2(16, 14),
+		footprint5x2(24, 8, -35),
+
+		footprint10x7(53,22, 152),
+		footprint10x7(45,11, 147),
+		footprint10x7(40,22, 145),
+		footprint5x2(44,35, 180),
+		footprint2x2(44,30, 180),
+		footprint5x2(36,36, 145),
+	];
+	craters = [[9, 6], [23, 15], [51,38], [37,29]];
+}
+
+
+
+export class GeeseValdasII_o extends Terrain {
+	rectangleFootprints = [
+		footprint10x7(4, 18, -28),
+		footprint10x7(17, 4),
+		footprint10x7(21, 19),
+		footprint10x7(12, 30, -35),
+		footprint2x2(29, 7, -40),
+		footprint5x2(30, 9, -40),
+
+		footprint10x7(56,26, 152),
+		footprint10x7(43,40, 180),
+		footprint10x7(39,25, 180),
+		footprint10x7(48,14, 145),
+		footprint2x2(31,37, 140),
+		footprint5x2(30,35, 140),
+	];
+	craters = [[17, 18], [28, 41], [43,26], [32,3]];
+}
+
+export class GeeseValdasII_r extends Terrain {
+	rectangleFootprints = [
+		footprint10x7(10, 24, -90),
+		footprint10x7(12, 37, -90),
+		footprint10x7(24, 30, -90),
+		footprint10x7(33, 41, -90),
+		footprint5x2(2, 27, -90),
+		footprint5x2(7, 25, 0),
+
+		footprint10x7(50,20, -270),
+		footprint10x7(48,7, -270),
+		footprint10x7(36,14, -270),
+		footprint10x7(27,3, -270),
+		footprint5x2(58,17, -270),
+		footprint5x2(53,19, 180),
+	];
+	craters = [[20, 26], [21, 14], [40,18], [39,30]];
+}
+
+
+
+export class GeeseValdasII_s extends Terrain {
+	rectangleFootprints = [
+		footprint10x7(3, 13, -95),
+		footprint10x7(18, 11, -95),
+		footprint10x7(35, 12, -90),
+		footprint10x7(11, 28, -90),
+		footprint10x7(26, 21, -90),
+
+		footprint10x7(57,31, -275),
+		footprint10x7(42,33, -275),
+		footprint10x7(25,32, -270),
+		footprint10x7(49,16, -270),
+		footprint10x7(34,23, -270),
+	]
+
+	craters = [[7, 32], [18, 16], [53,12], [42,28]];
+}
+
+// [[3, 13], [18, 11], [35, 12], [11, 28], [26, 21], [7, 25], [7, 32], [18, 16]].map(([x, y]) => [60-x, 44-y]).join()
+
