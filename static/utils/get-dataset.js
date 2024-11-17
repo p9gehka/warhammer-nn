@@ -23,21 +23,28 @@ export function gameToFeaturesAndLabel(record) {
 	});
 }
 
-export function getRandomStartPosition(exclude, battlefield) {
-	const pad = -4;
-	const paddingX = (battlefield.size[0]-battlefield.size[1] + pad) / 2;
-	const paddingY = 0;
+export function getStartPosition(env, playerId, exclude, lastPosition) {
+	let tries = 0;
+	const deploymentPoints = env.deploymentZonePoints[playerId];
 	while(true) {
-		let x1 = getRandomInteger(0, paddingX) + (battlefield.size[1] + paddingX - pad) * getRandomInteger(0, 2);
-		let y1 = getRandomInteger(0 + paddingY, battlefield.size[1] - paddingY);
-		if (!exclude.some(pos => eq([x1, y1], pos))) {
-			return [x1, y1];
+		let x, y;
+		if (lastPosition === undefined) {
+			x = getRandomInteger(0, env.battlefield.size[0]);
+			y = getRandomInteger(0, env.battlefield.size[1]);
+		} else {
+			const padding = Math.floor(tries / 4)
+			x = lastPosition[0] + getRandomInteger(0, 6 + padding) - (3 + Math.floor(padding/2));
+			y = lastPosition[1] + getRandomInteger(0, 6 + padding) - (3 + Math.floor(padding/2));
 		}
+		if (!exclude.some(pos => eq([x, y], pos)) && 0 <= x && x < env.battlefield.size[0] && 0 <= y && y < env.battlefield.size[1]) {
+			return [x, y];
+		}
+		tries++;
 	}
 }
 
 export function getRawDataset(argenv, argagent) {
-	const env = argenv ?? new Warhammer({ gameSettings, battlefields });
+	const env = argenv ?? new Warhammer({ gameSettings, battlefields, getStartPosition });
 	const agent = argagent ?? new MoveAgent();
 
 	function getStateAndAnswer() {	
