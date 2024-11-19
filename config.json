@@ -7,7 +7,7 @@
 	"saveEveryEpoch": 30,
 	"learningRate": 7e-5,
 
-	"repeatBatchTraining": 2,
+	"repeatBatchTraining": 1,
 	"batchSize": 128,
 	"gamma": 0.99,
 	"freezeLayers": [],
@@ -16,7 +16,8 @@
 	"epsilonDecayFrames": 1e6,
 	"epsilonInit": 0.5,
 	"rewardAveragerBufferLength": 3000,
-	"replayBufferSize": 8e3,
+	"replayBufferSize": 1024,
+	"replayBufferSizePlayer": 8e3,
 	"replayMemorySize": 18e3,
 	"sendMessageEveryFrames": 1e6,
 	"framesThreshold": 30e6,
