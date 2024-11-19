@@ -110,7 +110,7 @@ export class PrioritizedReplayMemory {
 		for(let i = 0; i < indeces.length; i++) {
 			this.sumTree.setValueLazy(indeces[i], priorities[i]);
 		}
-		this.recalculateTree();
+		this.sumTree.recalculateTree();
 	}
 }
 
