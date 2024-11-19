@@ -1,11 +1,12 @@
+import { PrioritizedReplayMemory } from './prioritized-replay-memory.js';
 import { ReplayMemory } from './replay-memory.js';
 import config from '../config.json' assert { type: 'json' };
 
 const serverAddress = '127.0.0.1:3000';
 
 export class ReplayMemoryClient {
-	constructor(maxLen) {
-		this.memory = new ReplayMemory(maxLen);
+	constructor(maxLen, prioritized) {
+		this.memory = prioritized ? new PrioritizedReplayMemory(maxLen) : new ReplayMemory(maxLen);
 		this.length = 0;
 		this.maxLen = maxLen;
 	}
@@ -20,7 +21,9 @@ export class ReplayMemoryClient {
 		this.memory.clean();
 		this.length = 0;
 	}
-
+	updatePriorities(...args) {
+		this.memory.updatePriorities(...args);
+	}
 	async updateServer() {
 		while(true) {
 			try {
