@@ -8,10 +8,10 @@ export class ReplayMemoryClient {
 	constructor(maxLen, prioritized) {
 		this.memory = prioritized ? new PrioritizedReplayMemory(maxLen) : new ReplayMemory(maxLen);
 		this.length = 0;
-		this.maxLen = maxLen;
+		this.maxLen = this.memory.maxLen;
 	}
-	append(item) {
-		this.memory.append(item);
+	append(item, priority) {
+		this.memory.append(item, priority);
 		this.length = this.memory.length;
 	}
 	sample(batchSize) {
@@ -27,11 +27,11 @@ export class ReplayMemoryClient {
 	async updateServer() {
 		while(true) {
 			try {
-				console.log('Try update server')
+				console.log('Try update server');
 				const response = await fetch(`${config.memoryAddress}/append`, {
 					method: 'POST',
 					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ buffer: this.memory.buffer }),
+					body: JSON.stringify({ buffer: this.memory.buffer, priorities: this.memory.priorities }),
 				});
 				if (response.status !== 200) {
 					console.log('Bad response');

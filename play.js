@@ -19,7 +19,7 @@ import config from './config.json' assert { type: 'json' };
 
 const savePath = './models/play-dqn/';
 
-const { cumulativeRewardThreshold, sendMessageEveryFrames, replayBufferSize, replayBufferSizePlayer, replayMemorySize, epsilonDecayFrames, framesThreshold, epsilonInit } = config;
+const { cumulativeRewardThreshold, sendMessageEveryFrames, replayBufferSize, replayBufferSizePlayer, replayMemorySize, epsilonDecayFrames, framesThreshold, epsilonInit, gamma } = config;
 
 const rewardAveragerLen = 200;
 
@@ -44,8 +44,8 @@ async function sendConfigMessage(model) {
 async function play() {
 	const env = new Warhammer({ gameSettings, battlefields });
 
-	const replayMemory = new ReplayMemoryClient(replayBufferSizePlayer);
-	const players = [new Student(0, env, { replayMemory, epsilonDecayFrames: config.epsilonDecayFrames, epsilonInit: epsilonInit }), new PlayerEasy(1, env)];
+	const replayMemory = new ReplayMemoryClient(replayBufferSizePlayer, true);
+	const players = [new Student(0, env, { replayMemory, epsilonDecayFrames: config.epsilonDecayFrames, epsilonInit, gamma }), new PlayerEasy(1, env)];
 
 	async function tryUpdateModel() {
 		try {
@@ -146,8 +146,7 @@ async function play() {
 			players.forEach(agent => agent.reset());
 		}
 
-
-		if (replayMemory.length === replayBufferSizePlayer) {
+		if (replayMemory.length === replayMemory.maxLen) {
 			if (vpAveragerBuffer === null) {
 				vpAveragerBuffer = new MovingAverager(config.rewardAveragerBufferLength);
 			}

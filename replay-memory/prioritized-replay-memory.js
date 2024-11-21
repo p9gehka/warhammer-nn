@@ -43,6 +43,9 @@ class SumTree {
 		}
 		return index;
 	}
+	getPriorities() {
+		return this.levels.at(-1);
+	}
 }
 
 /** Replay buffer for DQN training. */
@@ -57,7 +60,7 @@ export class PrioritizedReplayMemory {
 		this.maxLen = 2 ** levels ;
 		this.buffer = [];
 		this.sumTree = new SumTree(levels);
-
+		this.priorities = this.sumTree.levels.at(-1);
 		for (let i = 0; i < maxLen; ++i) {
 			this.buffer.push(null);
 		}
@@ -75,9 +78,9 @@ export class PrioritizedReplayMemory {
 	 *
 	 * @param {any} item The item to append.
 	 */
-	append(item) {
+	append(item, priority) {
 		this.buffer[this.index] = item;
-		this.sumTree.setValue(this.index, 10000);
+		this.sumTree.setValue(this.index, priority);
 		this.length = Math.min(this.length + 1, this.maxLen);
 		this.index = (this.index + 1) % this.maxLen;
 	}
@@ -108,9 +111,8 @@ export class PrioritizedReplayMemory {
 	}
 	updatePriorities(indeces, priorities) {
 		for(let i = 0; i < indeces.length; i++) {
-			this.sumTree.setValueLazy(indeces[i], priorities[i]);
+			this.sumTree.setValueLazy(indeces[i], priorities[i] ?? 10000);
 		}
 		this.sumTree.recalculateTree();
 	}
 }
-

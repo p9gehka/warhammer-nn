@@ -1,9 +1,10 @@
 import express from 'express';
 import { ReplayMemory } from './replay-memory.js';
+import { PrioritizedReplayMemory } from './prioritized-replay-memory.js';
 import hash from 'object-hash';
 import config from '../config.json' assert { type: 'json' };
 const { replayMemorySize } = config;
-const replayMemory = new ReplayMemory(replayMemorySize);
+const replayMemory = new PrioritizedReplayMemory(replayMemorySize);
 
 const app = express();
 
@@ -24,7 +25,8 @@ app.post('/append', (req,res) => {
 		res.sendStatus(423);
 		return;
 	}
-	req.body.buffer.forEach(item => replayMemory.append(item));
+	const indeces = req.body.buffer.map(item => replayMemory.append(item));
+	replayMemory.updatePriorities(indeces, req.body.priorities);
 	console.log(`Memory updated, size: ${replayMemory.length}`);
 	res.sendStatus(200);
 });
@@ -56,6 +58,17 @@ app.get('/get', (req,res) => {
 		return;
 	}
 	res.json({ buffer: replayMemory.buffer.slice(from_, from_ + perPage) });
+});
+
+app.get('/get_priorities', (req,res) => {
+	const from_ = parseInt(req.query.from);
+	const perPage = parseInt(req.query.perPage);
+
+	if (isNaN(from_) || isNaN(perPage)) {
+		res.sendStatus(400);
+		return;
+	}
+	res.json({ priorities: replayMemory.priorities.slice(from_, from_ + perPage) });
 });
 
 app.get('/key-counter', (req,res) => {

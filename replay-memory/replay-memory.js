@@ -34,9 +34,11 @@ export class ReplayMemory {
 	 * @param {any} item The item to append.
 	 */
 	append(item) {
-		this.buffer[this.index] = item;
+		const itemIndex = this.index;
+		this.buffer[itemIndex] = item;
 		this.length = Math.min(this.length + 1, this.maxLen);
 		this.index = (this.index + 1) % this.maxLen;
+		return itemIndex;
 	}
 
 	/**

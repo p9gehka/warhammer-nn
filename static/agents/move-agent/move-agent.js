@@ -14,7 +14,7 @@ class RandomAgent {
 	}
 	playStep(state) {
 		const orderIndex = getRandomInteger(0, this.orders.length);
-		return { order: this.orders[orderIndex], orderIndex, estimate: 0 };
+		return { order: this.orders[orderIndex], orderIndex, estimate: 10000 };
 	}
 	getInput(state, playerState) {
 		return getInput(state, playerState)
@@ -40,7 +40,7 @@ export class MoveAgentBase {
 			console.log('isNan(selected[0]!!!!');
 		}
 		let orderIndex = 0;
-		let estimate = 0;
+		let estimate = 10000;
 
 		if (input[Channel1Name.Stamina0].some(pos => eq(pos, selected))) {
 			orderIndex = 0;
