@@ -47,7 +47,7 @@ export class ReplayMemoryClient {
 
 	async updateClient() {
 		try {
-			const response = await fetch(`${config.memoryAddress}/sample?batchSize=${this.maxLen}`, {
+			const response = await fetch(`${config.memoryAddress}/sample?batchSize=${this.memory.maxLen}`, {
 				method: 'GET',
 				headers: { "Content-Type": "application/json" },
 			});
@@ -55,9 +55,14 @@ export class ReplayMemoryClient {
 				throw Error('bad response');
 			}
 			const data = await response.json()
-			if (data.buffer.length === this.maxLen) {
-				this.memory.buffer = data.buffer;
-				this.length = this.maxLen;
+
+			if (data.buffer.length === this.memory.maxLen) {
+				data.buffer.forEach((item, i) => {
+					this.memory.append(item, data.priorities[i])
+				});
+
+				this.memory.sumTree.recalculateTree();
+				this.length = this.memory.length;
 			}
 		} catch (e) {
 			console.log('updateClient', e.message);

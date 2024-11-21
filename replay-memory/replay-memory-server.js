@@ -25,8 +25,8 @@ app.post('/append', (req,res) => {
 		res.sendStatus(423);
 		return;
 	}
-	const indeces = req.body.buffer.map(item => replayMemory.append(item));
-	replayMemory.updatePriorities(indeces, req.body.priorities);
+	const indeces = req.body.buffer.map((item, i) => replayMemory.append(item, req.body.priorities[i]));
+	replayMemory.sumTree.recalculateTree();
 	console.log(`Memory updated, size: ${replayMemory.length}`);
 	res.sendStatus(200);
 });
@@ -38,15 +38,12 @@ app.get('/sample', (req,res) => {
 	}
 	const batchSize = parseInt(req.query.batchSize);
 
-	if (replayMemory.length !== replayMemorySize) {
-		res.json({ buffer: replayMemory.sample(batchSize) });
-		return;
-	}
 	if (isNaN(batchSize)) {
 		res.sendStatus(400);
 		return;
 	}
-	res.json({ buffer: replayMemory.sample(batchSize) });
+	const [buffer,,priorities] = replayMemory.sample(batchSize)
+	res.json({ buffer, priorities });
 });
 
 app.get('/get', (req,res) => {

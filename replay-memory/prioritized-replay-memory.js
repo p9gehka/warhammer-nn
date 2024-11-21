@@ -101,13 +101,16 @@ export class PrioritizedReplayMemory {
 
 		const out = [];
 		const indeces = [];
+		const outPriorities = [];
+		const priorities = this.sumTree.levels.at(-1);
 		for (let i = 0; i < batchSize; ++i) {
 			const x = this.sumTree.levels[0][0] * Math.random();
 			const index = this.sumTree.getIndex(x);
 			indeces.push(index);
 			out.push(this.buffer[index]);
+			outPriorities.push(priorities[index])
 		}
-		return [out, indeces];
+		return [out, indeces, outPriorities];
 	}
 	updatePriorities(indeces, priorities) {
 		for(let i = 0; i < indeces.length; i++) {
