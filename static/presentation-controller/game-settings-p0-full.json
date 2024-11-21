@@ -1,0 +1,546 @@
+{
+    "units": [
+        {
+            "name": "chaplain",
+            "models": [
+                0
+            ]
+        },
+        {
+            "name": "intercessor squad",
+            "models": [
+                1,
+                2,
+                3,
+                4,
+                5
+            ]
+        },
+        {
+            "name": "inceptor squad",
+            "models": [
+                6,
+                7,
+                8
+            ]
+        },
+        {
+            "name": "redemptor dreadnought",
+            "models": [
+                9
+            ]
+        }
+    ],
+    "modelProfiles": [
+        {
+            "M": "6\"",
+            "T": "4",
+            "SV": "3+",
+            "W": "4",
+            "LD": "5+",
+            "OC": "1"
+        },
+        {
+            "M": "6\"",
+            "T": "4",
+            "SV": "3+",
+            "W": "2",
+            "LD": "6+",
+            "OC": "2"
+        },
+        {
+            "M": "6\"",
+            "T": "4",
+            "SV": "3+",
+            "W": "2",
+            "LD": "6+",
+            "OC": "2"
+        },
+        {
+            "M": "6\"",
+            "T": "4",
+            "SV": "3+",
+            "W": "2",
+            "LD": "6+",
+            "OC": "2"
+        },
+        {
+            "M": "6\"",
+            "T": "4",
+            "SV": "3+",
+            "W": "2",
+            "LD": "6+",
+            "OC": "2"
+        },
+        {
+            "M": "6\"",
+            "T": "4",
+            "SV": "3+",
+            "W": "2",
+            "LD": "6+",
+            "OC": "2"
+        },
+        {
+            "M": "10\"",
+            "T": "6",
+            "SV": "3+",
+            "W": "3",
+            "LD": "6+",
+            "OC": "1"
+        },
+        {
+            "M": "10\"",
+            "T": "6",
+            "SV": "3+",
+            "W": "3",
+            "LD": "6+",
+            "OC": "1"
+        },
+        {
+            "M": "10\"",
+            "T": "6",
+            "SV": "3+",
+            "W": "3",
+            "LD": "6+",
+            "OC": "1"
+        },
+        {
+            "M": "8\"",
+            "T": "10",
+            "SV": "2+",
+            "W": "12",
+            "LD": "6+",
+            "OC": "4"
+        }
+    ],
+    "categories": [
+        [
+            "character",
+            "infantry",
+            "grenades",
+            "tacticus",
+            "imperium",
+            "faction: adeptus astartes",
+            "chaplain"
+        ],
+        [
+            "infantry",
+            "battleline",
+            "grenades",
+            "imperium",
+            "tacticus",
+            "intercessor squad",
+            "faction: adeptus astartes"
+        ],
+        [
+            "infantry",
+            "fly",
+            "jump pack",
+            "imperium",
+            "gravis",
+            "faction: adeptus astartes",
+            "inceptor squad"
+        ],
+        [
+            "vehicle",
+            "walker",
+            "imperium",
+            "redemptor dreadnought",
+            "faction: adeptus astartes",
+            "deathwing"
+        ]
+    ],
+    "rules": [
+        [
+            "leader",
+            "oath of moment"
+        ],
+        [
+            "oath of moment"
+        ],
+        [
+            "oath of moment"
+        ],
+        [
+            "oath of moment"
+        ],
+        [
+            "oath of moment"
+        ],
+        [
+            "oath of moment"
+        ],
+        [
+            "deep strike",
+            "oath of moment",
+            "oath of moment"
+        ],
+        [
+            "deep strike",
+            "oath of moment",
+            "oath of moment"
+        ],
+        [
+            "deep strike",
+            "oath of moment",
+            "oath of moment"
+        ],
+        [
+            "deadly demise d3",
+            "oath of moment"
+        ]
+    ],
+    "modelNames": [
+        "Chaplain",
+        "Intercessor Sergeant",
+        "Intercessors",
+        "Intercessors",
+        "Intercessors",
+        "Intercessors",
+        "Inceptor Sergeant",
+        "Inceptor",
+        "Inceptor",
+        "Redemptor Dreadnought"
+    ],
+    "rangedWeapons": [
+        [
+            {
+                "name": "Absolvor Bolt Pistol",
+                "Range": "18\"",
+                "A": "1",
+                "BS": "3+",
+                "S": "5",
+                "AP": "-1",
+                "D": "2",
+                "Keywords": "Pistol"
+            }
+        ],
+        [
+            {
+                "name": "Bolt Pistol",
+                "Range": "12\"",
+                "A": "1",
+                "BS": "3+",
+                "S": "4",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Pistol"
+            },
+            {
+                "name": "Bolt Rifle",
+                "Range": "24\"",
+                "A": "2",
+                "BS": "3+",
+                "S": "4",
+                "AP": "-1",
+                "D": "1",
+                "Keywords": "Assault, Heavy"
+            }
+        ],
+        [
+            {
+                "name": "Bolt Pistol",
+                "Range": "12\"",
+                "A": "1",
+                "BS": "3+",
+                "S": "4",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Pistol"
+            },
+            {
+                "name": "Bolt Rifle",
+                "Range": "24\"",
+                "A": "2",
+                "BS": "3+",
+                "S": "4",
+                "AP": "-1",
+                "D": "1",
+                "Keywords": "Assault, Heavy"
+            }
+        ],
+        [
+            {
+                "name": "Bolt Pistol",
+                "Range": "12\"",
+                "A": "1",
+                "BS": "3+",
+                "S": "4",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Pistol"
+            },
+            {
+                "name": "Bolt Rifle",
+                "Range": "24\"",
+                "A": "2",
+                "BS": "3+",
+                "S": "4",
+                "AP": "-1",
+                "D": "1",
+                "Keywords": "Assault, Heavy"
+            }
+        ],
+        [
+            {
+                "name": "Bolt Pistol",
+                "Range": "12\"",
+                "A": "1",
+                "BS": "3+",
+                "S": "4",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Pistol"
+            },
+            {
+                "name": "Bolt Rifle",
+                "Range": "24\"",
+                "A": "2",
+                "BS": "3+",
+                "S": "4",
+                "AP": "-1",
+                "D": "1",
+                "Keywords": "Assault, Heavy"
+            }
+        ],
+        [
+            {
+                "name": "Bolt Pistol",
+                "Range": "12\"",
+                "A": "1",
+                "BS": "3+",
+                "S": "4",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Pistol"
+            },
+            {
+                "name": "Bolt Rifle",
+                "Range": "24\"",
+                "A": "2",
+                "BS": "3+",
+                "S": "4",
+                "AP": "-1",
+                "D": "1",
+                "Keywords": "Assault, Heavy"
+            }
+        ],
+        [],
+        [],
+        [],
+        [
+            {
+                "name": "Icarus Rocket Pod",
+                "Range": "24\"",
+                "A": "D3",
+                "BS": "3+",
+                "S": "8",
+                "AP": "-1",
+                "D": "2",
+                "Keywords": "Anti-fly 2+"
+            },
+            {
+                "name": "➤ Macro Plasma Incinerator - Standard",
+                "Range": "36\"",
+                "A": "D6+1",
+                "BS": "3+",
+                "S": "8",
+                "AP": "-3",
+                "D": "2",
+                "Keywords": "Blast"
+            },
+            {
+                "name": "➤ Macro Plasma Incinerator - Supercharge",
+                "Range": "36\"",
+                "A": "D6+1",
+                "BS": "3+",
+                "S": "9",
+                "AP": "-4",
+                "D": "3",
+                "Keywords": "Blast, Hazardous"
+            },
+            {
+                "name": "Onslaught Gatling Cannon",
+                "Range": "24\"",
+                "A": "8",
+                "BS": "3+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Devastating Wounds"
+            },
+            {
+                "name": "Twin Fragstorm Grenade Launcher",
+                "Range": "18\"",
+                "A": "D6",
+                "BS": "3+",
+                "S": "4",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Blast, Twin-linked"
+            }
+        ]
+    ],
+    "meleeWeapons": [
+        [
+            {
+                "name": "Crozius Arcanum",
+                "Range": "Melee",
+                "A": "5",
+                "WS": "2+",
+                "S": "6",
+                "AP": "-1",
+                "D": "2",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Close Combat Weapon",
+                "Range": "Melee",
+                "A": "3",
+                "WS": "3+",
+                "S": "4",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Close Combat Weapon",
+                "Range": "Melee",
+                "A": "3",
+                "WS": "3+",
+                "S": "4",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Close Combat Weapon",
+                "Range": "Melee",
+                "A": "3",
+                "WS": "3+",
+                "S": "4",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Close Combat Weapon",
+                "Range": "Melee",
+                "A": "3",
+                "WS": "3+",
+                "S": "4",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Close Combat Weapon",
+                "Range": "Melee",
+                "A": "3",
+                "WS": "3+",
+                "S": "4",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Close Combat Weapon",
+                "Range": "Melee",
+                "A": "3",
+                "WS": "3+",
+                "S": "4",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Close Combat Weapon",
+                "Range": "Melee",
+                "A": "3",
+                "WS": "3+",
+                "S": "4",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Close Combat Weapon",
+                "Range": "Melee",
+                "A": "3",
+                "WS": "3+",
+                "S": "4",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Redemptor Fist",
+                "Range": "Melee",
+                "A": "5",
+                "WS": "3+",
+                "S": "12",
+                "AP": "-2",
+                "D": "3",
+                "Keywords": "-"
+            }
+        ]
+    ],
+    "abilities": [
+        [
+            "leader",
+            "litany of hate",
+            "invulnerable save 4+",
+            "spiritual leader"
+        ],
+        [
+            "objective secured"
+        ],
+        [
+            "objective secured"
+        ],
+        [
+            "objective secured"
+        ],
+        [
+            "objective secured"
+        ],
+        [
+            "objective secured"
+        ],
+        [
+            "meteoric descent"
+        ],
+        [
+            "meteoric descent"
+        ],
+        [
+            "meteoric descent"
+        ],
+        [
+            "duty eternal",
+            "damaged: 1-4 wounds remaining"
+        ]
+    ],
+    "armyRule": "Oath of Moment",
+    "detachment": [
+        "gladius task force"
+    ]
+}
