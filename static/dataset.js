@@ -1,5 +1,5 @@
 import { MoveAgent } from './agents/move-agent/move-to-object-agent.js';
-import { getRawDataset, gameToFeaturesAndLabel } from './utils/get-dataset.js';
+import { getRawDataset, getStartPosition, gameToFeaturesAndLabel } from './utils/get-dataset.js';
 import { Battlefield, Scene } from './drawing-entities/drawing-entities.js';
 import { add } from './utils/vec2.js';
 import { getStateTensor } from './utils/get-state-tensor.js';
@@ -27,7 +27,7 @@ const battlefield = new Battlefield(ctx, battlefieldSettings);
 await battlefield.init();
 battlefield.draw();
 
-const numberOfExamples = 100;
+const numberOfExamples = 1;
 const unitModels = Array(numberOfExamples).fill(0).map((v, i) => i);
 const models = Array(numberOfExamples).fill([NaN, NaN]);
 const modelsStamina = Array(numberOfExamples).fill(0);
@@ -38,7 +38,7 @@ const states = [];
 
 async function start() {
 	const scene = new Scene(ctx, state);
-	const env = new Warhammer({ gameSettings: gameSettings, battlefields: { [battlefieldName]: battlefieldSettings } })
+	const env = new Warhammer({ gameSettings: gameSettings, battlefields: { [battlefieldName]: battlefieldSettings }, getStartPosition })
 	state.battlefield = env.getState().battlefield;
 	await scene.init();
 
