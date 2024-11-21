@@ -42,16 +42,17 @@ export class MoveAgentBase {
 		let orderIndex = 0;
 		let estimate = 10000;
 
-		if (input[Channel1Name.Stamina0].some(pos => eq(pos, selected))) {
-			orderIndex = 0;
-		} else {
-			tf.tidy(() => {
-				const inputTensor = getStateTensor([input], width, height, channels);
-				const prediction = this.onlineNetwork.predict(inputTensor);
-				estimate = prediction.max(-1).dataSync()[0];
+
+		tf.tidy(() => {
+			const inputTensor = getStateTensor([input], width, height, channels);
+			const prediction = this.onlineNetwork.predict(inputTensor);
+			if (input[Channel1Name.Stamina0].some(pos => eq(pos, selected))) {
+				orderIndex = 0;
+			} else {
 				orderIndex = prediction.argMax(-1).dataSync()[0];
-			});
-		}
+			}
+			estimate = prediction.dataSync()[orderIndex];
+		});
 
 		return { order: this.orders[orderIndex], orderIndex, estimate };
 	}
