@@ -19,7 +19,7 @@ export function gameToFeaturesAndLabel(record) {
 		const [input, orderIndex] = record;
 		const features = getStateTensor1(input, MoveAgent.settings.width, MoveAgent.settings.height, MoveAgent.settings.channels);
 		const label = tf.oneHot(tf.scalar(orderIndex, 'int32'), MoveAgent.settings.orders.length);
-		return {xs: features, ys: label};
+		return { xs: { input1: features[0], input2: features[1] }, ys: label};
 	});
 }
 
@@ -36,19 +36,25 @@ export function getRandomStartPosition(exclude, battlefield) {
 	}
 }
 
-export function getRawDataset(argenv) {
+export function getRawDataset(argenv, argagent) {
 	const env = argenv ?? new Warhammer({ gameSettings, battlefields });
-	const agent = new MoveAgent();
+	const agent = argagent ?? new MoveAgent();
 
-	function getStateAndAnswer() {
-		const state = env.getState();
-		const selected = env.players[state.player].models[0];
-		const { orderIndex, order } = agent.playStep(state);
+	function getStateAndAnswer() {	
+		env.reset();
+		env.turn = getRandomInteger(0, 10);
+		let state = env.getState();
+		const { models: playerModels } = env.players[state.player];
+		const playerModelSelected = getRandomInteger(0, playerModels.length);
+		const selected = playerModels[playerModelSelected];
+		env.models[selected].stamina = getRandomInteger(0, 10);
+
+		state = env.getState();
+
+		const { orderIndex, order } = agent.playStep(state, { selected: playerModelSelected });
 		env.step({ ...order, id: selected });
 
-		env.reset();
-		env.models[selected].stamina = getRandomInteger(0, 10);
-		const input = agent.getInput(state)
+		const input = agent.getInput(state, { selected: playerModelSelected })
 		return [input, orderIndex];
 	}
 	function* getStateAndAnswerGeneratorFn() {

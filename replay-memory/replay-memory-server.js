@@ -1,5 +1,5 @@
 import express from 'express';
-import { ReplayMemory } from './replay-memory-by-key.js';
+import { ReplayMemory } from './replay-memory.js';
 import hash from 'object-hash';
 import config from '../config.json' assert { type: 'json' };
 const { replayMemorySize } = config;

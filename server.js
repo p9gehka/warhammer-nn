@@ -30,7 +30,7 @@ app.get('/dataset', (req,res) => res.sendFile('static/dataset.html', { root: __d
 app.post('/play', async (req,res) => {
 	const env = new Warhammer({ gameSettings, battlefields });
 	const players = [new PlayerAgent(0, env), new PlayerAgent(1, env)];
-	const rewarders = [new Rewarder(0, env), new Rewarder(1, env)];
+	const rewarders = [new Rewarder(env, players[0]), new Rewarder(env, players[1])];
 	try {
 		await Promise.all(players.map(player => player.load()));
 	} catch(e) {
@@ -38,7 +38,7 @@ app.post('/play', async (req,res) => {
 	}
 	let state = env.reset();
 	let attempts = 0;
-	const actionsAndStates = [[state, null, state]];
+	const actionsAndStates = [[state, players[state.player].getState(), null, state]];
 	const states = [];
 
 	let prevState = [undefined, undefined];
@@ -46,10 +46,11 @@ app.post('/play', async (req,res) => {
 
 	while (!state.done && attempts < 500) {
 		state = env.getState();
+
 		if (prevState[state.player] !== undefined) {
-			let reward = rewarders[state.player].step(prevState[state.player][0], prevState[state.player][1], 0.5);
+			let reward = rewarders[state.player].step(prevState[state.player][0], prevState[state.player][2], 0.5);
 			prevStates[state.player].push([...prevState[state.player], reward]);
-			if (prevState[state.player][1].action === 'NEXT_PHASE') {
+			if (prevState[state.player][2].action === 'NEXT_PHASE') {
 				actionsAndStates.push(...prevStates[state.player]);
 				prevStates[state.player] = [];
 			}
@@ -57,7 +58,7 @@ app.post('/play', async (req,res) => {
 		}
 
 		const stepInfo = players[state.player].playStep();
-		prevState[state.player] = [state, ...stepInfo]
+		prevState[state.player] = [state, players[state.player].getState(), ...stepInfo];
 
 		attempts++;
 	}

@@ -6,9 +6,10 @@
 <body>
 	<main class="main">
 		<div class="left-panel">
-			<header class="header" >
+			<header class="header">
 				<div id="header"></div>
-				<div>
+				<div class="header-controls">
+					<input type="checkbox" id="view-checkbox"/>
 					<button id="start">Start</button>
 				</div>
 			</header>
@@ -16,7 +17,10 @@
 			<ul id="orders-list" class="orders-list"></ul>
 		</div>
 		<div class="right-pane">
-			<canvas width="900" height="660" id="canvas"></canvas>
+			<div class="right-pane">
+				<canvas width="900" height="660" id="canvas" class="canvas"></canvas>
+				<table id="table" class="table hidden"></table>
+			</div>
 			<ul class="units-strip" id="units-strip"></ul>
 		</div>
 	</main>	
