@@ -5,11 +5,11 @@ import { copyWeights } from '../dqn/dqn.js';
 const tf = await getTF();
 
 export class Trainer {
-	constructor(game, config = {}) {
+	constructor(cascad, config = {}) {
 		const { replayMemory, nn, targetNN } = config
-		this.game = game;
+		this.game = cascad[0];
 		this.replayMemory = replayMemory;
-		this.onlineNetwork = nn ?? createDeepQNetwork(game.orders.all.length, game.width, game.height, game.channels.length);
+		this.onlineNetwork = nn ?? createDeepQNetwork(this.game.orders.length, this.game.width, this.game.height, this.game.channels.length);
 		this.targetNetwork = null;
 		/* this.targetNetwork.trainable = false not work why?? */
 	}
@@ -35,7 +35,7 @@ export class Trainer {
 			const stateTensor = getStateTensor(batch.map(example => example[0]), height, width, channels);
 			const actionTensor = tf.tensor1d(batch.map(example => example[1]), 'int32');
 
-			const qs = this.onlineNetwork.apply(stateTensor, {training: true}).mul(tf.oneHot(actionTensor, orders.all.length)).sum(-1);
+			const qs = this.onlineNetwork.apply(stateTensor, {training: true}).mul(tf.oneHot(actionTensor, orders.length)).sum(-1);
 
 			const rewardTensor = tf.tensor1d(batch.map(example => example[2]));
 			const nextStateTensor = getStateTensor(batch.map(example => example[4]), height, width, channels);
