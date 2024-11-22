@@ -70,11 +70,16 @@ export class Student {
 			this.epsilonFinal :
 			this.epsilonInit + this.epsilonIncrement_ * this.frameCount;
 		const prevState = this.env.getState();
+		let reward = 0;
+
+		if (this.prevMemoryState !== null && this.prevState !== undefined) {
+			reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
+		}
+
 		const input = this.player.agent.getInput(prevState, this.player.getState());
 		const result = this.player.playTrainStep(this.epsilon);
 
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {
-			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
 			this.replayMemory?.append([this.prevMemoryState[0], this.prevMemoryState[1], reward, false, input], Math.abs((reward + result[2].estimate * this.gamma) - this.prevMemoryState[2]));
 		}
 
