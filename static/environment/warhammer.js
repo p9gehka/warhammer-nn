@@ -224,7 +224,10 @@ export class Warhammer {
 
 	getState(misc) {
 		return {
-			players: this.players,
+			players: [
+				{ units: this.players[0].units, models: this.players[0].models, primaryVP: this.players[0].primaryVP },
+				{ units: this.players[1].units, models: this.players[1].models, primaryVP: this.players[1].primaryVP },
+			],
 			units: this.units,
 			models: this.models.map(model => model.position),
 			modelsStamina: this.models.map(model => model.stamina),
