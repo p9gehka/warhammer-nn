@@ -56,7 +56,7 @@ async function start () {
 		let round = Math.floor(state.turn / 2);
 		if (lastRound !== round) {
 			const separator = document.createElement("LI");
-			separator.innerHTML = `round ${round + 1} Player1: ${state.players[0].vp} Player2: ${ state.players[1].vp}`;
+			separator.innerHTML = `round ${round + 1} Player1: ${state.players[0].primaryVP} Player2: ${ state.players[1].primaryVP}`;
 			lastRound = round;
 			historyList.appendChild(separator);
 		}
