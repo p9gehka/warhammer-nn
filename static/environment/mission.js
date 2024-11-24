@@ -40,6 +40,6 @@ export class MissionController {
 		const round = Math.floor(turn / 2);
 		const objectiveControlReward = 5;
 
-		return Math.min(this.startTurnObjectiveControl.filter(oc => oc > 0).length * objectiveControlReward, 15);
+		return Math.min(this.startTurnObjectiveControl.filter(oc => oc > 3).length * objectiveControlReward, 15);
 	}
 }
