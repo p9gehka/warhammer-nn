@@ -1,8 +1,8 @@
 import { getStateTensor } from '../utils/get-state-tensor.js';
 import { channels } from '../environment/nn-input.js';
 
-export function updateTable(state, input, table) {
-	const data = getStateTensor([input], ...state.battlefield.size, channels)[0].arraySync();
+export function updateTable(size, input, table) {
+	const data = getStateTensor([input], ...size, channels)[0].arraySync();
 	const fragment = new DocumentFragment();
 	const nextline = Math.floor(Math.sqrt(data[0][0][0].length)) - 1;
 	for(let row of data[0]) {
@@ -25,7 +25,7 @@ export function updateTable(state, input, table) {
 	table.appendChild(fragment);
 }
 
-export function updateTable2(state, stateTensor, table) {
+export function updateTable2(stateTensor, table) {
 	const data = stateTensor.arraySync();
 	const fragment = new DocumentFragment();
 	const nextline = Math.floor(Math.sqrt(data[0][0][0].length));
