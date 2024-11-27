@@ -42,15 +42,19 @@ export function getRawDataset(argenv, argagent) {
 
 	function getStateAndAnswer() {	
 		env.reset();
+		const selectRounds = [0, 2, 4, 6, 8]
+		env.turn = selectRounds[getRandomInteger(0, selectRounds.length)];
 		env.turn = getRandomInteger(0, 10);
 		let state = env.getState();
 		const { models: playerModels } = env.players[state.player];
 		const playerModelSelected = getRandomInteger(0, playerModels.length);
 		const selected = playerModels[playerModelSelected];
 		env.models[selected].stamina = getRandomInteger(0, 10);
+		for (let i = 0; i < selected; i++) {
+			env.models[i].stamina = 0;
+		}
 
 		state = env.getState();
-
 		const { orderIndex, order } = agent.playStep(state, { selected: playerModelSelected });
 		env.step({ ...order, id: selected });
 

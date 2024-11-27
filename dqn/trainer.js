@@ -2,6 +2,7 @@ import { getTF } from '../static/utils/get-tf.js';
 import { getStateTensor } from '../static/utils/get-state-tensor.js';
 import { createDeepQNetwork } from '../dqn/dqn.js';
 import { copyWeights } from '../dqn/dqn.js';
+
 const tf = await getTF();
 
 export class Trainer {

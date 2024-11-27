@@ -187,7 +187,7 @@ export class Warhammer {
 			const [x, y] = newPosition;
 
 			if(0 <= x && x < this.battlefield.size[0] && 0 <= y && y < this.battlefield.size[1]) {
-				const newPositionBusy = this.models.some(model => model.playerId === this.getPlayer() && !model.dead && eq(model.position, newPosition));
+				const newPositionBusy = this.models.some(model => model.playerId === this.getPlayer() && eq(model.position, newPosition));
 				if (!newPositionBusy) {
 					model.update(newPosition);
 				}
