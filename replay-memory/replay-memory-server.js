@@ -82,9 +82,8 @@ app.post('/lock', (req, res) => {
 	res.sendStatus(200);
 });
 
-const hostname = '127.0.0.1';
 const port = 3000;
 
-app.listen(port, hostname, () => {
+app.listen(port, () => {
 	console.log(`Replay Memory Server running`);
 });
