@@ -2,6 +2,9 @@ import express from 'express';
 import { ReplayMemory } from './replay-memory.js';
 import hash from 'object-hash';
 import config from '../config.json' assert { type: 'json' };
+import { fileURLToPath } from 'url';
+import path from 'path';
+
 const { replayMemorySize } = config;
 const replayMemory = new ReplayMemory(replayMemorySize);
 
