@@ -2,6 +2,7 @@ import { MissionController} from './mission.js';
 
 import { mul, len, sub, add, eq, scaleToLen, round } from '../utils/vec2.js'
 import { getRandomInteger } from '../utils/index.js';
+import { deployment } from '../battlefield/deployment.js';
 
 export const Phase = {
 	Movement: 0,
@@ -12,6 +13,25 @@ const phaseOrd = [Phase.Movement];
 export const BaseAction = {
 	NextPhase: 'NEXT_PHASE',
 	Move: 'MOVE',
+}
+
+function getRandomStartPositionDefault(env, playerId, exclude, lastPosition) {
+	let tries = 0;
+	const deploymentPoints = env.deploymentZonePoints[playerId];
+	while(true) {
+		let x, y;
+		if (lastPosition === undefined) {
+			[x, y] = deploymentPoints[getRandomInteger(0, deploymentPoints.length)];
+		} else {
+			const padding = Math.floor(tries / 4)
+			x = lastPosition[0] + getRandomInteger(0, 6 + padding) - (3 + Math.floor(padding/2));
+			y = lastPosition[1] + getRandomInteger(0, 6 + padding) - (3 + Math.floor(padding/2));
+		}
+		if (!exclude.some(pos => eq([x, y], pos)) && 0 <= x && x < env.battlefield.size[0] && 0 <= y && y < env.battlefield.size[1]) {
+			return [x, y];
+		}
+		tries++;
+	}
 }
 
 class Model {
@@ -25,7 +45,7 @@ class Model {
 		this.playerId = unit.playerId;
 		this.unitProfile = {
 			"m": parseInt(profile.M),
-			"oc": parseInt(profile.OC),
+			"oc": Number(profile.OC),
 		};
 
 		this.stamina = 0;
@@ -76,6 +96,8 @@ export class Warhammer {
 		]
 		this.gameSettings = config.gameSettings;
 		this.battlefields = config.battlefields;
+		this._getStartPosition = config.getStartPosition ?? getRandomStartPositionDefault;
+
 		this.reset();
 	}
 	reset() {
@@ -100,13 +122,17 @@ export class Warhammer {
 		this.units = units.flat();
 
 		const usedPosition = [];
+		this.deploymentZonePoints = (new deployment[this.battlefield.deployment]).getPoints();
 		this.models = this.units.map((unit, unitId) => {
-			let lastPosition = null;
+			let lastPosition = undefined;
 			return unit.models.map(id => {
+				
 				if (this.gameSettings.models.length !== 0 && this.gameSettings.models[id] !== undefined && this.gameSettings.models[id] !== null) {
-					return new Model(id, unit, this.gameSettings.models[id], this.gameSettings.modelProfiles[id]);
+					usedPosition.push(this.gameSettings.models[id]);
+					lastPosition = usedPosition.at(-1);
+					return new Model(id, unit, this.gameSettings.models[id]);
 				}
-				usedPosition.push(this.getRandomStartPosition(usedPosition, lastPosition));
+				usedPosition.push(this.getStartPosition(this, unit.playerId, usedPosition, lastPosition));
 				lastPosition = usedPosition.at(-1);
 				return new Model(id, unit, lastPosition, this.gameSettings.modelProfiles[id]);
 			});
@@ -120,23 +146,8 @@ export class Warhammer {
 		});
 		return this.getState();
 	}
-	getRandomStartPosition(exclude, lastPosition) {
-		let tries = 0;
-		while(true) {
-			let x, y;
-			if (lastPosition === null) {
-				x = getRandomInteger(0, this.battlefield.size[0]);
-				y = getRandomInteger(0, this.battlefield.size[1]);
-			} else {
-				const padding = Math.floor(tries / 4)
-				x = lastPosition[0] + getRandomInteger(0, 6 + padding) - (3 + Math.floor(padding/2));
-				y = lastPosition[1] + getRandomInteger(0, 6 + padding) - (3 + Math.floor(padding/2));
-			}
-			if (!exclude.some(pos => eq([x, y], pos)) && 0 <= x && x < this.battlefield.size[0] && 0 <= y && y < this.battlefield.size[1]) {
-				return [x, y];
-			}
-			tries++;
-		}
+	getStartPosition(...args) {
+		return this._getStartPosition(...args);
 	}
 
 	step(order) {
@@ -213,7 +224,10 @@ export class Warhammer {
 
 	getState(misc) {
 		return {
-			players: this.players,
+			players: [
+				{ units: this.players[0].units, models: this.players[0].models, primaryVP: this.players[0].primaryVP },
+				{ units: this.players[1].units, models: this.players[1].models, primaryVP: this.players[1].primaryVP },
+			],
 			units: this.units,
 			models: this.models.map(model => model.position),
 			modelsStamina: this.models.map(model => model.stamina),

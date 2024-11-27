@@ -75,6 +75,10 @@ body {
 	font-size: 5px;
 }
 
+.memory .table {
+	font-size: 6px;
+}
+
 .units-strip {
 	display: flex;
 	list-style: none;

@@ -71,7 +71,11 @@ export function copyWeights(destNetwork, srcNetwork) {
     destNetwork.trainable = srcNetwork.trainable;
   }
 
-  destNetwork.setWeights(srcNetwork.getWeights());
+  srcNetwork.layers.forEach((layer, i) => {
+    if (destNetwork.layers[i] !== undefined) {
+      destNetwork.layers[i].setWeights(layer.getWeights())
+    }
+  });
 
   // Weight orders are inconsistent when the trainable attribute doesn't
   // match between two `LayersModel`s. The following is a workaround.

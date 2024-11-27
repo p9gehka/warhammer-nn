@@ -62,7 +62,7 @@ async function start() {
 		i++;
 	});
 	scene.updateState(state, {arrows});
-	updateTable(state, stateTensor, table);
+	updateTable(stateTensor, table);
 	countOrders.forEach((n, i) => console.log(MoveAgent.settings.orders[i], n))
 }
 
