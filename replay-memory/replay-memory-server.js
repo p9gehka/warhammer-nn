@@ -28,7 +28,7 @@ app.post('/append', (req,res) => {
 		res.sendStatus(423);
 		return;
 	}
-	req.body.buffer.forEach((item) => replayMemory.append(item, hash.MD5({ ...item[0], orderIndex: item[1] })));
+	req.body.buffer.forEach(item => replayMemory.append(item));
 	console.log(`Memory updated, size: ${replayMemory.length}`);
 	res.sendStatus(200);
 });
@@ -49,6 +49,21 @@ app.get('/sample', (req,res) => {
 		return;
 	}
 	res.json({ buffer: replayMemory.sample(batchSize) });
+});
+
+app.get('/get', (req,res) => {
+	const from_ = parseInt(req.query.from);
+	const perPage = parseInt(req.query.perPage);
+
+	if (isNaN(from_) || isNaN(perPage)) {
+		res.sendStatus(400);
+		return;
+	}
+	res.json({ buffer: replayMemory.buffer.slice(from_, from_ + perPage) });
+});
+
+app.get('/key-counter', (req,res) => {
+	res.json(replayMemory.keyCounter);
 });
 
 app.get('/config', (req,res) => res.json(config));
