@@ -20,5 +20,6 @@
 	"replayMemorySize": 18e3,
 	"sendMessageEveryFrames": 1e6,
 	"framesThreshold": 30e6,
+
 	"battlefields": []
 }
