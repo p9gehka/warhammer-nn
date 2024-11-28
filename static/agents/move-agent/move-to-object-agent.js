@@ -29,9 +29,8 @@ export class MoveAgent extends MoveAgentBase {
 			Object.values(Channel2Name).forEach(objectaName => {
 				input[objectaName].forEach(object => {
 					const objectVector = mul(sub(selected, object), -1);
-					objectVector[0] = objectVector[0] * (this.height / this.width);
-					if (len(objectVector) < len(vector)) {
-						vector = objectVector;
+					if (len([objectVector[0] * (this.height / this.width), objectVector[1]]) < len(vector)) {
+						vector = objectVector
 					}
 				})
 			})
