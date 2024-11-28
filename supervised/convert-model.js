@@ -5,11 +5,13 @@ const tf = await getTF();
 
 async function main() {
 	const nn = await tf.loadLayersModel(`file://${process.argv[2]}/model.json`);
+	const inputShape = nn.input[0].shape;
+	const outputShape = nn.output.shape;
 	const nn2 = createDeepQNetwork(
-		MoveAgent.settings.orders.length,
-		MoveAgent.settings.height,
-		MoveAgent.settings.width,
-		MoveAgent.settings.channels.length,
+		outputShape[1],
+		inputShape[1],
+		inputShape[2],
+		inputShape[3],
 		{ addSoftmaxLayer: process.argv[4] === "--addSoftmaxLayer" }
 	);
 	copyWeights(nn2, nn);
