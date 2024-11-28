@@ -10,7 +10,6 @@ const { replayMemorySize } = config;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-
 const replayMemory = new ReplayMemory(replayMemorySize);
 
 const app = express();
@@ -28,7 +27,6 @@ app.get('/', (req,res) => {
 	}
 	res.sendStatus(200);
 });
-
 
 app.post('/append', (req,res) => {
 	if (locked) {
@@ -74,7 +72,6 @@ app.get('/key-counter', (req,res) => {
 });
 
 app.get('/config', (req,res) => res.json(config));
-
 
 app.post('/lock', (req, res) => {
 	console.log('memory locked');
