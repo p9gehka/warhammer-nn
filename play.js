@@ -172,7 +172,7 @@ async function play() {
 				}
 			}
 
-			console.log(`averageVP$Best: ${averageVPBest}, lastAverageLen: ${vpAverager.length}`)
+			console.log(`averageVP$Best: ${averageVPBest}, lastAverageLen: ${vpAverager.length}, vpAveragerBufferLength: ${vpAveragerBuffer.length}, vpAveragerBufferLength2: ${vpAveragerBuffer.buffer.length}`)
 			console.time('updateMemory');
 
 			if (averageVPBest >= cumulativeRewardThreshold || frameCount > framesThreshold ) {
