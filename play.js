@@ -147,7 +147,7 @@ async function play() {
 		}
 
 
-		if (replayMemory.length === replayBufferSize) {
+		if (replayMemory.length === replayMemory.maxLen) {
 			if (vpAveragerBuffer === null) {
 				vpAveragerBuffer = new MovingAverager(config.rewardAveragerBufferLength);
 			}
