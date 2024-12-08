@@ -90,7 +90,15 @@ export class PrioritizedReplayMemory {
 		this.length = Math.min(this.length + 1, this.maxLen);
 		this.index = (this.index + 1) % this.maxLen;
 	}
-
+	appendList(items, priorities = []) {
+		for(let i = 0; i < items.length; i++) {
+			this.buffer[this.index] = items[i];
+			this.sumTree.setValueLazy(this.index, priorities[i] ?? 10000);
+			this.length = Math.min(this.length + 1, this.maxLen);
+			this.index = (this.index + 1) % this.maxLen;
+		}
+		this.sumTree.recalculateTree();
+	}
 	/**
 	 * Randomly sample a batch of items from the replay buffer.
 	 *
@@ -118,7 +126,7 @@ export class PrioritizedReplayMemory {
 		}
 		return [out, indeces, outPriorities];
 	}
-	updatePriorities(indeces, priorities) {
+	updatePriorities(indeces, priorities = []) {
 		for(let i = 0; i < indeces.length; i++) {
 			this.sumTree.setValueLazy(indeces[i], priorities[i] ?? 10000);
 		}
