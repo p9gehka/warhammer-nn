@@ -2,17 +2,17 @@ import { getTF } from '../static/utils/get-tf.js';
 
 const tf = await getTF();
 
-const MAX_PRIORITY = 10000;
 
 class SumTree {
+	MAX_PRIORITY = 10000;
+	MIN_PRIORITY = 0;
 	constructor(maxLen) {
 		this.maxLen = maxLen;
-		const MIN_PRIORITY = 0;
 		const levels = Math.ceil(Math.log2(maxLen));
 		this.levels = [];
 
 		for (let i = 0; i < (levels + 1); i++) {
-			const level = new Array(2 ** i).fill(MIN_PRIORITY * (2 ** (levels - i)));
+			const level = new Array(2 ** i).fill(this.MIN_PRIORITY * (2 ** (levels - i)));
 			this.levels.push(level);
 		}
 	}
@@ -84,11 +84,8 @@ export class PrioritizedReplayMemory {
 	 *
 	 * @param {any} item The item to append.
 	 */
-	append(item, priority = MAX_PRIORITY) {
-		this.buffer[this.index] = item;
-		this.sumTree.setValue(this.index, priority);
-		this.length = Math.min(this.length + 1, this.maxLen);
-		this.index = (this.index + 1) % this.maxLen;
+	append(item, { priority } = { priority: this.sumTree.MAX_PRIORITY }) {
+		this.appendList([item], [priority]);
 	}
 	appendList(items, priorities = []) {
 		for(let i = 0; i < items.length; i++) {

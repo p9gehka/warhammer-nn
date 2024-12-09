@@ -3,7 +3,7 @@ import { getTF } from '../static/utils/get-tf.js';
 const tf = await getTF();
 
 /** Replay buffer for DQN training. */
-export class ReplayMemory {
+export class UniqueReplayMemory {
 	/**
 	 * Constructor of ReplayMemory.
 	 *
@@ -12,8 +12,6 @@ export class ReplayMemory {
 	constructor(maxLen) {
 		this.maxLen = maxLen;
 		this.buffer = [];
-		this.heap = {};
-		this.keyCounter = {};
 		for (let i = 0; i < maxLen; ++i) {
 			this.buffer.push(null);
 		}
@@ -21,6 +19,8 @@ export class ReplayMemory {
 		this.length = 0;
 
 		this.bufferIndices_ = [];
+		this.keyToIndex = {};
+		this.indexToKey = [];
 		for (let i = 0; i < maxLen; ++i) {
 			this.bufferIndices_.push(i);
 		}
@@ -35,28 +35,19 @@ export class ReplayMemory {
 	 *
 	 * @param {any} item The item to append.
 	 */
-	append(item, key) {
-		const indexHash = this.buffer[this.index];
-		this.keyCounter[indexHash]--;
-		if (this.keyCounter[indexHash] === 0) {
-			 delete this.keyCounter[indexHash];
-			 delete this.heap[indexHash];
+	append(item, { key }) {
+		if (this.keyToIndex[key] !== undefined) {
+			return;
+		} else {
+			delete this.keyToIndex[this.indexToKey[this.index]];
 		}
-
-		if (this.heap[key] === undefined) {
-			this.keyCounter[key] = 0;
-		}
-
-		this.keyCounter[key]++;
-		this.heap[key] = item;
-
-		this.buffer[this.index] = key;
+		this.keyToIndex[key] = this.index;
+		this.indexToKey[this.index] = key;
+		this.buffer[this.index] = item;
 		this.length = Math.min(this.length + 1, this.maxLen);
 		this.index = (this.index + 1) % this.maxLen;
 	}
-	getAll() {
-		return this.buffer.map(key => this.heap[key]);
-	}
+
 	/**
 	 * Randomly sample a batch of items from the replay buffer.
 	 *
@@ -75,7 +66,7 @@ export class ReplayMemory {
 
 		const out = [];
 		for (let i = 0; i < batchSize; ++i) {
-			out.push(this.heap[this.buffer[this.bufferIndices_[i]]]);
+			out.push(this.buffer[this.bufferIndices_[i]]);
 		}
 		return out;
 	}
