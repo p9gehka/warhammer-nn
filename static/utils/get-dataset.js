@@ -44,7 +44,6 @@ export function getRawDataset(argenv, argagent) {
 		env.reset();
 		const selectRounds = [0, 2, 4, 6, 8]
 		env.turn = selectRounds[getRandomInteger(0, selectRounds.length)];
-		env.turn = getRandomInteger(0, 10);
 		let state = env.getState();
 		const { models: playerModels } = env.players[state.player];
 		const playerModelSelected = getRandomInteger(0, playerModels.length);

@@ -25,6 +25,7 @@ export function updateTable(size, input, table) {
 	table.appendChild(fragment);
 }
 
+
 export function updateTable2(stateTensor, table) {
 	const data = stateTensor.arraySync();
 	const fragment = new DocumentFragment();
