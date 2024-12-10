@@ -84,7 +84,7 @@ export class PrioritizedReplayMemory {
 	 *
 	 * @param {any} item The item to append.
 	 */
-	append(item, { priority } = { priority: this.sumTree.MAX_PRIORITY }) {
+	append(item, priority = this.sumTree.MAX_PRIORITY) {
 		this.appendList([item], [priority]);
 	}
 	appendList(items, priorities = []) {

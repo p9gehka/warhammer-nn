@@ -1,4 +1,3 @@
-import hash from 'object-hash';
 import { getRandomInteger } from '../static/utils/index.js';
 import { eq, sub, len, div } from '../static/utils/vec2.js';
 import { Channel2Name, Channel3Name } from '../static/environment/nn-input.js';
@@ -72,10 +71,7 @@ export class Student {
 
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {
 			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
-			this.replayMemory?.append(
-				[...this.prevMemoryState, reward, false, input],
-				{ key:  hash.MD5(this.prevMemoryState) }
-			);
+			this.replayMemory?.append([...this.prevMemoryState, reward, false, input]);
 		}
 		const result = this.player.playTrainStep(this.epsilon);
 		this.prevMemoryState = [input, result[2].index];
@@ -92,10 +88,7 @@ export class Student {
 	awarding() {
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {
 			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
-			this.replayMemory?.append(
-				[...this.prevMemoryState, reward, true, null],
-				{ key:  hash.MD5(this.prevMemoryState) }
-			);
+			this.replayMemory?.append([...this.prevMemoryState, reward, true, null]);
 		}
 	}
 }
