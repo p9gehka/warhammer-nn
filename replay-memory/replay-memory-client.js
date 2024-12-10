@@ -1,16 +1,17 @@
 import { ReplayMemory } from './replay-memory.js';
+import { PrioritizedReplayMemory } from './prioritized-replay-memory.js';
 import config from '../config.json' assert { type: 'json' };
 
 const serverAddress = '127.0.0.1:3000';
 
 export class ReplayMemoryClient {
-	constructor(maxLen) {
-		this.memory = new ReplayMemory(maxLen);
+	constructor(maxLen, prioritized) {
+		this.memory = prioritized ? new PrioritizedReplayMemory(maxLen) : new ReplayMemory(maxLen);
 		this.length = 0;
-		this.maxLen = maxLen;
+		this.maxLen = this.memory.maxLen;
 	}
-	append(item) {
-		this.memory.append(item);
+	append(item, priority) {
+		this.memory.append(item, priority);
 		this.length = this.memory.length;
 	}
 	sample(batchSize) {
@@ -20,7 +21,9 @@ export class ReplayMemoryClient {
 		this.memory.clean();
 		this.length = 0;
 	}
-
+	updatePriorities(...args) {
+		this.memory.updatePriorities(...args);
+	}
 	async updateServer() {
 		while(true) {
 			try {
@@ -53,7 +56,7 @@ export class ReplayMemoryClient {
 			}
 			const data = await response.json()
 			if (data.buffer.length === this.maxLen) {
-				this.memory.buffer = data.buffer;
+				this.memory.appendList(data.buffer);
 				this.length = this.maxLen;
 			}
 		} catch (e) {

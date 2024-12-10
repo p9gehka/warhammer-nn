@@ -35,7 +35,7 @@ describe('dqn', () => {
 			}
 		 const numAction = 33;
 		 const network = createDeepQNetwork(numAction, height, width, channels.length);
-		 const input = getStateTensor([state], height, width, channels);
+		 const input = getStateTensor([state], width, height, channels);
 		 const order = network.predict(input);
 
 		 expect(order.dataSync().length).toEqual(numAction);
