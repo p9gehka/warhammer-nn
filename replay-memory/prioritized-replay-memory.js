@@ -85,15 +85,18 @@ export class PrioritizedReplayMemory {
 	 * @param {any} item The item to append.
 	 */
 	append(item, priority = this.sumTree.MAX_PRIORITY) {
-		this.appendList([item], [priority]);
+		this.buffer[this.index] = item;
+		this.sumTree.setValue(this.index, priority);
+		this.length = Math.min(this.length + 1, this.maxLen);
+		this.index = (this.index + 1) % this.maxLen;
 	}
 	appendList(items, priorities = []) {
 		for(let i = 0; i < items.length; i++) {
 			this.buffer[this.index] = items[i];
-			this.sumTree.setValueLazy(this.index, priorities[i] ?? 10000);
-			this.length = Math.min(this.length + 1, this.maxLen);
+			this.sumTree.setValueLazy(this.index, priorities[i] ?? this.sumTree.MAX_PRIORITY);
 			this.index = (this.index + 1) % this.maxLen;
 		}
+		this.length = Math.min(this.length + items.length, this.maxLen);
 		this.sumTree.recalculateTree();
 	}
 	/**
