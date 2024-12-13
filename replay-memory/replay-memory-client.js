@@ -1,4 +1,4 @@
-import { ReplayMemory } from './replay-memory.js';
+import { UniqueReplayMemory } from './unique-replay-memory.js';
 import { PrioritizedReplayMemory } from './prioritized-replay-memory.js';
 import config from '../config.json' assert { type: 'json' };
 
@@ -6,12 +6,12 @@ const serverAddress = '127.0.0.1:3000';
 
 export class ReplayMemoryClient {
 	constructor(maxLen, prioritized) {
-		this.memory = prioritized ? new PrioritizedReplayMemory(maxLen) : new ReplayMemory(maxLen);
+		this.memory = prioritized ? new PrioritizedReplayMemory(maxLen) : new UniqueReplayMemory(maxLen);
 		this.length = 0;
 		this.maxLen = this.memory.maxLen;
 	}
-	append(item, priority) {
-		this.memory.append(item, priority);
+	append(item, properties) {
+		this.memory.append(item, properties);
 		this.length = this.memory.length;
 	}
 	sample(batchSize) {
