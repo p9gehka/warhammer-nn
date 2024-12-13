@@ -126,7 +126,7 @@ export class PrioritizedReplayMemory {
 		}
 		return [out, indeces, outPriorities];
 	}
-	updatePriorities(indeces, priorities) {
+	updatePriorities(indeces, priorities = []) {
 		for(let i = 0; i < indeces.length; i++) {
 			this.sumTree.setValueLazy(indeces[i], priorities[i] ?? 10000);
 		}

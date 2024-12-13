@@ -11,7 +11,7 @@ describe('prioritized-replay-memory', () => {
 		memory.append('data2', 100)
 		memory.append('data3', 150)
 		expect(memory.buffer).toEqual(['data1', 'data2','data3', null, null, null, null, null, null, null]);
-		expect(memory.sumTree.getPriorities()).toEqual([200, 50, 50, 0, 0, 0, 0, 0, 0, 0]);
+		expect(memory.sumTree.getPriorities()).toEqual([50, 100, 150, 0, 0, 0, 0, 0, 0, 0]);
 
 	});
 
