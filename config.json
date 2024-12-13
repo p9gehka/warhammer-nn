@@ -1,6 +1,7 @@
 {
 	"memoryAddress": "",
 	"loadPath": "",
+	"loadPath2": "",
 	"savePath": "",
 
 	"syncEveryEpoch": 1000,
