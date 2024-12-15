@@ -91,7 +91,6 @@ export class PrioritizedReplayMemory {
 		this.length = Math.min(this.length + 1, this.maxLen);
 	}
 	appendList(items, priorities = []) {
-		console.log(items)
 		for(let i = 0; i < items.length; i++) {
 			this.buffer[this.index] = items[i];
 			this.sumTree.setValueLazy(this.index, priorities[i] ?? this.sumTree.MAX_PRIORITY);
