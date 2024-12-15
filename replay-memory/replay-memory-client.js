@@ -51,6 +51,7 @@ export class ReplayMemoryClient {
 	}
 
 	async updateClient() {
+		console.log('Try update client')
 		try {
 			const response = await fetch(`${config.memoryAddress}/sample?batchSize=${this.maxLen}`, {
 				method: 'GET',
@@ -59,9 +60,9 @@ export class ReplayMemoryClient {
 			if (response.status !== 200) {
 				throw Error('bad response');
 			}
-			const data = await response.json()
-			if (data.buffer.length === this.maxLen) {
-				this.memory.appendList(data.buffer);
+			const data = await response.json();
+			if (data.buffer[0].length === this.maxLen) {
+				this.memory.appendList(...data.buffer);
 				this.length = this.maxLen;
 			}
 		} catch (e) {
