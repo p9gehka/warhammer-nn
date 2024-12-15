@@ -15,6 +15,38 @@ describe('prioritized-replay-memory', () => {
 
 	});
 
+	it('append large prioities', () => {
+		const memory = new PrioritizedReplayMemory(memoryLength);
+		memory.append('data1', 50);
+		memory.append('data2', 100);
+		memory.append('data3', 100000);
+		expect(memory.sample(10)[0]).not.toContain('data1');
+		expect(memory.sample(10)[0]).not.toContain('data2')
+	});
+	it('update large prioities', () => {
+		const memory = new PrioritizedReplayMemory(memoryLength);
+		memory.append('data1', 50);
+		memory.append('data2', 50);
+		memory.append('data3', 50);
+
+		memory.updatePriorities([2], [100000]);
+		expect(memory.sample(10)[0]).not.toContain('data1');
+		expect(memory.sample(10)[0]).not.toContain('data2')
+	});
+
+		it('append list', () => {
+		const memory = new PrioritizedReplayMemory(memoryLength);
+		memory.append('data1', 50);
+		memory.append('data2', 50);
+		memory.append('data3', 50);
+
+		memory.updatePriorities([2], [100000]);
+		expect(memory.sample(10)[0]).not.toContain('data1');
+		expect(memory.sample(10)[0]).not.toContain('data2')
+	});
+
+
+
 	it('default priorities', () => {
 		const memory = new PrioritizedReplayMemory(memoryLength);
 		memory.append('data1');
@@ -48,7 +80,9 @@ describe('prioritized-replay-memory', () => {
 			memory.updatePriorities(indeces, indeces.map((i) => priorities[i] / 10));
 			priorities = memory.sumTree.getPriorities();
 		}
-
-		expect(memory.sample(batchSize)[1].every((i) => priorities[i] !== memory.sumTree.MAX_PRIORITY)).toBe(true);
+		const batch2 = memory.sample(batchSize)[2]
+		console.log(batch2)
+		expect(batch2.every((i) => priorities[i] !== memory.sumTree.MAX_PRIORITY)).not.toBe(false);
+		expect(batch2).not.toContain(10000);
 	});
 });

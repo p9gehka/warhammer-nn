@@ -48,9 +48,12 @@ export class Trainer {
 			const nextQPreds = this.targetNetwork.apply(nextStateTensor, {training: false});
 
 			const maxNextQPreds = nextQPreds.mul(onlineActions.oneHot(orders.length)).sum(-1);
-			const maxQTargets = rewardTensor.add(maxNextQPreds.mul(doneMask).mul(gamma))
+			const maxQTargets = rewardTensor.add(maxNextQPreds.mul(doneMask).mul(gamma));
 
-			this.replayMemory.updatePriorities(indeces, maxQTargets.sub(qs).abs().dataSync());
+			if (this.replayMemory.type === 'prioritized') {
+				this.replayMemory.updatePriorities(indeces, maxQTargets.sub(qs).abs().dataSync());
+			}
+
 			return tf.losses.meanSquaredError(qs, maxQTargets);
 		});
 

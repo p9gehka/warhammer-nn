@@ -87,8 +87,8 @@ export class PrioritizedReplayMemory {
 	append(item, priority = this.sumTree.MAX_PRIORITY) {
 		this.buffer[this.index] = item;
 		this.sumTree.setValue(this.index, priority);
-		this.length = Math.min(this.length + 1, this.maxLen);
 		this.index = (this.index + 1) % this.maxLen;
+		this.length = Math.min(this.length + 1, this.maxLen);
 	}
 	appendList(items, priorities = []) {
 		for(let i = 0; i < items.length; i++) {
@@ -108,11 +108,6 @@ export class PrioritizedReplayMemory {
 	 * @return {Array<any>} Sampled items.
 	 */
 	sample(batchSize) {
-		if (batchSize > this.maxLen) {
-			throw new Error(
-					`batchSize (${batchSize}) exceeds buffer length (${this.maxLen})`);
-		}
-
 		const out = [];
 		const indeces = [];
 		const outPriorities = [];

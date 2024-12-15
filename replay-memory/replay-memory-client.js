@@ -9,6 +9,9 @@ export class ReplayMemoryClient {
 		this.memory = prioritized ? new PrioritizedReplayMemory(maxLen) : new ReplayMemory(maxLen);
 		this.length = 0;
 		this.maxLen = this.memory.maxLen;
+		if (prioritized) {
+			this.type = 'prioritized';
+		}
 	}
 	append(item, priority) {
 		this.memory.append(item, priority);
@@ -22,7 +25,9 @@ export class ReplayMemoryClient {
 		this.length = 0;
 	}
 	updatePriorities(...args) {
-		this.memory.updatePriorities(...args);
+		if (this.memory.updatePriorities) {
+			this.memory.updatePriorities(...args);
+		}
 	}
 	async updateServer() {
 		while(true) {
