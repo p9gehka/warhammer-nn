@@ -1,13 +1,12 @@
 {
-	"memoryAddress": "http://127.0.0.1:3000",
-	"loadPath": "file://./models/play-dqn/model.json",
-	"loadPath2": "http://192.168.0.104/dqn-share/model.json",
-	"savePath": "/Users/p9gehka/Hobies/warhammer/warhammer-nn/models/play-dqn",
+	"memoryAddress": "",
+	"loadPath": "",
+	"savePath": "",
 
 	"syncEveryEpoch": 1000,
-	"saveEveryEpoch": 120,
+	"saveEveryEpoch": 240,
 	"learningRate": 13e-5,
-	"repeatBatchTraining": 2,
+	"repeatBatchTraining": 1,
 	"batchSize": 128,
 	"gamma": 0.99,
 	"freezeLayers": [],
