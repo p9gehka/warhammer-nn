@@ -39,7 +39,11 @@ async function train(nn) {
 			}
 			await trainer.onlineNetwork.save(`file://${config.savePath}`);
 			console.log(`Saved DQN to ${config.savePath}`);
+		}
+
+		if (epoch % config.updateClientMemoryEveryEpoch === 0) {
 			await replayMemory.updateClient();
+			console.log('Update Memory Client')
 			if (await isLocked()) {
 				console.log('Memory locked, train terminated');
 				break;

@@ -5,6 +5,7 @@
 
 	"syncEveryEpoch": 1000,
 	"saveEveryEpoch": 240,
+	"updateClientMemoryEveryEpoch": 240,
 	"learningRate": 13e-5,
 	"repeatBatchTraining": 1,
 	"batchSize": 128,
