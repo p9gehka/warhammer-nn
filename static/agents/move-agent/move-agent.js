@@ -8,12 +8,23 @@ import { eq } from '../../utils/vec2.js';
 
 const tf = await getTF();
 
+function staminaNot0(state, playerState) {
+	const input = getInput(state, playerState);
+	const selected = input[Channel3Name.Order0][0];
+	return !input[Channel1Name.Stamina0].some(pos => eq(pos, selected));
+}
+
 class RandomAgent {
 	constructor() {
 		this.orders = moveOrders;
 	}
-	playStep(state) {
-		const orderIndex = getRandomInteger(0, this.orders.length);
+	playStep(state, playerState) {
+		const input = getInput(state, playerState);
+		const selected = input[Channel3Name.Order0][0];
+		let orderIndex = 0; 
+		if (staminaNot0(state, playerState)) {
+			orderIndex = getRandomInteger(0, this.orders.length);
+		}
 		return { order: this.orders[orderIndex], orderIndex, estimate: 0 };
 	}
 	getInput(state, playerState) {
@@ -31,7 +42,7 @@ export class MoveAgentBase {
 	}
 	playStep(state, playerState) {
 		if (this.onlineNetwork === undefined) {
-			return this.fillAgent.playStep(state);
+			return this.fillAgent.playStep(state, playerState);
 		}
 		const { orders, height, width, channels } = this;
 		const input = getInput(state, playerState);
@@ -42,9 +53,7 @@ export class MoveAgentBase {
 		let orderIndex = 0;
 		let estimate = 0;
 
-		if (input[Channel1Name.Stamina0].some(pos => eq(pos, selected))) {
-			orderIndex = 0;
-		} else {
+		if (staminaNot0(state, playerState)) {
 			tf.tidy(() => {
 				const inputTensor = getStateTensor([input], width, height, channels);
 				const prediction = this.onlineNetwork.predict(inputTensor);
@@ -52,10 +61,17 @@ export class MoveAgentBase {
 				orderIndex = prediction.argMax(-1).dataSync()[0];
 			});
 		}
-
 		return { order: this.orders[orderIndex], orderIndex, estimate };
 	}
-
+	getRandomAvailableOrderIndex(state, playerState) {
+		const input = getInput(state, playerState);
+		const selected = input[Channel3Name.Order0][0];
+		let orderIndex = 0; 
+		if (staminaNot0(state, playerState)) {
+			orderIndex = getRandomInteger(0, this.orders.length);
+		}
+		return orderIndex;
+	}
 	printStateTensor() {
 		const input = this.getInput();
 		const stateTensor = getStateTensor([input], this.width, this.height, this.channels);
