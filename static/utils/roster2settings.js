@@ -43,22 +43,29 @@ export function roster2settings(roster) {
 			const unitModelsProfiles = [];
 			const unitModelsRules = [];
 			const unitModelsAbilities = [];
+
+
+			const prepareUnitSelection = (s) => {
+				if(Array.isArray(s.profiles)) {
+					return s.profiles.map((profile) => {
+						return {
+							...s,
+							...profile,
+							profiles: [profile]
+						}
+					})
+				}
+				return [s]
+			}
+			const groupUnitSelection = rosterSelection
+				.filter(({ type, from: f }) => type === 'upgrade' && f === 'group')
+				.map(prepareUnitSelection).flat();
+
 			rosterSelection.forEach(unitSelectionArg => {
 				if (unitSelectionArg.type !== 'model') {
 					return;
 				}
-				const unitSelection = unitSelectionArg.selections.map(s => {
-					if(Array.isArray(s.profiles)) {
-						return s.profiles.map((profile) => {
-							return {
-								...s,
-								...profile,
-								profiles: [profile]
-							}
-						})
-					}
-					return [s]
-				}).flat();
+				const unitSelection = unitSelectionArg.selections.map(prepareUnitSelection).flat().concat(groupUnitSelection);
 				const modelsNumber = unitSelectionArg.number;
 
 				const fillProfile = (s, weaponType) => {
