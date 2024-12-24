@@ -12,7 +12,6 @@ export class StudentAgent extends PlayerAgent {
 		let orderIndex;
 		let estimate = 0;
 		const input = this.agent.getInput(prevState, this.getState());
-		const selected = input[Channel3Name.Selected][0];
 
 		if (Math.random() < epsilon) {
 			orderIndex = this.agent.getRandomAvailableOrderIndex(prevState, this.getState());

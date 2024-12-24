@@ -20,7 +20,7 @@ export class MoveAgent extends MoveAgentBase {
 
 	playStepByInput(input) {
 		let orderIndex = 0;
-		const selected = input[Channel3Name.Selected][0];
+		const selected = input[Channel3Name.Order0][0];
 
 		if (input[Channel1Name.Stamina0].some(pos => eq(pos, selected))) {
 			orderIndex = 0;

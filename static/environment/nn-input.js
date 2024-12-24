@@ -12,7 +12,11 @@ export const Channel1 = {};
 
 export const Channel2 = {};
 [1,2,3,4,5].forEach(v => { Channel2[`ObjectiveMarker${v}`] = v/5 })
-export const Channel3 = { Selected: 1 };
+export const Channel3 = {};
+
+const maxModelsAtOrder = 10;
+new Array(maxModelsAtOrder).fill(0).forEach((_, v) => { Channel3[`Order${v}`] = (v + 1) / maxModelsAtOrder; });
+
 export const Channel0Name = {}, Channel1Name = {}, Channel2Name = {}, Channel3Name = {};
 
 Object.keys(Channel0).forEach(name => Channel0Name[name] = name);
@@ -62,6 +66,7 @@ export function getInput(state, playerState) {
 	})
 
 	state.players.forEach((player, playerId) => {
+		const totalPlayerModelNumber = player.models.length;
 		player.models.forEach((gameModelId, playerModelId) => {
 			const xy = state.models[gameModelId];
 			if (xy === null) { return; }
@@ -70,10 +75,14 @@ export function getInput(state, playerState) {
 
 			if (playerId === state.player) {
 				input[playerModelId] = [xy];
-
-				if (playerModelId == playerState.selected) {
-					entities.push(Channel3Name.Selected);
+				let order = 0;
+				if (playerModelId >= playerState.selected) {
+					order = Math.min(playerModelId - playerState.selected, maxModelsAtOrder - 1);
+				} else {
+					order = Math.min(totalPlayerModelNumber - playerState.selected + playerModelId, maxModelsAtOrder - 1);
 				}
+
+				entities.push(Channel3Name[`Order${order}`]);
 
 				if (state.phase == Phase.Movement) {
 					const stamina = Math.min(state.modelsStamina[gameModelId], 10);

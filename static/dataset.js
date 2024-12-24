@@ -27,7 +27,7 @@ const battlefield = new Battlefield(ctx, battlefieldSettings);
 await battlefield.init();
 battlefield.draw();
 
-const numberOfExamples = 1;
+const numberOfExamples = 100;
 const unitModels = Array(numberOfExamples).fill(0).map((v, i) => i);
 const models = Array(numberOfExamples).fill([NaN, NaN]);
 const modelsStamina = Array(numberOfExamples).fill(0);
@@ -48,7 +48,7 @@ async function start() {
 	await getRawDataset(env, moveAgent).take(numberOfExamples).forEachAsync(e => {
 		states.push(e[0])
 		stateTensor = stateTensor.maximum(gameToFeaturesAndLabel(e).xs.input1);
-		models[i] = e[0][Channel3Name.Selected][0];
+		models[i] = e[0][Channel3Name.Order0][0];
 		if (e[1] !== 0) {
 			arrows.push([add(models[i],[0.3, 0.3]), add(add(models[i],[0.3, 0.3]), MoveAgent.settings.orders[e[1]].vector)])
 		}
