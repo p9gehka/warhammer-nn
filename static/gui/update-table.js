@@ -25,7 +25,7 @@ export function updateTable(size, input, table) {
 	table.appendChild(fragment);
 }
 
-export function updateTable2(stateTensor, table) {
+export function updateTable2(state, stateTensor, table) {
 	const data = stateTensor.arraySync();
 	const fragment = new DocumentFragment();
 	const nextline = Math.floor(Math.sqrt(data[0][0][0].length));

@@ -10,7 +10,7 @@ const tf = await getTF();
 
 function staminaNot0(state, playerState) {
 	const input = getInput(state, playerState);
-	const selected = input[Channel3Name.Order0][0];
+	const selected = input[Channel3Name.Selected][0];
 	return !input[Channel1Name.Stamina0].some(pos => eq(pos, selected));
 }
 
@@ -20,7 +20,7 @@ class RandomAgent {
 	}
 	playStep(state, playerState) {
 		const input = getInput(state, playerState);
-		const selected = input[Channel3Name.Order0][0];
+		const selected = input[Channel3Name.Selected][0];
 		let orderIndex = 0; 
 		if (staminaNot0(state, playerState)) {
 			orderIndex = getRandomInteger(0, this.orders.length);
@@ -46,7 +46,7 @@ export class MoveAgentBase {
 		}
 		const { orders, height, width, channels } = this;
 		const input = getInput(state, playerState);
-		const selected = input[Channel3Name.Order0][0];
+		const selected = input[Channel3Name.Selected][0];
 		if(isNaN(selected[0])) {
 			console.log('isNan(selected[0]!!!!');
 		}
@@ -65,7 +65,7 @@ export class MoveAgentBase {
 	}
 	getRandomAvailableOrderIndex(state, playerState) {
 		const input = getInput(state, playerState);
-		const selected = input[Channel3Name.Order0][0];
+		const selected = input[Channel3Name.Selected][0];
 		let orderIndex = 0; 
 		if (staminaNot0(state, playerState)) {
 			orderIndex = getRandomInteger(0, this.orders.length);

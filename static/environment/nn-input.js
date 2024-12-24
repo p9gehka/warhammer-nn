@@ -5,18 +5,14 @@ import { deployment } from  '../battlefield/deployment.js';
 //{ Empty: 0 }
 export const Channel0 = {};
 const maxModels = 10;
-new Array(maxModels).fill(0).forEach((_, v) => { Channel0[`PlayerModel${v}`] = (v + 1) / maxModels });
+new Array(maxModels).fill(0).forEach((_, v) => { Channel0[v] = 1 });
 export const Channel1 = {};
 
 [0,1,2,3,4,5,6,7,8,9,10].forEach(v => { Channel1[`Stamina${v}`] = v / 10; });
 
 export const Channel2 = {};
 [1,2,3,4,5].forEach(v => { Channel2[`ObjectiveMarker${v}`] = v/5 })
-export const Channel3 = {};
-
-const maxModelsAtOrder = 10;
-new Array(maxModelsAtOrder).fill(0).forEach((_, v) => { Channel3[`Order${v}`] = (v + 1) / maxModelsAtOrder; });
-
+export const Channel3 = { Selected: 1 };
 export const Channel0Name = {}, Channel1Name = {}, Channel2Name = {}, Channel3Name = {};
 
 Object.keys(Channel0).forEach(name => Channel0Name[name] = name);
@@ -73,11 +69,10 @@ export function getInput(state, playerState) {
 			let entities = [];
 
 			if (playerId === state.player) {
-				input[Channel0Name[`PlayerModel${playerModelId}`]] = [xy];
+				input[playerModelId] = [xy];
 
-				if (playerModelId >= playerState.selected) {
-					const order = Math.min(playerModelId - playerState.selected, maxModelsAtOrder - 1);
-					entities.push(Channel3Name[`Order${order}`]);
+				if (playerModelId == playerState.selected) {
+					entities.push(Channel3Name.Selected);
 				}
 
 				if (state.phase == Phase.Movement) {
