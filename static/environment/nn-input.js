@@ -8,14 +8,14 @@ const maxModels = 10;
 new Array(maxModels).fill(0).forEach((_, v) => { Channel0[v] = 1 });
 export const Channel1 = {};
 
-[0,1,2,3,4,5,6,7,8,9,10].forEach(v => { Channel1[`Stamina${v}`] = v / 10; });
+new Array(maxModels).fill(0).forEach((_,v) => { Channel1[`Stamina${v}`] = v / maxModels; });
 
 export const Channel2 = {};
 [1,2,3,4,5].forEach(v => { Channel2[`ObjectiveMarker${v}`] = v/5 })
 export const Channel3 = {};
 
 const maxModelsAtOrder = 10;
-new Array(maxModelsAtOrder).fill(0).forEach((_, v) => { Channel3[`Order${v}`] = (v + 1) / maxModelsAtOrder; });
+new Array(maxModelsAtOrder).fill(0).forEach((_, v) => { Channel3[`Order${v}`] = 1 - (v / (maxModelsAtOrder + 1)); });
 
 export const Channel0Name = {}, Channel1Name = {}, Channel2Name = {}, Channel3Name = {};
 
