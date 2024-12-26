@@ -14,8 +14,8 @@ export const Channel2 = {};
 [1,2,3,4,5].forEach(v => { Channel2[`ObjectiveMarker${v}`] = v/5 })
 export const Channel3 = {};
 
-const maxModelsAtOrder = 10;
-new Array(maxModelsAtOrder).fill(0).forEach((_, v) => { Channel3[`Order${v}`] = 1 - (v / (maxModelsAtOrder + 1)); });
+const maxModelsAtOrder = 3;
+new Array(maxModelsAtOrder).fill(0).forEach((_, v) => { Channel3[`Order${v}`] = (v + 1) / maxModelsAtOrder; });
 
 export const Channel0Name = {}, Channel1Name = {}, Channel2Name = {}, Channel3Name = {};
 
