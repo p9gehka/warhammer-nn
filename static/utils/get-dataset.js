@@ -1,4 +1,4 @@
-import { Warhammer } from '../environment/warhammer.js';
+import { Warhammer, BaseAction } from '../environment/warhammer.js';
 import { MoveAgent } from '../agents/move-agent/move-to-object-agent.js';
 import { getStateTensor1 } from '../utils/get-state-tensor.js';
 import { getTF } from './get-tf.js';
@@ -42,12 +42,18 @@ export function getRawDataset(argenv, argagent) {
 
 	function getStateAndAnswer() {	
 		env.reset();
-		const selectRounds = [0, 2, 4, 6, 8]
-		env.turn = selectRounds[getRandomInteger(0, selectRounds.length)];
-		env.turn = getRandomInteger(0, 10);
+		const selectTurn = [0, 2, 4, 6, 8];
+
+		let choosedTurn = selectTurn[getRandomInteger(0, selectTurn.length)];
+		choosedTurn = getRandomInteger(0, 10);
+		if (choosedTurn !== 0) {
+			env.turn = choosedTurn - 1;
+			env.step({ action: BaseAction.NextPhase });
+		}
+
 		let state = env.getState();
 		const { models: playerModels } = env.players[state.player];
-		const playerModelSelected = getRandomInteger(0, playerModels.length);
+		const playerModelSelected = getRandomInteger(1, playerModels.length);
 		const selected = playerModels[playerModelSelected];
 		env.models[selected].stamina = getRandomInteger(0, 10);
 		for (let i = 0; i < selected; i++) {
