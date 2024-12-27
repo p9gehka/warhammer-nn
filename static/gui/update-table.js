@@ -11,7 +11,7 @@ export function updateTable(size, input, table) {
 			const cellEl = document.createElement('TD');
 			cellEl.innerHTML = cell.map((v, i) => v.toFixed(1) + ((i === nextline) ? '\n' : ',')).join('');
 			rowEl.appendChild(cellEl);
-			if (cell[2] > 0) {
+			if (cell[0] > 0) {
 				cellEl.classList.add('player-model-cell');
 			} else if (cell[3] === 1) {
 				cellEl.classList.add('opponent-model-cell');
@@ -35,7 +35,7 @@ export function updateTable2(state, stateTensor, table) {
 			const cellEl = document.createElement('TD');
 			cellEl.innerHTML = cell.map((v, i) => v.toFixed(1) + ((i === nextline) ? '\n' : ',')).join('');
 			rowEl.appendChild(cellEl);
-			if (cell[2] > 0) {
+			if (cell[0] > 0) {
 				cellEl.classList.add('player-model-cell');
 			} else if (cell[3] === 1) {
 				cellEl.classList.add('opponent-model-cell');

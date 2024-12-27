@@ -11,7 +11,7 @@ export const Channel1 = {};
 new Array(maxModels).fill(0).forEach((_,v) => { Channel1[`Stamina${v}`] = v / maxModels; });
 
 export const Channel2 = {};
-[1,2,3,4,5].forEach(v => { Channel2[`ObjectiveMarker${v}`] = v/5 })
+[1,2,3,4,5].forEach(v => { Channel2[`ObjectiveMarker${v}`] = 1 })
 export const Channel3 = {};
 
 const maxModelsAtOrder = 3;
