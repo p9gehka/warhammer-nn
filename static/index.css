@@ -27,6 +27,8 @@ body {
 
 .left-panel {
 	position: relative;
+	overflow-y: scroll;
+	max-height: 100vh;
 }
 
 .right-pane {
@@ -161,8 +163,6 @@ body {
 }
 
 .dice-section {
-	position: absolute;
-	bottom: 0;
 	width: 100%;
 	height: 200px;
 	overflow: scroll;
