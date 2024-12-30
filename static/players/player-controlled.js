@@ -108,11 +108,10 @@ export class PlayerControlled {
 
 		const modifiers = this.armyRule?.orderModifiers(playerOrder);
 
-		if (playerOrder.action === PlayerAction.Shoot ) {
+		if (playerOrder.action === PlayerAction.Shoot && playerOrder.weaponId !== undefined) {
 			let weaponCharacteristics = this.env.models[playerOrder.id].getRangedWeapon(playerOrder.weaponId);
 			if (modifiers !== undefined && weaponCharacteristics !== undefined) {
 				let { a, ap, bs, d, range, s, name, keywords } = weaponCharacteristics;
-				
 				weaponCharacteristics = { a, ap, bs: bs + modifiers.bs, d, range, s, name, keywords: [...keywords, ...modifiers.keywords] };
 			}
 			const shotDiceResult = shotDice(this._diceSequence, weaponCharacteristics);

@@ -236,11 +236,17 @@ export class Game {
 		this.selectedUnit = unitId;
 	}
 
-	selectNextModel() {
+	selectNextModelAtUnit() {
 		const state = this.started ? this.env.getState() : this.deploy.getState();
 		const totalLength = state.players[state.player].models.length;
-		const selectedModel = state.players[state.player].models.indexOf(this.getSelectedModel());
-		this.orderResolve([getSelectModelOrder((selectedModel + 1) % totalLength)]);
+		const selectedModelIndex = this.getSelectedModel();
+		if (selectedModelIndex === null) {
+			return;
+		}
+		const selectedModel =  state.players[state.player].models[selectedModelIndex];
+		const selectedUnitModels = state.players[state.player].units.find(unit => unit.models.includes(selectedModel)).models;
+		const nextModelIndex = (selectedUnitModels.indexOf(selectedModel) + 1) % selectedUnitModels.length;
+		this.orderResolve([getSelectModelOrder(state.players[state.player].models.indexOf(selectedUnitModels[nextModelIndex]))]);
 	}
 	getSelectedModel() {
 		return this.getCurrentPlayer().getState().selected;

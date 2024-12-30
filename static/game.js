@@ -362,7 +362,7 @@ document.addEventListener('keydown', (e) => {
 
 	if(e.code === 'Tab') {
 		e.preventDefault();
-		game.selectNextModel();
+		game.selectNextModelAtUnit();
 	}
 });
 

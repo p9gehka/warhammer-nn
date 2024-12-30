@@ -126,10 +126,7 @@ export class DeployEnvironment {
 	step(order) {
 		const currentState = this.env.getState();
 		if (order.action === 'SELECT') {
-			const selectedModel = this.env.players[this.playerId].models[order.id];
-			if (selectedModel !== undefined) {
-				this._selectedModel = selectedModel;
-			}
+			this._selectedModel = order.id;
 			return currentState;
 		}
 
@@ -142,7 +139,7 @@ export class DeployEnvironment {
 			return currentState;
 		}
 		if (order.action === 'DEPLOY_MODEL' && this._selectedModel !== null) {
-			const id = this._selectedModel;
+			const id = this.env.players[this.playerId].models[this._selectedModel];
 			return this.env.step({ action: 'DEPLOY_MODEL', id, position: [this._x, this._y] });
 		}
 		if (order.action === 'DONE' || order.action === 'NEXT_PHASE') {
