@@ -37,10 +37,9 @@ export function createDeepQNetwork(numActions, h, w, c, { addSoftmaxLayer } = { 
 	conv2d = tf.layers.conv2d({ filters: 16, kernelSize: 4, activation: 'relu' }).apply(conv2d);
 	conv2d = tf.layers.conv2d({ filters: 16, kernelSize: 4, activation: 'relu' }).apply(conv2d);
 	conv2d = tf.layers.conv2d({ filters: 16, kernelSize: 4, activation: 'relu'}).apply(conv2d);
-	conv2d = tf.layers.batchNormalization().apply(conv2d);
 	let conv2dOut = tf.layers.flatten().apply(conv2d);
 	const concatinate = tf.layers.concatenate().apply([conv2dOut, inputDense]);
-	let mlp = tf.layers.dense({units: 768, activation: 'relu'}).apply(concatinate);
+	let mlp = tf.layers.dense({units: 256, activation: 'relu'}).apply(concatinate);
 	mlp = tf.layers.dropout({ rate: 0.5 }).apply(mlp);
 	let output = tf.layers.dense({units: numActions}).apply(mlp);
 
