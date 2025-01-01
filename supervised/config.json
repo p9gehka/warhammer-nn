@@ -1,6 +1,6 @@
 {
 	"learningRate": 1e-3,
-	"epochs": 100, 
+	"epochs": 150, 
 	"batchesPerEpoch": 50, 
 	"savePath": "./models/supervised-dqn/"
 }
