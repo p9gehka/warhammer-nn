@@ -102,7 +102,7 @@ export class Rewarder {
 		this.primaryVP = 0;
 	}
 	step(prevState, order, epsilon) {
-		let reward = -0.5;
+		let reward = 0;
 		const state = this.env.getState();
 
 		const { primaryVP } = state.players[this.playerId];
@@ -126,7 +126,7 @@ export class Rewarder {
 			const initialPosititonDelta = len(sub(center, sub(initialPosititon, center).map(Math.abs)));
 			reward += (currentPositionDelta - initialPosititonDelta);
 		}
-		return reward * epsilon;
+		return reward * epsilon * 2;
 	}
 
 	primaryReward(order, primaryVP) {
