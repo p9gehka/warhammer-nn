@@ -12,7 +12,7 @@ export function roster2settings(roster) {
 	roster.roster.forces[0].selections
 		.filter(selection => selection.name === "Detachment")
 		.forEach(detachment => {
-			detachment.selections.forEach(selection => {
+			detachment.selections?.forEach(selection => {
 				detachmentRules.push(selection.name.toLowerCase());
 			})
 		})
