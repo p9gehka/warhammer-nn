@@ -103,7 +103,7 @@ export class Rewarder {
 
 		this.deltaInit = 0.5;
 		this.deltaFinal = 0.01;
-		this.deltaDecayFrames = 2e6;
+		this.deltaDecayFrames = 1e6;
 		this.deltaIncrement_ = (this.deltaFinal - this.deltaInit) / this.deltaDecayFrames;
 		this.delta = this.deltaInit;
 
