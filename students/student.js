@@ -101,8 +101,8 @@ export class Rewarder {
 		this.cumulativeReward = 0;
 		this.primaryVP = 0;
 
-		this.deltaInit = 0.5;
-		this.deltaFinal = 0.01;
+		this.deltaInit = 1;
+		this.deltaFinal = 0;
 		this.deltaDecayFrames = 1e6;
 		this.deltaIncrement_ = (this.deltaFinal - this.deltaInit) / this.deltaDecayFrames;
 		this.delta = this.deltaInit;
