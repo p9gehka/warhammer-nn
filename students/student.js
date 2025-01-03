@@ -70,7 +70,7 @@ export class Student {
 		const input = this.player.agent.getInput(prevState, this.player.getState());
 
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {
-			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
+			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.frameCount);
 			this.replayMemory?.append([...this.prevMemoryState, reward, false, input]);
 		}
 		const result = this.player.playTrainStep(this.epsilon);
@@ -87,7 +87,7 @@ export class Student {
 
 	awarding() {
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {
-			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
+			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.frameCount);
 			this.replayMemory?.append([...this.prevMemoryState, reward, true, null]);
 		}
 	}
@@ -100,18 +100,30 @@ export class Rewarder {
 		this.playerId = player.playerId;
 		this.cumulativeReward = 0;
 		this.primaryVP = 0;
+
+		this.deltaInit = 0.5;
+		this.deltaFinal = 0.01;
+		this.deltaDecayFrames = 1e6;
+		this.deltaIncrement_ = (this.deltaFinal - this.deltaInit) / this.deltaDecayFrames;
+		this.delta = this.deltaInit;
+
 	}
-	step(prevState, order, epsilon) {
+	step(prevState, order, frameCount) {
 		let reward = 0;
+		this.delta = frameCount >= this.deltaDecayFrames ?
+			this.deltaFinal :
+			this.deltaInit + this.deltaIncrement_ * frameCount;
+
 		const state = this.env.getState();
 
 		const { primaryVP } = state.players[this.playerId];
 		reward += this.primaryReward(order, primaryVP);
-		reward += this.epsilonReward(prevState, order, epsilon);
+		reward += this.deltaReward(prevState, order);
 		this.cumulativeReward += reward;
+
 		return reward;
 	}
-	epsilonReward(prevState, order, epsilon) {
+	deltaReward(prevState, order) {
 		let reward = 0;
 
 		if (order.action === BaseAction.Move) {
@@ -126,7 +138,7 @@ export class Rewarder {
 			const initialPosititonDelta = len(sub(center, sub(initialPosititon, center).map(Math.abs)));
 			reward += (currentPositionDelta - initialPosititonDelta);
 		}
-		return reward * epsilon * 0.5;
+		return reward * this.delta;
 	}
 
 	primaryReward(order, primaryVP) {
