@@ -126,7 +126,7 @@ export class Rewarder {
 			const initialPosititonDelta = len(sub(center, sub(initialPosititon, center).map(Math.abs)));
 			reward += (currentPositionDelta - initialPosititonDelta);
 		}
-		return reward * epsilon * 0;
+		return reward * epsilon * 0.5;
 	}
 
 	primaryReward(order, primaryVP) {
