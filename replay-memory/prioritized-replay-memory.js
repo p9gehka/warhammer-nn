@@ -50,6 +50,20 @@ class SumTree {
 		}
 		return index;
 	}
+	argMin() {
+		return this.levels.at(-1).map((x, i) => [x, i]).reduce((r, a) => (a[0] < r[0] ? a : r))[1];
+	}
+	findNSmallestIndexes(n) {
+		const x = (this.levels[0][0] / this.maxLen) * (this.maxLen / n) ;
+		const lastLevel = this.levels.at(-1);
+		const indexes = [];
+		for (let i = 0; i < this.maxLen; i++) {
+			if (lastLevel[i] <= x) {
+				indexes.push(i);
+			}
+		}
+		return indexes;
+	}
 	getPriorities() {
 		return this.levels.at(-1).slice(0, this.maxLen);
 	}
@@ -85,16 +99,18 @@ export class PrioritizedReplayMemory {
 	 * @param {any} item The item to append.
 	 */
 	append(item, priority = this.sumTree.MAX_PRIORITY) {
-		this.buffer[this.index] = item;
-		this.sumTree.setValue(this.index, priority);
-		this.index = (this.index + 1) % this.maxLen;
+		const index = this.sumTree.argMin();
+		this.buffer[index] = item;
+		this.sumTree.setValue(index, priority);
 		this.length = Math.min(this.length + 1, this.maxLen);
 	}
 	appendList(items, priorities = []) {
+		const indexes = this.sumTree.findNSmallestIndexes(items.length);
+
 		for(let i = 0; i < items.length; i++) {
+			const index = indexes[i];
 			this.buffer[this.index] = items[i];
-			this.sumTree.setValueLazy(this.index, priorities[i] ?? this.sumTree.MAX_PRIORITY);
-			this.index = (this.index + 1) % this.maxLen;
+			this.sumTree.setValueLazy(index, priorities[i] ?? this.sumTree.MAX_PRIORITY);
 		}
 		this.length = Math.min(this.length + items.length, this.maxLen);
 		this.sumTree.recalculateTree();

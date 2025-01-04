@@ -65,6 +65,18 @@ describe('prioritized-replay-memory', () => {
 		expect(memory.sumTree.getPriorities()).toEqual([50, 100, 150, 0, 0, 0, 0, 0, 0, 0]);
 	});
 
+	it('append list', () => {
+		const memory = new PrioritizedReplayMemory(memoryLength);
+		const datas = []
+		for (let i = 0; i < replayBufferSize; i++) {
+			datas.push(`d${i}`);
+		}
+		memory.appendList(Array(memoryLength).fill().map((_, v) => `data${v}`));
+		memory.updatePriorities([0, 1,2,6,7], [1,1,1,1,1,1,1]);
+		memory.appendList(Array(6).fill().map((_, v) => `newData${v}`));
+
+	});
+
 	it('update priorities by training', () => {
 		const memory = new PrioritizedReplayMemory(replayBufferSize);
 		const datas = []

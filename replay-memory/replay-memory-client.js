@@ -53,7 +53,7 @@ export class ReplayMemoryClient {
 	async updateClient() {
 		console.log('Try update client')
 		try {
-			const response = await fetch(`${config.memoryAddress}/sample?batchSize=${this.maxLen}`, {
+			const response = await fetch(`${config.memoryAddress}/sample?batchSize=${Math.round(this.maxLen/2)}`, {
 				method: 'GET',
 				headers: { "Content-Type": "application/json" },
 			});
