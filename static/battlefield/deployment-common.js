@@ -6,9 +6,13 @@ export class DeploymentCommon {
 	exclude_rect = [];
 	objective_markers = [];
 	deploy_markers = [];
-	getObjectDrawing(position, radius) {
+	getObjectControlRadiusDrawing(position, radius) {
 		const args = [[ ...position, radius, radius, 0, 0, 2 * Math.PI]];
 		return { strokeStyle: "burlywood", methods: ['ellipse'],  args };
+	}
+	getObjectDrawing(position) {
+		const args = [[ ...position, 0.5, 0.5, 0, 0, 2 * Math.PI]];
+		return { strokeStyle: "black", methods: ['ellipse'],  args };
 	}
 
 	getDrawings() {
@@ -33,8 +37,13 @@ export class DeploymentCommon {
 		this.exclude_rect.forEach((deployment) => {
 			deployments.push({ strokeStyle: 'green', methods: ['rect'], args: [deployment] })
 		});
-		const objectiveMarkers = this.objective_markers.map(
-			(position, i) => this.getObjectDrawing(position, this.objective_marker_control_distance)
+
+		const objectiveMarkers = [];
+		this.objective_markers.forEach(
+			(position, i) => {
+				objectiveMarkers.push(this.getObjectDrawing(position, this.objective_marker_control_distance))
+				objectiveMarkers.push(this.getObjectControlRadiusDrawing(position, this.objective_marker_control_distance))
+			}
 		);
 
 		return [...deployments, ...objectiveMarkers];
