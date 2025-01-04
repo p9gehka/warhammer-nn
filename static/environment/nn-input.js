@@ -37,9 +37,7 @@ const objectiveMemoized = {};
 
 export function getInput(state, playerState) {
 	const memoKey = state.battlefield.deployment;
-	if (state.phase !== Phase.Movement) {
-		console.log("getInput state.phase !== Phase.Movement");
-	}
+
 	if (deployment[memoKey] !== undefined && objectiveMemoized[memoKey] === undefined) {
 		objectiveMemoized[memoKey] = [];
 		const currentDeployment = new deployment[memoKey]();
@@ -86,8 +84,10 @@ export function getInput(state, playerState) {
 
 				entities.push(Channel3Name[`Order${order}`]);
 
-				let stamina = Math.min(state.modelsStamina[gameModelId], maxModels);
-				entities.push(Channel1Name[`Stamina${stamina}`]);
+				if (state.phase == Phase.Movement) {
+					const stamina = Math.min(state.modelsStamina[gameModelId], 10);
+					entities.push(Channel1Name[`Stamina${stamina}`]);
+				}
 			}
 
 			entities.forEach(entity => {
