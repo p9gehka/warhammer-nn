@@ -106,12 +106,12 @@ export class PrioritizedReplayMemory {
 	}
 	appendList(items, priorities = []) {
 		const indexes = this.sumTree.findNSmallestIndexes(items.length);
-
 		for(let i = 0; i < items.length; i++) {
 			const index = indexes[i];
-			this.buffer[this.index] = items[i];
+			this.buffer[index] = items[i];
 			this.sumTree.setValueLazy(index, priorities[i] ?? this.sumTree.MAX_PRIORITY);
 		}
+
 		this.length = Math.min(this.length + items.length, this.maxLen);
 		this.sumTree.recalculateTree();
 	}

@@ -63,7 +63,7 @@ export class ReplayMemoryClient {
 			}
 			const data = await response.json();
 			this.memory.appendList(...data.buffer);
-			this.length = this.maxLen;
+			this.length = this.memory.length;
 		} catch (e) {
 			console.log('updateClient', e.message);
 		}
