@@ -70,7 +70,7 @@ export class Student {
 		const input = this.player.agent.getInput(prevState, this.player.getState());
 
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {
-			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.frameCount);
+			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
 			this.replayMemory?.append([...this.prevMemoryState, reward, false, input]);
 		}
 		const result = this.player.playTrainStep(this.epsilon);
@@ -87,7 +87,7 @@ export class Student {
 
 	awarding() {
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {
-			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.frameCount);
+			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
 			this.replayMemory?.append([...this.prevMemoryState, reward, true, null]);
 		}
 	}
@@ -100,24 +100,15 @@ export class Rewarder {
 		this.playerId = player.playerId;
 		this.cumulativeReward = 0;
 		this.primaryVP = 0;
-
-		this.deltaInit = 0.5;
-		this.deltaFinal = 0.01;
-		this.deltaDecayFrames = 1e6;
-		this.deltaIncrement_ = (this.deltaFinal - this.deltaInit) / this.deltaDecayFrames;
-		this.delta = this.deltaInit;
 	}
-	step(prevState, order, frameCount) {
+	step(prevState, order, epsilon) {
 		let reward = -0.5;
-		this.delta = frameCount >= this.deltaDecayFrames ?
-			this.deltaFinal :
-			this.deltaInit + this.deltaIncrement_ * frameCount;
 
 		const state = this.env.getState();
 
 		const { primaryVP } = state.players[this.playerId];
 		reward += this.primaryReward(order, primaryVP);
-		reward += this.epsilonReward(prevState, order, this.delta);
+		reward += this.epsilonReward(prevState, order, epsilon);
 		this.cumulativeReward += reward;
 		return reward;
 	}

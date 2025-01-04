@@ -105,7 +105,6 @@ async function play() {
 				`cumulativeVP${rewardAveragerLen}=${averageVP.toFixed(1)}; ` +
 				`cumulativeReward${rewardAveragerLen}=${averageReward.toFixed(1)}; ` +
 				`(epsilon=${players[0].epsilon?.toFixed(3)}) ` +
-				`(rewardDelta=${players[0].rewarder?.delta?.toFixed(3)}) ` +
 				`(${framesPerSecond.toFixed(1)} frames/s)`
 			);
 
