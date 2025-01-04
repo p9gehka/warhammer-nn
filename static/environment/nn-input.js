@@ -86,12 +86,7 @@ export function getInput(state, playerState) {
 
 				entities.push(Channel3Name[`Order${order}`]);
 
-				let stamina = 0;
-				if (playerModelId >= playerState.selected && playerModelId - playerState.selected < maxModelsAtOrder - 1) {
-					stamina = Math.min(state.modelsStamina[gameModelId], 10);
-				} else if (playerModelId < playerState.selected && totalPlayerModelNumber - playerState.selected + playerModelId < maxModelsAtOrder - 1) {
-					stamina = Math.min(state.modelsStamina[gameModelId], 10);
-				} 
+				let stamina = Math.min(state.modelsStamina[gameModelId], maxModels);
 				entities.push(Channel1Name[`Stamina${stamina}`]);
 			}
 
