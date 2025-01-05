@@ -7,7 +7,6 @@ import { deployment } from '../static/battlefield/deployment.js';
 
 export class StudentAgent extends PlayerAgent {
 	playTrainStep(epsilon) {
-
 		const prevState = this.env.getState();
 		let orderIndex;
 		let estimate = 0;
@@ -100,6 +99,7 @@ export class Rewarder {
 		this.playerId = player.playerId;
 		this.cumulativeReward = 0;
 		this.primaryVP = 0;
+		this.gamma = 0.99;
 	}
 	step(prevState, order, epsilon) {
 		let reward = -0.5;
@@ -109,7 +109,8 @@ export class Rewarder {
 		const { primaryVP } = state.players[this.playerId];
 		reward += this.primaryReward(order, primaryVP);
 		reward += this.epsilonReward(prevState, order, epsilon);
-		this.cumulativeReward += reward;
+		this.cumulativeReward += (reward * this.gamma);
+		this.gamma = this.gamma ** 2
 		return reward;
 	}
 	epsilonReward(prevState, order, epsilon) {
@@ -142,5 +143,6 @@ export class Rewarder {
 	reset() {
 		this.primaryVP = 0;
 		this.cumulativeReward = 0;
+		this.gamma = 0.99;
 	}
 }
