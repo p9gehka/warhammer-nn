@@ -31,7 +31,7 @@ export class Trainer {
 		if (this.replayMemory === null) {
 			throw new Error(`trainOnReplayBatch without replayMemory`);
 		}
-		const batch = this.replayMemory.sample(batchSize);
+		const [batch, indeces] = this.replayMemory.sample(batchSize);
 
 		const lossFunction = () => tf.tidy(() => {
 			const stateTensor = getStateTensor(batch.map(example => example[0]), width, height, channels);
@@ -48,9 +48,13 @@ export class Trainer {
 			const nextQPreds = this.targetNetwork.apply(nextStateTensor, {training: false});
 
 			const maxNextQPreds = nextQPreds.mul(onlineActions.oneHot(orders.length)).sum(-1);
-			const maxQTargets = rewardTensor.add(maxNextQPreds.mul(doneMask).mul(gamma))
+			const maxQTargets = rewardTensor.add(maxNextQPreds.mul(doneMask).mul(gamma));
 
-			return tf.losses.meanSquaredError(maxQTargets, qs);
+			if (this.replayMemory.type === 'prioritized') {
+				this.replayMemory.updatePriorities(indeces, maxQTargets.sub(qs).abs().dataSync());
+			}
+
+			return tf.losses.meanSquaredError(qs, maxQTargets);
 		});
 
 		// Calculate the gradients of the loss function with repsect to the weights

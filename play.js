@@ -147,7 +147,7 @@ async function play() {
 		}
 
 
-		if (replayMemory.length === replayBufferSize) {
+		if (replayMemory.length === replayMemory.maxLen) {
 			if (vpAveragerBuffer === null) {
 				vpAveragerBuffer = new MovingAverager(config.rewardAveragerBufferLength);
 			}
@@ -172,7 +172,7 @@ async function play() {
 				}
 			}
 
-			console.log(`averageVP$Best: ${averageVPBest}, lastAverageLen: ${vpAverager.length}`)
+			console.log(`averageVP$Best: ${averageVPBest}, lastAverageLen: ${vpAverager.length}, vpAveragerBufferLength: ${vpAveragerBuffer.length}, vpAveragerBufferLength2: ${vpAveragerBuffer.buffer.length}`)
 			console.time('updateMemory');
 
 			if (averageVPBest >= cumulativeRewardThreshold || frameCount > framesThreshold ) {
