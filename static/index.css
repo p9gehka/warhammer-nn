@@ -38,7 +38,9 @@ body {
 .info-cell {
 	background: aqua;
 }
-
+.player-model-cell {
+	background: red;
+}
 .player-0 {
 	background: rgba(255, 0, 0, 0.2);
 }
@@ -68,6 +70,10 @@ body {
 .table {
 	width: 900px;
 	font-size: 5px;
+}
+
+.memory .table {
+	font-size: 6px;
 }
 
 .units-strip {

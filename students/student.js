@@ -1,23 +1,21 @@
 import { getRandomInteger } from '../static/utils/index.js';
 import { eq, sub, len, div } from '../static/utils/vec2.js';
-import { Channel2Name } from '../static/environment/nn-input.js';
+import { Channel2Name, Channel3Name } from '../static/environment/nn-input.js';
 import { PlayerAgent } from '../static/players/player-agent.js';
 import { BaseAction } from '../static/environment/warhammer.js';
 import { deployment } from '../static/battlefield/deployment.js';
 
 export class StudentAgent extends PlayerAgent {
-	playTrainStep() {
+	playTrainStep(epsilon) {
 		const prevState = this.env.getState();
 		let orderIndex;
 		let estimate = 0;
-		const input = this.agent.getInput(prevState);
+		const input = this.agent.getInput(prevState, this.getState());
 
-		if (Math.random() < this.epsilon) {
-			orderIndex = getRandomInteger(0, this.agent.orders.length);
-		} else if (input[Channel2Name.ObjectiveMarker].some(pos => eq(pos, input[0][0])) && Math.random() < this.epsilon) {
-			orderIndex = 0;
+		if (Math.random() < epsilon) {
+			orderIndex = this.agent.getRandomAvailableOrderIndex(prevState, this.getState());
 		} else {
-			let { orderIndex: stepOrderIndex, estimate } = this.agent.playStep(prevState);
+			let { orderIndex: stepOrderIndex, estimate } = this.agent.playStep(prevState, this.getState());
 			orderIndex = stepOrderIndex;
 		}
 
@@ -25,7 +23,7 @@ export class StudentAgent extends PlayerAgent {
 
 		let [order_, state] = this.step(order);
 
-		return [order_, state, { index: orderIndex, estimate: estimate.toFixed(3) }];
+		return [order_, state, { orderIndex, estimate: estimate.toFixed(3) }];
 	}
 }
 
@@ -50,7 +48,7 @@ export class Student {
 		this.player = new StudentAgent(playerId, env);
 
 		this.setOnlineNetwork(nn);
-		this.rewarder = new Rewarder(this.playerId, this.env);
+		this.rewarder = new Rewarder(this.env, this.player);
 	}
 	setOnlineNetwork(nn) {
 		this.player.agent.onlineNetwork = nn;
@@ -68,14 +66,14 @@ export class Student {
 			this.epsilonFinal :
 			this.epsilonInit + this.epsilonIncrement_ * this.frameCount;
 		const prevState = this.env.getState();
-		const input = this.player.agent.getInput(prevState);
+		const input = this.player.agent.getInput(prevState, this.player.getState());
 
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {
 			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
 			this.replayMemory?.append([...this.prevMemoryState, reward, false, input]);
 		}
-		const result = this.player.playTrainStep();
-		this.prevMemoryState = [input, result[2].index];
+		const result = this.player.playTrainStep(this.epsilon);
+		this.prevMemoryState = [input, result[2].orderIndex];
 		this.prevState = prevState;
 		return result;
 	}
@@ -85,31 +83,46 @@ export class Student {
 		this.rewarder.reset();
 		this.player.reset();
 	}
+
+	awarding() {
+		if (this.prevMemoryState !== null && this.prevState !== undefined) {
+			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
+			this.replayMemory?.append([...this.prevMemoryState, reward, true, null]);
+		}
+	}
 }
 
 export class Rewarder {
-	constructor(playerId, env) {
+	constructor(env, player) {
 		this.env = env;
-		this.playerId = playerId;
+		this.player = player;
+		this.playerId = player.playerId;
 		this.cumulativeReward = 0;
 		this.primaryVP = 0;
+		this.initialGamma = 0.99;
+		this.gamma = this.initialGamma;
 	}
 	step(prevState, order, epsilon) {
-		let reward = 0;
+		let reward = -0.5;
+
 		const state = this.env.getState();
 
 		const { primaryVP } = state.players[this.playerId];
 		reward += this.primaryReward(order, primaryVP);
 		reward += this.epsilonReward(prevState, order, epsilon);
-		this.cumulativeReward += reward;
+		this.cumulativeReward += (reward * this.gamma);
+		this.gamma = this.gamma * this.initialGamma;
 		return reward;
 	}
 	epsilonReward(prevState, order, epsilon) {
 		let reward = 0;
+
 		if (order.action === BaseAction.Move) {
 			const state = this.env.getState();
-			const initialPosititon = prevState.models[this.playerId];
-			const currentPosition = state.models[this.playerId];
+			const playerState = this.player.getState();
+			const selected = state.players[this.playerId].models[playerState.selected];
+			const initialPosititon = sub(state.models[selected], order.vector);
+			const currentPosition = state.models[selected];
 
 			const center = div(state.battlefield.size, 2);
 			const currentPositionDelta = len(sub(center, sub(currentPosition, center).map(Math.abs)));
@@ -131,5 +144,6 @@ export class Rewarder {
 	reset() {
 		this.primaryVP = 0;
 		this.cumulativeReward = 0;
+		this.gamma = this.initialGamma;
 	}
 }

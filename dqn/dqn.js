@@ -17,7 +17,7 @@
 import { getTF } from '../static/utils/get-tf.js';
 const tf = await getTF();
 
-export function createDeepQNetwork(numActions, h, w, c) {
+export function createDeepQNetwork(numActions, h, w, c, { addSoftmaxLayer } = { addSoftmaxLayer: false}) {
 	if (!(Number.isInteger(h) && h > 0)) {
 		throw new Error(`Expected height to be a positive integer, but got ${h}`);
 	}
@@ -29,17 +29,25 @@ export function createDeepQNetwork(numActions, h, w, c) {
 				`Expected numActions to be a integer greater than 1, ` +
 				`but got ${numActions}`);
 	}
+	const totalRounds = 5
 	const inputShape = [h, w, c];
-	const model = tf.sequential();
-	model.add(tf.layers.conv2d({filters: 8, kernelSize: 6, activation: 'relu', inputShape }));
-	model.add(tf.layers.batchNormalization());
-	model.add(tf.layers.conv2d({filters: 16, kernelSize: 4, activation: 'relu'}));
-	model.add(tf.layers.batchNormalization());
-	model.add(tf.layers.conv2d({filters: 16, kernelSize: 4, activation: 'relu' }));
-	model.add(tf.layers.flatten());
-	model.add(tf.layers.dense({units: 512, activation: 'relu'}));
-	model.add(tf.layers.dropout({rate: 0.4}));
-	model.add(tf.layers.dense({units: numActions}));
+	const inputConv2d = tf.input({shape: inputShape});
+	const inputDense = tf.input({shape: [totalRounds]});
+	let conv2d = tf.layers.conv2d({ filters: 16, kernelSize: 4, activation: 'relu'}).apply(inputConv2d);
+	conv2d = tf.layers.conv2d({ filters: 24, kernelSize: 4, activation: 'relu' }).apply(conv2d);
+	conv2d = tf.layers.conv2d({ filters: 24, kernelSize: 4, activation: 'relu' }).apply(conv2d);
+	conv2d = tf.layers.conv2d({ filters: 24, kernelSize: 4, activation: 'relu' }).apply(conv2d);
+	let conv2dOut = tf.layers.flatten().apply(conv2d);
+	const concatinate = tf.layers.concatenate().apply([conv2dOut, inputDense]);
+	let mlp = tf.layers.dense({units: 768, activation: 'relu'}).apply(concatinate);
+	mlp = tf.layers.dropout({ rate: 0.5 }).apply(mlp);
+	let output = tf.layers.dense({units: numActions}).apply(mlp);
+
+	if (addSoftmaxLayer) {
+		output = tf.layers.softmax().apply(output)
+	}
+	const model = tf.model({ inputs: [inputConv2d, inputDense], outputs: output });
+
 	return model;
 }
 
@@ -61,7 +69,11 @@ export function copyWeights(destNetwork, srcNetwork) {
     destNetwork.trainable = srcNetwork.trainable;
   }
 
-  destNetwork.setWeights(srcNetwork.getWeights());
+  srcNetwork.layers.forEach((layer, i) => {
+    if (destNetwork.layers[i] !== undefined) {
+      destNetwork.layers[i].setWeights(layer.getWeights())
+    }
+  });
 
   // Weight orders are inconsistent when the trainable attribute doesn't
   // match between two `LayersModel`s. The following is a workaround.

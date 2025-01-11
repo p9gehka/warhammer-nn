@@ -6,9 +6,9 @@ export const PlayerAction = {
 	...BaseAction,
 }
 
-
+export { moveOrders };
 export const playerOrders = [...moveOrders];
-/*
-Array(50).fill().map((_, id) => {
+
+Array(4).fill(0).map((_, id) => {
 	playerOrders.push({ action: PlayerAction.Select, id });
-});*/
+});

@@ -4,6 +4,7 @@ import shelljs from 'shelljs';
 
 import { Warhammer } from './static/environment/warhammer.js';
 import { PlayerDumb } from './static/players/player-dumb.js';
+import { PlayerEasy } from './static/players/player-easy.js';
 import { ReplayMemoryClient } from './replay-memory/replay-memory-client.js';
 import { sendDataToTelegram, sendMessage, memoryUsage } from './visualization/utils.js';
 import { MovingAverager } from './moving-averager.js';
@@ -18,7 +19,7 @@ import config from './config.json' assert { type: 'json' };
 
 const savePath = './models/play-dqn/';
 
-const { cumulativeRewardThreshold, sendMessageEveryFrames, replayBufferSize, replayMemorySize, epsilonDecayFrames, framesThreshold } = config;
+const { cumulativeRewardThreshold, sendMessageEveryFrames, replayBufferSize, replayMemorySize, epsilonDecayFrames, framesThreshold, epsilonInit } = config;
 
 const rewardAveragerLen = 200;
 
@@ -44,7 +45,7 @@ async function play() {
 	const env = new Warhammer({ gameSettings, battlefields });
 
 	const replayMemory = new ReplayMemoryClient(replayBufferSize);
-	const players = [new Student(0, env, { replayMemory, epsilonDecayFrames: config.epsilonDecayFrames }), new Student(1, env, { replayMemory, epsilonDecayFrames: config.epsilonDecayFrames })];
+	const players = [new Student(0, env, { replayMemory, epsilonDecayFrames: config.epsilonDecayFrames, epsilonInit }), new PlayerEasy(1, env)];
 
 	async function tryUpdateModel() {
 		try {
@@ -53,7 +54,6 @@ async function play() {
 			console.log(`Load model from ${config.loadPath} success`);
 			players[0].getOnlineNetwork()?.dispose();
 			players[0].setOnlineNetwork(nn);
-			players[1].setOnlineNetwork(nn);
 		} catch(e) {
 			console.log(e.message)
 			console.log(`Load model from ${config.loadPath} faile`);
@@ -79,6 +79,11 @@ async function play() {
 		state = env.getState();
 
 		if (state.done) {
+			players.forEach(agent => { 
+				if (agent.awarding) {
+					agent.awarding();
+				}
+			});
 			const currentFrameCount = frameCount - frameCountPrev; 
 			const currentT = new Date().getTime();
 			const framesPerSecond = currentFrameCount / (currentT - t) * 1e3;
@@ -142,7 +147,7 @@ async function play() {
 		}
 
 
-		if (replayMemory.length === replayBufferSize) {
+		if (replayMemory.length === replayMemory.maxLen) {
 			if (vpAveragerBuffer === null) {
 				vpAveragerBuffer = new MovingAverager(config.rewardAveragerBufferLength);
 			}
@@ -167,7 +172,7 @@ async function play() {
 				}
 			}
 
-			console.log(`averageVP$Best: ${averageVPBest}, lastAverageLen: ${vpAverager.length}`)
+			console.log(`averageVP$Best: ${averageVPBest}, lastAverageLen: ${vpAverager.length}, vpAveragerBufferLength: ${vpAveragerBuffer.length}, vpAveragerBufferLength2: ${vpAveragerBuffer.buffer.length}`)
 			console.time('updateMemory');
 
 			if (averageVPBest >= cumulativeRewardThreshold || frameCount > framesThreshold ) {

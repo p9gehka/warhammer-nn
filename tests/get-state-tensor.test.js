@@ -1,13 +1,12 @@
-import { emptyInput } from '../static/environment/nn-input.js';
-import { getStateTensor } from '../static/utils/get-state-tensor.js';
 import { Warhammer } from '../static/environment/warhammer.js';
-import { PlayerEnvironment } from '../static/environment/player-environment.js';
+import { emptyInput } from '../static/environment/nn-input.js';
+import battlefields from './mock/battlefields.json' assert { type: 'json' };
+import gameSettings from './mock/game-settings.json' assert { type: 'json' };
 
 describe('get state tensor', () => {
 	it('state tensor test', () => {
 		const input = emptyInput();
-		const env = new Warhammer();
-		const player = new PlayerEnvironment(0, env);
+		const env = new Warhammer({ battlefields, gameSettings});
 		const ch = 'Stamina';
 		input[ch].push([0, 0]);
 		const stateTensor = getStateTensor([input], 5, 5, player.channels);

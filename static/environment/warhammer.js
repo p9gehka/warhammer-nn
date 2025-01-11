@@ -25,7 +25,7 @@ class Model {
 		this.playerId = unit.playerId;
 		this.unitProfile = {
 			"m": parseInt(profile.M),
-			"oc": parseInt(profile.OC),
+			"oc": Number(profile.OC),
 		};
 
 		this.stamina = 0;
@@ -66,9 +66,9 @@ export class Warhammer {
 	models = [];
 	phase = Phase.Movement;
 	turn = 0;
-	started = false;
 	objectiveControlReward = 5;
 	totalRounds = 5;
+	lastMovedModelId = null;
 	constructor(config) {
 		this.missions = [
 			new MissionController('TakeAndHold', 'ChillingRain'),
@@ -84,7 +84,6 @@ export class Warhammer {
 
 		this.phase = Phase.Movement;
 		this.turn = 0;
-		this.started = false;
 		let unitCounter = 0;
 
 		const units = this.gameSettings.units.map(
@@ -102,12 +101,14 @@ export class Warhammer {
 
 		const usedPosition = [];
 		this.models = this.units.map((unit, unitId) => {
+			let lastPosition = null;
 			return unit.models.map(id => {
 				if (this.gameSettings.models.length !== 0 && this.gameSettings.models[id] !== undefined && this.gameSettings.models[id] !== null) {
 					return new Model(id, unit, this.gameSettings.models[id], this.gameSettings.modelProfiles[id]);
 				}
-				usedPosition.push(this.getRandomStartPosition(usedPosition));
-				return new Model(id, unit, usedPosition.at(-1), this.gameSettings.modelProfiles[id]);
+				usedPosition.push(this.getRandomStartPosition(usedPosition, lastPosition));
+				lastPosition = usedPosition.at(-1);
+				return new Model(id, unit, lastPosition, this.gameSettings.modelProfiles[id]);
 			});
 		}).flat();
 
@@ -119,22 +120,26 @@ export class Warhammer {
 		});
 		return this.getState();
 	}
-	getRandomStartPosition(exclude) {
+	getRandomStartPosition(exclude, lastPosition) {
+		let tries = 0;
 		while(true) {
-			let x1 = getRandomInteger(0, this.battlefield.size[0]);
-			let y1 = getRandomInteger(0, this.battlefield.size[1]);
-			if (!exclude.some(pos => eq([x1, y1], pos))) {
-				return [x1, y1];
+			let x, y;
+			if (lastPosition === null) {
+				x = getRandomInteger(0, this.battlefield.size[0]);
+				y = getRandomInteger(0, this.battlefield.size[1]);
+			} else {
+				const padding = Math.floor(tries / 4)
+				x = lastPosition[0] + getRandomInteger(0, 6 + padding) - (3 + Math.floor(padding/2));
+				y = lastPosition[1] + getRandomInteger(0, 6 + padding) - (3 + Math.floor(padding/2));
 			}
+			if (!exclude.some(pos => eq([x, y], pos)) && 0 <= x && x < this.battlefield.size[0] && 0 <= y && y < this.battlefield.size[1]) {
+				return [x, y];
+			}
+			tries++;
 		}
 	}
 
 	step(order) {
-		if (!this.started) {
-			this.started = true;
-			this.players[0].primaryVP += this.scorePrimaryVP();
-		}
-
 		if (this.done()) {
 			return this.getState();
 		}
@@ -143,6 +148,7 @@ export class Warhammer {
 			this.missions[this.getPlayer()].startTurn(this.getState(), this.models.map(m => m.unitProfile));
 			this.players[this.getPlayer()].primaryVP += this.scorePrimaryVP();
 
+			this.lastMovedModelId = null;
 			this.models.forEach(model => model.updateAvailableToMove(false));
 
 			if (this.phase === phaseOrd.at(-1)) {
@@ -167,6 +173,11 @@ export class Warhammer {
 		const model = this.models[order.id];
 
 		if (order.action === BaseAction.Move && model !== undefined) {
+			if (this.lastMovedModelId !== null && this.lastMovedModelId !== order.id) {
+				this.models[this.lastMovedModelId].updateAvailableToMove(false);
+			}
+			this.lastMovedModelId = order.id;
+
 			let vectorToMove = order.vector;
 			if (order.expense > model.stamina) {
 				vectorToMove = [0, 0];
@@ -174,8 +185,12 @@ export class Warhammer {
 			model.decreaseStamina(order.expense);
 			const newPosition = add(model.position, vectorToMove);
 			const [x, y] = newPosition;
+
 			if(0 <= x && x < this.battlefield.size[0] && 0 <= y && y < this.battlefield.size[1]) {
-				model.update(newPosition);
+				const newPositionBusy = this.models.some(model => model.playerId === this.getPlayer() && eq(model.position, newPosition));
+				if (!newPositionBusy) {
+					model.update(newPosition);
+				}
 			}
 		}
 

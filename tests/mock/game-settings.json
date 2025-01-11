@@ -1,13 +1,36 @@
 {
+	"modelNames": ["Cadre Fireblade", "Ethereal", "Cadre Fireblade", "Ethereal",  "Cadre Fireblade", "Ethereal"],
+	"modelProfiles": [
+		{"M": "8\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "0.5"},
+		{"M": "8\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "0.5"},
+		{"M": "8\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "0.5"},
+		{"M": "8\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "0.5"},
+		{"M": "8\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "0.5"},
+		{"M": "8\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "0.5"},
+		{"M": "8\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "0.5"},
+		{"M": "8\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "0.5"},
+		{"M": "8\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "0.5"},
+		{"M": "8\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "0.5"},
+		{"M": "8\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "0.5"},
+		{"M": "8\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "0.5"}
+	],
+	"models": [],
 	"units": [
 		[
-			{ "name": "test_strike_team", "models": [0] }
+			{ "name": "stealth battlesuits", "models": [0] },
+			{ "name": "stealth battlesuits", "models": [1] },
+			{ "name": "stealth battlesuits", "models": [2] },
+			{ "name": "stealth battlesuits", "models": [3] },
+			{ "name": "stealth battlesuits", "models": [4] },
+			{ "name": "stealth battlesuits", "models": [5] }
 		],
 		[
-			{ "name": "strike_team", "models": [1] }
+			{ "name": "stealth battlesuits", "models": [6] },
+			{ "name": "stealth battlesuits", "models": [7] },
+			{ "name": "stealth battlesuits", "models": [8] },
+			{ "name": "stealth battlesuits", "models": [9] },
+			{ "name": "stealth battlesuits", "models": [10] },
+			{ "name": "stealth battlesuits", "models": [11] }
 		]
-	],
-	"models": [[11, 8], [0, 0]],
-	"primary_objective": "take_and_hold",
-	"objective_marker_control_distance": 3
+	]
 }
