@@ -15,6 +15,7 @@ import { roster2settings } from './utils/roster2settings.js';
 import { Mission } from './environment/mission.js';
 import { DiceTray } from './players/dice.js';
 import { getArmyRulesRenderer } from './army-rules/army-rules-renderer.js'
+import { updateTable } from './gui/update-table.js';
 import avatars from '../settings/avatars.json' assert { type: 'json' };
 import gameSettings from './settings/game-settings.json' assert { type: 'json' };
 import allBattlefields from './settings/battlefields.json' assert { type: 'json' };
@@ -72,26 +73,6 @@ function updateHeader(state) {
 	headerInfo.classList.toggle('player0', state.player === 0);
 	headerInfo.classList.toggle('player1', state.player === 1);
 	headerInfo.innerHTML = `Round: ${state.round}, Phase: ${phaseName}`;
-}
-
-function updateTable(state) {
-	const data = getStateTensor([getInput(state, { selected: game.getSelectedModel()})], ...state.battlefield.size, channels)[0].arraySync();
-	const fragment = new DocumentFragment();
-	const nextline = Math.floor(Math.sqrt(data[0][0][0].length));
-	for(let row of data[0]) {
-		const rowEl = document.createElement('TR');
-		for (let cell of row) {
-			const cellEl = document.createElement('TD');
-			cellEl.innerHTML = cell.map((v, i) => v.toFixed(1) + ((i === nextline) ? '\n' : ',')).join('');
-			rowEl.appendChild(cellEl);
-			if (cell.some(v => v !== 0)) {
-				cellEl.classList.add('info-cell');
-			}
-		}
-		fragment.appendChild(rowEl);
-	}
-	table.innerHTML = '';
-	table.appendChild(fragment);
 }
 
 function updateUnitsStrip(state) {
@@ -286,7 +267,7 @@ game.onUpdateDiceHistory = (diceInfo) => {
 }
 
 game.onUpdate = (state) => {
-	updateTable(state);
+	updateTable(state.battlefield.size, getInput(state, { selected: game.getSelectedModel()}), table);
 	updateHeader(state);
 	updateUnitsStrip(state);
 	updateSecondaryMission(state);
