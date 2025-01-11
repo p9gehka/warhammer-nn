@@ -41,6 +41,16 @@ body {
 	background: aqua;
 }
 
+.player-model-cell {
+	background: red;
+}
+.opponent-model-cell {
+	background: blue;
+}
+.object-cell {
+	background: sandybrown;
+}
+
 .player-0, .player-1 {
 	position: relative;
 }
