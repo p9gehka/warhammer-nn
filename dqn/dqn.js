@@ -31,14 +31,14 @@ export function createDeepQNetwork(numActions, h, w, c) {
 	}
 	const inputShape = [h, w, c];
 	const model = tf.sequential();
-	model.add(tf.layers.conv2d({filters: 8, kernelSize: 6, activation: 'relu', inputShape }));
+	model.add(tf.layers.conv2d({filters: 12, kernelSize: 4, activation: 'relu', inputShape }));
 	model.add(tf.layers.batchNormalization());
-	model.add(tf.layers.conv2d({filters: 16, kernelSize: 4, activation: 'relu'}));
-	model.add(tf.layers.batchNormalization());
-	model.add(tf.layers.conv2d({filters: 16, kernelSize: 4, activation: 'relu' }));
+	model.add(tf.layers.conv2d({filters: 20, kernelSize: 4, activation: 'relu'}));
+	model.add(tf.layers.conv2d({filters: 20, kernelSize: 4, activation: 'relu' }));
+	model.add(tf.layers.conv2d({filters: 20, kernelSize: 4, activation: 'relu' }));
 	model.add(tf.layers.flatten());
-	model.add(tf.layers.dense({units: 512, activation: 'relu'}));
-	model.add(tf.layers.dropout({rate: 0.4}));
+	model.add(tf.layers.dense({units: 768, activation: 'relu'}));
+	model.add(tf.layers.dropout({rate: 0.5}));
 	model.add(tf.layers.dense({units: numActions}));
 	return model;
 }
