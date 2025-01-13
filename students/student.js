@@ -91,6 +91,8 @@ export class Rewarder {
 		this.playerId = playerId;
 		this.cumulativeReward = 0;
 		this.primaryVP = 0;
+		this.initialGamma = 0.99;
+		this.gamma = this.initialGamma;
 	}
 	step(prevState, order, epsilon) {
 		let reward = 0;
@@ -99,7 +101,8 @@ export class Rewarder {
 		const { primaryVP } = state.players[this.playerId];
 		reward += this.primaryReward(order, primaryVP);
 		reward += this.epsilonReward(prevState, order, epsilon);
-		this.cumulativeReward += reward;
+		this.cumulativeReward += (reward * this.gamma);
+		this.gamma = this.gamma * this.initialGamma;
 		return reward;
 	}
 	epsilonReward(prevState, order, epsilon) {
@@ -129,5 +132,6 @@ export class Rewarder {
 	reset() {
 		this.primaryVP = 0;
 		this.cumulativeReward = 0;
+		this.gamma = this.initialGamma;
 	}
 }
