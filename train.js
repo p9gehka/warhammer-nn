@@ -31,6 +31,7 @@ async function train(nn) {
 			console.log('Sync\'ed weights from online network to target network');
 		}
 		trainer.trainOnReplayBatch(config.batchSize, gamma, optimizer);
+		console.log(`epoch: ${epoch}`);
 		if (epoch % config.updateClientMemoryEveryEpoch === 0) {
 			if (!fs.existsSync(config.savePath)) {
 				shelljs.mkdir('-p', config.savePath);
