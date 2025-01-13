@@ -3,11 +3,12 @@
 	"loadPath": "",
 	"savePath": "",
 
-	"syncEveryEpoch": 1e2,
-	"saveEveryEpoch": 1e2,
-	"learningRate": 1e-3,
-	"repeatBatchTraining": 5,
-	"batchSize": 64,
+	"syncEveryEpoch": 1000,
+	"saveEveryEpoch": 230,
+	"updateClientMemoryEveryEpoch": 230,
+	"learningRate": 13e-5,
+	"repeatBatchTraining": 1,
+	"batchSize": 128,
 	"gamma": 0.99,
 
 	"cumulativeRewardThreshold": 4,
