@@ -6,16 +6,14 @@ import { BaseAction } from '../static/environment/warhammer.js';
 import { deployment } from '../static/battlefield/deployment.js';
 
 export class StudentAgent extends PlayerAgent {
-	playTrainStep() {
+	playTrainStep(epsilon) {
 		const prevState = this.env.getState();
 		let orderIndex;
 		let estimate = 0;
 		const input = this.agent.getInput(prevState);
 
-		if (Math.random() < this.epsilon) {
+		if (Math.random() < epsilon) {
 			orderIndex = getRandomInteger(0, this.agent.orders.length);
-		} else if (input[Channel2Name.ObjectiveMarker].some(pos => eq(pos, input[0][0])) && Math.random() < this.epsilon) {
-			orderIndex = 0;
 		} else {
 			let { orderIndex: stepOrderIndex, estimate } = this.agent.playStep(prevState);
 			orderIndex = stepOrderIndex;
@@ -74,7 +72,7 @@ export class Student {
 			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
 			this.replayMemory?.append([...this.prevMemoryState, reward, false, input]);
 		}
-		const result = this.player.playTrainStep();
+		const result = this.player.playTrainStep(this.epsilon);
 		this.prevMemoryState = [input, result[2].index];
 		this.prevState = prevState;
 		return result;
@@ -116,13 +114,13 @@ export class Rewarder {
 			const initialPosititonDelta = len(sub(center, sub(initialPosititon, center).map(Math.abs)));
 			reward += (currentPositionDelta - initialPosititonDelta);
 		}
-		return reward * epsilon;
+		return reward * epsilon * 0;
 	}
 
 	primaryReward(order, primaryVP) {
 		let reward = 0;
 		if (order.action === BaseAction.NextPhase) {
-			reward += (primaryVP - this.primaryVP) * 5;
+			reward += (primaryVP - this.primaryVP);
 			this.primaryVP = primaryVP;
 		}
 		return reward;

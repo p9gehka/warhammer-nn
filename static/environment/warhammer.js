@@ -130,11 +130,6 @@ export class Warhammer {
 	}
 
 	step(order) {
-		if (!this.started) {
-			this.started = true;
-			this.players[0].primaryVP += this.scorePrimaryVP();
-		}
-
 		if (this.done()) {
 			return this.getState();
 		}
