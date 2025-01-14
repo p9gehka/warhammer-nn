@@ -19,12 +19,14 @@ export class Trainer {
 			modelTopology: this.onlineNetwork.toJSON(null, false)
 		});
 		this.copyWeights();
+		this.targetNetwork.trainable = false;
 	}
 	copyWeights() {
 		copyWeights(this.targetNetwork, this.onlineNetwork);
 	}
 	trainOnReplayBatch(batchSize, gamma, optimizer) {
 		// Get a batch of examples from the replay buffer.
+		this.createTargetNetwork();
 		const { width, height, orders, channels } = this.game;
 		if (this.replayMemory === null) {
 			throw new Error(`trainOnReplayBatch without replayMemory`);
@@ -40,7 +42,7 @@ export class Trainer {
 			const rewardTensor = tf.tensor1d(batch.map(example => example[2]));
 			const nextStateTensor = getStateTensor(batch.map(example => example[4]), width, height, channels);
 
-			const nextMaxQTensor = this.onlineNetwork.apply(nextStateTensor, {training: false}).max(-1);
+			const nextMaxQTensor = this.targetNetwork.apply(nextStateTensor, {training: false}).max(-1);
 			const doneMask = tf.scalar(1).sub(
 				tf.tensor1d(batch.map(example => example[3])).asType('float32'));
 			const targetQs = rewardTensor.add(nextMaxQTensor.mul(doneMask).mul(gamma));
