@@ -26,9 +26,10 @@ async function train(nn) {
 	let epoch = 0;
 
 	while (true) {
+
 		if (epoch % config.syncEveryEpoch === 0) { /* sync не произойдет */
-			trainer.copyWeights();
-			console.log('Sync\'ed weights from online network to target network');
+			//trainer.copyWeights();
+			//console.log('Sync\'ed weights from online network to target network');
 		}
 		trainer.trainOnReplayBatch(config.batchSize, gamma, optimizer);
 		console.log(`epoch: ${epoch}`);
