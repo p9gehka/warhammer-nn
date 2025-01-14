@@ -1,7 +1,7 @@
 {
 	"clashOfPatrols": {
-		"size": [30, 30],
-		"deployment": "medium30_2",
+		"size": [44, 30],
+		"deployment": "clashOfPatrols",
 		"primary_mission": "take_and_hold"
 	}
 }
