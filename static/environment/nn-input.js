@@ -71,5 +71,6 @@ export function getInput(state) {
 			}
 		});
 	});
+	input.round = state.round;
 	return input;
 }
