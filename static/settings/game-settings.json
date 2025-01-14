@@ -1,8 +1,8 @@
 {
 	"modelNames": ["Stealth Shas'ui w/ burst cannon", "Stealth Shas'ui w/ burst cannon"],
-	"modelProfiles": [{ "M":  "6\"", "OC": "1"}, { "M":  "6\"", "OC": "1"}],
+	"modelProfiles": [{ "M":  "8\"", "OC": "1"}, { "M":  "8\"", "OC": "1"}],
 	"models": [null, null],
-	"unitProfiles": [{ "M":  "6\"", "OC": "1"}, { "M":  "6\"", "OC": "1"}],
+	"unitProfiles": [{ "M":  "8\"", "OC": "1"}, { "M":  "8\"", "OC": "1"}],
 	"units": [
 		[{
 			"models": [0],

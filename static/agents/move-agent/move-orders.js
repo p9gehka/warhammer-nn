@@ -2,7 +2,7 @@ import { angleToVec2, round, add } from '../../utils/vec2.js';
 import { BaseAction } from '../../environment/warhammer.js';
 
 /* `←``↑``→``↓``↖``↗``↘``↙`*/
-const distances = [6];
+const distances = [1, 6];
 const distancesDiagonal = [1, 2, 4];
 const distancesDiagonalExpense = [2, 3, 6];
 const angles = [0, 90, 180, 270];
