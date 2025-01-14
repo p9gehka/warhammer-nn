@@ -26,7 +26,7 @@ export class Trainer {
 	}
 	trainOnReplayBatch(batchSize, gamma, optimizer) {
 		// Get a batch of examples from the replay buffer.
-		this.createTargetNetwork();
+		this.copyWeights();
 		const { width, height, orders, channels } = this.game;
 		if (this.replayMemory === null) {
 			throw new Error(`trainOnReplayBatch without replayMemory`);
