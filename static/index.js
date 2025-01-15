@@ -14,7 +14,11 @@ const vpPlayer2Element = document.getElementById('player-2-vp');
 
 ctx.scale(canvas.width / 60, canvas.height / 44);
 
-const model = await tf.loadLayersModel(`/agents/move-agent/.model44x30x3/model.json`);
+let model;
+try {
+	model = await tf.loadLayersModel(`/agents/move-agent/.model44x30x4/model.json`);
+} catch (e) {}
+
 const battlefield = new Battlefield(ctx, { size: [0, 0], objective_marker: [], ruins: [] });
 await battlefield.init();
 battlefield.draw();
@@ -38,7 +42,7 @@ async function start () {
 
 	let lastRound = 1;
 	let prevPlayer = 'player-0';
-	actionAndStates.forEach(([prevState, order, state, nnInfo, reward], i) => {
+	actionAndStates.forEach(([prevState, playerState, order, state, nnInfo, reward], i) => {
 		const li = document.createElement("LI");
 		li.classList.add(prevPlayer);
 		prevPlayer = state.player === 0 ? 'player-0': 'player-1';
@@ -49,7 +53,7 @@ async function start () {
 		let round = Math.floor(state.turn / 2);
 		if (lastRound !== round) {
 			const separator = document.createElement("LI");
-			separator.innerHTML = `round ${round + 1} Player1: ${state.players[0].vp} Player2: ${ state.players[1].vp}`;
+			separator.innerHTML = `round ${round + 1} Player1: ${state.players[0].primaryVP} Player2: ${ state.players[1].primaryVP}`;
 			lastRound = round;
 			historyList.appendChild(separator);
 		}
@@ -58,21 +62,25 @@ async function start () {
 
 function setState(e) {
 	if (e.target.dataset.indexNumber) {
-		const [prevState, order, state] = actionAndStates[e.target.dataset.indexNumber];
+		const [prevState, playerState, order, state] = actionAndStates[e.target.dataset.indexNumber];
 		scene.updateState(state);
 		scene.drawOrder(order);
-		updatePredictions(prevState);
+		const input = getInput(prevState, playerState);
+		updatePredictions(prevState, input);
+		updateTable(prevState.battlefield.size, input, table);
 		updateUnitsStrip(state);
 	}
 }
 
-async function updatePredictions(state) {
+async function updatePredictions(state, input) {
 	ordersList.innerHTML = '';
-	const orders = playerOrders;
-
-	const [_, height, width] = model.input.shape;
+	const orders = moveOrders;
+	if (model === undefined) {
+		return;
+	}
+	const [_, height, width] = model.input[0].shape;
 	window.tf.tidy(() => {
-		const predictions = model.predict(getStateTensor([getInput(state)], width, height, channels)).dataSync();
+		const predictions = model.predict(getStateTensor([input], width, height, channels)).dataSync();
 		orders.forEach((order, i) => {
 			const li = document.createElement("LI");
 			li.innerHTML = [JSON.stringify(order), predictions[i].toFixed(3)].join();
