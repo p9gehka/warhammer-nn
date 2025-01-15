@@ -67,7 +67,6 @@ function setState(e) {
 		scene.drawOrder(order);
 		const input = getInput(prevState, playerState);
 		updatePredictions(prevState, input);
-		updateTable(prevState.battlefield.size, input, table);
 		updateUnitsStrip(state);
 	}
 }
