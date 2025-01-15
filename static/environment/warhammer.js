@@ -69,6 +69,7 @@ export class Warhammer {
 	started = false;
 	objectiveControlReward = 5;
 	totalRounds = 5;
+	lastMovedModelId = null;
 	constructor(config) {
 		this.missions = [
 			new MissionController('TakeAndHold', 'ChillingRain'),
@@ -138,6 +139,7 @@ export class Warhammer {
 			this.missions[this.getPlayer()].startTurn(this.getState(), this.models.map(m => m.unitProfile));
 			this.players[this.getPlayer()].primaryVP += this.scorePrimaryVP();
 
+			this.lastMovedModelId = null;
 			this.models.forEach(model => model.updateAvailableToMove(false));
 
 			if (this.phase === phaseOrd.at(-1)) {
@@ -162,6 +164,10 @@ export class Warhammer {
 		const model = this.models[order.id];
 
 		if (order.action === BaseAction.Move && model !== undefined) {
+			if (this.lastMovedModelId !== null && this.lastMovedModelId !== order.id) {
+				this.models[this.lastMovedModelId].updateAvailableToMove(false);
+			}
+			this.lastMovedModelId = order.id;
 			let vectorToMove = order.vector;
 			if (order.expense > model.stamina) {
 				vectorToMove = [0, 0];
@@ -170,7 +176,10 @@ export class Warhammer {
 			const newPosition = add(model.position, vectorToMove);
 			const [x, y] = newPosition;
 			if(0 <= x && x < this.battlefield.size[0] && 0 <= y && y < this.battlefield.size[1]) {
-				model.update(newPosition);
+				const newPositionBusy = this.models.some(model => model.playerId === this.getPlayer() && eq(model.position, newPosition));
+				if (!newPositionBusy) {
+					model.update(newPosition);
+				}
 			}
 		}
 
