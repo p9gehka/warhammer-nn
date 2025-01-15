@@ -13,9 +13,9 @@ export class MoveAgent extends MoveAgentBase {
 	orders = MoveAgent.settings.orders;
 	load() {}
 
-	playStep(state) {
+	playStep(state, playerState) {
 		let orderIndex = 0;
-		const input = this.getInput(state);
+		const input = this.getInput(state, playerState);
 		//console.log(input)
 		if (input[Channel1Name.Stamina0].length > 0) {
 			orderIndex = 0;
