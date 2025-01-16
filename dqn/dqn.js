@@ -34,6 +34,7 @@ export function createDeepQNetwork(numActions, h, w, c, { addSoftmaxLayer } = { 
 	const inputConv2d = tf.input({shape: inputShape});
 	const inputDense = tf.input({shape: [totalRounds]});
 	let conv2d = tf.layers.conv2d({ filters: 12, kernelSize: 4, activation: 'relu'}).apply(inputConv2d);
+	conv2d = tf.layers.batchNormalization().apply(conv2d);
 	conv2d = tf.layers.conv2d({ filters: 20, kernelSize: 4, activation: 'relu' }).apply(conv2d);
 	conv2d = tf.layers.conv2d({ filters: 20, kernelSize: 4, activation: 'relu' }).apply(conv2d);
 	conv2d = tf.layers.conv2d({ filters: 20, kernelSize: 4, activation: 'relu' }).apply(conv2d);
