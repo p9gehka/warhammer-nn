@@ -91,7 +91,7 @@ export class Rewarder {
 		this.playerId = playerId;
 		this.cumulativeReward = 0;
 		this.primaryVP = 0;
-		this.initialGamma = 0.9;
+		this.initialGamma = 0.99;
 		this.gamma = this.initialGamma;
 	}
 	step(prevState, order, epsilon) {
