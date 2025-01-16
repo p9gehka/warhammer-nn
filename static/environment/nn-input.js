@@ -5,17 +5,19 @@ import { terrain } from  '../battlefield/terrain.js';
 import { Triangle } from '../utils/planimatrics/triangle.js';
 
 //{ Empty: 0 }
+const maxModels = 6;
 export const Channel0 = {};
-new Array(17).fill(0).forEach((_, v) => { Channel0[`PlayerModel${v}`] = 1 });
+new Array(maxModels).fill(0).forEach((_, v) => { Channel0[`PlayerModel${v}`] = 1 });
 export const Channel1 = {};
 
-[0,1,2,3,4,5,6,7,8,9,10].forEach(v => { Channel1[`Stamina${v}`] = v / 10; });
+const maxStaminaValue = 10
+Array(maxStaminaValue).fill(0).forEach(v => { Channel1[`Stamina${v}`] = v / maxStaminaValue; });
 
 export const Channel2 = {};
 [1,2,3,4,5].forEach(v => { Channel2[`ObjectiveMarker${v}`] = v/5 })
 export const Channel3 = {};
 
-const maxModelsAtOrder = 10;
+const maxModelsAtOrder = 3;
 new Array(maxModelsAtOrder).fill(0).forEach((_, v) => { Channel3[`Order${v}`] = (v + 1) / maxModelsAtOrder; });
 
 export const Channel4 = {};
@@ -99,22 +101,36 @@ export function getInput(state, playerState) {
 	input[ChannelTerrainName.Footprint] = terrainMemoized[terrainMemoKey];
 
 	state.players.forEach((player, playerId) => {
+		const alivePlayerModelIds = [];
+		player.models.forEach((gameModelId, playerModelId) => {
+			if (state.models[gameModelId] !== null) {
+				alivePlayerModelIds.push(playerModelId);
+			}
+		});
+		const indexOfSelected = alivePlayerModelIds.indexOf(playerState.selected)
+
 		player.models.forEach((gameModelId, playerModelId) => {
 			const xy = state.models[gameModelId];
 			if (xy === null) { return; }
-
+			const alivePlayerModelIdIndex = alivePlayerModelIds.indexOf(playerModelId);
 			let entities = [];
 
 			if (playerId === state.player) {
-				input[Channel0Name[`PlayerModel${playerModelId}`]] = [xy];
-
-				if (playerModelId >= playerState.selected) {
-					const order = Math.min(playerModelId - playerState.selected, maxModelsAtOrder - 1);
-					entities.push(Channel3Name[`Order${order}`]);
+				if (alivePlayerModelIdIndex >= indexOfSelected && (alivePlayerModelIdIndex - indexOfSelected <= maxModels)) {
+					input[Channel0Name[`PlayerModel${alivePlayerModelIdIndex - indexOfSelected}`]] = [xy];
+				} else if (alivePlayerModelIdIndex < indexOfSelected && alivePlayerModelIds.length - indexOfSelected + alivePlayerModelIdIndex <= maxModels) {
+					input[Channel0Name[`PlayerModel${alivePlayerModelIds.length - indexOfSelected + alivePlayerModelIdIndex}`]] = [xy];
+				}
+				let order = 0;
+				if (alivePlayerModelIdIndex >= indexOfSelected) {
+					order = Math.min(alivePlayerModelIdIndex - indexOfSelected, maxModelsAtOrder - 1);
+				} else {
+					order = Math.min(alivePlayerModelIds.length - indexOfSelected + alivePlayerModelIdIndex, maxModelsAtOrder - 1);
 				}
 
+				entities.push(Channel3Name[`Order${order}`]);
 				if (state.phase == Phase.Movement) {
-					const stamina = Math.min(state.modelsStamina[gameModelId], 10);
+					const stamina = Math.min(state.modelsStamina[gameModelId], maxStaminaValue);
 					entities.push(Channel1Name[`Stamina${stamina}`]);
 				}
 			} else {
