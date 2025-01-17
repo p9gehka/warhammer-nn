@@ -69,11 +69,13 @@ export class Student {
 		const input = this.player.agent.getInput(prevState, this.player.getState());
 
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {
-			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
-			this.replayMemory?.append([...this.prevMemoryState, reward, false, input]);
+			if (this.prevMemoryState[1] !== 0 || this.prevMemoryState[1] !== 0) {
+				let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
+				this.replayMemory?.append([this.prevMemoryState[0], this.prevMemoryState[1], reward, false, input]);
+			}
 		}
 		const result = this.player.playTrainStep(this.epsilon);
-		this.prevMemoryState = [input, result[2].orderIndex];
+		this.prevMemoryState = [input, result[2].orderIndex, result[2].estimate];
 		this.prevState = prevState;
 		return result;
 	}
@@ -86,8 +88,10 @@ export class Student {
 
 	awarding() {
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {
-			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
-			this.replayMemory?.append([...this.prevMemoryState, reward, true, null]);
+			if (this.prevMemoryState[1] !== 0 || this.prevMemoryState[1] !== 0) {
+				let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
+				this.replayMemory?.append([this.prevMemoryState[0], this.prevMemoryState[1], reward, true, null]);
+			}
 		}
 	}
 }
