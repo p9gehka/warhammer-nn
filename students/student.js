@@ -69,7 +69,7 @@ export class Student {
 		const input = this.player.agent.getInput(prevState, this.player.getState());
 
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {
-			if (this.prevMemoryState[1] !== 0 || this.prevMemoryState[1] !== 0) {
+			if (this.prevMemoryState[1] !== 0 || this.prevMemoryState[2] !== 0) {
 				let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
 				this.replayMemory?.append([this.prevMemoryState[0], this.prevMemoryState[1], reward, false, input]);
 			}
@@ -88,7 +88,7 @@ export class Student {
 
 	awarding() {
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {
-			if (this.prevMemoryState[1] !== 0 || this.prevMemoryState[1] !== 0) {
+			if (this.prevMemoryState[1] !== 0 || this.prevMemoryState[2] !== 0) {
 				let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
 				this.replayMemory?.append([this.prevMemoryState[0], this.prevMemoryState[1], reward, true, null]);
 			}
