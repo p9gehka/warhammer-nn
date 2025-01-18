@@ -75,7 +75,7 @@ export class Student {
 			}
 		}
 		const result = this.player.playTrainStep(this.epsilon);
-		this.prevMemoryState = [input, result[2].orderIndex, result[2].estimate]];
+		this.prevMemoryState = [input, result[2].orderIndex, result[2].estimate];
 		this.prevState = prevState;
 		return result;
 	}
