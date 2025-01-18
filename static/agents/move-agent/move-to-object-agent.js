@@ -13,9 +13,11 @@ export class MoveAgent extends MoveAgentBase {
 	orders = MoveAgent.settings.orders;
 	load() {}
 
-	playStep(state, playerState) {
+	playStep(state, playerStates) {
+		const playerState = playerStates[0];
 		const input = this.getInput(state, playerState);
-		return this.playStepByInput(input);
+		const result = this.playStepByInput(input);
+		return playerStates.map(() => result);
 	}
 
 	playStepByInput(input) {

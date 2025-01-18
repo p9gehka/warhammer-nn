@@ -2,25 +2,43 @@ import { getRandomInteger } from '../static/utils/index.js';
 import { eq, sub, len, div } from '../static/utils/vec2.js';
 import { Channel2Name } from '../static/environment/nn-input.js';
 import { PlayerAgent } from '../static/players/player-agent.js';
+import { PlayerAction } from '../static/players/player-orders.js';
 import { BaseAction } from '../static/environment/warhammer.js';
 import { deployment } from '../static/battlefield/deployment.js';
 
 export class StudentAgent extends PlayerAgent {
 	playTrainStep(epsilon) {
 		const prevState = this.env.getState();
+		const availableState = this.getAvailableStates();
+		if (availableState.length === 0) {
+			let [order_, state] = this.step({ action: BaseAction.NextPhase });
+			return [order_, state, { orderIndex: 0, estimate: 0 }];
+		}
+
 		let orderIndex;
 		let estimate = 0;
 		const input = this.agent.getInput(prevState, this.getState());
+		let maxResultIndex = 0;
 
 		if (Math.random() < epsilon) {
-			orderIndex = this.agent.getRandomAvailableOrderIndex(prevState, this.getState());
+			maxResultIndex = getRandomInteger(0, availableState.length);
+			orderIndex = this.agent.getRandomAvailableOrderIndex(prevState, availableState[maxResultIndex]);
 		} else {
-			let { orderIndex: stepOrderIndex, estimate } = this.agent.playStep(prevState, this.getState());
-			orderIndex = stepOrderIndex;
+			const results = this.agent.playStep(prevState, availableState);
+
+			availableState.forEach((result, index) => {
+				if (result.estimate > results[maxResultIndex].estimate) {
+					maxResultIndex = index;
+				}
+			});
+
+			orderIndex = results[maxResultIndex].orderIndex;
+			estimate = results[maxResultIndex].estimate;
 		}
 
 		const order = this.agent.orders[orderIndex];
 
+		this.setState(availableState[maxResultIndex]);
 		let [order_, state] = this.step(order);
 
 		return [order_, state, { orderIndex, estimate: estimate.toFixed(3) }]
@@ -69,12 +87,13 @@ export class Student {
 		const input = this.player.agent.getInput(prevState, this.player.getState());
 
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {
-			if (this.prevMemoryState[1] !== 0 || this.prevMemoryState[2] !== 0) {
+			if (this.prevMemoryState[1] !== BaseAction.NextPhase) {
 				let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
 				this.replayMemory?.append([this.prevMemoryState[0], this.prevMemoryState[1], reward, false, input]);
 			}
 		}
 		const result = this.player.playTrainStep(this.epsilon);
+
 		this.prevMemoryState = [input, result[2].orderIndex, result[2].estimate];
 		this.prevState = prevState;
 		return result;
