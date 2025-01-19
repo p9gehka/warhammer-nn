@@ -80,6 +80,9 @@ export class Student {
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {
 			if (this.prevMemoryState[1] !== 0 || this.prevMemoryState[2] !== 0) {
 				let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
+				if (reward !== 0) {
+					console.log(reward)
+				}
 				this.replayMemory?.append([this.prevMemoryState[0], this.prevMemoryState[1], reward, false, input]);
 			}
 		}
@@ -106,7 +109,7 @@ export class Rewarder {
 		this.gamma = this.initialGamma;
 	}
 	step(prevState, order, epsilon) {
-		let reward = 0;
+		let reward = 0.005;
 		const state = this.env.getState();
 
 		const { primaryVP } = state.players[this.playerId];
