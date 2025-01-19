@@ -142,11 +142,8 @@ export class Rewarder {
 	}
 
 	primaryReward(order, primaryVP) {
-		let reward = 0;
-		if (order.action === BaseAction.NextPhase) {
-			reward += (primaryVP - this.primaryVP);
-			this.primaryVP = primaryVP;
-		}
+		const reward = (primaryVP - this.primaryVP);
+		this.primaryVP = primaryVP;
 		return reward;
 	}
 
