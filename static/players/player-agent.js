@@ -69,7 +69,7 @@ export class PlayerAgent {
 
 		if (action === BaseAction.Move) {
 			playerOrder = {action, id: playerModels[this._selectedModel], vector: order.vector, expense: order.expense };
-		} else if (action === BaseAction.EndMove){
+		} else if (action === BaseAction.EndMove) {
 			playerOrder = { action: BaseAction.EndMove, id: playerModels[this._selectedModel] };
 		} else {
 			playerOrder = order;
