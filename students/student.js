@@ -108,7 +108,7 @@ export class Rewarder {
 		this.gamma = this.initialGamma;
 	}
 	step(prevState, order, epsilon) {
-		let reward = -0.005;
+		let reward = 0;
 		const state = this.env.getState();
 
 		const { primaryVP } = state.players[this.playerId];
