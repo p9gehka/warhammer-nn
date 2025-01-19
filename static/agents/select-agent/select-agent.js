@@ -8,7 +8,9 @@ export const SelectAction = {
 export class SelectAgent {
 	playStep(state, playerState) {
 		const playerModels = state.players[state.player].models;
+
 		const id = playerModels.findIndex(modelId => state.modelsStamina[modelId] > 0)
+
 		if (id === playerState.selected) {
 			return { order: { action: SelectAction.DoNothing } };
 		}

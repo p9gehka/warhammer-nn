@@ -1,27 +1,15 @@
 {
 	"modelNames": ["Stealth Shas'ui w/ burst cannon", "Stealth Shas'ui w/ burst cannon", "Stealth Shas'ui w/ burst cannon", "Stealth Shas'ui w/ burst cannon"],
-	"modelProfiles": [{ "M":  "8\"", "OC": "1"}, { "M":  "8\"", "OC": "1"}, { "M":  "8\"", "OC": "1"}, { "M":  "8\"", "OC": "1"}, { "M":  "8\"", "OC": "1"}, { "M":  "8\"", "OC": "1"}],
+	"modelProfiles": [{ "M":  "6\"", "OC": "1"}, { "M":  "6\"", "OC": "1"}, { "M":  "6\"", "OC": "1"}, { "M":  "6\"", "OC": "1"}, { "M":  "6\"", "OC": "1"}, { "M":  "6\"", "OC": "1"}],
 	"models": [null, null, null, null],
-	"unitProfiles": [{ "M":  "8\"", "OC": "1"}, { "M":  "8\"", "OC": "1"}, { "M":  "8\"", "OC": "1"}, { "M":  "8\"", "OC": "1"}],
+	"unitProfiles": [{ "M":  "6\"", "OC": "1"}, { "M":  "6\"", "OC": "1"}, { "M":  "6\"", "OC": "1"}, { "M":  "6\"", "OC": "1"}],
 	"units": [
 		[{
 			"models": [0],
 			"name": "stealth battlesuits"
-		},{
-			"models": [1],
-			"name": "stealth battlesuits"
-		},{
-			"models": [2],
-			"name": "stealth battlesuits"
 		}],
 		[{
-			"models": [3],
-			"name": "stealth battlesuits"
-		},{
-			"models": [4],
-			"name": "stealth battlesuits"
-		},{
-			"models": [5],
+			"models": [1],
 			"name": "stealth battlesuits"
 		}]
 	]
