@@ -3,6 +3,7 @@ import { moveOrders } from '../agents/move-agent/move-orders.js';
 
 export const PlayerAction = {
 	Select: 'SELECT',
+	PlayerNextPhase: 'PLAYER_NEXT_PHASE',
 	...BaseAction,
 }
 

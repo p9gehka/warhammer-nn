@@ -18,14 +18,15 @@ class RandomAgent {
 	constructor() {
 		this.orders = moveOrders;
 	}
-	playStep(state, playerState) {
+	playStep(state, playerStates) {
+		const playerState = playerStates[0];
 		const input = getInput(state, playerState);
 		const selected = input[Channel3Name.Order0][0];
 		let orderIndex = 0; 
 		if (staminaNot0(state, playerState)) {
 			orderIndex = getRandomInteger(0, this.orders.length);
 		}
-		return { order: this.orders[orderIndex], orderIndex, estimate: 0 };
+		return playerStates.map(() => ({ order: this.orders[orderIndex], orderIndex, estimate: 0 }));
 	}
 	getInput(state, playerState) {
 		return getInput(state, playerState)
@@ -40,28 +41,22 @@ export class MoveAgentBase {
 		const loadPath = staticPath + `agents/move-agent/.model${this.width}x${this.height}x${this.channels.length}/model.json`;
 		this.onlineNetwork = await tf.loadLayersModel(loadPath);
 	}
-	playStep(state, playerState) {
+	playStep(state, playerStates) {
 		if (this.onlineNetwork === undefined) {
-			return this.fillAgent.playStep(state, playerState);
+			return this.fillAgent.playStep(state, playerStates);
 		}
 		const { orders, height, width, channels } = this;
-		const input = getInput(state, playerState);
-		const selected = input[Channel3Name.Order0][0];
-		if(isNaN(selected[0])) {
-			console.log('isNan(selected[0]!!!!');
-		}
-		let orderIndex = 0;
-		let estimate = 0;
+		const inputs = playerStates.map((playerState, i) => getInput(state, playerState));
+		let orderIndexes = 0;
+		let estimates = 0;
 
-		if (staminaNot0(state, playerState)) {
-			tf.tidy(() => {
-				const inputTensor = getStateTensor([input], width, height, channels);
-				const prediction = this.onlineNetwork.predict(inputTensor);
-				estimate = prediction.max(-1).dataSync()[0];
-				orderIndex = prediction.argMax(-1).dataSync()[0];
-			});
-		}
-		return { order: this.orders[orderIndex], orderIndex, estimate };
+		tf.tidy(() => {
+			const inputTensor = getStateTensor(inputs, width, height, channels);
+			const predictions = this.onlineNetwork.predict(inputTensor);
+			orderIndexes = predictions.argMax(-1).arraySync();
+			estimates = predictions.max(-1).arraySync();
+		});
+		return orderIndexes.map((orderIndex, i) => ({ order: this.orders[orderIndex], orderIndex, estimate: estimates[i] }));
 	}
 	getRandomAvailableOrderIndex(state, playerState) {
 		const input = getInput(state, playerState);

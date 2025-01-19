@@ -1,4 +1,5 @@
 import { BaseAction } from '../environment/warhammer.js';
+import { PlayerAction } from './player-orders.js';
 import { MoveAgent } from '../agents/move-agent/move-agent44x30.js';
 
 export class PlayerAgent {
@@ -21,8 +22,25 @@ export class PlayerAgent {
 	}
 	playStep() {
 		const prevState = this.env.getState();
+		const availableState = this.getAvailableStates();
 
-		const { orderIndex, order, estimate } = this.agent.playStep(prevState, this.getState());
+		if (availableState.length === 0) {
+			let [order_, state] = this.step({ action: BaseAction.NextPhase });
+			return [order_, state, { index: 0, estimate: 0 }];
+		}
+
+		const results = this.agent.playStep(prevState, availableState);
+		let maxResultIndex = 0;
+
+		availableState.forEach((result, index) => {
+			if (result.estimate > results[maxResultIndex].estimate) {
+				maxResultIndex = index;
+			}
+		});
+
+		this.setState(availableState[maxResultIndex]);
+
+		const { orderIndex, order, estimate } = results[maxResultIndex];
 
 		let [order_, state] = this.step(order);
 
@@ -44,15 +62,10 @@ export class PlayerAgent {
 
 		if (action === BaseAction.Move) {
 			playerOrder = {action, id: playerModels[this._selectedModel], vector: order.vector, expense: order.expense };
-		} else if (action === BaseAction.NextPhase && playerModels.some((modelId, playerModelId) => prevState.modelsStamina[modelId] !== 0 && playerModelId !== this._selectedModel)){
-			this._selectedModel = this.selectNextModel(prevState);
-			playerOrder = { action: BaseAction.Move, vector: [0, 0], expense: 0, id: playerModels[this._selectedModel] };
+		} else if (action === BaseAction.EndMove){
+			playerOrder = { action: BaseAction.EndMove, id: playerModels[this._selectedModel] };
 		} else {
 			playerOrder = order;
-		}
-
-		if (playerOrder.action === BaseAction.NextPhase) {
-			this._selectedModel = this.selectNextModel(prevState);
 		}
 
 		const state = this.env.step(playerOrder);
@@ -70,21 +83,23 @@ export class PlayerAgent {
 			console.warn(`!!!!Map size and Network input are inconsistent: ${[fieldHeight, fieldWidth]} !== ${[height, width]}!!!`)
 		}
 	}
-	selectNextModel(state) {
-		const playerModels = state.players[this.playerId].models;
-		const twicePlayerModels = [...playerModels, ...playerModels];
-		let newSelectedModel = this._selectedModel;
-		for (let i = newSelectedModel + 1; i < twicePlayerModels.length; i++) {
-			let modelId = twicePlayerModels[i];
-			if (!isNaN(state.models[modelId][0])) {
-				newSelectedModel = i % playerModels.length;
-				break;
+	getAvailableStates() {
+		const prevState = this.env.getState();
+		const playerModels = prevState.players[this.playerId].models;
+		let availableStates = [];
+		playerModels.forEach((modelId, playerModelId) => {
+			if (prevState.modelsStamina[modelId] > 0) {
+				availableStates.push({ selected: playerModelId })
 			}
-		}
-		return newSelectedModel;
-	}
+		})
 
+		return availableStates;
+	}
 	getState() {
 		return { selected: this._selectedModel };
+	}
+
+	setState({ selected }) {
+		this._selectedModel = selected;
 	}
 }

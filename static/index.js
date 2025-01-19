@@ -1,5 +1,6 @@
 import { Battlefield, Scene } from './drawing-entities/drawing-entities.js';
 import { playerOrders } from './players/player-orders.js';
+import { moveOrders } from './agents/move-agent/move-orders.js';
 import { getInput, channels } from '../environment/nn-input.js';
 import { getStateTensor } from '../utils/get-state-tensor.js';
 
@@ -65,13 +66,13 @@ function setState(e) {
 		const [prevState, playerState, order, state] = actionAndStates[e.target.dataset.indexNumber];
 		scene.updateState(state);
 		scene.drawOrder(order);
-		const input = getInput(prevState, playerState);
-		updatePredictions(prevState, input);
+		const inputs =  [playerState, { selected: playerState.selected + 1 % 3 }].map(ps => getInput(prevState,ps));
+		updatePredictions(inputs);
 		updateUnitsStrip(state);
 	}
 }
 
-async function updatePredictions(state, input) {
+async function updatePredictions(inputs) {
 	ordersList.innerHTML = '';
 	const orders = moveOrders;
 	if (model === undefined) {
@@ -79,10 +80,11 @@ async function updatePredictions(state, input) {
 	}
 	const [_, height, width] = model.input[0].shape;
 	window.tf.tidy(() => {
-		const predictions = model.predict(getStateTensor([input], width, height, channels)).dataSync();
+		const predictions = model.predict(getStateTensor(inputs, width, height, channels));
+		const dataPredictions = predictions.arraySync()[0];
 		orders.forEach((order, i) => {
 			const li = document.createElement("LI");
-			li.innerHTML = [JSON.stringify(order), predictions[i].toFixed(3)].join();
+			li.innerHTML = [JSON.stringify(order), dataPredictions[i].toFixed(3)].join();
 			ordersList.appendChild(li);
 		});
 	});
