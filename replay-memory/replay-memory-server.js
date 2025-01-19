@@ -1,5 +1,5 @@
 import express from 'express';
-import { ReplayMemory } from './replay-memory-by-key.js';
+import { ReplayMemory } from './replay-memory.js';
 import hash from 'object-hash';
 import config from '../config.json' assert { type: 'json' };
 const { replayMemorySize } = config;
@@ -47,6 +47,29 @@ app.get('/sample', (req,res) => {
 	}
 	res.json({ buffer: replayMemory.sample(batchSize) });
 });
+
+app.get('/get', (req,res) => {
+	const from_ = parseInt(req.query.from);
+	const perPage = parseInt(req.query.perPage);
+
+	if (isNaN(from_) || isNaN(perPage)) {
+		res.sendStatus(400);
+		return;
+	}
+	res.json({ buffer: replayMemory.buffer.slice(from_, from_ + perPage) });
+});
+
+app.get('/get_memory', (req,res) => {
+	const from_ = parseInt(req.query.from);
+	const perPage = parseInt(req.query.perPage);
+
+	if (isNaN(from_) || isNaN(perPage)) {
+		res.sendStatus(400);
+		return;
+	}
+	res.json({ buffer: replayMemory.buffer.slice(from_, from_ + perPage) });
+});
+
 
 app.get('/config', (req,res) => res.json(config));
 app.get('/model', (req,res) => res.sendFile('static/dqn/model.json', { root: __dirname }));

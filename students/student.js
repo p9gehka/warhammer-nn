@@ -80,6 +80,9 @@ export class Student {
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {
 			if (this.prevMemoryState[1] !== 0 || this.prevMemoryState[2] !== 0) {
 				let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
+				if (reward > 0) {
+					console.log(this.prevMemoryState[1])
+				}
 				this.replayMemory?.append([this.prevMemoryState[0], this.prevMemoryState[1], reward, false, input]);
 			}
 		}
@@ -132,8 +135,11 @@ export class Rewarder {
 	}
 
 	primaryReward(order, primaryVP) {
-		const reward = (primaryVP - this.primaryVP);
-		this.primaryVP = primaryVP;
+		let reward = 0;
+		if (order.action !== BaseAction.NextPhase) {
+			reward += (primaryVP - this.primaryVP);
+			this.primaryVP = primaryVP;
+		}
 
 		return reward;
 	}
