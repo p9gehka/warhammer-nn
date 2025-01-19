@@ -12,6 +12,7 @@ const phaseOrd = [Phase.Movement];
 export const BaseAction = {
 	NextPhase: 'NEXT_PHASE',
 	Move: 'MOVE',
+	EndMove: 'END_MOVE',
 }
 
 class Model {
@@ -181,6 +182,13 @@ export class Warhammer {
 					model.update(newPosition);
 				}
 			}
+		}
+
+		if (order.action === BaseAction.EndMove && model !== undefined) {
+			if (this.lastMovedModelId !== null && this.lastMovedModelId !== order.id) {
+				this.models[this.lastMovedModelId].updateAvailableToMove(false);
+			}
+			model.updateAvailableToMove(false);
 		}
 
 		return this.getState();
