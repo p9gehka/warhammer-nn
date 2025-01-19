@@ -27,21 +27,25 @@ export class PlayerAgent {
 		const { order: selectOrder } = this.selectAgent.playStep(prevState, this.getState())
 
 		if (selectOrder.action === BaseAction.NextPhase) {
-			return this.nextPhase()
+			return this.nextPhase(0)
 		}
 
 		this.selectStep(selectOrder);
 
 		const { orderIndex, order, estimate } = this.agent.playStep(prevState, this.getState());
 
+		if (order.action === BaseAction.NextPhase) {
+			return this.nextPhase(estimate)
+		}
+
 		let [order_, state] = this.step(order);
 
 		return [order_, state, { index: orderIndex, estimate: estimate.toFixed(3) }];
 	}
 
-	nextPhase() {
+	nextPhase(estimate) {
 		const state = this.env.step({ action: BaseAction.NextPhase });
-		return [{ action: BaseAction.NextPhase, misc: state.misc }, state, { orderIndex: 0, estimate: 0 }];
+		return [{ action: BaseAction.NextPhase, misc: state.misc }, state, { orderIndex: 0, estimate }];
 	}
 
 	selectStep(order) {
