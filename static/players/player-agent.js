@@ -41,7 +41,7 @@ export class PlayerAgent {
 
 	nextPhase() {
 		const state = this.env.step({ action: BaseAction.NextPhase });
-		return [{ action: BaseAction.NextPhase, misc: state.misc }, state];
+		return [{ action: BaseAction.NextPhase, misc: state.misc }, state, { orderIndex: 0, estimate: 0 }];
 	}
 
 	selectStep(order) {
