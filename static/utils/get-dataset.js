@@ -61,8 +61,7 @@ export function getRawDataset(argenv, argagent) {
 		}
 
 		state = env.getState();
-		const result  = agent.playStep(state, [{ selected: playerModelSelected }]);
-		const { orderIndex, order } = result[0];
+		const { orderIndex, order }  = agent.playStep(state, { selected: playerModelSelected });
 		env.step({ ...order, id: selected });
 
 		const input = agent.getInput(state, { selected: playerModelSelected })
