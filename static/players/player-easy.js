@@ -1,4 +1,4 @@
-import { MoveAgent as MoveToObject } from '../agents/move-agent/move-all-to-1-object-agent.js';
+import { MoveAgent as MoveToObject } from '../agents/move-agent/move-to-object-agent.js';
 import { PlayerAgent } from './player-agent.js';
 
 let agents = { moveToObject: MoveToObject };
