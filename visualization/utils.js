@@ -31,7 +31,7 @@ async function createSVG(values, spec) {
 let bot = null;
 export async function sendDataToTelegram(rewardAverager, message) {
 	if (bot === null && config.token.length > 0) {
-		bot = new TelegramBot(config.token, {polling: true});
+		bot = new TelegramBot(config.token);
 	}
 	const rewardAveragerSvg = await createSVG(rewardAverager, 'line');
 	const rewardAveragerPNG = await sharp(Buffer.from(rewardAveragerSvg)).toFormat('png').toBuffer();

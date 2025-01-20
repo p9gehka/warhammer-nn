@@ -26,15 +26,13 @@ async function train(nn) {
 	let epoch = 0;
 
 	while (true) {
-		for (let i = 0; i < repeatBatchTraining ; i++) {
-			trainer.trainOnReplayBatch(config.batchSize, gamma, optimizer);
-			console.log(`epoch: ${epoch} replay ${i + 1}`);
-		}
 
 		if (epoch % config.syncEveryEpoch === 0) { /* sync не произойдет */
 			trainer.copyWeights();
 			console.log('Sync\'ed weights from online network to target network');
 		}
+		trainer.trainOnReplayBatch(config.batchSize, gamma, optimizer);
+		console.log(`epoch: ${epoch}`);
 
 		if (epoch % config.saveEveryEpoch === 0) {
 			if (!fs.existsSync(config.savePath)) {
@@ -42,7 +40,11 @@ async function train(nn) {
 			}
 			await trainer.onlineNetwork.save(`file://${config.savePath}`);
 			console.log(`Saved DQN to ${config.savePath}`);
+		}
+
+		if (epoch % config.updateClientMemoryEveryEpoch === 0) {
 			await replayMemory.updateClient();
+			console.log('Update Memory Client');
 			if (await isLocked()) {
 				console.log('Memory locked, train terminated');
 				break;

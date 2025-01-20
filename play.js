@@ -4,6 +4,7 @@ import shelljs from 'shelljs';
 
 import { Warhammer } from './static/environment/warhammer.js';
 import { PlayerDumb } from './static/players/player-dumb.js';
+import { PlayerEasy } from './static/players/player-easy.js';
 import { ReplayMemoryClient } from './replay-memory/replay-memory-client.js';
 import { sendDataToTelegram, sendMessage, memoryUsage } from './visualization/utils.js';
 import { MovingAverager } from './moving-averager.js';
@@ -44,7 +45,7 @@ async function play() {
 	const env = new Warhammer({ gameSettings, battlefields });
 
 	const replayMemory = new ReplayMemoryClient(replayBufferSize);
-	const players = [new Student(0, env, { replayMemory, epsilonDecayFrames: config.epsilonDecayFrames }), new Student(1, env, { replayMemory, epsilonDecayFrames: config.epsilonDecayFrames })];
+	const players = [new Student(0, env, { replayMemory, epsilonDecayFrames: config.epsilonDecayFrames }), new PlayerDumb(1, env)];
 
 	async function tryUpdateModel() {
 		try {
@@ -53,7 +54,6 @@ async function play() {
 			console.log(`Load model from ${config.loadPath} success`);
 			players[0].getOnlineNetwork()?.dispose();
 			players[0].setOnlineNetwork(nn);
-			players[1].setOnlineNetwork(nn);
 		} catch(e) {
 			console.log(e.message)
 			console.log(`Load model from ${config.loadPath} faile`);
@@ -110,7 +110,7 @@ async function play() {
 		if (state.player === 0 && players[0].getOnlineNetwork() !== undefined && frameCount % sendMessageEveryFrames === 0 && vpAveragerBuffer !== null && rewardAveragerBuffer !== null) {
 			const testActions = [];
 
-			const testAgents = [players[0].player, new PlayerDumb(env)]
+			const testAgents = [players[0].player, new PlayerDumb(1, env)]
 			let testAttempst = 0;
 			let testState = env.reset();
 
@@ -142,7 +142,7 @@ async function play() {
 		}
 
 
-		if (replayMemory.length === replayBufferSize) {
+		if (replayMemory.length === replayMemory.maxLen) {
 			if (vpAveragerBuffer === null) {
 				vpAveragerBuffer = new MovingAverager(config.rewardAveragerBufferLength);
 			}
