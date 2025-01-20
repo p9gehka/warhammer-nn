@@ -1,6 +1,5 @@
 import { BaseAction } from '../environment/warhammer.js';
 import { MoveAgent } from '../agents/move-agent/move-agent44x30.js';
-import { SelectAgent, SelectAction } from '../agents/select-agent/select-agent.js';
 
 export class PlayerAgent {
 	static cascad = [MoveAgent.settings]
@@ -11,7 +10,6 @@ export class PlayerAgent {
 		this.enemyId = (playerId+1) % 2;
 		this._selectedModel = 0;
 		this.agent = new MoveAgent();
-		this.selectAgent = new SelectAgent();
 	}
 	async load() {
 		await this.agent.load();
@@ -24,36 +22,13 @@ export class PlayerAgent {
 	playStep() {
 		const prevState = this.env.getState();
 
-		const { order: selectOrder } = this.selectAgent.playStep(prevState, this.getState())
-
-		if (selectOrder.action === BaseAction.NextPhase) {
-			return this.nextPhase(0)
-		}
-
-		this.selectStep(selectOrder);
-
 		const { orderIndex, order, estimate } = this.agent.playStep(prevState, this.getState());
-
-		if (order.action === BaseAction.NextPhase) {
-			return this.nextPhase(estimate)
-		}
 
 		let [order_, state] = this.step(order);
 
 		return [order_, state, { index: orderIndex, estimate: estimate.toFixed(3) }];
-	}
 
-	nextPhase(estimate) {
-		const state = this.env.step({ action: BaseAction.NextPhase });
-		return [{ action: BaseAction.NextPhase, misc: state.misc }, state, { orderIndex: 0, estimate }];
 	}
-
-	selectStep(order) {
-		if (order.action === SelectAction.Select) {
-			this._selectedModel = order.id;
-		}
-	}
-
 	step(order) {
 		let playerOrder;
 		const { action } = order;
@@ -69,10 +44,15 @@ export class PlayerAgent {
 
 		if (action === BaseAction.Move) {
 			playerOrder = {action, id: playerModels[this._selectedModel], vector: order.vector, expense: order.expense };
-		} else if (action === BaseAction.EndMove) {
-			playerOrder = { action: BaseAction.EndMove, id: playerModels[this._selectedModel] };
+		} else if (action === BaseAction.NextPhase && playerModels.some((modelId, playerModelId) => prevState.modelsStamina[modelId] !== 0 && playerModelId !== this._selectedModel)){
+			this._selectedModel = this.selectNextModel(prevState);
+			playerOrder = { action: BaseAction.Move, vector: [0, 0], expense: 0, id: playerModels[this._selectedModel] };
 		} else {
 			playerOrder = order;
+		}
+
+		if (playerOrder.action === BaseAction.NextPhase) {
+			this._selectedModel = this.selectNextModel(prevState);
 		}
 
 		const state = this.env.step(playerOrder);
@@ -89,6 +69,19 @@ export class PlayerAgent {
 		if (fieldHeight !== height || fieldWidth !== width) {
 			console.warn(`!!!!Map size and Network input are inconsistent: ${[fieldHeight, fieldWidth]} !== ${[height, width]}!!!`)
 		}
+	}
+	selectNextModel(state) {
+		const playerModels = state.players[this.playerId].models;
+		const twicePlayerModels = [...playerModels, ...playerModels];
+		let newSelectedModel = this._selectedModel;
+		for (let i = newSelectedModel + 1; i < twicePlayerModels.length; i++) {
+			let modelId = twicePlayerModels[i];
+			if (!isNaN(state.models[modelId][0])) {
+				newSelectedModel = i % playerModels.length;
+				break;
+			}
+		}
+		return newSelectedModel;
 	}
 
 	getState() {

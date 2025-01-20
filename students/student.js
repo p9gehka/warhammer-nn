@@ -8,15 +8,6 @@ import { deployment } from '../static/battlefield/deployment.js';
 export class StudentAgent extends PlayerAgent {
 	playTrainStep(epsilon) {
 		const prevState = this.env.getState();
-
-		const { order: selectOrder } = this.selectAgent.playStep(prevState, this.getState())
-
-		if (selectOrder.action === BaseAction.NextPhase) {
-			return this.nextPhase(0);
-		}
-
-		this.selectStep(selectOrder);
-
 		let orderIndex;
 		let estimate = 0;
 		const input = this.agent.getInput(prevState, this.getState());
@@ -29,10 +20,6 @@ export class StudentAgent extends PlayerAgent {
 		}
 
 		const order = this.agent.orders[orderIndex];
-
-		if (order.action === BaseAction.NextPhase) {
-			return this.nextPhase(estimate)
-		}
 
 		let [order_, state] = this.step(order);
 
@@ -82,8 +69,10 @@ export class Student {
 		const input = this.player.agent.getInput(prevState, this.player.getState());
 
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {
-			let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
-			this.replayMemory?.append([this.prevMemoryState[0], this.prevMemoryState[1], reward, false, input]);
+			if (this.prevMemoryState[1] !== 0 || this.prevMemoryState[2] !== 0) {
+				let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
+				this.replayMemory?.append([this.prevMemoryState[0], this.prevMemoryState[1], reward, false, input]);
+			}
 		}
 		const result = this.player.playTrainStep(this.epsilon);
 		this.prevMemoryState = [input, result[2].orderIndex, result[2].estimate];
@@ -139,7 +128,6 @@ export class Rewarder {
 			reward += (primaryVP - this.primaryVP);
 			this.primaryVP = primaryVP;
 		}
-
 		return reward;
 	}
 
