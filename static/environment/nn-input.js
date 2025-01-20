@@ -4,7 +4,7 @@ import { deployment } from  '../battlefield/deployment.js';
 
 //{ Empty: 0 }
 export const Channel0 = {};
-const maxModels = 18;
+const maxModels = 9;
 new Array(maxModels).fill(0).forEach((_, v) => { Channel0[v] = 1 });
 export const Channel1 = {};
 
