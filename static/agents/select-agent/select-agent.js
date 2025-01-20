@@ -2,7 +2,7 @@ import { BaseAction } from '../../environment/warhammer.js';
 
 export const SelectAction = {
 	DoNothing: 'DO_NOTHING',
-	Select: 'SELECT',
+	Select: 'SELECT'
 }
 
 export class SelectAgent {
@@ -10,13 +10,12 @@ export class SelectAgent {
 		const playerModels = state.players[state.player].models;
 
 		const id = playerModels.findIndex(modelId => state.modelsStamina[modelId] > 0)
-
 		if (id === playerState.selected) {
-			return { order: { action: SelectAction.DoNothing } };
+			return { action: SelectAction.DoNothing };
 		}
 		if (id >= 0) {
-			return { order: { action: SelectAction.Select, id } };
+			return { action: SelectAction.Select, id };
 		}
-		return { order: { action: BaseAction.NextPhase } };
+		return { action: BaseAction.NextPhase };
 	}
 }
