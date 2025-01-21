@@ -1,5 +1,4 @@
-{
-	"modelNames": ["Cadre Fireblade", "Ethereal", "Cadre Fireblade", "Ethereal",  "Cadre Fireblade", "Ethereal"],
+"modelNames": ["Cadre Fireblade", "Ethereal", "Cadre Fireblade", "Ethereal",  "Cadre Fireblade", "Ethereal"],
 	"modelProfiles": [
 		{"M": "8\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "0.35"},
 		{"M": "8\"","T": "3","SV": "4+","W": "1","LD": "7+","OC": "0.35"},
@@ -34,21 +33,15 @@
 			{ "name": "stealth battlesuits", "models": [2] },
 			{ "name": "stealth battlesuits", "models": [3] },
 			{ "name": "stealth battlesuits", "models": [4] },
-			{ "name": "stealth battlesuits", "models": [5] },
-			{ "name": "stealth battlesuits", "models": [6] },
-			{ "name": "stealth battlesuits", "models": [7] },
-			{ "name": "stealth battlesuits", "models": [8] }
+			{ "name": "stealth battlesuits", "models": [5] }
 		],
 		[
+			{ "name": "stealth battlesuits", "models": [6] },
+			{ "name": "stealth battlesuits", "models": [7] },
+			{ "name": "stealth battlesuits", "models": [8] },
 			{ "name": "stealth battlesuits", "models": [9] },
 			{ "name": "stealth battlesuits", "models": [10] },
-			{ "name": "stealth battlesuits", "models": [11] },
-			{ "name": "stealth battlesuits", "models": [12] },
-			{ "name": "stealth battlesuits", "models": [13] },
-			{ "name": "stealth battlesuits", "models": [14] },
-			{ "name": "stealth battlesuits", "models": [15] },
-			{ "name": "stealth battlesuits", "models": [16] },
-			{ "name": "stealth battlesuits", "models": [17] }
+			{ "name": "stealth battlesuits", "models": [11] }
 		]
 	]
 }
