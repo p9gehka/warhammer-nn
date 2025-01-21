@@ -38,7 +38,15 @@ export class ReplayMemory {
 		this.length = Math.min(this.length + 1, this.maxLen);
 		this.index = (this.index + 1) % this.maxLen;
 	}
-
+	appendList(dataList) {
+		if (dataList.length === this.maxLen) {
+			this.buffer = dataList;
+			this.length = this.maxLen;
+			this.index = 0;
+		} else {
+			dataList.forEach(append);
+		}
+	}
 	/**
 	 * Randomly sample a batch of items from the replay buffer.
 	 *
@@ -59,6 +67,6 @@ export class ReplayMemory {
 		for (let i = 0; i < batchSize; ++i) {
 			out.push(this.buffer[this.bufferIndices_[i]]);
 		}
-		return out;
+		return [out];
 	}
 }
