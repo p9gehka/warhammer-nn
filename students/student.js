@@ -119,7 +119,6 @@ export class Rewarder {
 			const initialPosititonDelta = len(sub(center, sub(initialPosititon, center).map(Math.abs)));
 
 			reward += (expectedCurrentPositionDelta - initialPosititonDelta);
-			console.log(order, reward)
 		}
 		
 		return reward;
