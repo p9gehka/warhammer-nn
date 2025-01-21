@@ -1,5 +1,5 @@
 import { getRandomInteger } from '../static/utils/index.js';
-import { eq, sub, len, div } from '../static/utils/vec2.js';
+import { eq, sub, len, div, add } from '../static/utils/vec2.js';
 import { Channel2Name } from '../static/environment/nn-input.js';
 import { PlayerAgent } from '../static/players/player-agent.js';
 import { BaseAction } from '../static/environment/warhammer.js';
@@ -112,14 +112,18 @@ export class Rewarder {
 		if (order.action === BaseAction.Move) {
 			const state = this.env.getState();
 			const initialPosititon = prevState.models[this.playerId];
-			const currentPosition = state.models[this.playerId];
+			const expectedCurrentPosition = add(prevState.models[this.playerId], order.vector);
 
 			const center = div(state.battlefield.size, 2);
-			const currentPositionDelta = len(sub(center, sub(currentPosition, center).map(Math.abs)));
+			const expectedCurrentPositionDelta = len(sub(center, sub(expectedCurrentPosition, center).map(Math.abs)));
 			const initialPosititonDelta = len(sub(center, sub(initialPosititon, center).map(Math.abs)));
-			reward += (currentPositionDelta - initialPosititonDelta);
+			console.log(expectedCurrentPositionDelta, initialPosititonDelta)
+
+			reward += (expectedCurrentPositionDelta - initialPosititonDelta);
+			console.log(order, reward)
 		}
-		return reward * epsilon * 0;
+		
+		return reward;
 	}
 
 	primaryReward(order, primaryVP) {
