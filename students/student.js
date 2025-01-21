@@ -117,7 +117,6 @@ export class Rewarder {
 			const center = div(state.battlefield.size, 2);
 			const expectedCurrentPositionDelta = len(sub(center, sub(expectedCurrentPosition, center).map(Math.abs)));
 			const initialPosititonDelta = len(sub(center, sub(initialPosititon, center).map(Math.abs)));
-			console.log(expectedCurrentPositionDelta, initialPosititonDelta)
 
 			reward += (expectedCurrentPositionDelta - initialPosititonDelta);
 			console.log(order, reward)
