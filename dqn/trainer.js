@@ -30,7 +30,7 @@ export class Trainer {
 		if (this.replayMemory === null) {
 			throw new Error(`trainOnReplayBatch without replayMemory`);
 		}
-		const batch = this.replayMemory.sample(batchSize);
+		const [batch, indeces] = this.replayMemory.sample(batchSize);
 
 		const lossFunction = () => tf.tidy(() => {
 			const stateTensor = getStateTensor(batch.map(example => example[0]), width, height, channels);
@@ -46,7 +46,13 @@ export class Trainer {
 
 			const doneMask = tf.scalar(1).sub(
 				tf.tensor1d(batch.map(example => example[3])).asType('float32'));
+
 			const maxQTargets = rewardTensor.add(maxTargetQs.mul(doneMask).mul(gamma));
+
+			if (this.replayMemory.type === 'prioritized') {
+				this.replayMemory.updatePriorities(indeces, maxQTargets.sub(qs).abs().dataSync());
+			}
+
 			return tf.losses.meanSquaredError(maxQTargets, qs);
 		});
 
