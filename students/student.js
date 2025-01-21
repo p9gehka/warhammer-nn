@@ -30,7 +30,9 @@ export class StudentAgent extends PlayerAgent {
 
 export class Student {
 	orders = {};
-	prevState = null;
+	prevState = undefined;
+	prevPlayerState = undefined;
+	prevMemoryState = null;
 	autoNext = true;
 
 	constructor(playerId, env, config = {}) {
@@ -66,22 +68,26 @@ export class Student {
 			this.epsilonFinal :
 			this.epsilonInit + this.epsilonIncrement_ * this.frameCount;
 		const prevState = this.env.getState();
+
 		const input = this.player.agent.getInput(prevState, this.player.getState());
 
-		if (this.prevMemoryState !== null && this.prevState !== undefined) {
+		if (this.prevMemoryState !== null && this.prevState !== undefined && this.prevPlayerState !== undefined) {
 			if (this.prevMemoryState[1] !== 0 || this.prevMemoryState[2] !== 0) {
-				let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
+				let reward = this.rewarder.step(this.prevState, this.player.getState(), this.prevPlayerState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
 				this.replayMemory?.append([this.prevMemoryState[0], this.prevMemoryState[1], reward, false, input]);
 			}
 		}
 		const result = this.player.playTrainStep(this.epsilon);
 		this.prevMemoryState = [input, result[2].orderIndex, result[2].estimate];
 		this.prevState = prevState;
+		this.prevPlayerState = this.player.getState();
 		return result;
 	}
 
 	reset() {
 		this.prevMemoryState = null;
+		this.prevState = undefined;
+		this.prevPlayerState = undefined;
 		this.rewarder.reset();
 		this.player.reset();
 	}
@@ -96,29 +102,31 @@ export class Rewarder {
 		this.initialGamma = 0.99;
 		this.gamma = this.initialGamma;
 	}
-	step(prevState, order, epsilon) {
+	step(prevState, playerState, prevPlayerState, order, epsilon) {
 		let reward = 0;
 		const state = this.env.getState();
 
 		const { primaryVP } = state.players[this.playerId];
 		reward += this.primaryReward(order, primaryVP);
-		reward += this.epsilonReward(prevState, order, epsilon);
+		reward += this.epsilonReward(prevState, playerState, prevPlayerState, order, epsilon);
 		this.cumulativeReward += (reward * this.gamma);
 		this.gamma = this.gamma * this.initialGamma;
 		return reward;
 	}
-	epsilonReward(prevState, order, epsilon) {
+	epsilonReward(prevState, playerState, prevPlayerState, order, epsilon) {
 		let reward = 0;
-		if (order.action === BaseAction.Move) {
+
+		if (order.action === BaseAction.Move && playerState.selected === prevPlayerState.selected) {
 			const state = this.env.getState();
-			const initialPosititon = prevState.models[this.playerId];
-			const expectedCurrentPosition = add(prevState.models[this.playerId], order.vector);
+			const initialPosititon = prevState.models[playerState.selected];
+			const expectedCurrentPosition = add(prevState.models[playerState.selected], order.vector);
 
 			const center = div(state.battlefield.size, 2);
 			const expectedCurrentPositionDelta = len(sub(center, sub(expectedCurrentPosition, center).map(Math.abs)));
 			const initialPosititonDelta = len(sub(center, sub(initialPosititon, center).map(Math.abs)));
 
 			reward += (expectedCurrentPositionDelta - initialPosititonDelta);
+			console.log(initialPosititon, expectedCurrentPosition, initialPosititonDelta,expectedCurrentPositionDelta, order.vector, reward)
 		}
 		
 		return reward;
