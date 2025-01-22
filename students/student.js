@@ -69,7 +69,7 @@ export class Student {
 			this.epsilonInit + this.epsilonIncrement_ * this.frameCount;
 		const prevState = this.env.getState();
 		const playerState = this.player.getState();
-		const input = this.player.agent.getInput(prevState, this.player.getState());
+		const input = this.player.agent.getInput(prevState, playerState);
 
 		if (this.prevMemoryState !== null && this.prevState !== undefined && this.prevPlayerState !== undefined) {
 			if (this.prevMemoryState[1] !== 0 || this.prevMemoryState[2] !== 0) {
@@ -124,9 +124,10 @@ export class Rewarder {
 			const expectedCurrentPosition = add(prevState.models[playerState.selected], order.vector);
 
 			const center = div(state.battlefield.size, 2);
-			const expectedCurrentPositionDelta = len(sub(center, sub(expectedCurrentPosition, center).map(Math.abs)));
-			const initialPosititonDelta = len(sub(center, sub(initialPosititon, center).map(Math.abs)));
-			reward += (expectedCurrentPositionDelta - initialPosititonDelta - 0.05);
+			const expectedCurrentPositionDelta = len(sub(expectedCurrentPosition, center).map(Math.abs));
+			const initialPosititonDelta = len(sub(initialPosititon, center).map(Math.abs));
+			reward += (initialPosititonDelta - expectedCurrentPositionDelta);
+			console.log({ order, reward, initialPosititon, newPosition: state.models[playerState.selected], expectedCurrentPosition, expectedCurrentPositionDelta, initialPosititonDelta });
 		}
 		
 		return reward;
