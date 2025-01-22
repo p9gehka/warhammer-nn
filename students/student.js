@@ -1,5 +1,5 @@
 import { getRandomInteger } from '../static/utils/index.js';
-import { eq, sub, len, div } from '../static/utils/vec2.js';
+import { eq, sub, len, div, add } from '../static/utils/vec2.js';
 import { Channel2Name, Channel3Name } from '../static/environment/nn-input.js';
 import { PlayerAgent } from '../static/players/player-agent.js';
 import { BaseAction } from '../static/environment/warhammer.js';
@@ -31,6 +31,8 @@ export class StudentAgent extends PlayerAgent {
 export class Student {
 	orders = {};
 	prevState = null;
+	prevPlayerState = undefined;
+	prevMemoryState = null;
 	autoNext = true;
 
 	constructor(playerId, env, config = {}) {
@@ -66,17 +68,21 @@ export class Student {
 			this.epsilonFinal :
 			this.epsilonInit + this.epsilonIncrement_ * this.frameCount;
 		const prevState = this.env.getState();
-		const input = this.player.agent.getInput(prevState, this.player.getState());
+		const playerState = this.player.getState();
+		const input = this.player.agent.getInput(prevState, playerState);
 
-		if (this.prevMemoryState !== null && this.prevState !== undefined) {
+		if (this.prevMemoryState !== null && this.prevState !== undefined && this.prevPlayerState !== undefined) {
 			if (this.prevMemoryState[1] !== 0 || this.prevMemoryState[2] !== 0) {
-				let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
+				let reward = this.rewarder.step(this.prevState, playerState, this.prevPlayerState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
 				this.replayMemory?.append([this.prevMemoryState[0], this.prevMemoryState[1], reward, false, input]);
 			}
 		}
+
 		const result = this.player.playTrainStep(this.epsilon);
 		this.prevMemoryState = [input, result[2].orderIndex, result[2].estimate];
 		this.prevState = prevState;
+		this.prevPlayerState = playerState;
+		
 		return result;
 	}
 
@@ -89,7 +95,8 @@ export class Student {
 	awarding() {
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {
 			if (this.prevMemoryState[1] !== 0 || this.prevMemoryState[2] !== 0) {
-				let reward = this.rewarder.step(this.prevState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
+				const playerState = this.player.getState();
+				let reward = this.rewarder.step(this.prevState, playerState, this.prevPlayerState, this.player.agent.orders[this.prevMemoryState[1]], this.epsilon);
 				this.replayMemory?.append([this.prevMemoryState[0], this.prevMemoryState[1], reward, true, null]);
 			}
 		}
@@ -106,34 +113,36 @@ export class Rewarder {
 		this.initialGamma = 0.99;
 		this.gamma = this.initialGamma;
 	}
-	step(prevState, order, epsilon) {
-		let reward = -0.5;
-
+	step(prevState, playerState, prevPlayerState, order, epsilon) {
+		let reward = 0;
 		const state = this.env.getState();
 
 		const { primaryVP } = state.players[this.playerId];
+		if (order === undefined) {
+			console.trace()
+		}
 		reward += this.primaryReward(order, primaryVP);
-		reward += this.epsilonReward(prevState, order, epsilon);
+		reward += this.epsilonReward(prevState, playerState, prevPlayerState, order, epsilon);
 		this.cumulativeReward += (reward * this.gamma);
 		this.gamma = this.gamma * this.initialGamma;
 		return reward;
 	}
-	epsilonReward(prevState, order, epsilon) {
+	epsilonReward(prevState, playerState, prevPlayerState, order, epsilon) {
 		let reward = 0;
 
-		if (order.action === BaseAction.Move) {
+		if (order.action === BaseAction.Move && playerState.selected === prevPlayerState.selected) {
 			const state = this.env.getState();
-			const playerState = this.player.getState();
-			const selected = state.players[this.playerId].models[playerState.selected];
-			const initialPosititon = sub(state.models[selected], order.vector);
-			const currentPosition = state.models[selected];
+			const initialPosititon = prevState.models[playerState.selected];
+			const expectedCurrentPosition = add(prevState.models[playerState.selected], order.vector);
 
 			const center = div(state.battlefield.size, 2);
-			const currentPositionDelta = len(sub(center, sub(currentPosition, center).map(Math.abs)));
-			const initialPosititonDelta = len(sub(center, sub(initialPosititon, center).map(Math.abs)));
-			reward += (currentPositionDelta - initialPosititonDelta);
+			const expectedCurrentPositionDelta = len(sub(expectedCurrentPosition, center).map(Math.abs));
+			const initialPosititonDelta = len(sub(initialPosititon, center).map(Math.abs));
+		
+			reward += ((initialPosititonDelta - expectedCurrentPositionDelta) / 5);
 		}
-		return reward * epsilon;
+
+		return reward;
 	}
 
 	primaryReward(order, primaryVP) {
