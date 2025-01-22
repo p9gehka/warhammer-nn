@@ -127,7 +127,6 @@ export class Rewarder {
 			if(expectedCurrentPositionDelta > 10) {
 				reward += (expectedCurrentPositionDelta - initialPosititonDelta - 0.05) * expectedCurrentPositionDelta / 5;
 			}
-			console.log(initialPosititon, expectedCurrentPositionDelta, reward)
 		}
 		
 		return reward;
