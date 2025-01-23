@@ -64,13 +64,13 @@
 			{ "name": "stealth battlesuits", "models": [8] },
 			{ "name": "stealth battlesuits", "models": [9] },
 			{ "name": "stealth battlesuits", "models": [10] },
-			{ "name": "stealth battlesuits", "models": [11] },
-			{ "name": "stealth battlesuits", "models": [12] },
-			{ "name": "stealth battlesuits", "models": [13] },
-			{ "name": "stealth battlesuits", "models": [14] }
+			{ "name": "stealth battlesuits", "models": [11] }
 
 		],
-		[
+		[	
+			{ "name": "stealth battlesuits", "models": [12] },
+			{ "name": "stealth battlesuits", "models": [13] },
+			{ "name": "stealth battlesuits", "models": [14] },
 			{ "name": "stealth battlesuits", "models": [15] },
 			{ "name": "stealth battlesuits", "models": [16] },
 			{ "name": "stealth battlesuits", "models": [17] },
@@ -79,13 +79,7 @@
 			{ "name": "stealth battlesuits", "models": [20] },
 			{ "name": "stealth battlesuits", "models": [21] },
 			{ "name": "stealth battlesuits", "models": [22] },
-			{ "name": "stealth battlesuits", "models": [23] },
-			{ "name": "stealth battlesuits", "models": [24] },
-			{ "name": "stealth battlesuits", "models": [25] },
-			{ "name": "stealth battlesuits", "models": [26] },
-			{ "name": "stealth battlesuits", "models": [27] },
-			{ "name": "stealth battlesuits", "models": [28] },
-			{ "name": "stealth battlesuits", "models": [29] }
+			{ "name": "stealth battlesuits", "models": [23] }
 		]
 	]
 }
