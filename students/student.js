@@ -126,10 +126,10 @@ export class Rewarder {
 			const center = div(state.battlefield.size, 2);
 			const expectedCurrentPositionDelta = len(sub(expectedCurrentPosition, center).map(Math.abs));
 			const initialPosititonDelta = len(sub(initialPosititon, center).map(Math.abs));
-			if (expectedCurrentPositionDelta > 3) {
-				reward += ((initialPosititonDelta - expectedCurrentPositionDelta) / 5);
+			reward += ((initialPosititonDelta - expectedCurrentPositionDelta - 0.05) * (expectedCurrentPositionDelta / 10) );
+			if (Math.abs(reward) > 5) {
+				console.log({ order, reward, initialPosititon, newPosition: state.models[playerState.selected], expectedCurrentPosition, expectedCurrentPositionDelta, initialPosititonDelta });
 			}
-			//console.log({ order, reward, initialPosititon, newPosition: state.models[playerState.selected], expectedCurrentPosition, expectedCurrentPositionDelta, initialPosititonDelta });
 		}
 		
 		return reward;
