@@ -127,9 +127,7 @@ export class Rewarder {
 			const expectedCurrentPositionDelta = len(sub(expectedCurrentPosition, center).map(Math.abs));
 			const initialPosititonDelta = len(sub(initialPosititon, center).map(Math.abs));
 			reward += ((initialPosititonDelta - expectedCurrentPositionDelta - 0.05) * (expectedCurrentPositionDelta / 10) );
-			if (Math.abs(reward) > 5) {
-				console.log({ order, reward, initialPosititon, newPosition: state.models[playerState.selected], expectedCurrentPosition, expectedCurrentPositionDelta, initialPosititonDelta });
-			}
+			// console.log({ order, reward, initialPosititon, newPosition: state.models[playerState.selected], expectedCurrentPosition, expectedCurrentPositionDelta, initialPosititonDelta });
 		}
 		
 		return reward;
