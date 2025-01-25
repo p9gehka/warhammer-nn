@@ -71,6 +71,7 @@ export class PlayerAgent {
 		}
 	}
 	selectNextModel(state) {
+		const playerModels = state.players[this.playerId].models;
 		const id = playerModels.findIndex((modelId, playerModelId) => playerModelId > this._selectedModel && state.modelsStamina[modelId] > 0);
 		const newSelectedModel2 = id >= 0 ? id : 0;
 
