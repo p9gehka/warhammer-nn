@@ -141,7 +141,7 @@ export class Rewarder {
 			reward += (primaryVP - this.primaryVP);
 			this.primaryVP = primaryVP;
 		}
-		return reward;
+		return reward * 2;
 	}
 
 	reset() {
