@@ -71,24 +71,10 @@ export class PlayerAgent {
 		}
 	}
 	selectNextModel(state) {
-		const playerModels = state.players[this.playerId].models;
-		const twicePlayerModels = [...playerModels, ...playerModels];
-		let newSelectedModel = this._selectedModel;
-		for (let i = newSelectedModel + 1; i < twicePlayerModels.length; i++) {
-			let modelId = twicePlayerModels[i];
-			if (!isNaN(state.models[modelId][0])) {
-				newSelectedModel = i % playerModels.length;
-				break;
-			}
-		}
-
 		const id = playerModels.findIndex((modelId, playerModelId) => playerModelId > this._selectedModel && state.modelsStamina[modelId] > 0);
 		const newSelectedModel2 = id >= 0 ? id : 0;
 
-		if (newSelectedModel !== newSelectedModel2) {
-			console.log(`newSelectedModel !== newSelectedModel2`)
-		}
-		return newSelectedModel2;
+		return id >= 0 ? id : 0;
 	}
 
 	getState() {

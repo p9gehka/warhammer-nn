@@ -127,7 +127,7 @@ export class Rewarder {
 			const expectedCurrentPositionDelta = len(sub(expectedCurrentPosition, center).map(Math.abs));
 			const initialPosititonDelta = len(sub(initialPosititon, center).map(Math.abs));
 			if (expectedCurrentPositionDelta > 3) {
-				reward += ((initialPosititonDelta - expectedCurrentPositionDelta - 0.05) / 5);
+				reward += ((initialPosititonDelta - expectedCurrentPositionDelta - 0.05) / 3);
 			}
 			//console.log({ order, reward, initialPosititon, newPosition: state.models[playerState.selected], expectedCurrentPosition, expectedCurrentPositionDelta, initialPosititonDelta });
 		}
@@ -141,7 +141,7 @@ export class Rewarder {
 			reward += (primaryVP - this.primaryVP);
 			this.primaryVP = primaryVP;
 		}
-		return reward * 2;
+		return reward;
 	}
 
 	reset() {
