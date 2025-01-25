@@ -113,25 +113,24 @@ export class Rewarder {
 		reward += this.epsilonReward(prevState, playerState, prevPlayerState, order, epsilon);
 		this.cumulativeReward += (reward * this.gamma);
 		this.gamma = this.gamma * this.initialGamma;
+
 		return reward;
 	}
 	epsilonReward(prevState, playerState, prevPlayerState, order, epsilon) {
 		let reward = 0;
-
-		if (order.action === BaseAction.Move && playerState.selected === prevPlayerState.selected) {
-			const state = this.env.getState();
-			const initialPosititon = prevState.models[playerState.selected];
-			const expectedCurrentPosition = add(prevState.models[playerState.selected], order.vector);
+		const state = this.env.getState();
+		if (order.action === BaseAction.Move && state.player === prevState.player ) {
+			const player = state.players[prevState.player];
+			const initialPosititon = prevState.models[player.models[prevPlayerState.selected]];
+			const expectedCurrentPosition = add(prevState.models[player.models[prevPlayerState.selected]], order.vector);
 
 			const center = div(state.battlefield.size, 2);
 			const expectedCurrentPositionDelta = len(sub(expectedCurrentPosition, center).map(Math.abs));
 			const initialPosititonDelta = len(sub(initialPosititon, center).map(Math.abs));
-			if (expectedCurrentPositionDelta > 3) {
-				reward += ((initialPosititonDelta - expectedCurrentPositionDelta - 0.05) / 3);
-			}
-			//console.log({ order, reward, initialPosititon, newPosition: state.models[playerState.selected], expectedCurrentPosition, expectedCurrentPositionDelta, initialPosititonDelta });
+			reward += (initialPosititonDelta - expectedCurrentPositionDelta;
+			console.log({ order, reward, initialPosititon, newPosition: state.models[player.models[prevPlayerState.selected]], expectedCurrentPosition, expectedCurrentPositionDelta, initialPosititonDelta });
 		}
-		
+
 		return reward;
 	}
 
