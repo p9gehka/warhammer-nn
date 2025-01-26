@@ -26,7 +26,7 @@ class Model {
 		this.playerId = unit.playerId;
 		this.unitProfile = {
 			"m": parseInt(profile.M),
-			"oc": parseInt(profile.OC),
+			"oc": parseFloat(profile.OC),
 		};
 
 		this.stamina = 0;
