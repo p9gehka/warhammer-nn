@@ -1,5 +1,7 @@
 body {
 	margin: 0;
+	background: #DDDFE1;
+	font-family: -apple-system,BlinkMacSystemFont,Trebuchet MS,Roboto,Ubuntu,sans-serif;
 }
 
 .main {
@@ -24,9 +26,9 @@ body {
 }
 
 .left-panel {
-	display: grid;
-	height: 100vh;
-	grid-template-rows: min-content;
+	position: relative;
+	overflow-y: scroll;
+	max-height: 100vh;
 }
 
 .right-pane {
@@ -48,35 +50,62 @@ body {
 .object-cell {
 	background: sandybrown;
 }
+
+.player-0, .player-1 {
+	position: relative;
+}
+
+.player-0 img, .player-1 img {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
 .player-0 {
 	background: rgba(255, 0, 0, 0.2);
+	border: 1px solid rgb(255, 0, 0);
 }
 
 .player-1 {
 	background: rgba(0, 0, 255, 0.2);
+	border: 1px solid rgb(0, 0, 255);
 }
 
 .header {
 	display: grid;
 	grid-template-columns: auto min-content;
 	height: 40px;
-	border-bottom: 1px solid #eeeeee;
 	align-items: center;
 	padding-left: 8px;
+}
+
+.header .player0 {
+	border-bottom: 2px solid red;
+}
+
+.header .player1 {
+	border-bottom: 2px solid blue;
 }
 
 .header-controls {
 	display: grid;
 	grid-auto-flow: column;
+	grid-gap: 12px;
 }
 
 .hidden {
-	display: none;
+	display: none !important;
 }
 
 .table {
 	width: 900px;
 	font-size: 5px;
+}
+
+.mission-section {
+	display: flex;
 }
 
 .units-strip {
@@ -102,6 +131,103 @@ body {
 	opacity: 0.8;
 }
 
-.units-strip li:focus {
+.units-strip li.selected {
 	background: #cccccc;
+}
+
+.unit-name {
+	background: #0A5F6A;
+	color: white;
+	text-transform: uppercase;
+}
+.unit-stats-header, .stats, .model-stats {
+	display: flex;
+}
+.unit-stats-header div, .stats div {
+	text-align: center;
+	width: 30px;
+}
+.unit-section .model-stats.selected{
+	background: #cccccc;
+}
+
+.weapon-section {
+	border-spacing: 0;
+}
+.weapon-section th {
+	background: #1D6070;
+	color: white;
+	text-transform: uppercase;
+}
+.weapon-section tr {
+	cursor: pointer;
+}
+.weapon-section tr:hover {
+	background: #cccccc;
+}
+
+.dice-tray-line {
+	display: flex;
+	flex-wrap: wrap;
+	position: relative;
+}
+
+.dice-section {
+	width: 100%;
+	height: 200px;
+	overflow: scroll;
+	border: 2px solid #21606f;
+	padding: 4px;
+	background: whitesmoke;
+}
+
+.dice-history-section {
+	overflow: scroll;
+}
+
+.dice-tray-line .dice {
+	width: 27px;
+	height: 27px;
+	line-height: 9px;
+	font-family: monospace;
+	border: 1px solid gray;
+	white-space: break-spaces;
+	margin: 2px;
+}
+
+.dice-separator {
+	width: 100%;
+	border: 1px solid gray;
+}
+
+.dice-tray-line .dice::after {
+	width: 27px;
+	height: 27px;
+	text-align: center;
+	display: block;
+}
+.dice-tray-line .dice-1::after {
+	content: '\000A\00A0·\00A0';
+}
+.dice-tray-line .dice-2::after {
+	content: '·\00A0\00A0\000A\000A\00A0\00A0·';
+}
+
+.dice-tray-line .dice-3::after {
+	content: '·\00A0\00A0\000A\00A0·\00A0\000A\00A0\00A0·';
+}
+
+.dice-tray-line .dice-4::after {
+	content: '·\00A0·\000A\000A·\00A0·';
+}
+
+.dice-tray-line .dice-5::after {
+	content: '·\00A0·\000A\00A0·\00A0\000A·\00A0·';
+}
+
+.dice-tray-line .dice-6::after {
+	content: '···\000A\000A···';
+}
+.dice-tray-line .dice-7::after {
+	content: '\000A\00A0 A\00A0';
 }

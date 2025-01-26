@@ -7,18 +7,48 @@
 	<main class="main">
 		<div class="left-panel">
 			<header class="header">
-				<div id="header"></div>
+				<div id="header-info"></div>
 				<div class="header-controls">
+					<input type="checkbox" id="order-view-checkbox"/>
 					<input type="checkbox" id="view-checkbox"/>
-					<button id="restart">Restart</button>
 				</div>
 			</header>
-			<ul id="history-list" class="history-list"></ul>
-			<ul id="orders-list" class="orders-list"></ul>
+			<div id="orders-section" class="orders-section">
+				<button id="start">Start</button>
+				<button id="restart">Restart</button>
+				<button id="settings-restart">Settings & Restart</button>
+				<button id="next-phase-button">Next</button>
+			</div>
+			<div class="mission-section" id="mission-section"></div>
+			<div class="army-rule-section" id="army-rule-section"></div>
+			<div class="dice-section">
+				<div class="shooting-queue" id="shooting-queue"></div>
+				<button id="shoot">Roll dice fast</button>
+				<button id="roll-dice">Roll dice</button>
+				<div class="dice-tray-line" id="dice-tray"></div>
+				<div class="dice-history-section" id="dice-history-section"></div>
+			</div>
+			<div class="unit-name" id="unit-name"></div>
+			<div class="unit-stats-header hidden" id="unit-stats-header">
+				<div>M</div><div>T</div><div>SV</div><div>W</div><div>LD</div><div>OC</div>
+			</div>
+			<div class="unit-section" id="unit-section"></div>
+			<table class="weapon-section" id="weapon-section"></table>
+			<ul id="full-orders-list" class="full-orders-list hidden"></ul>
 		</div>
-		<div class="right-pane">
-			<canvas width="900" height="660" id="canvas" class="canvas"></canvas>
-			<table id="table" class="table hidden"></table>
+		<div >
+			<div class="right-pane">
+				<canvas width="900" height="660" id="canvas" class="canvas"></canvas>
+				<table id="table" class="table hidden"></table>
+			</div>
+			<ul class="units-strip" id="units-strip"></ul>
 		</div>
 	</main>
+	<dialog id="settings-dialog">
+		<input type="file" id="load-roster-player1"></input>
+		<input type="file" id="load-roster-player2"></input>
+		<select id="battlefield-select"></select>
+		<button autofocus id="close-settings-dialog">Cancel</button>
+		<button autofocus id="game-reload">Reload</button>
+	</dialog>
 </body>
