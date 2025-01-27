@@ -119,7 +119,7 @@ export class Rewarder {
 	epsilonReward(prevState, playerState, prevPlayerState, order, epsilon) {
 		let reward = 0;
 		const state = this.env.getState();
-		if (order.action === BaseAction.Move && state.player === prevState.player ) {
+		if (order.action === BaseAction.Move && state.player === prevState.player) {
 			const player = state.players[prevState.player];
 			const initialPosititon = prevState.models[player.models[prevPlayerState.selected]];
 			const expectedCurrentPosition = add(prevState.models[player.models[prevPlayerState.selected]], order.vector);
@@ -127,7 +127,7 @@ export class Rewarder {
 			const center = div(state.battlefield.size, 2);
 			const expectedCurrentPositionDelta = len(sub(expectedCurrentPosition, center).map(Math.abs));
 			const initialPosititonDelta = len(sub(initialPosititon, center).map(Math.abs));
-			reward += ((initialPosititonDelta - expectedCurrentPositionDelta) > 0 ? 1 : -1);
+			//reward += ((initialPosititonDelta - expectedCurrentPositionDelta) > 0 ? 1 : -1);
 			//console.log({ order, reward, initialPosititon, newPosition: state.models[player.models[prevPlayerState.selected]], expectedCurrentPosition, expectedCurrentPositionDelta, initialPosititonDelta });
 		}
 
