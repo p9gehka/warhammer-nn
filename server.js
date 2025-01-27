@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { Warhammer } from './static/environment/warhammer.js';
 import { PlayerAgent } from './static/players/player-agent.js';
+import { PlayerDumb } from './static/players/player-dumb.js';
 import { Rewarder } from './students/student.js';
 import { filterObjByKeys } from './static/utils/index.js';
 
@@ -29,7 +30,7 @@ app.get('/dataset', (req,res) => res.sendFile('static/dataset.html', { root: __d
 
 app.post('/play', async (req,res) => {
 	const env = new Warhammer({ gameSettings, battlefields });
-	const players = [new PlayerAgent(0, env), new PlayerAgent(1, env)];
+	const players = [new PlayerAgent(0, env), new PlayerDumb(1, env)];
 	const rewarders = [new Rewarder(0, env), new Rewarder(1, env)];
 	try {
 		await Promise.all(players.map(player => player.load()));
