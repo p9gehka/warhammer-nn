@@ -115,7 +115,7 @@ async function play() {
 		if (state.player === 0 && players[0].getOnlineNetwork() !== undefined && frameCount % sendMessageEveryFrames === 0 && vpAveragerBuffer !== null && rewardAveragerBuffer !== null) {
 			const testActions = [];
 
-			const testAgents = [players[0].player, new PlayerDumb(env)]
+			const testAgents = [players[0].player, new PlayerDumb(1, env)];
 			let testAttempst = 0;
 			let testState = env.reset();
 

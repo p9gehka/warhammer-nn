@@ -40,6 +40,7 @@ export async function testReward(silent, nn) {
 
 	let frameCount = 0;
 	let prevState;
+	let prevPlayerState;
 	while (true) {
 		state = env.getState();
 
@@ -65,9 +66,12 @@ export async function testReward(silent, nn) {
 
 		const stepInfo = players[state.player].playStep();
 		if (state.player === 0) {
-			if (prevState !== undefined) {
-				rewarder.step(prevState[0], prevState[1], 0);
+			const playerState = players[state.player].getState();
+
+			if (prevState !== undefined && prevPlayerState !== undefined) {
+				rewarder.step(prevState[0], playerState, prevPlayerState, prevState[1], 0);
 			}
+			prevPlayerState = playerState;
 			prevState = [state, ...stepInfo]
 		}
 		if (state.player === 0) {

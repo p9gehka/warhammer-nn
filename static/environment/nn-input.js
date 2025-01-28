@@ -8,6 +8,7 @@ import { Triangle } from '../utils/planimatrics/triangle.js';
 export const Channel0 = {};
 const maxModels = 10;
 new Array(maxModels).fill(0).forEach((_, v) => { Channel0[`PlayerModel${v}`] = 1 });
+
 export const Channel1 = {};
 
 new Array(maxModels).fill(0).forEach((_,v) => { Channel1[`Stamina${v}`] = v / maxModels; });
