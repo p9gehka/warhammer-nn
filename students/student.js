@@ -11,10 +11,9 @@ export class StudentAgent extends PlayerAgent {
 		let orderIndex;
 		let estimate = 0;
 		const input = this.agent.getInput(prevState, this.getState());
-		const selected = input[Channel3Name.Order0][0];
 
 		if (Math.random() < epsilon) {
-			orderIndex = getRandomInteger(0, this.agent.orders.length);
+			orderIndex = this.agent.getRandomAvailableOrderIndex(prevState, this.getState());
 		} else {
 			let { orderIndex: stepOrderIndex, estimate } = this.agent.playStep(prevState, this.getState());
 			orderIndex = stepOrderIndex;
@@ -24,7 +23,7 @@ export class StudentAgent extends PlayerAgent {
 
 		let [order_, state] = this.step(order);
 
-		return [order_, state, { index: orderIndex, estimate: estimate.toFixed(3) }];
+		return [order_, state, { orderIndex, estimate: estimate.toFixed(3) }];
 	}
 }
 
@@ -74,7 +73,7 @@ export class Student {
 			this.replayMemory?.append([...this.prevMemoryState, reward, false, input]);
 		}
 		const result = this.player.playTrainStep(this.epsilon);
-		this.prevMemoryState = [input, result[2].index];
+		this.prevMemoryState = [input, result[2].orderIndex];
 		this.prevState = prevState;
 		return result;
 	}
@@ -100,15 +99,19 @@ export class Rewarder {
 		this.playerId = player.playerId;
 		this.cumulativeReward = 0;
 		this.primaryVP = 0;
+		this.initialGamma = 0.99;
+		this.gamma = this.initialGamma;
 	}
 	step(prevState, order, epsilon) {
-		let reward = 0;
+		let reward = -0.5;
+
 		const state = this.env.getState();
 
 		const { primaryVP } = state.players[this.playerId];
 		reward += this.primaryReward(order, primaryVP);
 		reward += this.epsilonReward(prevState, order, epsilon);
-		this.cumulativeReward += reward;
+		this.cumulativeReward += (reward * this.gamma);
+		this.gamma = this.gamma * this.initialGamma;
 		return reward;
 	}
 	epsilonReward(prevState, order, epsilon) {
@@ -141,5 +144,6 @@ export class Rewarder {
 	reset() {
 		this.primaryVP = 0;
 		this.cumulativeReward = 0;
+		this.gamma = this.initialGamma;
 	}
 }

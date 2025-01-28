@@ -1,8 +1,8 @@
 import { getStateTensor } from '../utils/get-state-tensor.js';
 import { channels } from '../environment/nn-input.js';
 
-export function updateTable(state, input, table) {
-	const data = getStateTensor([input], ...state.battlefield.size, channels)[0].arraySync();
+export function updateTable(size, input, table) {
+	const data = getStateTensor([input], ...size, channels)[0].arraySync();
 	const fragment = new DocumentFragment();
 	const nextline = Math.floor(Math.sqrt(data[0][0][0].length)) - 1;
 	for(let row of data[0]) {
@@ -11,9 +11,9 @@ export function updateTable(state, input, table) {
 			const cellEl = document.createElement('TD');
 			cellEl.innerHTML = cell.map((v, i) => v.toFixed(1) + ((i === nextline) ? '\n' : ',')).join('');
 			rowEl.appendChild(cellEl);
-			if (cell[0] === 1) {
+			if (cell[0] > 0) {
 				cellEl.classList.add('player-model-cell');
-			} else if (cell[4] === 1) {
+			} else if (cell[3] === 1) {
 				cellEl.classList.add('opponent-model-cell');
 			} else if (cell[2] !== 0) {
 				cellEl.classList.add('object-cell');
@@ -37,9 +37,9 @@ export function updateTable2(state, stateTensor, table) {
 			const cellEl = document.createElement('TD');
 			cellEl.innerHTML = cell.map((v, i) => v.toFixed(1) + ((i === nextline) ? '\n' : ',')).join('');
 			rowEl.appendChild(cellEl);
-			if (cell[0] === 1) {
+			if (cell[0] > 0) {
 				cellEl.classList.add('player-model-cell');
-			} else if (cell[4] === 1) {
+			} else if (cell[3] === 1) {
 				cellEl.classList.add('opponent-model-cell');
 			} else if (cell[2] !== 0) {
 				cellEl.classList.add('object-cell');

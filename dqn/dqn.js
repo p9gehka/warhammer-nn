@@ -33,12 +33,10 @@ export function createDeepQNetwork(numActions, h, w, c, { addSoftmaxLayer } = { 
 	const inputShape = [h, w, c];
 	const inputConv2d = tf.input({shape: inputShape});
 	const inputDense = tf.input({shape: [totalRounds]});
-	let conv2d = tf.layers.conv2d({ filters: 32, kernelSize: 6, activation: 'relu'}).apply(inputConv2d);
-	conv2d = tf.layers.batchNormalization().apply(conv2d);
-	conv2d = tf.layers.conv2d({ filters: 64, kernelSize: 4, activation: 'relu' }).apply(conv2d);
-	conv2d = tf.layers.batchNormalization().apply(conv2d);
-	conv2d = tf.layers.conv2d({ filters: 16, kernelSize: 4, activation: 'relu'}).apply(conv2d);
-
+	let conv2d = tf.layers.conv2d({ filters: 12, kernelSize: 4, activation: 'relu'}).apply(inputConv2d);
+	conv2d = tf.layers.conv2d({ filters: 20, kernelSize: 4, activation: 'relu' }).apply(conv2d);
+	conv2d = tf.layers.conv2d({ filters: 20, kernelSize: 4, activation: 'relu' }).apply(conv2d);
+	conv2d = tf.layers.conv2d({ filters: 20, kernelSize: 4, activation: 'relu' }).apply(conv2d);
 	let conv2dOut = tf.layers.flatten().apply(conv2d);
 	const concatinate = tf.layers.concatenate().apply([conv2dOut, inputDense]);
 	let mlp = tf.layers.dense({units: 768, activation: 'relu'}).apply(concatinate);
@@ -71,7 +69,11 @@ export function copyWeights(destNetwork, srcNetwork) {
     destNetwork.trainable = srcNetwork.trainable;
   }
 
-  destNetwork.setWeights(srcNetwork.getWeights());
+  srcNetwork.layers.forEach((layer, i) => {
+    if (destNetwork.layers[i] !== undefined) {
+      destNetwork.layers[i].setWeights(layer.getWeights())
+    }
+  });
 
   // Weight orders are inconsistent when the trainable attribute doesn't
   // match between two `LayersModel`s. The following is a workaround.

@@ -2,13 +2,24 @@ import express from 'express';
 import { ReplayMemory } from './replay-memory.js';
 import hash from 'object-hash';
 import config from '../config.json' assert { type: 'json' };
+import { fileURLToPath } from 'url';
+import path from 'path';
+
 const { replayMemorySize } = config;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const replayMemory = new ReplayMemory(replayMemorySize);
 
 const app = express();
 
 let locked = false;
+
 app.use(express.json({ limit: '200mb' }));
+app.use(express.static(__dirname + '/../static'));
+
+app.get('/get_memory', (req,res) => res.sendFile(path.resolve('./static/memory.html')));
 
 app.get('/', (req,res) => {
 	if (locked) {
@@ -17,7 +28,6 @@ app.get('/', (req,res) => {
 	}
 	res.sendStatus(200);
 });
-
 
 app.post('/append', (req,res) => {
 	if (locked) {
@@ -63,16 +73,15 @@ app.get('/key-counter', (req,res) => {
 });
 
 app.get('/config', (req,res) => res.json(config));
-app.get('/model', (req,res) => res.sendFile('static/dqn/model.json', { root: __dirname }));
-app.get('/weight', (req,res) => res.sendFile('static/dqn/weight.bin', { root: __dirname }));
-
-const port = 3000;
 
 app.post('/lock', (req, res) => {
 	console.log('memory locked');
 	locked = true;
 	res.sendStatus(200);
 });
+
+const port = 3000;
+
 app.listen(port, () => {
 	console.log(`Replay Memory Server running`);
 });
