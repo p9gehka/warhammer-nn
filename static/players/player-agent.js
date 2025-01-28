@@ -91,14 +91,16 @@ export class PlayerAgent {
 		return [{ ...playerOrder, misc: state.misc }, state];
 	}
 	checkSize() {
-		if (this.agent.onlineNetwork === undefined) {
-			return;
-		}
-		const [_, width, height] = this.agent.onlineNetwork.inputs[0].shape;
-		const [fieldHeight, fieldWidth] = this.env.battlefield.size;
-		if (fieldHeight !== height || fieldWidth !== width) {
-			console.warn(`!!!!Map size and Network input are inconsistent: ${[fieldHeight, fieldWidth]} !== ${[height, width]}!!!`)
-		}
+		[this.agents[Phase.Movement], this.agents[Phase.Shooting]].forEach(agent => {
+			if (agent.onlineNetwork === undefined) {
+				return;
+			}
+			const [_, width, height] = agent.onlineNetwork.inputs[0].shape;
+			const [fieldHeight, fieldWidth] = this.env.battlefield.size;
+			if (fieldHeight !== height || fieldWidth !== width) {
+				console.warn(`!!!!Map size and Network input are inconsistent: ${[fieldHeight, fieldWidth]} !== ${[height, width]}!!!`)
+			}
+		});
 	}
 	selectNextModel(state) {
 		const playerModels = state.players[this.playerId].models;
