@@ -26,7 +26,9 @@
 			{ "name": "stealth battlesuits", "models": [3] }
 		],
 		[
-			{ "name": "stealth battlesuits", "models": [4] }
+			{ "name": "stealth battlesuits", "models": [4] },
+			{ "name": "stealth battlesuits", "models": [5] },
+			{ "name": "stealth battlesuits", "models": [6] }
 		]
 	],
 	"rangedWeapons": [
