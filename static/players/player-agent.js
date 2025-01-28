@@ -105,7 +105,7 @@ export class PlayerAgent {
 	selectNextModel(state) {
 		const playerModels = state.players[this.playerId].models;
 		let id = 0;
-		if (state.phase === phase.Move) {
+		if (state.phase === Phase.Move) {
 			id = playerModels.findIndex((modelId, playerModelId) => playerModelId > this._selectedModel && state.modelsStamina[modelId] > 0);
 		} else {
 			id = playerModels.findIndex((modelId, playerModelId) => playerModelId > this._selectedModel && state.availableToShoot.includes(modelId))
