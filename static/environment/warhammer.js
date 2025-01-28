@@ -1,5 +1,5 @@
 import { MissionController} from './mission.js';
-
+import { terrain } from '../battlefield/terrain.js';
 import { mul, len, sub, add, eq, scaleToLen, round } from '../utils/vec2.js'
 import { getRandomInteger } from '../utils/index.js';
 
@@ -278,20 +278,20 @@ export class Warhammer {
 	}
 
 	getAvailableTarget(shooterId, weaponId, unitId) {
-		const shooter = this.models[shooterId];
-		const weapon = shooter.getRangedWeapon(weaponId);
-		const aliveTargets = [];
-		const availableTargets = [];
-		this.units[unitId].models.forEach(modelId => {
-			const possibleTarget = this.models[modelId];
-			if (!possibleTarget.dead && weapon !== undefined) {
-				if (len(sub(possibleTarget.position, shooter.position)) <= weapon.range) {
-					availableTargets.push(possibleTarget.position);
+			const shooter = this.models[shooterId];
+			const weapon = shooter.getRangedWeapon(weaponId);
+			const aliveTargets = [];
+			const availableTargets = [];
+			this.units[unitId].models.forEach(modelId => {
+				const possibleTarget = this.models[modelId];
+				if (!possibleTarget.dead && weapon !== undefined) {
+					if (len(sub(possibleTarget.position, shooter.position)) <= weapon.range) {
+						availableTargets.push(possibleTarget.position);
+					}
 				}
-			}
-		});
-		return availableTargets;
-	}
+			});
+			return (new terrain[this.battlefield.terrain]).filterVisibleFrom(availableTargets, shooter.position);
+		}
 
 	getPlayer() { return this.turn % 2; }
 
