@@ -1,5 +1,8 @@
 import { BaseAction } from '../environment/warhammer.js';
 import { MoveAgent } from '../agents/move-agent/move-agent44x30.js';
+import { ShootAgent } from '../agents/shoot-agent/shoot-agent44x30.js';
+import { DumbAgent } from '../agents/dumb-agent.js';
+import { Phase } from '../environment/warhammer.js';
 
 export class PlayerAgent {
 	static cascad = [MoveAgent.settings]
@@ -7,12 +10,20 @@ export class PlayerAgent {
 	constructor(playerId, env) {
 		this.env = env;
 		this.playerId = playerId;
-		this.enemyId = (playerId+1) % 2;
+		this.opponentId = (playerId+1) % 2;
 		this._selectedModel = 0;
-		this.agent = new MoveAgent();
+		this.agents = {
+			[Phase.Movement]: new MoveAgent(),
+			[Phase.Shooting]: new DumbAgent(),
+		};
+		this.steps = {
+			[Phase.Movement]: (order) => this.moveStep(order),
+			[Phase.Shooting]: (order) => this.shootStep(order),
+		}
 	}
 	async load() {
-		await this.agent.load();
+		await this.agents[Phase.Movement].load();
+		await this.agents[Phase.Shooting].load();
 	}
 	reset() {
 		this.checkSize();
@@ -22,14 +33,29 @@ export class PlayerAgent {
 	playStep() {
 		const prevState = this.env.getState();
 
-		const { orderIndex, order, estimate } = this.agent.playStep(prevState, this.getState());
+		let order, orderIndex, estimate;
+		if (prevState.phase in this.agents) {
+			const result = this.agents[prevState.phase].playStep(prevState, this.getState());
+			orderIndex = result.orderIndex;
+			order = result.order;
+			estimate = result.estimate;
+		} else {
+			order = { action: BaseAction.NextPhase };
+			orderIndex = 0;
+			estimate = 0;
+		}
 
-		let [order_, state] = this.step(order);
-
+		let [order_, state] = prevState.phase in this.steps ? this.steps[prevState.phase](order) : this.defaultStep(order);
 		return [order_, state, { index: orderIndex, estimate: estimate.toFixed(3) }];
-
 	}
-	step(order) {
+
+	defaultStep(order) {
+		const state = this.env.step(order);
+
+		return [{ ...order, misc: state.misc }, state];
+	}
+
+	moveStep(order) {
 		let playerOrder;
 		const { action } = order;
 		const prevState = this.env.getState();
@@ -59,7 +85,11 @@ export class PlayerAgent {
 
 		return [{ ...playerOrder, misc: state.misc }, state];
 	}
-
+	shootStep() {
+		const playerOrder = { action: BaseAction.NextPhase };
+		const state = this.env.step(playerOrder);
+		return [{ ...playerOrder, misc: state.misc }, state];
+	}
 	checkSize() {
 		if (this.agent.onlineNetwork === undefined) {
 			return;
@@ -85,6 +115,6 @@ export class PlayerAgent {
 	}
 
 	getState() {
-		return { selected: this._selectedModel };
+		return { selected: this._selectedModel, visibleOpponentUnits: [] };
 	}
 }
