@@ -45,11 +45,7 @@ async function play() {
 	const env = new Warhammer({ gameSettings, battlefields });
 
 	const replayMemory = new ReplayMemoryClient(replayBufferSize);
-<<<<<<< HEAD
 	const players = [new Student(0, env, { replayMemory, epsilonDecayFrames: config.epsilonDecayFrames, epsilonInit: epsilonInit }), new PlayerEasy(1, env)];
-=======
-	const players = [new Student(0, env, { replayMemory, epsilonDecayFrames: config.epsilonDecayFrames, epsilonInit }), new PlayerDumb(1, env)];
->>>>>>> n_models
 
 	async function tryUpdateModel() {
 		try {
