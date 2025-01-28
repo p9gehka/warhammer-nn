@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { Warhammer } from './static/environment/warhammer.js';
 import { PlayerAgent } from './static/players/player-agent.js';
+import { PlayerEasy } from './static/players/player-easy.js';
 import { Rewarder } from './students/student.js';
 import { filterObjByKeys } from './static/utils/index.js';
 import { PlayerEasy } from './static/players/player-easy.js';
@@ -43,24 +44,26 @@ app.post('/play', async (req,res) => {
 	const states = [];
 
 	let prevState = [undefined, undefined];
+	let prevPlayerState = [undefined, undefined];
 	let prevStates = [[], []];
 
 	while (!state.done && attempts < 500) {
 		state = env.getState();
-
+		let playerState = players[state.player].getState();
 		if (prevState[state.player] !== undefined) {
-			let reward = rewarders[state.player].step(prevState[state.player][0], prevState[state.player][2], 0.5);
+			let reward = rewarders[state.player].step(prevState[state.player][0], playerState, prevPlayerState[state.player], prevState[state.player][2], 0.5);
 			prevStates[state.player].push([...prevState[state.player], reward]);
 			if (prevState[state.player][2].action === 'NEXT_PHASE') {
 				actionsAndStates.push(...prevStates[state.player]);
 				prevStates[state.player] = [];
 			}
 			prevState[state.player] = undefined;
+			prevPlayerState[state.player] = undefined;
 		}
 
 		const stepInfo = players[state.player].playStep();
 		prevState[state.player] = [state, players[state.player].getState(), ...stepInfo];
-
+		prevPlayerState[state.player] = playerState;
 		attempts++;
 	}
 	console.log(`cumulativeReward: ${rewarders[0].cumulativeReward} VP: ${state.players[0].primaryVP}`)

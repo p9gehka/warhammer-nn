@@ -37,12 +37,7 @@
 			{ "name": "stealth battlesuits", "models": [5] }
 		],
 		[
-			{ "name": "stealth battlesuits", "models": [6] },
-			{ "name": "stealth battlesuits", "models": [7] },
-			{ "name": "stealth battlesuits", "models": [8] },
-			{ "name": "stealth battlesuits", "models": [9] },
-			{ "name": "stealth battlesuits", "models": [10] },
-			{ "name": "stealth battlesuits", "models": [11] }
+			{ "name": "stealth battlesuits", "models": [6] }
 		]
 	]
 }

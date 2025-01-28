@@ -45,7 +45,11 @@ async function play() {
 	const env = new Warhammer({ gameSettings, battlefields });
 
 	const replayMemory = new ReplayMemoryClient(replayBufferSize);
+<<<<<<< HEAD
 	const players = [new Student(0, env, { replayMemory, epsilonDecayFrames: config.epsilonDecayFrames, epsilonInit: epsilonInit }), new PlayerEasy(1, env)];
+=======
+	const players = [new Student(0, env, { replayMemory, epsilonDecayFrames: config.epsilonDecayFrames, epsilonInit }), new PlayerDumb(1, env)];
+>>>>>>> n_models
 
 	async function tryUpdateModel() {
 		try {
@@ -115,7 +119,7 @@ async function play() {
 		if (state.player === 0 && players[0].getOnlineNetwork() !== undefined && frameCount % sendMessageEveryFrames === 0 && vpAveragerBuffer !== null && rewardAveragerBuffer !== null) {
 			const testActions = [];
 
-			const testAgents = [players[0].player, new PlayerDumb(env)]
+			const testAgents = [players[0].player, new PlayerDumb(1, env)];
 			let testAttempst = 0;
 			let testState = env.reset();
 
