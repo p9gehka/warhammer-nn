@@ -11,7 +11,7 @@ export class StudentAgent extends PlayerAgent {
 		const agent = this.agents[prevState.phase];	
 		let estimate = 0;
 		const input = agent.getInput(prevState, this.getState());
-
+		let orderIndex = 0;
 		if (Math.random() < epsilon) {
 			orderIndex = agent.getRandomAvailableOrderIndex(prevState, this.getState());
 		} else {
@@ -78,7 +78,7 @@ export class Student {
 
 		if (this.prevMemoryState !== null && this.prevState !== undefined && this.prevPlayerState !== undefined) {
 			if (this.prevMemoryState[1] !== 0 || this.prevMemoryState[2] !== 0) {
-				let reward = this.rewarder.step(this.prevState, playerState, this.prevPlayerState, his.player.agents[this.prevState.phase].orders[this.prevMemoryState[1]], this.epsilon);
+				let reward = this.rewarder.step(this.prevState, playerState, this.prevPlayerState, this.player.agents[this.prevState.phase].orders[this.prevMemoryState[1]], this.epsilon);
 				this.replayMemory?.append([this.prevMemoryState[0], this.prevMemoryState[1], reward, false, input]);
 			}
 		}
@@ -101,7 +101,7 @@ export class Student {
 		if (this.prevMemoryState !== null && this.prevState !== undefined) {
 			if (this.prevMemoryState[1] !== 0 || this.prevMemoryState[2] !== 0) {
 				const playerState = this.player.getState();
-				let reward = this.rewarder.step(this.prevState, playerState, this.prevPlayerState, his.player.agents[this.prevState.phase].orders[this.prevMemoryState[1]], this.epsilon);
+				let reward = this.rewarder.step(this.prevState, playerState, this.prevPlayerState, this.player.agents[this.prevState.phase].orders[this.prevMemoryState[1]], this.epsilon);
 				this.replayMemory?.append([this.prevMemoryState[0], this.prevMemoryState[1], reward, true, null]);
 			}
 		}
@@ -135,7 +135,7 @@ export class Rewarder {
 	epsilonReward(prevState, playerState, prevPlayerState, order, epsilon) {
 		let reward = 0;
 
-		if (order.action === BaseAction.Move && playerState.selected === prevPlayerState.selected) {
+		if (order.action === BaseAction.Move && playerState.selected === prevPlayerState.selected && !isNaN(prevState.models[playerState.selected][0])) {
 			const state = this.env.getState();
 			const initialPosititon = prevState.models[playerState.selected];
 			const expectedCurrentPosition = add(prevState.models[playerState.selected], order.vector);
