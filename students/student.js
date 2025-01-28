@@ -12,11 +12,19 @@ export class StudentAgent extends PlayerAgent {
 		let estimate = 0;
 		const input = agent.getInput(prevState, this.getState());
 		let orderIndex = 0;
-		if (Math.random() < epsilon) {
-			orderIndex = agent.getRandomAvailableOrderIndex(prevState, this.getState());
-		} else {
-			let { orderIndex: stepOrderIndex, estimate } = agent.playStep(prevState, this.getState());
-			orderIndex = stepOrderIndex;
+
+		const playerModels = prevState.players[this.playerId].models;
+		const aliveModels = playerModels.filter(modelId => !isNaN(prevState.models[modelId][0]))
+		if (aliveModels.length > 0) {
+			if (isNaN(prevState.models[playerModels[this.getState().selected]][0])) {
+				this._selectedModel = this.selectNextModel(prevState);
+			}
+			if (Math.random() < epsilon) {
+				orderIndex = agent.getRandomAvailableOrderIndex(prevState, this.getState());
+			} else if (prevState.phase in this.agents) {
+				let { orderIndex: stepOrderIndex, estimate } = agent.playStep(prevState, this.getState());
+				orderIndex = stepOrderIndex;
+			}
 		}
 
 		const order = agent.orders[orderIndex];

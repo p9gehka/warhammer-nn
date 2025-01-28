@@ -34,7 +34,13 @@ export class PlayerAgent {
 		const prevState = this.env.getState();
 
 		let order, orderIndex, estimate;
-		if (prevState.phase in this.agents) {
+		const playerModels = prevState.players[this.playerId].models;
+		const aliveModels = playerModels.filter(modelId => !isNaN(prevState.models[modelId][0]))
+
+		if (prevState.phase in this.agents && aliveModels.length > 0) {
+			if (isNaN(prevState.models[playerModels[this.getState().selected]][0])) {
+				this._selectedModel = this.selectNextModel(prevState);
+			}
 			const result = this.agents[prevState.phase].playStep(prevState, this.getState());
 			orderIndex = result.orderIndex;
 			order = result.order;
@@ -105,7 +111,7 @@ export class PlayerAgent {
 	selectNextModel(state) {
 		const playerModels = state.players[this.playerId].models;
 		let id = 0;
-		if (state.phase === Phase.Move) {
+		if (state.phase === Phase.Movement) {
 			id = playerModels.findIndex((modelId, playerModelId) => playerModelId > this._selectedModel && state.modelsStamina[modelId] > 0);
 		} else {
 			id = playerModels.findIndex((modelId, playerModelId) => playerModelId > this._selectedModel && state.availableToShoot.includes(modelId))
