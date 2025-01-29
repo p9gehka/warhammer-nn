@@ -16,7 +16,7 @@ const tf = await getTF();
 const { replayBufferSize, gamma, repeatBatchTraining, learningRate } = config;
 
 async function train(nn) {
-	const replayMemory = new ReplayMemoryClient(replayBufferSize, false);
+	const replayMemory = new ReplayMemoryClient(replayBufferSize, true);
 	await replayMemory.updateClient();
 
 	const trainer = new Trainer(PlayerAgent.cascad, { nn, replayMemory });
