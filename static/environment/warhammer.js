@@ -146,6 +146,7 @@ export class Warhammer {
 		});
 		return this.getState();
 	}
+
 	getStartPosition(...args) {
 		return this._getStartPosition(...args);
 	}
