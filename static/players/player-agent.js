@@ -8,7 +8,7 @@ export class PlayerAgent {
 		this.env = env;
 		this.playerId = playerId;
 		this.enemyId = (playerId+1) % 2;
-		this._selectedModel = this.env.players[this.playerId].models[0];
+		this._selectedModel = 0;
 		this.agent = new MoveAgent();
 	}
 	async load() {
@@ -16,12 +16,13 @@ export class PlayerAgent {
 	}
 	reset() {
 		this.checkSize();
-		this._selectedModel = this.env.players[this.playerId].models[0];
+		this.lastRound = -1;
+		this._selectedModel = 0;
 	}
 	playStep() {
 		const prevState = this.env.getState();
 
-		const { orderIndex, order, estimate } = this.agent.playStep(prevState);
+		const { orderIndex, order, estimate } = this.agent.playStep(prevState, this.getState());
 
 		let [order_, state] = this.step(order);
 
@@ -33,11 +34,27 @@ export class PlayerAgent {
 		const { action } = order;
 		const prevState = this.env.getState();
 
+		const playerModels = prevState.players[this.playerId].models;
+		const round = prevState.round;
+
+		if (this.lastRound !== round) {
+			this.env.step({ action: BaseAction.Move, vector: [0, 0], expense: 0, id: playerModels[this._selectedModel] });
+			this.lastRound = round;
+		}
+
 		if (action === BaseAction.Move) {
-			playerOrder = { action, id: this._selectedModel, vector: order.vector, expense: order.expense };
+			playerOrder = {action, id: playerModels[this._selectedModel], vector: order.vector, expense: order.expense };
+		} else if (action === BaseAction.NextPhase && playerModels.some((modelId, playerModelId) => prevState.modelsStamina[modelId] !== 0 && playerModelId !== this._selectedModel)){
+			this._selectedModel = this.selectNextModel(prevState);
+			playerOrder = { action: BaseAction.Move, vector: [0, 0], expense: 0, id: playerModels[this._selectedModel] };
 		} else {
 			playerOrder = order;
 		}
+
+		if (playerOrder.action === BaseAction.NextPhase) {
+			this._selectedModel = this.selectNextModel(prevState);
+		}
+
 		const state = this.env.step(playerOrder);
 
 		return [{ ...playerOrder, misc: state.misc }, state];
@@ -52,5 +69,16 @@ export class PlayerAgent {
 		if (fieldHeight !== height || fieldWidth !== width) {
 			console.warn(`!!!!Map size and Network input are inconsistent: ${[fieldHeight, fieldWidth]} !== ${[height, width]}!!!`)
 		}
+	}
+	selectNextModel(state) {
+		const playerModels = state.players[this.playerId].models;
+		const id = playerModels.findIndex((modelId, playerModelId) => playerModelId > this._selectedModel && state.modelsStamina[modelId] > 0);
+		const newSelectedModel2 = id >= 0 ? id : 0;
+
+		return id >= 0 ? id : 0;
+	}
+
+	getState() {
+		return { selected: this._selectedModel };
 	}
 }

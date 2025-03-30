@@ -2,6 +2,7 @@ import { Warhammer } from '../static/environment/warhammer.js';
 import { PlayerDumb } from '../static/players/player-dumb.js';
 import { filterObjByKeys } from '../static/utils/index.js';
 import { PlayerAgent } from '../static/players/player-agent.js';
+import { PlayerEasy } from '../static/players/player-easy.js';
 import { Rewarder } from '../students/student.js';
 import { MovingAverager } from '../moving-averager.js';
 
@@ -15,7 +16,10 @@ const rewardAveragerLen = 200;
 
 export async function testReward(silent, nn) {
 	const env = new Warhammer({ gameSettings, battlefields });
-	const players = [new PlayerAgent(0, env), new PlayerDumb(env)];
+	const players = [new PlayerEasy(0, env), new PlayerEasy(1, env)];
+	if (nn !== undefined) {
+		players[0] = new PlayerAgent(0, env);
+	}
 	players[0].agent.onlineNetwork = nn;
 	const rewarder = new Rewarder(0, env);
 
@@ -36,6 +40,7 @@ export async function testReward(silent, nn) {
 
 	let frameCount = 0;
 	let prevState;
+	let prevPlayerState;
 	while (true) {
 		state = env.getState();
 
@@ -61,9 +66,12 @@ export async function testReward(silent, nn) {
 
 		const stepInfo = players[state.player].playStep();
 		if (state.player === 0) {
-			if (prevState !== undefined) {
-				rewarder.step(prevState[0], prevState[1], 0);
+			const playerState = players[state.player].getState();
+
+			if (prevState !== undefined && prevPlayerState !== undefined) {
+				rewarder.step(prevState[0], playerState, prevPlayerState, prevState[1], 0);
 			}
+			prevPlayerState = playerState;
 			prevState = [state, ...stepInfo]
 		}
 		if (state.player === 0) {
@@ -76,9 +84,3 @@ export async function testReward(silent, nn) {
 	}
 	return vpAverager.average();
 }
-
-async function main() {
-	await testReward(false);
-}
-
-main();

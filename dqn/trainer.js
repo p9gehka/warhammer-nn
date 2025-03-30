@@ -19,6 +19,7 @@ export class Trainer {
 			modelTopology: this.onlineNetwork.toJSON(null, false)
 		});
 		this.copyWeights();
+		this.targetNetwork.trainable = false;
 	}
 	copyWeights() {
 		copyWeights(this.targetNetwork, this.onlineNetwork);
@@ -29,22 +30,30 @@ export class Trainer {
 		if (this.replayMemory === null) {
 			throw new Error(`trainOnReplayBatch without replayMemory`);
 		}
-		const batch = this.replayMemory.sample(batchSize);
+		const [batch, indeces] = this.replayMemory.sample(batchSize);
 
 		const lossFunction = () => tf.tidy(() => {
 			const stateTensor = getStateTensor(batch.map(example => example[0]), width, height, channels);
+			const nextStateTensor = getStateTensor(batch.map(example => example[4]), width, height, channels);
 			const actionTensor = tf.tensor1d(batch.map(example => example[1]), 'int32');
 
 			const qs = this.onlineNetwork.apply(stateTensor, {training: true}).mul(tf.oneHot(actionTensor, orders.length)).sum(-1);
 
+			const onlineActions = tf.tensor(this.onlineNetwork.apply(nextStateTensor, {training: false}).arraySync()).argMax(-1);
 			const rewardTensor = tf.tensor1d(batch.map(example => example[2]));
-			const nextStateTensor = getStateTensor(batch.map(example => example[4]), width, height, channels);
+			const targetQs = tf.tensor(this.targetNetwork.apply(nextStateTensor, {training: false}).arraySync());
+			const maxTargetQs = targetQs.mul(onlineActions.oneHot(orders.length)).sum(-1)
 
-			const nextMaxQTensor = this.targetNetwork.predict(nextStateTensor).max(-1);
 			const doneMask = tf.scalar(1).sub(
 				tf.tensor1d(batch.map(example => example[3])).asType('float32'));
-			const targetQs = rewardTensor.add(nextMaxQTensor.mul(doneMask).mul(gamma));
-			return tf.losses.meanSquaredError(targetQs, qs);
+
+			const maxQTargets = rewardTensor.add(maxTargetQs.mul(doneMask).mul(gamma));
+
+			if (this.replayMemory.type === 'prioritized') {
+				this.replayMemory.updatePriorities(indeces, maxQTargets.sub(qs).abs().dataSync());
+			}
+
+			return tf.losses.meanSquaredError(maxQTargets, qs);
 		});
 
 		// Calculate the gradients of the loss function with repsect to the weights

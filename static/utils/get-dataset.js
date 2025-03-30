@@ -1,4 +1,4 @@
-import { Warhammer } from '../environment/warhammer.js';
+import { Warhammer, BaseAction } from '../environment/warhammer.js';
 import { MoveAgent } from '../agents/move-agent/move-to-object-agent.js';
 import { getStateTensor1 } from '../utils/get-state-tensor.js';
 import { getTF } from './get-tf.js';
@@ -19,7 +19,7 @@ export function gameToFeaturesAndLabel(record) {
 		const [input, orderIndex] = record;
 		const features = getStateTensor1(input, MoveAgent.settings.width, MoveAgent.settings.height, MoveAgent.settings.channels);
 		const label = tf.oneHot(tf.scalar(orderIndex, 'int32'), MoveAgent.settings.orders.length);
-		return {xs: features, ys: label};
+		return { xs: { input1: features[0], input2: features[1] }, ys: label};
 	});
 }
 
@@ -36,19 +36,35 @@ export function getRandomStartPosition(exclude, battlefield) {
 	}
 }
 
-export function getRawDataset(argenv) {
+export function getRawDataset(argenv, argagent) {
 	const env = argenv ?? new Warhammer({ gameSettings, battlefields });
-	const agent = new MoveAgent();
+	const agent = argagent ?? new MoveAgent();
 
-	function getStateAndAnswer() {
-		const state = env.getState();
-		const selected = env.players[state.player].models[0];
-		const { orderIndex, order } = agent.playStep(state);
+	function getStateAndAnswer() {	
+		env.reset();
+		const selectTurn = [0, 2, 4, 6, 8];
+
+		let choosedTurn = selectTurn[getRandomInteger(0, selectTurn.length)];
+		choosedTurn = getRandomInteger(0, 10);
+		if (choosedTurn !== 0) {
+			env.turn = choosedTurn - 1;
+			env.step({ action: BaseAction.NextPhase });
+		}
+
+		let state = env.getState();
+		const { models: playerModels } = env.players[state.player];
+		const playerModelSelected = getRandomInteger(0, playerModels.length);
+		const selected = playerModels[playerModelSelected];
+		env.models[selected].stamina = getRandomInteger(1, 10);
+		for (let i = 0; i < selected; i++) {
+			env.models[i].stamina = 0;
+		}
+
+		state = env.getState();
+		const { orderIndex, order }  = agent.playStep(state, { selected: playerModelSelected });
 		env.step({ ...order, id: selected });
 
-		env.reset();
-		env.models[selected].stamina = getRandomInteger(0, 10);
-		const input = agent.getInput(state)
+		const input = agent.getInput(state, { selected: playerModelSelected })
 		return [input, orderIndex];
 	}
 	function* getStateAndAnswerGeneratorFn() {

@@ -1,7 +1,10 @@
 import { BaseAction } from '../environment/warhammer.js';
+import { PlayerAgent } from './player-agent.js';
 
-export class PlayerDumb {
-	constructor(env) {
+export class PlayerDumb extends PlayerAgent {
+	constructor(playerId, env) {
+		super(playerId, env)
+		this.playerId = playerId;
 		this.env = env;
 	}
 	playStep() {

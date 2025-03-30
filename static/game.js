@@ -62,7 +62,7 @@ async function play() {
 	while(true) {
 		const state = env.getState();
 		scene.updateState(state);
-		updateTable(state);
+		updateTable(state, players[state.player].getState());
 		updateHeader(state)
 		console.log('CumulativeReward', players.map(p => p.cumulativeReward))
 		if (state.done) {
@@ -91,8 +91,8 @@ function drawOrders() {
 	});
 }
 
-function updateTable(state) {
-	const data = getStateTensor([getInput(state)], ...state.battlefield.size, channels).arraySync();
+function updateTable(state, playerState) {
+	const data = getStateTensor([getInput(state, playerState)], ...state.battlefield.size, channels)[0].arraySync();
 	const fragment = new DocumentFragment();
 	const nextline = Math.floor(Math.sqrt(data[0][0][0].length));
 	for(let row of data[0]) {
