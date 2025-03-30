@@ -43,9 +43,8 @@ export function getRawDataset(argenv, argagent) {
 	function getStateAndAnswer() {	
 		env.reset();
 		const selectTurn = [0, 2, 4, 6, 8];
-
 		let choosedTurn = selectTurn[getRandomInteger(0, selectTurn.length)];
-		choosedTurn = getRandomInteger(0, 10);
+
 		if (choosedTurn !== 0) {
 			env.turn = choosedTurn - 1;
 			env.step({ action: BaseAction.NextPhase });

@@ -19,7 +19,7 @@ ctx.scale(canvas.width / 60, canvas.height / 44);
 
 let model;
 try {
-	model = await tf.loadLayersModel(`/agents/move-agent/.model44x30x4/model.json`);
+	model = await tf.loadLayersModel(`/agents/move-agent/.model44x30x5/model.json`);
 } catch (e) {}
 
 const battlefield = new Battlefield(ctx, { size: [0, 0], objective_marker: [], ruins: [] });
