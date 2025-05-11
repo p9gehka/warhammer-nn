@@ -87,7 +87,11 @@ export function getInput(state, playerState) {
 		const currentTerrain = new terrain[terrainMemoKey]();
 		currentTerrain.getRectangleFootpintsAsTriangles().forEach((triangles) => {
 			triangles.forEach(([A,B,C]) => {
-				terrainMemoized[terrainMemoKey].push(...(new Triangle(...A, ...B, ...C)).getAllPoints());
+				(new Triangle(...A, ...B, ...C)).getAllPoints().forEach(([x, y]) => {
+					if (0 <= x && x < state.battlefield.size[0] && 0 <= y && y < state.battlefield.size[1]) {
+						terrainMemoized[terrainMemoKey].push([x,y]);
+					}
+				});
 			});
 		});
 	}
