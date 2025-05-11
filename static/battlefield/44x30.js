@@ -2,8 +2,7 @@ import { DeploymentCommon } from './deployment-common.js';
 import { Rect } from '../utils/planimatrics/rect.js';
 import { Triangle } from '../utils/planimatrics/triangle.js';
 
-class Deployment44x30 extends DeploymentCommon { size = [44,30] }
-export class ClashOfPatrols extends Deployment44x30 {
+export class ClashOfPatrols extends DeploymentCommon {
 	nomansland_markers = [[12, 15], [22, 9], [32, 15], [22, 21]];
 	objective_markers = [...this.deploy_markers, ...this.nomansland_markers];
 
