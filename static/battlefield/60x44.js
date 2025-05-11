@@ -3,7 +3,8 @@ import { Rect } from '../utils/planimatrics/rect.js';
 import { Circle } from '../utils/planimatrics/circle.js';
 import { Triangle } from '../utils/planimatrics/triangle.js';
 
-export class CrucibleOfBattle extends DeploymentCommon {
+class Deployment60x44 extends DeploymentCommon { size = [60,44] }
+export class CrucibleOfBattle extends Deployment60x44 {
 	constructor() {
 		super();
 		this.deploy_markers = [[14, 34], [46, 10]];

@@ -242,28 +242,39 @@ function updateWeaponSection(state) {
 
 };
 
-game.onUpdateDiceHistory = (diceInfo) => {
-	const titles = ['attacks', 'hits', 'wounds', 'saves', 'damages'];
-	const separator = document.createElement('div');
-	separator.classList.add('dice-separator');
-	diceHistorySection.insertBefore(separator, diceHistorySection.firstChild);
-
-	[diceInfo.attacks, diceInfo.hits, diceInfo.wounds, diceInfo.saves, diceInfo.damages].forEach((dices, i) => {
+game.onUpdateDiceHistory = (diceInfo, name) => {
+	const titlesTexts = ['Damages','Saves', 'Wounds', 'Hits', 'Attacks'];
+	const titles = ['❤', '♜', '🎯', '🏹', '⚔' ];
+	const playerId = game.getCurrentPlayer().playerId;
+	[diceInfo.damages, diceInfo.saves, diceInfo.wounds, diceInfo.hits, diceInfo.attacks].forEach((dices, i) => {
 		if (dices.length > 0) {
 			const diceTrayLine = document.createElement('div');
+			const titleElement = document.createElement('div');
+			diceTrayLine.title = titlesTexts[i];
 			diceTrayLine.classList.add('dice-tray-line')
+			diceTrayLine.classList.add(`player-${playerId}`)
+			if (dices === diceInfo.saves) {
+				diceTrayLine.classList.add('opponent-roll')
+			}
+			titleElement.append(titles[i]);
+			diceTrayLine.append(titleElement);
 			dices.forEach(value => {
 				const dice = document.createElement('div');
 				diceTrayLine.append(dice);
 				dice.classList.add(`dice`);
 				dice.classList.add(`dice-${value}`);
 			});
-			const titleElement = document.createElement('div');
-			titleElement.append(titles[i]);
-			diceTrayLine.append(titleElement);
 			diceHistorySection.insertBefore(diceTrayLine, diceHistorySection.firstChild);
 		}
 	});
+	const line = document.createElement('div');
+	line.classList.add('line');
+	const separator = document.createElement('div');
+	separator.classList.add('dice-separator');
+	separator.classList.add(`player-${playerId}`);
+	separator.append(name);
+	separator.append(line);
+	diceHistorySection.insertBefore(separator, diceHistorySection.firstChild);
 }
 
 game.onUpdate = (state) => {
@@ -404,3 +415,5 @@ loadRosterInputPlayer2.addEventListener('change', async (e) => {
 	const settings = roster2settings(entries);
 	localStorage.setItem('game-settings-player2', JSON.stringify(settings));
 });
+
+window.game = game;

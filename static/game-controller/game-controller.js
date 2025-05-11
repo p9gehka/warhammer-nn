@@ -206,7 +206,7 @@ export class Game {
 								}
 							});
 						});
-					})
+					});
 				}
 
 				if (state.phase === Phase.Reinforcements) {
@@ -222,7 +222,7 @@ export class Game {
 						await new Promise(resolve => setTimeout(resolve, 50));
 					}
 					if (lastAction?.misc?.diceHistory) {
-						this.onUpdateDiceHistory(lastAction.misc.diceHistory);
+						this.onUpdateDiceHistory(lastAction.misc.diceHistory, this.gameSettings.rangedWeapons[lastAction.id][lastAction.weaponId].name);
 					}
 				}
 

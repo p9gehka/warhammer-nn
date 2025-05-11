@@ -19,7 +19,7 @@ export class Rect {
 		for (let x = this.x; x < this.x+this.width; x++) {
 			for (let y = this.y; y < this.y+this.height; y++) {
 				points.push([x, y]);
-			}		
+			}
 		}
 		return points;
 	}
