@@ -40,14 +40,17 @@ export function getRawDataset(argenv, argagent) {
 	const env = argenv ?? new Warhammer({ gameSettings, battlefields });
 	const agent = argagent ?? new MoveAgent();
 
-	function getStateAndAnswer() {	
+	function getStateAndAnswer() {
 		env.reset();
 		const selectTurn = [0, 2, 4, 6, 8];
-		let choosedTurn = selectTurn[getRandomInteger(0, selectTurn.length)];
 
+		let choosedTurn = selectTurn[getRandomInteger(0, selectTurn.length)];
 		if (choosedTurn !== 0) {
 			env.turn = choosedTurn - 1;
-			env.step({ action: BaseAction.NextPhase });
+
+			do {
+				env.step({ action: BaseAction.NextPhase });
+			} while(env.turn !== choosedTurn)
 		}
 
 		let state = env.getState();
@@ -60,7 +63,7 @@ export function getRawDataset(argenv, argagent) {
 		}
 
 		state = env.getState();
-		const { orderIndex, order } = agent.playStep(state, { selected: playerModelSelected });
+		const { orderIndex, order }  = agent.playStep(state, { selected: playerModelSelected });
 		env.step({ ...order, id: selected });
 
 		const input = agent.getInput(state, { selected: playerModelSelected })

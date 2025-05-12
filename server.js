@@ -3,7 +3,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { Warhammer } from './static/environment/warhammer.js';
 import { PlayerAgent } from './static/players/player-agent.js';
-import { PlayerEasy } from './static/players/player-easy.js';
 import { Rewarder } from './students/student.js';
 import { filterObjByKeys } from './static/utils/index.js';
 import { PlayerEasy } from './static/players/player-easy.js';

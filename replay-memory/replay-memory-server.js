@@ -15,7 +15,8 @@ const replayMemory = new ReplayMemory(replayMemorySize);
 const app = express();
 
 let locked = false;
-app.use(express.json({ limit: '50mb' }));
+
+app.use(express.json({ limit: '200mb' }));
 app.use(express.static(__dirname + '/../static'));
 
 app.get('/get_memory', (req,res) => res.sendFile(path.resolve('./static/memory.html')));
