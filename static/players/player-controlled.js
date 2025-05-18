@@ -3,6 +3,7 @@ import { shotDice } from './dice.js';
 import { createArmyRules } from '../army-rules/army-rules.js';
 
 export class PlayerControlled {
+	static name = 'Human';
 	_shootingQueue = [];
 	_diceSequence = [];
 	_shootingTargeting = {};
@@ -13,6 +14,7 @@ export class PlayerControlled {
 		this._selectedModel = 0;
 		this.armyRule = createArmyRules(this, this.env.gameSettings.armyRule[this.playerId], this.env.gameSettings.detachment[this.playerId]);
 	}
+	async load() {}
 	async playStep() {
 		const orders = await this.orderPromise;
 		return orders.reduce((_, order) => this._playStep(order), null);

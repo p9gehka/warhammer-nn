@@ -13,23 +13,28 @@ const moveAgents = {
 
 export class PlayerAgent {
 	static cascad = [MoveAgent60x44.settings]
+	static name = 'Computer';
 	_selectedModel = null;
 	constructor(playerId, env) {
 		this.env = env;
 		this.playerId = playerId;
 		this.opponentId = (playerId+1) % 2;
 		this._selectedModel = 0;
-		const agentKey = env.battlefield.size.join();
-		this.agents = {
-			[Phase.Movement]: moveAgents[agentKey],
-			[Phase.Shooting]: new ShootInHightIdAgent(),
-		};
+
 		this.steps = {
 			[Phase.Movement]: (order) => this.moveStep(order),
 			[Phase.Shooting]: (order) => this.shootStep(order),
 		}
 	}
+
 	async load() {
+		const agentKey = this.env.battlefield.size.join();
+
+		this.agents = {
+			[Phase.Movement]: moveAgents[agentKey],
+			[Phase.Shooting]: new ShootInHightIdAgent(),
+		};
+
 		await this.agents[Phase.Movement].load();
 		await this.agents[Phase.Shooting].load();
 	}

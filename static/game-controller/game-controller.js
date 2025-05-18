@@ -4,11 +4,15 @@ import { Deploy, DeployEnvironment } from '../environment/deploy.js'
 import { add, sub, eq, len } from '../utils/vec2.js'
 import { PlayerControlled } from '../players/player-controlled.js';
 import { PlayerAgent } from '../players/player-agent.js'
+import { players } from '../players/players.js';
 import { getDeployModelOrders, getSetTargetOrder, doneOrder, getSelectModelOrder, getMoveOrders } from '../players/player-orders.js';
 
 import battlefields from '../settings/battlefields.json' assert { type: 'json' };
 
 export class Game {
+	player0Type = PlayerControlled.name;
+	player1Type = PlayerAgent.name;
+
 	constructor(canvas) {
 		canvas.addEventListener('mousedown', (e) => { event.preventDefault(); })
 		canvas.addEventListener('click', (event) => {
@@ -66,6 +70,10 @@ export class Game {
 		const battlefieldSettingsLS = battlefields[battlefieldName];
 		const settingsLSPlayer1 = localStorage.getItem('game-settings-player1');
 		const settingsLSPlayer2 = localStorage.getItem('game-settings-player2');
+
+		this.player0Type = localStorage.getItem('player0Type') ?? this.player0Type;
+		this.player1Type = localStorage.getItem('player1Type') ?? this.player1Type;
+
 		if (!settingsLSPlayer1 || !battlefieldSettingsLS || !settingsLSPlayer2) {
 			return;
 		}
@@ -142,8 +150,8 @@ export class Game {
 		this.env = new Warhammer({ gameSettings: this.deploy.getSettings(), battlefields: this.deploy.getBattlefields() });
 
 		this.reinforcementsPlayers = [new DeployEnvironment(0, this.env), new DeployEnvironment(1, this.env)];
-		this.agents = [new PlayerControlled(0, this.env), new PlayerAgent(1, this.env)];
-		await this.agents[1].load()
+		this.agents = [new players[this.player0Type](0, this.env), new players[this.player1Type](1, this.env)];
+		await Promise.all([this.agents[0].load(), this.agents[1].load()]);
 		this.play();
 	}
 

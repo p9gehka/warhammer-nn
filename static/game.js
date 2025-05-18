@@ -16,6 +16,7 @@ import { Mission } from './environment/mission.js';
 import { DiceTray } from './players/dice.js';
 import { getArmyRulesRenderer } from './army-rules/army-rules-renderer.js'
 import { updateTable } from './gui/update-table.js';
+import { players } from './players/players.js';
 import avatars from '../settings/avatars.json' assert { type: 'json' };
 import gameSettings from './settings/game-settings.json' assert { type: 'json' };
 import allBattlefields from './settings/battlefields.json' assert { type: 'json' };
@@ -39,10 +40,12 @@ const nextPhaseBtn = document.getElementById("next-phase-button");
 const settingsDialog = document.getElementById("settings-dialog");
 const closeSettingsDialog = document.getElementById("close-settings-dialog");
 const unitsStrip = document.getElementById("units-strip");
+const loadRosterInputPlayer0 = document.getElementById("load-roster-player0");
 const loadRosterInputPlayer1 = document.getElementById("load-roster-player1");
-const loadRosterInputPlayer2 = document.getElementById("load-roster-player2");
 
 const battlefieldSelect = document.getElementById("battlefield-select");
+const player0TypeSelect = document.getElementById("player0-type-select");
+const player1TypeSelect = document.getElementById("player1-type-select");
 const reloadBtn = document.getElementById("game-reload");
 const missionSection = document.getElementById("mission-section");
 const unitName = document.getElementById("unit-name");
@@ -304,6 +307,7 @@ function updateShootingQueue(state) {
 }
 
 drawBattlefieldOptions();
+drawPlayerTypeOptions();
 drawOrders();
 
 const diceTray = new DiceTray();
@@ -338,9 +342,27 @@ function drawBattlefieldOptions() {
 	});
 }
 
-battlefieldSelect.addEventListener('change', (e) => {
-	localStorage.setItem('battlefield-name', battlefieldSelect.selectedOptions[0].value);
-});
+function drawPlayerTypeOptions() {
+	Object.values(players).forEach(player => {
+		const option = document.createElement('OPTION');
+		option.innerHTML = player.name;
+		option.value = player.name;
+		player0TypeSelect.appendChild(option);
+		player1TypeSelect.appendChild(option.cloneNode(true));
+	});
+}
+
+player0TypeSelect.value = game.player0Type;
+player1TypeSelect.value = game.player1Type;
+player0TypeSelect.addEventListener(
+	'change', () => localStorage.setItem('player0Type', player0TypeSelect.selectedOptions[0].value)
+);
+player1TypeSelect.addEventListener(
+	'change', () => localStorage.setItem('player1Type', player1TypeSelect.selectedOptions[0].value)
+);
+battlefieldSelect.addEventListener(
+	'change', () => localStorage.setItem('battlefield-name', battlefieldSelect.selectedOptions[0].value)
+);
 
 nextPhaseBtn.addEventListener('click', () => {
 	game.orderResolve([nextPhaseOrder]);
@@ -394,7 +416,7 @@ function getEntries(file, options) {
 	return new Promise(resolve => fr.onload = (e) => resolve(JSON.parse(e.target.result)));
 }
 
-loadRosterInputPlayer1.addEventListener('change', async (e) => {
+loadRosterInputPlayer0.addEventListener('change', async (e) => {
 	var file = e.target.files[0];
 	if (!file) {
 		return;
@@ -405,7 +427,7 @@ loadRosterInputPlayer1.addEventListener('change', async (e) => {
 	localStorage.setItem('game-settings-player1', JSON.stringify(settings));
 });
 
-loadRosterInputPlayer2.addEventListener('change', async (e) => {
+loadRosterInputPlayer1.addEventListener('change', async (e) => {
 	var file = e.target.files[0];
 	if (!file) {
 		return;

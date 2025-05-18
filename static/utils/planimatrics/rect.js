@@ -16,8 +16,8 @@ export class Rect {
 	getAllPoints() {
 		const points = [];
 
-		for (let x = this.x; x < this.x+this.width; x++) {
-			for (let y = this.y; y < this.y+this.height; y++) {
+		for (let x = Math.ceil(this.x); x < Math.floor(this.x+this.width); x++) {
+			for (let y = Math.ceil(this.y); y < Math.floor(this.y+this.height); y++) {
 				points.push([x, y]);
 			}
 		}
