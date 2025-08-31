@@ -17,11 +17,11 @@ import { DiceTray } from './players/dice.js';
 import { getArmyRulesRenderer } from './army-rules/army-rules-renderer.js'
 import { updateTable } from './gui/update-table.js';
 import { players } from './players/players.js';
-import avatars from '../settings/avatars.json' assert { type: 'json' };
-import gameSettings from './settings/game-settings.json' assert { type: 'json' };
-import allBattlefields from './settings/battlefields.json' assert { type: 'json' };
+import avatars from '../settings/avatars.json' with { type: 'json' };
+import gameSettings from './settings/game-settings.json' with { type: 'json' };
+import allBattlefields from './settings/battlefields.json' with { type: 'json' };
 
-import config from './game.config.json' assert { type: 'json' };
+import config from './game.config.json' with { type: 'json' };
 
 
 const startBtn = document.getElementById('start');
@@ -50,7 +50,6 @@ const reloadBtn = document.getElementById("game-reload");
 const missionSection = document.getElementById("mission-section");
 const unitName = document.getElementById("unit-name");
 const unitSection = document.getElementById("unit-section");
-const unitStatsHeader = document.getElementById("unit-stats-header");
 const diceHistorySection = document.getElementById("dice-history-section");
 const rollDice = document.getElementById("roll-dice");
 const diceTrayElement = document.getElementById("dice-tray");
@@ -140,7 +139,6 @@ function updateUnitSection(selectedUnit) {
 	unitSection.innerHTML = '';
 	const haveSelectedUnit = selectedUnit === null || selectedUnit === undefined;
 
-	unitStatsHeader.classList.toggle('hidden', haveSelectedUnit)
 	if (haveSelectedUnit) {
 		return;
 	}
@@ -157,15 +155,10 @@ function updateUnitSection(selectedUnit) {
 		const modelStats = document.createElement("div");
 		modelStats.classList.add('model-stats');
 
-		const stats = document.createElement('div');
-		stats.classList.add('stats');
-		for (let key of modelProfilesFiels) {
-			const cell = document.createElement('div');
-			cell.append(game.gameSettings.modelProfiles[modelId][key]);
-			stats.append(cell);
-		}
+		const stats = modelProfilesFiels.map(key => game.gameSettings.modelProfiles[modelId][key]);
+		// stats.classList.add('stats');
 
-		modelStats.append(stats);
+		modelStats.title = stats.join(' ');
 
 		modelStats.append(`${modelId} ${game.gameSettings.modelNames[modelId]} ${state.modelsWounds[modelId]} ${state.modelsStamina[modelId]} `);
 		

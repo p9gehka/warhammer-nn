@@ -1,37 +1,10 @@
 import { len, sub } from '../utils/vec2.js';
-import { deployment } from '../battlefield/deployment.js';
-import { Rect } from '../utils/planimatrics/rect.js';
-import { Circle } from '../utils/planimatrics/circle.js';
 import { getRandomInteger } from '../utils/index.js';
+import { deployment } from '../battlefield/deployment.js';
+import { Mission, missionMap} from './mission-map.js';
 
-export const Mission = {
-	BehindEnemyLines: 'BehindEnemyLines',
-	EngageOnAllFronts: 'EngageOnAllFronts',
-	Cleanse: 'Cleanse',
-	EstablishLocus: 'EstablishLocus',
-	DefendStronhold: 'DefendStronhold',
-	SecureNoMansLand: 'SecureNoMansLand',
-	ExtendBattleLines: 'ExtendBattleLines',
-	Assassination: 'Assassination',
-	NoPrisoners: 'NoPrisoners',
-	OverwhelmingForce: 'OverwhelmingForce',
-	StormHostileObjective: 'StormHostileObjective',
-	BringItDown: 'BringItDown',
-	AreaDenial: 'AreaDenial',
+export { Mission } from './mission-map.js';
 
-	RecoverAssets: 'RecoverAssets',
-	CullTheHorde: 'CullTheHorde',
-	Containment: 'Containment',
-	MarketForDeath: 'MarkedForDeath',
-	Sabotage: 'Sabotage'
-}
-
-const size = [60, 44];
-const center = [30, 22];
-
-function onBattlefield(position) {
-	return !isNaN(position[0]);
-}
 export class MissionController {
 	fixedMission = [
 		Mission.BehindEnemyLines, Mission.Cleanse, Mission.EstablishLocus, Mission.EngageOnAllFronts,
@@ -118,214 +91,19 @@ export class MissionController {
 	}
 	scoreSecondaryVP(state, profiles, categories) {
 		let secondaryVP = 0;
-		const battlefield = state.battlefield;
 		const activePlayerId = state.player;
 		const opponentPlayer = (state.player + 1) % 2;
+		const battlefield = state.battlefield;
 		const playerDeployment = new deployment[battlefield.deployment];
 		const completed = [];
-		if (this.secondary.includes(Mission.BehindEnemyLines)) {
-			const hollyWithinCounter = state.players[state.player].units.filter(unit => {
-				const modelsOnBattlefield = unit.models.filter(modelId => onBattlefield(state.models[modelId]));
-				return modelsOnBattlefield.length > 0 && modelsOnBattlefield.every(modelId => playerDeployment.include(opponentPlayer, state.models[modelId]) && !categories[modelId].includes('aircraft'));
-			}).length;
 
-			if (hollyWithinCounter >= 2) {
-				secondaryVP += 1;
+		this.secondary.forEach(key => {
+			const { completed: missionCompleted, secondaryVP: missionSecondaryVP } = missionMap[key].scoreSecondaryVP(state, profiles, categories);
+			secondaryVP += missionSecondaryVP;
+			if (missionCompleted) {
+				completed.push(key);
 			}
-			if(hollyWithinCounter > 0) {
-				secondaryVP += 3;
-				completed.push(Mission.BehindEnemyLines);
-			}
-		}
-
-		if (this.secondary.includes(Mission.RecoverAssets)) {
-
-		}
-
-		if (this.secondary.includes(Mission.EngageOnAllFronts)) {
-			const quatres = [new Rect(0, 0, 30, 22), new Rect(0, 25, 30, 22), new Rect(33, 0, 30, 22), new Rect(33, 25, 30, 22)];
-			const centerCircle = [new Circle(...center, 6)]
-			let quatrCounters = [0, 0, 0, 0];
-
-			state.players[state.player].units.forEach(unit => {
-				const modelsOnBattlefield = unit.models.filter(modelId => onBattlefield(state.models[modelId]));
-				if(modelsOnBattlefield.length === 0) {
-					return;
-				}
-				quatres.forEach((quatr, i) => {
-					if(modelsOnBattlefield.every(modelId =>
-						quatr.include(...state.models[modelId]) && !centerCircle.includes(...state.models[modelId])
-					)) {
-						quatrCounters[i]++;
-					}
-				});
-			});
-
-			const totalQuatres = quatrCounters.filter(v => v !== 0).length;
-			if (totalQuatres === 4) {
-				secondaryVP += 2;
-			}
-			if(totalQuatres >= 3) {
-				secondaryVP += 2;
-				completed.push(Mission.EngageOnAllFronts);
-			}
-		}
-
-		if (this.secondary.includes(Mission.Cleanse)) {
-			const cleanseMarkers = [...playerDeployment.nomansland_markers];
-			const opponentDeploymentMarker = playerDeployment.deploy_markers[opponentPlayer];
-			if (opponentDeploymentMarker !== undefined) {
-				cleanseMarkers.push(opponentDeploymentMarker);
-			}
-			const objectiveControl = Array(cleanseMarkers.length).fill(0);
-			state.players.forEach((player, modelPlayerId) => {
-				player.models.forEach(modelId => {
-					cleanseMarkers.forEach((markerPosition, i) => {
-						const modelPosition = state.models[modelId];
-						if (len(sub(modelPosition, markerPosition)) <= playerDeployment.objective_marker_control_distance) {
-							const ocSign = modelPlayerId === activePlayerId ? 1 : -1;
-							const oc = profiles[modelId].oc * ocSign;
-							objectiveControl[i] += oc;
-						}
-					});
-				})
-			});
-			const cleanedMarkersCount = objectiveControl.filter(oc => oc > 0).length;
-			if (cleanedMarkersCount >= 2) {
-				secondaryVP += 2;
-			}
-			if(cleanedMarkersCount >= 1) {
-				secondaryVP += 2;
-				completed.push(Mission.Cleanse);
-			}
-		}
-
-		if (this.secondary.includes(Mission.EstablishLocus)) {
-			let center6Circle = new Circle(...center, 6);
-			let inOpponentDeploy = false;
-			let inCenter = false;
-
-			for (let modelId of state.players[state.player].models) {
-				if (playerDeployment.include(opponentPlayer, state.models[modelId])) {
-					inOpponentDeploy = true;
-					continue;
-				} else if (center6Circle.include(...state.models[modelId])) {
-					inCenter = true;
-				}
-			}
-
-			if (inOpponentDeploy) {
-				secondaryVP += 2;
-			} 
-
-			if (inCenter || inOpponentDeploy) {
-				secondaryVP += 2;
-				completed.push(Mission.EstablishLocus);
-			}
-		}
-
-		if (this.secondary.includes(Mission.SecureNoMansLand)) {
-			const objectiveControl = Array(playerDeployment.nomansland_markers.length).fill(0);
-			state.players.forEach((player, modelPlayerId) => {
-				player.models.forEach(modelId => {
-					playerDeployment.nomansland_markers.forEach((markerPosition, i) => {
-						const modelPosition = state.models[modelId];
-						if (len(sub(modelPosition, markerPosition)) <= playerDeployment.objective_marker_control_distance) {
-							const ocSign = modelPlayerId === activePlayerId ? 1 : -1;
-							const oc = profiles[modelId].oc * ocSign;
-							objectiveControl[i] += oc;
-						}
-					});
-				})
-			});
-			const securedNoMansCount = objectiveControl.filter(oc => oc > 0).length;
-			if (securedNoMansCount >= 2) {
-				secondaryVP += 3;
-			}
-			if(securedNoMansCount >= 1) {
-				secondaryVP += 2;
-				completed.push(Mission.SecureNoMansLand);
-			}
-		}
-
-		if (this.secondary.includes(Mission.AreaDenial)) {
-			let center6Circle = new Circle(...center, 6);
-			let center3Circle = new Circle(...center, 3);
-			let in3Center = false;
-			let opponent6Center = false;
-			let opponent3Center = false;
-
-			for(let unit of state.players[state.player].units) {
-				const modelsOnBattlefield = unit.models.filter(modelId => onBattlefield(state.models[modelId]));
-				in3Center = modelsOnBattlefield.length > 0 && modelsOnBattlefield.some(modelId => center3Circle.include(...state.models[modelId]));
-				if (in3Center) {
-					break;
-				}
-			}
-
-			for(let unit of state.players[opponentPlayer].units) {
-				const modelsOnBattlefield = unit.models.filter(modelId => onBattlefield(state.models[modelId]));
-				if (!opponent6Center) {
-					opponent6Center = modelsOnBattlefield.length > 0 && modelsOnBattlefield.some(modelId => center6Circle.include(...state.models[modelId]));
-				}
-				opponent3Center = modelsOnBattlefield.length > 0 && modelsOnBattlefield.some(modelId => center3Circle.include(...state.models[modelId]));
-				if (opponent3Center)  {
-					break;
-				}
-			}
-
-			if (in3Center && !opponent3Center) {
-				secondaryVP += 2;
-			}
-
-			if (in3Center && !opponent6Center) {
-				secondaryVP += 3;
-			}
-		}
-
-		if (this.secondary.includes(Mission.DefendStronhold)) {
-			const ownDelploymentMarker = playerDeployment.deploy_markers[activePlayerId] ?? [NaN, NaN];
-			let markerControl = 0;
-			state.players.forEach((player, modelPlayerId) => {
-				player.models.forEach(modelId => {
-					const modelPosition = state.models[modelId];
-					if (len(sub(modelPosition, ownDelploymentMarker)) <= playerDeployment.objective_marker_control_distance) {
-						const ocSign = modelPlayerId === activePlayerId ? 1 : -1;
-						const oc = profiles[modelId].oc * ocSign;
-						markerControl += oc;
-					}
-				})
-			});
-
-			if (markerControl > 0) {
-				secondaryVP += 3;
-				completed.push(Mission.DefendStronhold);
-			}
-		}
-
-		if (this.secondary.includes(Mission.ExtendBattleLines)) {
-			const objectiveControl = Array(playerDeployment.nomansland_markers.length).fill(0);
-			state.players.forEach((player, modelPlayerId) => {
-				player.models.forEach(modelId => {
-					playerDeployment.nomansland_markers.forEach((markerPosition, i) => {
-						const modelPosition = state.models[modelId];
-						if (len(sub(modelPosition, markerPosition)) <= playerDeployment.objective_marker_control_distance) {
-							const ocSign = modelPlayerId === activePlayerId ? 1 : -1;
-							const oc = profiles[modelId].oc * ocSign;
-							objectiveControl[i] += oc;
-						}
-					});
-				})
-			});
-			const markerControlCounter = objectiveControl.filter(oc => oc > 0).length;
-			if (markerControlCounter >= 2) {
-				secondaryVP += 3;
-			}
-			if(markerControlCounter >= 1) {
-				secondaryVP += 2;
-				completed.push(Mission.ExtendBattleLines);
-			}
-		}
+		});
 
 		if (this.isTactical) {
 			this.secondary = this.secondary.filter(mission => !completed.includes(mission));

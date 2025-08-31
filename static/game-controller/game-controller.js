@@ -7,7 +7,7 @@ import { PlayerAgent } from '../players/player-agent.js'
 import { players } from '../players/players.js';
 import { getDeployModelOrders, getSetTargetOrder, doneOrder, getSelectModelOrder, getMoveOrders } from '../players/player-orders.js';
 
-import battlefields from '../settings/battlefields.json' assert { type: 'json' };
+import battlefields from '../settings/battlefields.json' with { type: 'json' };
 
 export class Game {
 	player0Type = PlayerControlled.name;

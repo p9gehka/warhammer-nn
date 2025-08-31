@@ -90,5 +90,5 @@ export const deployment = {
 	"medium36_7": Medium36_7,
 	"medium36_8": Medium36_8,
 	"medium36_9": Medium36_9,
-	"medium36_10": Medium36_10
+	"medium36_10": Medium36_10,
 }

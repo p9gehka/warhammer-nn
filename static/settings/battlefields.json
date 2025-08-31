@@ -117,5 +117,12 @@
 		"deployment": "displayOfMight",
 		"primary_mission": "take_and_hold",
 		"secondary_mission": "chilling_rain"
+	},
+	"pariaNexus1TippingPoint": {
+		"size": [60, 44],
+		"terrain": "paria-nexus-1",
+		"deployment": "tippingPoint",
+		"primary_mission": "take_and_hold",
+		"secondary_mission": "chilling_rain"
 	}
 }

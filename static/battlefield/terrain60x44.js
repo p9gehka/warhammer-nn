@@ -1,5 +1,8 @@
 import { Terrain } from './terrain-common.js';
-import { footprint10x7, footprint5x2, footprint2x2, footprintRotatedDegrees } from './terrain-helper.js';
+import {
+	footprint10x7, footprint5x2, footprint2x2, footprintRotatedDegrees,
+	footprint6x4, footprint10x5, footprint12x6,
+} from './terrain-helper.js';
 
 
 export class GeeseValdas13 extends Terrain {
@@ -222,6 +225,23 @@ export class GeeseValdasII_s extends Terrain {
 	]
 
 	craters = [[7, 32], [18, 16], [53,12], [42,28]];
+}
+
+export class PariaNexus1 extends Terrain {
+	rectangleFootprints = [
+		footprint12x6(12, 5, 90),
+		footprint12x6(4, 22, 0),
+		footprint12x6(22, 28, 90),
+		footprint6x4(32, 0, 90), 
+		footprint10x5(23, 10, 45), 
+		footprint6x4(26, 21, 135),
+		footprint6x4(34, 23, -45),
+		footprint10x5(37, 34, -135), 
+		footprint6x4(32, 38, 90),
+		footprint12x6(44, 4, 90),
+		footprint12x6(44, 16, 0),
+		footprint12x6(54, 28, 90),
+	]
 }
 
 // [[3, 13], [18, 11], [35, 12], [11, 28], [26, 21], [7, 25], [7, 32], [18, 16]].map(([x, y]) => [60-x, 44-y]).join()

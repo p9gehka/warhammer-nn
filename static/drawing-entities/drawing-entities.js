@@ -1,5 +1,5 @@
-import base from '../settings/base.json' assert { type: 'json' };
-import avatars from '../settings/avatars.json' assert { type: 'json' };
+import base from '../settings/base.json' with { type: 'json' };
+import avatars from '../settings/avatars.json' with { type: 'json' };
 
 import { Drawing } from './drawing.js';
 import { deployment } from '../battlefield/deployment.js';

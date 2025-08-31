@@ -145,13 +145,11 @@ body {
 	color: white;
 	text-transform: uppercase;
 }
-.unit-stats-header, .stats, .model-stats {
+
+.model-stats {
 	display: flex;
 }
-.unit-stats-header div, .stats div {
-	text-align: center;
-	width: 30px;
-}
+
 .unit-section .model-stats.selected{
 	background: #cccccc;
 }

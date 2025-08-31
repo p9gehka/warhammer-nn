@@ -11,6 +11,7 @@ import {
 	GeeseValdasII_o,
 	GeeseValdasII_r,
 	GeeseValdasII_s,
+	PariaNexus1,
 } from './terrain60x44.js';
 
 import {
@@ -48,4 +49,5 @@ export const terrain = {
 	"agrellan-favelas": AgrellanFavelas,
 	"firecast-outpost": FirecastOutpost,
 	"stantion-fortress": StantionFortress,
+	"paria-nexus-1": PariaNexus1,
 }
