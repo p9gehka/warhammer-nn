@@ -1,0 +1,871 @@
+{
+    "units": [
+        {
+            "name": "cadre fireblade",
+            "models": [
+                0
+            ]
+        },
+        {
+            "name": "ethereal",
+            "models": [
+                1
+            ]
+        },
+        {
+            "name": "strike team",
+            "models": [
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11
+            ]
+        },
+        {
+            "name": "stealth battlesuits",
+            "models": [
+                12,
+                13,
+                14
+            ]
+        },
+        {
+            "name": "ghostkeel battlesuit",
+            "models": [
+                15
+            ]
+        }
+    ],
+    "modelProfiles": [
+        {
+            "M": "6\"",
+            "T": "3",
+            "SV": "4+",
+            "W": "3",
+            "LD": "7+",
+            "OC": "1"
+        },
+        {
+            "M": "6\"",
+            "T": "3",
+            "SV": "5+",
+            "W": "3",
+            "LD": "6+",
+            "OC": "1"
+        },
+        {
+            "M": "6\"",
+            "T": "3",
+            "SV": "4+",
+            "W": "1",
+            "LD": "7+",
+            "OC": "2"
+        },
+        {
+            "M": "6\"",
+            "T": "3",
+            "SV": "4+",
+            "W": "1",
+            "LD": "7+",
+            "OC": "2"
+        },
+        {
+            "M": "6\"",
+            "T": "3",
+            "SV": "4+",
+            "W": "1",
+            "LD": "7+",
+            "OC": "2"
+        },
+        {
+            "M": "6\"",
+            "T": "3",
+            "SV": "4+",
+            "W": "1",
+            "LD": "7+",
+            "OC": "2"
+        },
+        {
+            "M": "6\"",
+            "T": "3",
+            "SV": "4+",
+            "W": "1",
+            "LD": "7+",
+            "OC": "2"
+        },
+        {
+            "M": "6\"",
+            "T": "3",
+            "SV": "4+",
+            "W": "1",
+            "LD": "7+",
+            "OC": "2"
+        },
+        {
+            "M": "6\"",
+            "T": "3",
+            "SV": "4+",
+            "W": "1",
+            "LD": "7+",
+            "OC": "2"
+        },
+        {
+            "M": "6\"",
+            "T": "3",
+            "SV": "4+",
+            "W": "1",
+            "LD": "7+",
+            "OC": "2"
+        },
+        {
+            "M": "6\"",
+            "T": "3",
+            "SV": "4+",
+            "W": "1",
+            "LD": "7+",
+            "OC": "2"
+        },
+        {
+            "M": "6\"",
+            "T": "3",
+            "SV": "4+",
+            "W": "1",
+            "LD": "7+",
+            "OC": "2"
+        },
+        {
+            "M": "8\"",
+            "T": "4",
+            "SV": "3+",
+            "W": "2",
+            "LD": "7+",
+            "OC": "1"
+        },
+        {
+            "M": "8\"",
+            "T": "4",
+            "SV": "3+",
+            "W": "2",
+            "LD": "7+",
+            "OC": "1"
+        },
+        {
+            "M": "8\"",
+            "T": "4",
+            "SV": "3+",
+            "W": "2",
+            "LD": "7+",
+            "OC": "1"
+        },
+        {
+            "M": "10\"",
+            "T": "8",
+            "SV": "2+",
+            "W": "12",
+            "LD": "7+",
+            "OC": "3"
+        }
+    ],
+    "categories": [
+        [
+            "character",
+            "infantry",
+            "grenades",
+            "faction: t'au empire",
+            "cadre fireblade"
+        ],
+        [
+            "character",
+            "infantry",
+            "ethereal",
+            "faction: t'au empire"
+        ],
+        [
+            "infantry",
+            "battleline",
+            "grenades",
+            "markerlight",
+            "fire warrior",
+            "strike team",
+            "faction: t'au empire"
+        ],
+        [
+            "infantry",
+            "fly",
+            "battlesuit",
+            "stealth",
+            "faction: t'au empire"
+        ],
+        [
+            "vehicle",
+            "walker",
+            "fly",
+            "smoke",
+            "battlesuit",
+            "ghostkeel"
+        ]
+    ],
+    "rules": [
+        [
+            "for the greater good",
+            "leader"
+        ],
+        [
+            "leader",
+            "feel no pain"
+        ],
+        [
+            "for the greater good"
+        ],
+        [
+            "for the greater good"
+        ],
+        [
+            "for the greater good"
+        ],
+        [
+            "for the greater good"
+        ],
+        [
+            "for the greater good"
+        ],
+        [
+            "for the greater good"
+        ],
+        [
+            "for the greater good"
+        ],
+        [
+            "for the greater good"
+        ],
+        [
+            "for the greater good"
+        ],
+        [
+            "for the greater good"
+        ],
+        [
+            "infiltrators",
+            "stealth",
+            "for the greater good"
+        ],
+        [
+            "infiltrators",
+            "stealth",
+            "for the greater good"
+        ],
+        [
+            "infiltrators",
+            "stealth",
+            "for the greater good"
+        ],
+        [
+            "deadly demise d3",
+            "infiltrators",
+            "lone operative",
+            "stealth",
+            "for the greater good"
+        ]
+    ],
+    "modelNames": [
+        "Cadre Fireblade",
+        "Ethereal",
+        "Fire Warrior Shas'ui",
+        "Fire Warrior w/ pulse rifle",
+        "Fire Warrior w/ pulse rifle",
+        "Fire Warrior w/ pulse rifle",
+        "Fire Warrior w/ pulse rifle",
+        "Fire Warrior w/ pulse rifle",
+        "Fire Warrior w/ pulse rifle",
+        "Fire Warrior w/ pulse rifle",
+        "Fire Warrior w/ pulse rifle",
+        "Fire Warrior w/ pulse rifle",
+        "Stealth Shas'vre",
+        "Stealth Shas'ui w/ burst cannon",
+        "Stealth Shas'ui w/ burst cannon",
+        "Ghostkeel Battlesuit"
+    ],
+    "rangedWeapons": [
+        [
+            {
+                "name": "Fireblade pulse rifle",
+                "Range": "30\"",
+                "A": "1",
+                "BS": "3+",
+                "S": "5",
+                "AP": "-0",
+                "D": "2",
+                "Keywords": "Rapid Fire 1"
+            }
+        ],
+        [],
+        [
+            {
+                "name": "Pulse pistol",
+                "Range": "12\"",
+                "A": "1",
+                "BS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Pistol"
+            },
+            {
+                "name": "Pulse rifle",
+                "Range": "30\"",
+                "A": "1",
+                "BS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Rapid Fire 1"
+            },
+            {
+                "name": "Support turret",
+                "Range": "30\"",
+                "A": "2",
+                "BS": "5+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Indirect Fire, Twin-linked"
+            }
+        ],
+        [
+            {
+                "name": "Pulse rifle",
+                "Range": "30\"",
+                "A": "1",
+                "BS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Rapid Fire 1"
+            },
+            {
+                "name": "Pulse pistol",
+                "Range": "12\"",
+                "A": "1",
+                "BS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Pistol"
+            }
+        ],
+        [
+            {
+                "name": "Pulse rifle",
+                "Range": "30\"",
+                "A": "1",
+                "BS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Rapid Fire 1"
+            },
+            {
+                "name": "Pulse pistol",
+                "Range": "12\"",
+                "A": "1",
+                "BS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Pistol"
+            }
+        ],
+        [
+            {
+                "name": "Pulse rifle",
+                "Range": "30\"",
+                "A": "1",
+                "BS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Rapid Fire 1"
+            },
+            {
+                "name": "Pulse pistol",
+                "Range": "12\"",
+                "A": "1",
+                "BS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Pistol"
+            }
+        ],
+        [
+            {
+                "name": "Pulse rifle",
+                "Range": "30\"",
+                "A": "1",
+                "BS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Rapid Fire 1"
+            },
+            {
+                "name": "Pulse pistol",
+                "Range": "12\"",
+                "A": "1",
+                "BS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Pistol"
+            }
+        ],
+        [
+            {
+                "name": "Pulse rifle",
+                "Range": "30\"",
+                "A": "1",
+                "BS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Rapid Fire 1"
+            },
+            {
+                "name": "Pulse pistol",
+                "Range": "12\"",
+                "A": "1",
+                "BS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Pistol"
+            }
+        ],
+        [
+            {
+                "name": "Pulse rifle",
+                "Range": "30\"",
+                "A": "1",
+                "BS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Rapid Fire 1"
+            },
+            {
+                "name": "Pulse pistol",
+                "Range": "12\"",
+                "A": "1",
+                "BS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Pistol"
+            }
+        ],
+        [
+            {
+                "name": "Pulse rifle",
+                "Range": "30\"",
+                "A": "1",
+                "BS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Rapid Fire 1"
+            },
+            {
+                "name": "Pulse pistol",
+                "Range": "12\"",
+                "A": "1",
+                "BS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Pistol"
+            }
+        ],
+        [
+            {
+                "name": "Pulse rifle",
+                "Range": "30\"",
+                "A": "1",
+                "BS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Rapid Fire 1"
+            },
+            {
+                "name": "Pulse pistol",
+                "Range": "12\"",
+                "A": "1",
+                "BS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Pistol"
+            }
+        ],
+        [
+            {
+                "name": "Pulse rifle",
+                "Range": "30\"",
+                "A": "1",
+                "BS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Rapid Fire 1"
+            },
+            {
+                "name": "Pulse pistol",
+                "Range": "12\"",
+                "A": "1",
+                "BS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "Pistol"
+            }
+        ],
+        [
+            {
+                "name": "Fusion blaster",
+                "Range": "12\"",
+                "A": "1",
+                "BS": "4+",
+                "S": "9",
+                "AP": "-4",
+                "D": "D6",
+                "Keywords": "Melta 2"
+            }
+        ],
+        [
+            {
+                "name": "Burst cannon",
+                "Range": "18\"",
+                "A": "4",
+                "BS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Burst cannon",
+                "Range": "18\"",
+                "A": "4",
+                "BS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Twin fusion blaster",
+                "Range": "12\"",
+                "A": "1",
+                "BS": "4+",
+                "S": "9",
+                "AP": "-4",
+                "D": "D6",
+                "Keywords": "Melta 2, Twin-linked"
+            },
+            {
+                "name": "➤ Cyclic ion raker - standard",
+                "Range": "36\"",
+                "A": "6",
+                "BS": "4+",
+                "S": "7",
+                "AP": "-1",
+                "D": "2",
+                "Keywords": "-"
+            },
+            {
+                "name": "➤ Cyclic ion raker - overcharge",
+                "Range": "36\"",
+                "A": "6",
+                "BS": "4+",
+                "S": "8",
+                "AP": "-2",
+                "D": "3",
+                "Keywords": "Hazardous"
+            }
+        ]
+    ],
+    "meleeWeapons": [
+        [
+            {
+                "name": "Close combat weapon",
+                "Range": "Melee",
+                "A": "3",
+                "WS": "4+",
+                "S": "3",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Honour stave",
+                "Range": "Melee",
+                "A": "2",
+                "WS": "4+",
+                "S": "5",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Close combat weapon",
+                "Range": "Melee",
+                "A": "1",
+                "WS": "5+",
+                "S": "3",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Close combat weapon",
+                "Range": "Melee",
+                "A": "1",
+                "WS": "5+",
+                "S": "3",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Close combat weapon",
+                "Range": "Melee",
+                "A": "1",
+                "WS": "5+",
+                "S": "3",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Close combat weapon",
+                "Range": "Melee",
+                "A": "1",
+                "WS": "5+",
+                "S": "3",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Close combat weapon",
+                "Range": "Melee",
+                "A": "1",
+                "WS": "5+",
+                "S": "3",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Close combat weapon",
+                "Range": "Melee",
+                "A": "1",
+                "WS": "5+",
+                "S": "3",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Close combat weapon",
+                "Range": "Melee",
+                "A": "1",
+                "WS": "5+",
+                "S": "3",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Close combat weapon",
+                "Range": "Melee",
+                "A": "1",
+                "WS": "5+",
+                "S": "3",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Close combat weapon",
+                "Range": "Melee",
+                "A": "1",
+                "WS": "5+",
+                "S": "3",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Close combat weapon",
+                "Range": "Melee",
+                "A": "1",
+                "WS": "5+",
+                "S": "3",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Battlesuit fists",
+                "Range": "Melee",
+                "A": "2",
+                "WS": "5+",
+                "S": "4",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Battlesuit fists",
+                "Range": "Melee",
+                "A": "2",
+                "WS": "5+",
+                "S": "4",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Battlesuit fists",
+                "Range": "Melee",
+                "A": "2",
+                "WS": "5+",
+                "S": "4",
+                "AP": "-0",
+                "D": "1",
+                "Keywords": "-"
+            }
+        ],
+        [
+            {
+                "name": "Ghostkeel fists",
+                "Range": "Melee",
+                "A": "3",
+                "WS": "5+",
+                "S": "6",
+                "AP": "-0",
+                "D": "2",
+                "Keywords": "-"
+            }
+        ]
+    ],
+    "abilities": [
+        [
+            "volley fire",
+            "crack shot",
+            "leader"
+        ],
+        [
+            "coordinated leadership",
+            "invulnerable save (5+)",
+            "leader",
+            "failure is not an option"
+        ],
+        [
+            "suppression volley",
+            "ds8 support turret"
+        ],
+        [
+            "suppression volley",
+            "ds8 support turret"
+        ],
+        [
+            "suppression volley",
+            "ds8 support turret"
+        ],
+        [
+            "suppression volley",
+            "ds8 support turret"
+        ],
+        [
+            "suppression volley",
+            "ds8 support turret"
+        ],
+        [
+            "suppression volley",
+            "ds8 support turret"
+        ],
+        [
+            "suppression volley",
+            "ds8 support turret"
+        ],
+        [
+            "suppression volley",
+            "ds8 support turret"
+        ],
+        [
+            "suppression volley",
+            "ds8 support turret"
+        ],
+        [
+            "suppression volley",
+            "ds8 support turret"
+        ],
+        [
+            "forward observers"
+        ],
+        [
+            "forward observers"
+        ],
+        [
+            "forward observers"
+        ],
+        [
+            "stealth drones",
+            "damaged: 1-4 wounds remaining"
+        ]
+    ],
+    "armyRule": "For The Greater Good",
+    "detachment": [
+        "kauyon"
+    ]
+}

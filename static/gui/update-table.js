@@ -5,7 +5,6 @@ export function updateTable(size, input, table) {
 	const data = getStateTensor([input], ...size, channels)[0].arraySync();
 	const fragment = new DocumentFragment();
 	const nextline = Math.floor(Math.sqrt(data[0][0][0].length)) + 1;
-	console.log(nextline)
 	for(let row of data[0]) {
 		const rowEl = document.createElement('TR');
 		for (let cell of row) {
@@ -14,7 +13,7 @@ export function updateTable(size, input, table) {
 			rowEl.appendChild(cellEl);
 			if (cell[0] > 0) {
 				cellEl.classList.add('player-model-cell');
-			} else if (cell[4] === 1)  {
+			} else if (cell[4] === 1) {
 				cellEl.classList.add('opponent-model-cell');
 			} else if (cell[2] !== 0) {
 				cellEl.classList.add('object-cell');

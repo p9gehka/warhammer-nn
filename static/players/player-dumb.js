@@ -1,7 +1,9 @@
 import { BaseAction } from '../environment/warhammer.js';
 
 export class PlayerDumb {
-	constructor(env) {
+	static name = 'Dumb';
+	constructor(playerId, env) {
+		this.playerId = playerId;
 		this.env = env;
 	}
 	playStep() {
@@ -10,4 +12,7 @@ export class PlayerDumb {
 	}
 	reset() {}
 	load() {}
+	getState() {
+		return { selected: 0, shootingQueue: [], shootingTargeting: {} };
+	}
 }
